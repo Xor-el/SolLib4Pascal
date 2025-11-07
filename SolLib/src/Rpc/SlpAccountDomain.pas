@@ -85,7 +85,6 @@ type
     FAccounts: TList<IAccountMeta>;
     function GetCount: Integer;
     function GetAccountList: TList<IAccountMeta>;
-    function CompareAccountMeta(const A, B: IAccountMeta): Integer;
     function FindByPublicKey(const Key: IPublicKey): IAccountMeta;
   public
     /// <summary>
@@ -206,53 +205,65 @@ begin
   end;
 end;
 
-function TAccountKeysList.CompareAccountMeta(const A, B: IAccountMeta): Integer;
-begin
-  // Signers always come before non-signers
-  if A.IsSigner <> B.IsSigner then
-  begin
-    if A.IsSigner then Exit(-1) else Exit(1);
-  end;
-
-  // Writable accounts always come before read-only accounts
-  if A.IsWritable <> B.IsWritable then
-  begin
-    if A.IsWritable then Exit(-1) else Exit(1);
-  end;
-
-  // Otherwise, sort by pubkey, stringwise.
-  Result := Sign(CompareText(A.PublicKey.Key, B.PublicKey.Key));
-end;
-
 function TAccountKeysList.GetCount: Integer;
 begin
   Result := FAccounts.Count;
 end;
 
 function TAccountKeysList.GetAccountList: TList<IAccountMeta>;
+type
+  TMetaIdx = record
+    Item  : IAccountMeta;
+    Index : Integer;
+  end;
 var
   I: Integer;
+  Pair: TMetaIdx;
+  Pairs: TList<TMetaIdx>;
 begin
-  // Return a newly allocated list
-  Result := TList<IAccountMeta>.Create();
+  Pairs := TList<TMetaIdx>.Create;
   try
+    Pairs.Capacity := FAccounts.Count;
     for I := 0 to FAccounts.Count - 1 do
     begin
-      Result.Add(FAccounts[I]);
+      Pair := Default(TMetaIdx);
+      Pair.Item  := FAccounts[I];
+      Pair.Index := I;
+      Pairs.Add(Pair);
     end;
 
-    // Sort using CompareAccountMeta
-    Result.Sort(
-      TComparer<IAccountMeta>.Construct(
-        function(const L, R: IAccountMeta): Integer
+    Pairs.Sort(
+      TComparer<TMetaIdx>.Construct(
+        function (const L, R: TMetaIdx): Integer
         begin
-          Result := CompareAccountMeta(L, R);
+          if L.Item.IsSigner <> R.Item.IsSigner then
+            Exit(IfThen(L.Item.IsSigner, -1, 1));
+
+          if L.Item.IsWritable <> R.Item.IsWritable then
+            Exit(IfThen(L.Item.IsWritable, -1, 1));
+
+          Result := Sign(CompareText(L.Item.PublicKey.Key, R.Item.PublicKey.Key));
+          if Result <> 0 then
+            Exit(Result);
+
+          // Stable tiebreaker: preserve insertion order
+          //Result := Sign(L.Index - R.Index);
+          Result := TComparer<Integer>.Default.Compare(L.Index, R.Index);
         end
       )
     );
-  except
-    Result.Free;
-    raise;
+
+    Result := TList<IAccountMeta>.Create;
+    try
+      Result.Capacity := Pairs.Count;
+      for I := 0 to Pairs.Count - 1 do
+        Result.Add(Pairs[I].Item);
+    except
+      Result.Free;
+      raise;
+    end;
+  finally
+    Pairs.Free;
   end;
 end;
 
