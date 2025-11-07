@@ -76,6 +76,9 @@ __history/
 __recovery/
 *.~*
 
+# MadExcept
+*.mes
+
 # Castalia statistics file (since XE7 Castalia is distributed with Delphi)
 *.stat
 

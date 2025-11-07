@@ -1,4 +1,4 @@
-﻿{ ****************************************************************************** }
+{ ****************************************************************************** }
 { *                            SolLib Library                                  * }
 { *               Copyright (c) 2025 Ugochukwu Mmaduekwe                       * }
 { *                Github Repository <https://github.com/Xor-el>               * }
@@ -397,21 +397,95 @@ end;
 
 procedure TTransactionBuilder.Sign(const ASigners: TList<IAccount>);
 var
-  Signer: IAccount;
-  SignatureBytes: TBytes;
+  I, UsedCount: Integer;
+  OrderedKeys: TArray<string>;
+  GroupedSignersByKey: TObjectDictionary<string, TList<IAccount>>;
+  NextIndexByKey: TDictionary<string, Integer>;
+  SignatureCacheByKey: TDictionary<string, string>;
+  Signer, SignerToUse: IAccount;
+  PubKey, Key, SigBase58: string;
+  SignersForKey: TList<IAccount>;
+  SigBytes: TBytes;
 begin
+
   if (ASigners = nil) or (ASigners.Count = 0) then
     raise Exception.Create('no signers for the transaction');
 
   if FMessageBuilder.FeePayer = nil then
     raise Exception.Create('fee payer is required');
 
+  // Build the canonical message once; all signatures must verify against this
   FSerializedMessage := FMessageBuilder.Build;
 
-  for Signer in ASigners do
-  begin
-    SignatureBytes := Signer.Sign(FSerializedMessage);
-    FSignatures.Add(TEncoders.Base58.EncodeData(SignatureBytes));
+  // Keys in the exact order (and multiplicity) the runtime expects for signatures.
+  OrderedKeys := FMessageBuilder.GetAccountMetaPublicKeys;
+
+  // ---- Build: pubkey -> list of matching signer accounts -------------------
+  GroupedSignersByKey := TObjectDictionary<string, TList<IAccount>>.Create([doOwnsValues]);
+  NextIndexByKey := TDictionary<string, Integer>.Create;
+  SignatureCacheByKey := TDictionary<string, string>.Create;
+  try
+    // Group ASigners by their pubkey, preserving duplicates & input order
+    for I := 0 to ASigners.Count - 1 do
+    begin
+      Signer := ASigners[I];
+      if Signer = nil then
+        Continue;
+
+      PubKey := Signer.PublicKey.Key;
+
+      if not GroupedSignersByKey.TryGetValue(PubKey, SignersForKey) then
+      begin
+        SignersForKey := TList<IAccount>.Create;
+        GroupedSignersByKey.Add(PubKey, SignersForKey);
+      end;
+      SignersForKey.Add(Signer);
+    end;
+
+    // ---- Produce signatures strictly in message order ----------------------
+    for Key in OrderedKeys do
+    begin
+      // If no signer provided for this key, skip (caller may enforce required count later)
+      if not GroupedSignersByKey.TryGetValue(Key, SignersForKey) or (SignersForKey.Count = 0) then
+        Continue;
+
+      // If we've already signed this pubkey for this message, reuse the cached signature
+      if SignatureCacheByKey.TryGetValue(Key, SigBase58) then
+      begin
+        FSignatures.Add(SigBase58);
+
+        // Still advance the attribution cursor so duplicates in ASigners are "consumed" in order
+        if NextIndexByKey.TryGetValue(Key, UsedCount) then
+          NextIndexByKey[Key] := UsedCount + 1
+        else
+          NextIndexByKey.Add(Key, 1);
+
+        Continue;
+      end;
+
+      // First time we encounter this key: pick the next unused signer for this key (or reuse the first if exhausted)
+      if not NextIndexByKey.TryGetValue(Key, UsedCount) then
+        UsedCount := 0;
+
+      if UsedCount < SignersForKey.Count then
+        SignerToUse := SignersForKey[UsedCount]
+      else
+        SignerToUse := SignersForKey[0];
+
+      NextIndexByKey.AddOrSetValue(Key, UsedCount + 1);
+
+      // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
+      SigBytes  := SignerToUse.Sign(FSerializedMessage);
+      SigBase58 := TEncoders.Base58.EncodeData(SigBytes);
+
+      SignatureCacheByKey.Add(Key, SigBase58);
+      FSignatures.Add(SigBase58);
+    end;
+
+  finally
+    SignatureCacheByKey.Free;
+    NextIndexByKey.Free;
+    GroupedSignersByKey.Free;
   end;
 end;
 
@@ -552,21 +626,95 @@ end;
 
 procedure TVersionedTransactionBuilder.Sign(const ASigners: TList<IAccount>);
 var
-  Signer: IAccount;
-  SignatureBytes: TBytes;
+  I, UsedCount: Integer;
+  OrderedKeys: TArray<string>;
+  GroupedSignersByKey: TObjectDictionary<string, TList<IAccount>>;
+  NextIndexByKey: TDictionary<string, Integer>;
+  SignatureCacheByKey: TDictionary<string, string>;
+  Signer, SignerToUse: IAccount;
+  PubKey, Key, SigBase58: string;
+  SignersForKey: TList<IAccount>;
+  SigBytes: TBytes;
 begin
+
   if (ASigners = nil) or (ASigners.Count = 0) then
     raise Exception.Create('no signers for the transaction');
 
   if FMessageBuilder.FeePayer = nil then
     raise Exception.Create('fee payer is required');
 
+  // Build the canonical message once; all signatures must verify against this
   FSerializedMessage := FMessageBuilder.Build;
 
-  for Signer in ASigners do
-  begin
-    SignatureBytes := Signer.Sign(FSerializedMessage);
-    FSignatures.Add(TEncoders.Base58.EncodeData(SignatureBytes));
+  // Keys in the exact order (and multiplicity) the runtime expects for signatures.
+  OrderedKeys := FMessageBuilder.GetAccountMetaPublicKeys;
+
+  // ---- Build: pubkey -> list of matching signer accounts -------------------
+  GroupedSignersByKey := TObjectDictionary<string, TList<IAccount>>.Create([doOwnsValues]);
+  NextIndexByKey := TDictionary<string, Integer>.Create;
+  SignatureCacheByKey := TDictionary<string, string>.Create;
+  try
+    // Group ASigners by their pubkey, preserving duplicates & input order
+    for I := 0 to ASigners.Count - 1 do
+    begin
+      Signer := ASigners[I];
+      if Signer = nil then
+        Continue;
+
+      PubKey := Signer.PublicKey.Key;
+
+      if not GroupedSignersByKey.TryGetValue(PubKey, SignersForKey) then
+      begin
+        SignersForKey := TList<IAccount>.Create;
+        GroupedSignersByKey.Add(PubKey, SignersForKey);
+      end;
+      SignersForKey.Add(Signer);
+    end;
+
+    // ---- Produce signatures strictly in message order ----------------------
+    for Key in OrderedKeys do
+    begin
+      // If no signer provided for this key, skip (caller may enforce required count later)
+      if not GroupedSignersByKey.TryGetValue(Key, SignersForKey) or (SignersForKey.Count = 0) then
+        Continue;
+
+      // If we've already signed this pubkey for this message, reuse the cached signature
+      if SignatureCacheByKey.TryGetValue(Key, SigBase58) then
+      begin
+        FSignatures.Add(SigBase58);
+
+        // Still advance the attribution cursor so duplicates in ASigners are "consumed" in order
+        if NextIndexByKey.TryGetValue(Key, UsedCount) then
+          NextIndexByKey[Key] := UsedCount + 1
+        else
+          NextIndexByKey.Add(Key, 1);
+
+        Continue;
+      end;
+
+      // First time we encounter this key: pick the next unused signer for this key (or reuse the first if exhausted)
+      if not NextIndexByKey.TryGetValue(Key, UsedCount) then
+        UsedCount := 0;
+
+      if UsedCount < SignersForKey.Count then
+        SignerToUse := SignersForKey[UsedCount]
+      else
+        SignerToUse := SignersForKey[0];
+
+      NextIndexByKey.AddOrSetValue(Key, UsedCount + 1);
+
+      // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
+      SigBytes  := SignerToUse.Sign(FSerializedMessage);
+      SigBase58 := TEncoders.Base58.EncodeData(SigBytes);
+
+      SignatureCacheByKey.Add(Key, SigBase58);
+      FSignatures.Add(SigBase58);
+    end;
+
+  finally
+    SignatureCacheByKey.Free;
+    NextIndexByKey.Free;
+    GroupedSignersByKey.Free;
   end;
 end;
 

@@ -1,4 +1,4 @@
-﻿{ ****************************************************************************** }
+{ ****************************************************************************** }
 { *                            SolLib Library                                  * }
 { *               Copyright (c) 2025 Ugochukwu Mmaduekwe                       * }
 { *                Github Repository <https://github.com/Xor-el>               * }
@@ -36,6 +36,7 @@ type
     ['{2D9F4B28-8A9F-4B12-A6A6-2F7B4F2E9B6C}']
     function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilder;
     function Build: TBytes;
+    function GetAccountMetaPublicKeys: TArray<string>;
     function GetInstructions: TList<ITransactionInstruction>;
     function GetRecentBlockHash: string;
     procedure SetRecentBlockHash(const Value: string);
@@ -63,6 +64,7 @@ type
 
     function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilder;
     function Build: TBytes; virtual;
+    function GetAccountMetaPublicKeys: TArray<string>;
 
     function GetInstructions: TList<ITransactionInstruction>;
     function GetRecentBlockHash: string;
@@ -388,6 +390,21 @@ begin
     end;
   finally
     KeysList.Free;
+  end;
+end;
+
+function TMessageBuilder.GetAccountMetaPublicKeys: TArray<string>;
+var
+  Metas: TList<IAccountMeta>;
+  I: Integer;
+begin
+  Metas := GetAccountKeysMeta;
+  try
+    SetLength(Result, Metas.Count);
+    for I := 0 to Metas.Count - 1 do
+      Result[I] := Metas[I].PublicKey.Key;
+  finally
+    Metas.Free;
   end;
 end;
 
