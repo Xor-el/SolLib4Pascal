@@ -131,6 +131,9 @@ uses
   SlpTokenWalletExample in '..\src\SlpTokenWalletExample.pas',
   SlpTransactionDecodingExample in '..\src\SlpTransactionDecodingExample.pas',
   SlpTransactionExample in '..\src\SlpTransactionExample.pas',
+  SlpTransactionExtendedExample in '..\src\SlpTransactionExtendedExample.pas',
+  SlpAssociatedTokenAccountsExample in '..\src\SlpAssociatedTokenAccountsExample.pas',
+  SlpMultisigExample in '..\src\SlpMultisigExample.pas',
   SlpExample in '..\src\SlpExample.pas',
   SlpTokenMintHelper in '..\src\SlpTokenMintHelper.pas';
 
