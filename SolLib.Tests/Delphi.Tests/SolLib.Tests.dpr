@@ -11,15 +11,22 @@
 }
 
 {$WARN DUPLICATE_CTOR_DTOR OFF}
-{$IFDEF CONSOLE_TESTRUNNER}
-{$APPTYPE CONSOLE}
+
+{$IFNDEF TESTINSIGHT}
+  {$IFDEF CONSOLE_TESTRUNNER}
+    {$APPTYPE CONSOLE}
+  {$ENDIF}
 {$ENDIF}
 
 uses
-  Forms,
-  TestFramework,
-  GUITestRunner,
-  TextTestRunner,
+{$IFDEF TESTINSIGHT}
+   TestInsight.DUnit,
+{$ELSE}
+   Forms,
+   TestFramework,
+   GUITestRunner,
+   TextTestRunner,
+{$ENDIF}
   SlpTokenModel in '..\..\SolLib\src\Token\SlpTokenModel.pas',
   SlpTokenMintResolver in '..\..\SolLib\src\Token\SlpTokenMintResolver.pas',
   SlpTokenDomain in '..\..\SolLib\src\Token\SlpTokenDomain.pas',
@@ -169,10 +176,14 @@ uses
 
 begin
 
+{$IFDEF TESTINSIGHT}
+   TestInsight.DUnit.RunRegisteredTests;
+{$ELSE}
   Application.Initialize;
   if IsConsole then
     TextTestRunner.RunRegisteredTests
   else
     GUITestRunner.RunRegisteredTests;
+{$ENDIF}
 
 end.
