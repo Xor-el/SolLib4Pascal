@@ -317,55 +317,6 @@ begin
   Writeln(Format('%s%s%s%s%s', [Prefix, EventPart, CategoryWithColon, Reset, Msg]));
 end;
 
-(*
-procedure TConsoleLogger.Log(ALevel: TLogLevel; const EventId: TEventId;
-  const MessageTemplate: string; const Args: array of const);
-const
-  DIM_COLOR = #27'[90m'; // dim gray
-var
-  Msg, Prefix, LevelStr, Color, Reset, CategoryPart, Dim: string;
-begin
-  if not IsEnabled(ALevel) then Exit;
-
-  Msg      := FormatMessage(MessageTemplate, Args);
-  LevelStr := LevelToString(ALevel);
-
-  // Apply ANSI only if enabled
-  if FAnsiEnabled then
-  begin
-    Color := LevelAnsiColor(ALevel);
-    Reset := ResetAnsiColor;
-    Dim   := DIM_COLOR;
-  end
-  else
-  begin
-    Color := '';
-    Reset := '';
-    Dim   := '';
-  end;
-
-  // Category part (including brackets) dimmed, only if not empty
-  if FCategory <> '' then
-    CategoryPart := Dim + '[' + FCategory + ']' + Reset
-  else
-    CategoryPart := '';
-
-  // Start building the prefix
-  Prefix := Dim + FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now) + ' ' +
-            Dim + '[' + Color + LevelStr + Reset + Dim + ']' + ' ';
-
-  // Event ID if present (include trailing ')' in dim)
-  if not EventId.IsEmpty then
-    Prefix := Prefix + '(' + Dim + IntToStr(EventId.Id) + ':' + EventId.Name + Dim + ') ';
-
-  // Append category and final colon (include ':' in dim)
-  if CategoryPart <> '' then
-    Prefix := Prefix + CategoryPart + Dim + ': ';
-
-  // Output the full log line
-  Writeln(Prefix + Reset + Msg);
-end;  *)
-
 procedure TConsoleLogger.LogException(ALevel: TLogLevel; const E: Exception; const MessageTemplate: string; const Args: array of const);
 begin
   LogException(ALevel, TEventId.Empty, E, MessageTemplate, Args);
