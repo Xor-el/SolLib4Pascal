@@ -1,4 +1,4 @@
-{ * ************************************************************************ * }
+﻿{ * ************************************************************************ * }
 { *                              SolLib Library                              * }
 { *                  Copyright (c) 2025 Ugochukwu Mmaduekwe                  * }
 { *              Github Repository <https://github.com/Xor-el>               * }
@@ -15,21 +15,13 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SolLibRpcSocketMockTestCase;
+{$IFDEF DELPHI}
+  {$DEFINITIONINFO ON}       // IDE navigation; no binary impact
+  {$STRINGCHECKS OFF}
+  {$WARN DUPLICATE_CTOR_DTOR OFF}
 
-interface
-
-uses
-  SolLibTestCase;
-
-type
-  TSolLibRpcSocketMockTestCase = class abstract(TSolLibTestCase)
-  protected
-    const TestnetStreamingUrl = 'wss://api.testnet.solana.com';
-
-  end;
-
-implementation
-
-end.
+  {$IF CompilerVersion < 34.0}
+    {$MESSAGE ERROR 'This Library requires Delphi 10.4 Sydney or higher.'}
+  {$IFEND}
+{$ENDIF}
 

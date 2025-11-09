@@ -1,4 +1,4 @@
-{ * ************************************************************************ * }
+﻿{ * ************************************************************************ * }
 { *                              SolLib Library                              * }
 { *                  Copyright (c) 2025 Ugochukwu Mmaduekwe                  * }
 { *              Github Repository <https://github.com/Xor-el>               * }
@@ -15,21 +15,21 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SolLibRpcSocketMockTestCase;
+{$IFDEF FPC}
+  {$MESSAGE FATAL 'This Library does not support Free Pascal Compiler (FPC). Please use Delphi instead.'}
 
-interface
+  {$IFDEF ENDIAN_BIG}
+    {$MESSAGE FATAL 'This Library does not support "Big Endian" processors yet.'}
+  {$ENDIF}
 
-uses
-  SolLibTestCase;
-
-type
-  TSolLibRpcSocketMockTestCase = class abstract(TSolLibTestCase)
-  protected
-    const TestnetStreamingUrl = 'wss://api.testnet.solana.com';
-
-  end;
-
-implementation
-
-end.
+  {$MODE DELPHI}
+  {$MACRO ON}
+  {$NOTES OFF}
+  {$OPTIMIZATION LEVEL3}
+  {$OPTIMIZATION NOUSELOADMODIFYSTORE}
+  {$OPTIMIZATION ORDERFIELDS}
+  {$OPTIMIZATION DEADVALUES}
+  {$IFDEF CPUI386}  {$OPTIMIZATION USEEBP} {$ENDIF}
+  {$IFDEF CPUX86_64} {$OPTIMIZATION USERBP} {$ENDIF}
+{$ENDIF}
 
