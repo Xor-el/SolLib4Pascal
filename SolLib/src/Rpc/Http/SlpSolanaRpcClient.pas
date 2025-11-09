@@ -619,7 +619,8 @@ type
     function HandleTransactionDetails(AParameter: TTransactionDetailsFilterType; ADefault: TTransactionDetailsFilterType = TTransactionDetailsFilterType.Full): TKeyValue;
 
   protected
-    function BuildSerializer: TJsonSerializer; override;
+
+    function GetConverters: TList<TJsonConverter>; override;
 
     /// <summary>
     /// Build the request for the passed RPC method and parameters.
@@ -801,24 +802,16 @@ begin
   inherited;
 end;
 
-function TSolanaRpcClient.BuildSerializer: TJsonSerializer;
+function TSolanaRpcClient.GetConverters: TList<TJsonConverter>;
 var
-  Converters: TList<TJsonConverter>;
+  LRpcConverters: TList<TJsonConverter>;
 begin
-  Converters := TJsonConverterFactory.GetRpcConverters();
+  LRpcConverters := TJsonConverterFactory.GetRpcConverters();
   try
-    Converters.Add(TEncodingConverter.Create);
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-
-    Result := TJsonSerializerFactory.CreateSerializer(
-      TEnhancedContractResolver.Create(
-        TJsonMemberSerialization.Public,
-        TJsonNamingPolicy.CamelCase
-      ),
-      Converters
-    );
+    Result := inherited GetConverters();
+    Result.AddRange(LRpcConverters);
   finally
-    Converters.Free;
+    LRpcConverters.Free;
   end;
 end;
 

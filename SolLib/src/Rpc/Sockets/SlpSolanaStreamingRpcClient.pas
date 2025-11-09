@@ -27,7 +27,6 @@ uses
   System.Rtti,
   System.TypInfo,
   System.Generics.Collections,
-  System.Generics.Defaults,
   System.JSON,
   System.Json.Serializers,
 {$IFDEF FPC}
@@ -49,12 +48,50 @@ uses
   SlpValueUtils,
   SlpNullable,
   SlpLogger,
-  SlpJsonKit,
-  SlpEncodingConverter,
-  SlpJsonStringEnumConverter,
   SlpJsonConverterFactory;
 
 type
+  /// <summary>
+  /// Represents the channel of a given subscription.
+  /// </summary>
+  TSubscriptionChannel = class sealed
+  public
+    /// <summary>
+    /// Account subscription (<c>accountSubscribe</c>).
+    /// </summary>
+    const TokenAccount = 'TokenAccount';
+
+    /// <summary>
+    /// Account subscription (<c>accountSubscribe</c>).
+    /// </summary>
+    const Account = 'Account';
+
+    /// <summary>
+    /// Logs subscription (<c>logsSubscribe</c>).
+    /// </summary>
+    const Logs = 'Logs';
+
+    /// <summary>
+    /// Program subscription (<c>programSubscribe</c>).
+    /// </summary>
+    const &Program = 'Program';
+
+    /// <summary>
+    /// Signature subscription (<c>signatureSubscribe</c>).
+    /// </summary>
+    const Signature = 'Signature';
+
+    /// <summary>
+    /// Slot subscription (<c>slotSubscribe</c>).
+    /// </summary>
+    const Slot = 'Slot';
+
+    /// <summary>
+    /// Root subscription (<c>rootSubscribe</c>).
+    /// </summary>
+    const Root = 'Root';
+  end;
+
   ISubscriptionState = interface;
 
   /// <summary>
@@ -225,7 +262,7 @@ type
     procedure SetSubscriptionId(const AValue: Integer);
 
     /// <summary>The channel subscribed.</summary>
-    function  GetChannel: TSubscriptionChannel;
+    function  GetChannel: string;
 
     /// <summary>The current state of the subscription.</summary>
     function  GetState: TSubscriptionStatus;
@@ -256,7 +293,7 @@ type
     procedure RemoveSubscriptionChanged(const AHandler: TProc<ISubscriptionState, ISubscriptionEvent>);
 
     property SubscriptionId: Integer read GetSubscriptionId write SetSubscriptionId;
-    property Channel: TSubscriptionChannel read GetChannel;
+    property Channel: string read GetChannel;
     property State: TSubscriptionStatus read GetState;
     property LastError: string read GetLastError;
     property LastCode: string read GetLastCode;
@@ -280,11 +317,12 @@ type
   private
     FRpcClient: IStreamingRpcClient;
     FSubscriptionId: Integer;
-    FChannel: TSubscriptionChannel;
+    FChannel: string;
     FState: TSubscriptionStatus;
     FLastError: string;
     FLastCode: string;
     FAdditionalParameters: TList<TValue>;
+    FUnsubscribeMap: TArray<TPair<string, string>>;
 
     // Multicast list of handlers
     FSubs: IMulticast<TProc<ISubscriptionState, ISubscriptionEvent>>;
@@ -298,7 +336,7 @@ type
     // ISubscriptionState getters/setters
     function  GetSubscriptionId: Integer;
     procedure SetSubscriptionId(const AValue: Integer);
-    function  GetChannel: TSubscriptionChannel;
+    function  GetChannel: string;
     function  GetState: TSubscriptionStatus;
     function  GetLastError: string;
     function  GetLastCode: string;
@@ -313,7 +351,7 @@ type
     /// <param name="ARpcClient">The streaming rpc client reference.</param>
     /// <param name="AChannel">The channel of this subscription.</param>
     /// <param name="AAdditionalParameters">Additional parameters for this given subscription.</param>
-    constructor Create(const ARpcClient: IStreamingRpcClient; const AChannel: TSubscriptionChannel;
+    constructor Create(const ARpcClient: IStreamingRpcClient; const AChannel: string;
                        const AAdditionalParameters: TList<TValue> = nil); overload;
   public
     /// <summary>Destructor.</summary>
@@ -331,7 +369,7 @@ type
     /// <inheritdoc cref="ISubscriptionState.HandleData(TValue)"/>
     procedure HandleData(const AData: TValue); override;
 
-    // ISubscriptionStateGeneric<T>
+    // ISubscriptionStateWithHandler<T>
     procedure SetDataHandler(const AHandler: TProc<ISubscriptionStateWithHandler<T>, T>);
   public
     /// <summary>
@@ -341,7 +379,7 @@ type
     /// <param name="AChannel">The channel of this subscription.</param>
     /// <param name="AHandler">The handler for the data received.</param>
     /// <param name="AAdditionalParameters">Additional parameters for this given subscription.</param>
-    constructor Create(const ARpcClient: IStreamingRpcClient; const AChannel: TSubscriptionChannel;
+    constructor Create(const ARpcClient: IStreamingRpcClient; const AChannel: string;
                        const AHandler: TProc<ISubscriptionState, T>;
                        const AAdditionalParameters: TList<TValue> = nil);
 
@@ -370,7 +408,8 @@ type
 
     FLock: TCriticalSection;
 
-    procedure SendAs<T>(const AJson: string; const ASub: ISubscriptionState);
+    FUnsubscribeMap: TArray<TPair<string, string>>;
+
     /// <summary>
     /// Removes an unconfirmed subscription.
     /// </summary>
@@ -408,13 +447,6 @@ type
     /// </summary>
     /// <param name="ARoot"></param>
     procedure HandleErrorFromRoot(const ARoot: TJSONObject);
-    /// <summary>
-    /// Handles a notification message and finishes parsing the contents.
-    /// </summary>
-    /// <param name="AJsonObject">The JsonObject holding the message.</param>
-    /// <param name="AMethod">The method parameter already parsed within the message.</param>
-    /// <param name="ASubscriptionId">The subscriptionId for this message.</param>
-    procedure HandleDataMessage(const AJsonObject: TJSONObject; const AMethod: string; const ASubscriptionId: Integer);
 
     /// <summary>
     /// Conditionally includes the <c>commitment</c> option.
@@ -427,6 +459,14 @@ type
     /// A <c>TKeyValue</c> pair when included; otherwise <c>Default(TKeyValue)</c>.
     /// </returns>
     function HandleCommitment(AParameter: TCommitment; ADefault: TCommitment = TCommitment.Finalized): TKeyValue;
+
+    /// <summary>
+    /// Build the request for the passed RPC method and parameters.
+    /// </summary>
+    /// <param name="AMethod">The request's RPC method.</param>
+    /// <param name="AParameters">A list of parameters to include in the request.</param>
+    /// <returns>A JSON-RPC request object.</returns>
+    function BuildRequest(const AMethod: string; const AParameters: TList<TValue>): TJsonRpcRequest;
 
     function SubscribeAccountInfo(const APubKey: string;
       const ACallback: TProc<ISubscriptionState, TResponseValue<TAccountInfo>>;
@@ -477,21 +517,35 @@ type
 
     procedure Unsubscribe(const ASubscription: ISubscriptionState);
 
+    /// <summary>
+    /// Gets (and caches) the unsubscribe map.
+    /// </summary>
+    function GetUnsubscribeMap: TArray<TPair<string, string>>;
+
+    function GetUnsubscribeMethodName(const AChannel: string): string;
+
   protected
     procedure CleanupSubscriptions; override;
+
     procedure HandleNewMessage(const APayload: TBytes); override;
 
-    function GetUnsubscribeMethodName(const AChannel: TSubscriptionChannel): string; virtual;
-
-    function BuildSerializer: TJsonSerializer; virtual;
+    procedure SendAs<T>(const AJson: string; const ASub: ISubscriptionState);
 
     /// <summary>
-    /// Build the request for the passed RPC method and parameters.
+    /// Handles a notification message and finishes parsing the contents.
     /// </summary>
-    /// <param name="AMethod">The request's RPC method.</param>
-    /// <param name="AParameters">A list of parameters to include in the request.</param>
-    /// <returns>A JSON-RPC request object.</returns>
-    function BuildRequest(const AMethod: string; const AParameters: TList<TValue>): TJsonRpcRequest;
+    /// <param name="AJsonObject">The JsonObject holding the message.</param>
+    /// <param name="AMethod">The method parameter already parsed within the message.</param>
+    /// <param name="ASubscriptionId">The subscriptionId for this message.</param>
+    procedure HandleDataMessage(const AJsonObject: TJSONObject; const AMethod: string; const ASubscriptionId: Integer); virtual;
+
+    /// <summary>
+    /// Builds the mapping between subscription channels and their unsubscribe method names.
+    /// Override in subclasses to extend or modify mappings.
+    /// </summary>
+    function BuildUnsubscribeMap: TArray<TPair<string, string>>; virtual;
+
+    function GetConverters: TList<TJsonConverter>; override;
 
     /// <summary>
     /// Send a request synchronously.
@@ -502,7 +556,7 @@ type
     /// <typeparam name="T">The type of the subscription callback result.</typeparam>
     /// <returns>A subscription state.</returns>
     function Subscribe<T>(
-      const AChannel : TSubscriptionChannel;
+      const AChannel : string;
       const AMethod  : string;
       const ACallback: TProc<ISubscriptionState, T>
     ): ISubscriptionState; overload;
@@ -517,7 +571,7 @@ type
     /// <typeparam name="T">The type of the subscription callback result.</typeparam>
     /// <returns>A subscription state.</returns>
     function Subscribe<T>(
-      const AChannel : TSubscriptionChannel;
+      const AChannel : string;
       const AMethod  : string;
       const ACallback: TProc<ISubscriptionState, T>;
       const AParams  : TList<TValue>
@@ -538,7 +592,7 @@ implementation
 
 { TSubscriptionState }
 
-constructor TSubscriptionState.Create(const ARpcClient: IStreamingRpcClient; const AChannel: TSubscriptionChannel;
+constructor TSubscriptionState.Create(const ARpcClient: IStreamingRpcClient; const AChannel: string;
   const AAdditionalParameters: TList<TValue>);
 var
   LValue: TValue;
@@ -574,7 +628,7 @@ begin
   FSubscriptionId := AValue;
 end;
 
-function TSubscriptionState.GetChannel: TSubscriptionChannel;
+function TSubscriptionState.GetChannel: string;
 begin
   Result := FChannel;
 end;
@@ -645,7 +699,7 @@ end;
 { TSubscriptionStateGeneric<T> }
 
 constructor TSubscriptionStateWithHandler<T>.Create(const ARpcClient: IStreamingRpcClient;
-  const AChannel: TSubscriptionChannel; const AHandler: TProc<ISubscriptionState, T>;
+  const AChannel: string; const AHandler: TProc<ISubscriptionState, T>;
   const AAdditionalParameters: TList<TValue>);
 begin
   inherited Create(ARpcClient, AChannel, AAdditionalParameters);
@@ -729,25 +783,16 @@ begin
   end;
 end;
 
-
-function TSolanaStreamingRpcClient.BuildSerializer: TJsonSerializer;
+function TSolanaStreamingRpcClient.GetConverters: TList<TJsonConverter>;
 var
-  Converters: TList<TJsonConverter>;
+  LRpcConverters: TList<TJsonConverter>;
 begin
-  Converters := TJsonConverterFactory.GetRpcConverters();
+  LRpcConverters := TJsonConverterFactory.GetRpcConverters();
   try
-    Converters.Add(TEncodingConverter.Create);
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-
-    Result := TJsonSerializerFactory.CreateSerializer(
-      TEnhancedContractResolver.Create(
-        TJsonMemberSerialization.Public,
-        TJsonNamingPolicy.CamelCase
-      ),
-      Converters
-    );
+    Result := inherited GetConverters();
+    Result.AddRange(LRpcConverters);
   finally
-    Converters.Free;
+    LRpcConverters.Free;
   end;
 end;
 
@@ -1046,7 +1091,7 @@ begin
 end;
 
 function TSolanaStreamingRpcClient.Subscribe<T>(
-  const AChannel : TSubscriptionChannel;
+  const AChannel : string;
   const AMethod  : string;
   const ACallback: TProc<ISubscriptionState, T>
 ): ISubscriptionState;
@@ -1055,7 +1100,7 @@ begin
 end;
 
 function TSolanaStreamingRpcClient.Subscribe<T>(
-  const AChannel : TSubscriptionChannel;
+  const AChannel : string;
   const AMethod  : string;
   const ACallback: TProc<ISubscriptionState, T>;
   const AParams  : TList<TValue>
@@ -1362,22 +1407,38 @@ begin
   Result := ASub;
 end;
 
+function TSolanaStreamingRpcClient.BuildUnsubscribeMap: TArray<TPair<string, string>>;
+begin
+  // base mapping
+  Result := [
+    TPair<string, string>.Create(TSubscriptionChannel.Account,   'accountUnsubscribe'),
+    TPair<string, string>.Create(TSubscriptionChannel.Logs,      'logsUnsubscribe'),
+    TPair<string, string>.Create(TSubscriptionChannel.Program,  'programUnsubscribe'),
+    TPair<string, string>.Create(TSubscriptionChannel.Root,      'rootUnsubscribe'),
+    TPair<string, string>.Create(TSubscriptionChannel.Signature, 'signatureUnsubscribe'),
+    TPair<string, string>.Create(TSubscriptionChannel.Slot,      'slotUnsubscribe')
+  ];
+end;
+
+function TSolanaStreamingRpcClient.GetUnsubscribeMap: TArray<TPair<string, string>>;
+begin
+  // lazy initialization
+  if Length(FUnsubscribeMap) = 0 then
+    FUnsubscribeMap := BuildUnsubscribeMap;
+  Result := FUnsubscribeMap;
+end;
 
 function TSolanaStreamingRpcClient.GetUnsubscribeMethodName(
-  const AChannel: TSubscriptionChannel
-): string;
+  const AChannel: string): string;
+var
+  Pair: TPair<string, string>;
 begin
-  case AChannel of
-    TSubscriptionChannel.Account:   Result := 'accountUnsubscribe';
-    TSubscriptionChannel.Logs:      Result := 'logsUnsubscribe';
-    TSubscriptionChannel.Program:   Result := 'programUnsubscribe';
-    TSubscriptionChannel.Root:      Result := 'rootUnsubscribe';
-    TSubscriptionChannel.Signature: Result := 'signatureUnsubscribe';
-    TSubscriptionChannel.Slot:      Result := 'slotUnsubscribe';
-  else
-    raise EArgumentOutOfRangeException.CreateFmt(
-      'invalid message type (channel=%s)', [GetEnumName(TypeInfo(TSubscriptionChannel), Ord(AChannel))]);
-  end;
+  for Pair in GetUnsubscribeMap do
+    if SameStr(Pair.Key, AChannel) then
+      Exit(Pair.Value);
+
+  raise EArgumentOutOfRangeException.CreateFmt(
+    'invalid message type (channel=%s)', [AChannel]);
 end;
 
 end.

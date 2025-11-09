@@ -24,11 +24,16 @@ interface
 uses
   System.SysUtils,
   System.SyncObjs,
+  System.Generics.Collections,
+  System.JSON.Serializers,
 {$IFDEF FPC}
   URIParser,
 {$ELSE}
   System.Net.URLClient,
 {$ENDIF}
+  SlpJsonKit,
+  SlpEncodingConverter,
+  SlpJsonStringEnumConverter,
   SlpLogger,
   SlpWebSocketApiClient,
   SlpConnectionStatistics;
@@ -62,6 +67,16 @@ type
     constructor Create(const AUrl: string; const AClient: IWebSocketApiClient; const ALogger: ILogger);
 
     function GetNodeAddress: TURI;
+
+    /// <summary>
+    /// Override to customize the converter list.
+    /// </summary>
+    function GetConverters: TList<TJsonConverter>; virtual;
+
+    /// <summary>
+    /// Override to customize the serializer
+    /// </summary>
+    function BuildSerializer: TJsonSerializer; virtual;
 
     function GetStatistics: IConnectionStatistics;
     /// <summary>
@@ -194,6 +209,31 @@ end;
 function TStreamingRpcClient.GetNodeAddress: TURI;
 begin
   Result := FNodeAddress;
+end;
+
+function TStreamingRpcClient.GetConverters: TList<TJsonConverter>;
+begin
+  Result := TList<TJsonConverter>.Create;
+  Result.Add(TEncodingConverter.Create);
+  Result.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+end;
+
+function TStreamingRpcClient.BuildSerializer: TJsonSerializer;
+var
+  Converters: TList<TJsonConverter>;
+begin
+  Converters := GetConverters();
+  try
+    Result := TJsonSerializerFactory.CreateSerializer(
+      TEnhancedContractResolver.Create(
+        TJsonMemberSerialization.Public,
+        TJsonNamingPolicy.CamelCase
+      ),
+      Converters
+    );
+  finally
+    Converters.Free;
+  end;
 end;
 
 function TStreamingRpcClient.GetStatistics: IConnectionStatistics;

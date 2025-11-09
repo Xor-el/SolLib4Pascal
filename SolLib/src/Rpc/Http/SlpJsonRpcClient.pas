@@ -26,7 +26,6 @@ uses
   System.Rtti,
   System.Classes,
   System.Generics.Collections,
-  System.JSON.Types,
   System.JSON.Serializers,
 {$IFDEF FPC}
   URIParser,
@@ -61,7 +60,14 @@ type
 
     function GetNodeAddress: TURI;
 
-    /// Override to customize the serializer (add converters, etc.)
+    /// <summary>
+    /// Override to customize the converter list.
+    /// </summary>
+    function GetConverters: TList<TJsonConverter>; virtual;
+
+    /// <summary>
+    /// Override to customize the serializer
+    /// </summary>
     function BuildSerializer: TJsonSerializer; virtual;
 
     /// Serialize Request to JSON string.
@@ -145,14 +151,19 @@ begin
   Result := FNodeAddress;
 end;
 
+function TJsonRpcClient.GetConverters: TList<TJsonConverter>;
+begin
+  Result := TList<TJsonConverter>.Create;
+  Result.Add(TEncodingConverter.Create);
+  Result.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+end;
+
 function TJsonRpcClient.BuildSerializer: TJsonSerializer;
 var
   Converters: TList<TJsonConverter>;
 begin
-  Converters := TList<TJsonConverter>.Create;
+  Converters := GetConverters();
   try
-    Converters.Add(TEncodingConverter.Create);
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,
