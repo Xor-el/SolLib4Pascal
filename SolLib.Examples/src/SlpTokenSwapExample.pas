@@ -397,7 +397,7 @@ begin
   PollConfirmedTx(LSignature);
 
   // === Create swap account + initialize the swap ===
-  LMinSwap := LRpc.GetMinimumBalanceForRentExemption(TTokenSwapProgram.TokenSwapAccountDataSize);
+  LMinSwap := LRpc.GetMinimumBalanceForRentExemption(TTokenSwapProgram.TokenSwapDataLength);
   LBlock   := LRpc.GetLatestBlockHash;
 
   LFees := TFees.Create;
@@ -422,7 +422,7 @@ begin
         LOwner.PublicKey,
         LSwap.PublicKey,
         LMinSwap.Result,
-        TTokenSwapProgram.TokenSwapAccountDataSize,
+        TTokenSwapProgram.TokenSwapDataLength,
         TTokenSwapProgram.ProgramIdKey
       )
     )

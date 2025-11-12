@@ -268,8 +268,10 @@ type
     FSwapCurve: ISwapCurve;
 
     const
-    /// <summary>Token Swap V1 data size.</summary>
-    TokenSwapV1DataSize = 323;
+    /// <summary>
+    /// Token Swap account layout size.
+    /// </summary>
+    TokenSwapAccountDataSize = 323;
 
     function GetVersion: TSwapVersion;
     function GetIsInitialized: Boolean;
@@ -284,8 +286,10 @@ type
     function GetFees: IFees;
     function GetSwapCurve: ISwapCurve;
   public
-    /// <summary>Token Swap data size.</summary>
-    const TokenSwapDataLength = 1 + TokenSwapV1DataSize; // add one for the version enum
+    /// <summary>
+    /// Token Swap data length. // 1 (for the SwapVersion enum) + 323 (TokenSwapAccountDataSize)
+    /// </summary>
+    const TokenSwapDataLength = 1 + TokenSwapAccountDataSize; // add one for the version enum
 
     /// <summary>
     /// Deserilize a token swap from the bytes of an account

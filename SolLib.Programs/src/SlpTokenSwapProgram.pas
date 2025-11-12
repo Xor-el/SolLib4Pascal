@@ -243,8 +243,10 @@ type
     /// <summary>The owner key required to use as the fee account owner.</summary>
     class property OwnerKey: IPublicKey read GetOwnerKey;
 
-    /// <summary>Token Swap account data size.</summary>
-    const TokenSwapAccountDataSize = TTokenSwapAccount.TokenSwapDataLength;
+    /// <summary>
+    /// Token Swap data length.
+    /// </summary>
+    const TokenSwapDataLength = TTokenSwapAccount.TokenSwapDataLength;
 
     class constructor Create;
     class destructor Destroy;
