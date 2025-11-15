@@ -17,8 +17,6 @@
 
 unit SlpGetTokenAccountsByOwnerExample;
 
-{$I ..\..\SolLib\src\Include\SolLib.inc}
-
 interface
 
 uses

@@ -17,8 +17,6 @@
 
 unit SlpMultisigExample;
 
-{$I ..\..\SolLib\src\Include\SolLib.inc}
-
 interface
 
 uses

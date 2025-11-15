@@ -17,8 +17,6 @@
 
 unit SlpTransactionDecodingExample;
 
-{$I ..\..\SolLib\src\Include\SolLib.inc}
-
 interface
 
 uses
@@ -51,7 +49,7 @@ type
   ///   This example covers the full transaction lifecycle:
   ///   <list type="number">
   ///     <item>Creating and initializing accounts (mint, token, and derived system accounts).</item>
-  ///     <item>Building the transaction message using <c>ITransactionBuilder</c>.</item>
+  ///     <item>Building the transaction message using <c>TTransactionBuilder</c>.</item>
   ///     <item>Signing and serializing the transaction.</item>
   ///     <item>Decoding and inspecting the transaction structure.</item>
   ///     <item>Re-simulating the decoded transaction for validation.</item>
