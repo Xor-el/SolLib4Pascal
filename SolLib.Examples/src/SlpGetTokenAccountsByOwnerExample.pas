@@ -51,6 +51,7 @@ var
   LOwnerMain, LDelegateKey: IPublicKey;
   LResOwnerTestNet, LResOwnerMainNet, LResDelegate: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
   LAcc: TTokenAccount;
+  LTokenAccData: TTokenAccountData;
 
   // helpers
   function UiOrEmpty(const S: string): string;
@@ -58,13 +59,9 @@ var
     if S <> '' then Result := S else Result := '0';
   end;
 
-  function HasDelegatedAmount(const A: TTokenAccount): Boolean;
+  function HasDelegatedAmount(const A: TTokenAccountInfoDetails): Boolean;
   begin
-    Result := Assigned(A.Account) and
-              Assigned(A.Account.Data) and
-              Assigned(A.Account.Data.Parsed) and
-              Assigned(A.Account.Data.Parsed.Info) and
-              Assigned(A.Account.Data.Parsed.Info.DelegatedAmount);
+    Result := Assigned(A.DelegatedAmount);
   end;
 
 begin
@@ -84,11 +81,17 @@ begin
   begin
     for LAcc in LResOwnerTestNet.Result.Value do
     begin
+     if not Assigned(LAcc)
+     or not Assigned(LAcc.Account)
+     or LAcc.Account.Data.IsEmpty then
+      Continue;
+
+      LTokenAccData := LAcc.Account.Data.AsType<TTokenAccountData>;
       // Account: <pubkey> - Mint: <mint> - Balance: <ui>
       Writeln(Format('Account: %s - Mint: %s - Balance: %s',
         [LAcc.PublicKey,
-         LAcc.Account.Data.Parsed.Info.Mint,
-         UiOrEmpty(LAcc.Account.Data.Parsed.Info.TokenAmount.UiAmountString)
+         LTokenAccData.Parsed.Info.Mint,
+         UiOrEmpty(LTokenAccData.Parsed.Info.TokenAmount.UiAmountString)
          ]));
     end;
   end
@@ -107,21 +110,27 @@ begin
   begin
     for LAcc in LResOwnerMainNet.Result.Value do
     begin
-      if HasDelegatedAmount(LAcc) then
+     if not Assigned(LAcc)
+     or not Assigned(LAcc.Account)
+     or LAcc.Account.Data.IsEmpty then
+      Continue;
+
+     LTokenAccData := LAcc.Account.Data.AsType<TTokenAccountData>;
+      if HasDelegatedAmount(LTokenAccData.Parsed.Info) then
         Writeln(Format(
           'Account: %s - Mint: %s - TokenBalance: %s - Delegate: %s - DelegatedBalance: %s',
           [LAcc.PublicKey,
-           LAcc.Account.Data.Parsed.Info.Mint,
-           UiOrEmpty(LAcc.Account.Data.Parsed.Info.TokenAmount.UiAmountString),
-           LAcc.Account.Data.Parsed.Info.Delegate,
-           UiOrEmpty(LAcc.Account.Data.Parsed.Info.DelegatedAmount.UiAmountString)
+           LTokenAccData.Parsed.Info.Mint,
+           UiOrEmpty(LTokenAccData.Parsed.Info.TokenAmount.UiAmountString),
+           LTokenAccData.Parsed.Info.Delegate,
+           UiOrEmpty(LTokenAccData.Parsed.Info.DelegatedAmount.UiAmountString)
            ]))
       else
         Writeln(Format(
           'Account: %s - Mint: %s - TokenBalance: %s',
           [LAcc.PublicKey,
-           LAcc.Account.Data.Parsed.Info.Mint,
-           UiOrEmpty(LAcc.Account.Data.Parsed.Info.TokenAmount.UiAmountString)]
+           LTokenAccData.Parsed.Info.Mint,
+           UiOrEmpty(LTokenAccData.Parsed.Info.TokenAmount.UiAmountString)]
            ));
     end;
   end
@@ -141,20 +150,26 @@ begin
   begin
     for LAcc in LResDelegate.Result.Value do
     begin
-      if HasDelegatedAmount(LAcc) then
+     if not Assigned(LAcc)
+     or not Assigned(LAcc.Account)
+     or LAcc.Account.Data.IsEmpty then
+      Continue;
+
+     LTokenAccData := LAcc.Account.Data.AsType<TTokenAccountData>;
+      if HasDelegatedAmount(LTokenAccData.Parsed.Info) then
         Writeln(Format(
           'Account: %s - Mint: %s - TokenBalance: %s - Delegate: %s - DelegatedBalance: %s',
           [LAcc.PublicKey,
-           LAcc.Account.Data.Parsed.Info.Mint,
-           UiOrEmpty(LAcc.Account.Data.Parsed.Info.TokenAmount.UiAmountString),
-           LAcc.Account.Data.Parsed.Info.Delegate,
-           UiOrEmpty(LAcc.Account.Data.Parsed.Info.DelegatedAmount.UiAmountString)]))
+           LTokenAccData.Parsed.Info.Mint,
+           UiOrEmpty(LTokenAccData.Parsed.Info.TokenAmount.UiAmountString),
+           LTokenAccData.Parsed.Info.Delegate,
+           UiOrEmpty(LTokenAccData.Parsed.Info.DelegatedAmount.UiAmountString)]))
       else
         Writeln(Format(
           'Account: %s - Mint: %s - TokenBalance: %s',
           [LAcc.PublicKey,
-           LAcc.Account.Data.Parsed.Info.Mint,
-           UiOrEmpty(LAcc.Account.Data.Parsed.Info.TokenAmount.UiAmountString)]));
+           LTokenAccData.Parsed.Info.Mint,
+           UiOrEmpty(LTokenAccData.Parsed.Info.TokenAmount.UiAmountString)]));
     end;
   end
   else

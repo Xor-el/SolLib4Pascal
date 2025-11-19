@@ -56,9 +56,10 @@ type
     /// <param name="AOwnerPubKey">Public key of account owner query, as base-58 encoded string.</param>
     /// <param name="ATokenMintPubKey">Public key of the specific token Mint to limit accounts to, as base-58 encoded string.</param>
     /// <param name="ATokenProgramId">Public key of the Token program ID that owns the accounts, as base-58 encoded string.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that holds the result and state.</returns>
-    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 
     /// <summary>
     /// Gets a recent block hash.
@@ -75,8 +76,9 @@ type
     /// <param name="AMinContextSlot">The minimum slot at which to perform preflight transaction checks.</param>
     /// <param name="ASkipPreflight">If true skip the preflight transaction checks (default false).</param>
     /// <param name="APreFlightCommitment">The block commitment used for preflight.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>;
+    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>;
   end;
 
   /// <summary>
@@ -99,13 +101,13 @@ type
     function GetBalance(const APubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<UInt64>>;
 
     /// <inheritdoc />
-    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 
     /// <inheritdoc />
     function GetLatestBlockHash(ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TLatestBlockHash>>;
 
     /// <inheritdoc />
-    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>;
+    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>;
   end;
 
 implementation
@@ -129,14 +131,14 @@ begin
   Result := FClient.GetLatestBlockHash(ACommitment);
 end;
 
-function TTokenWalletRpcProxy.GetTokenAccountsByOwner(const AOwnerPubKey, ATokenMintPubKey, ATokenProgramId: string; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+function TTokenWalletRpcProxy.GetTokenAccountsByOwner(const AOwnerPubKey, ATokenMintPubKey, ATokenProgramId: string; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
-  Result := FClient.GetTokenAccountsByOwner(AOwnerPubKey, ATokenMintPubKey, ATokenProgramId, ACommitment);
+  Result := FClient.GetTokenAccountsByOwner(AOwnerPubKey, ATokenMintPubKey, ATokenProgramId, AEncoding, ACommitment);
 end;
 
-function TTokenWalletRpcProxy.SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean; ACommitment: TCommitment): TRequestResult<string>;
+function TTokenWalletRpcProxy.SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<string>;
 begin
-  Result := FClient.SendTransaction(ATransaction, AMaxRetries, AMinContextSlot, ASkipPreflight, ACommitment);
+  Result := FClient.SendTransaction(ATransaction, AMaxRetries, AMinContextSlot, ASkipPreflight, AEncoding, ACommitment);
 end;
 
 end.

@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTransactionMetaInfoTransactionConverter;
+unit SlpTokenAccountDataConverter;
 
 {$I ../Include/SolLib.inc}
 
@@ -39,11 +39,11 @@ type
   /// <summary>
   /// Handles different transaction meta encodings when deserialized.
   /// Target Delphi type is TValue (attach on a TValue property).
-  /// - JSON object   -> TValue(TTransactionInfo)
+  /// - JSON object   -> TValue(TTokenAccountData)
   /// - JSON [string] -> TValue(TArray&lt;string&gt;)
   /// Anything else     -> raises EJsonSerializationException.
   /// </summary>
-  TTransactionMetaInfoTransactionConverter = class(TJsonConverter)
+  TTokenAccountDataConverter = class(TJsonConverter)
 
   public
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
@@ -61,20 +61,20 @@ implementation
 uses
   SlpRpcModel;
 
-function TTransactionMetaInfoTransactionConverter.CanConvert
+function TTokenAccountDataConverter.CanConvert
   (ATypeInfo: PTypeInfo): Boolean;
 begin
   Result := (ATypeInfo = TypeInfo(TValue));
 end;
 
-function TTransactionMetaInfoTransactionConverter.ReadJson
+function TTokenAccountDataConverter.ReadJson
   (const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
   ObjJson: string;
   SR: TStringReader;
   JR: TJsonTextReader;
-  Tx: TTransactionInfo;
+  Tx: TTokenAccountData;
 
   Elem: TJSONValue;
   Bag: TList<string>;
@@ -86,7 +86,7 @@ begin
     AReader.Read;
 
   case AReader.TokenType of
-    // OBJECT -> TTransactionInfo via serializer
+    // OBJECT -> TTokenAccountData via serializer
     TJsonToken.StartObject:
       begin
         ObjJson := AReader.ToJson; // consumes the whole object value
@@ -94,8 +94,8 @@ begin
         try
           JR := TJsonTextReader.Create(SR);
           try
-            Tx := ASerializer.Deserialize<TTransactionInfo>(JR);
-            Result := TValue.From<TTransactionInfo>(Tx);
+            Tx := ASerializer.Deserialize<TTokenAccountData>(JR);
+            Result := TValue.From<TTokenAccountData>(Tx);
             Exit;
           finally
             JR.Free;
@@ -116,7 +116,7 @@ begin
             try
               if not(Elem.IsExactClass(TJSONString)) then
                 raise EJsonSerializationException.Create
-                  ('TTransactionMetaInfoTransactionConverter: array must contain only strings');
+                  ('TTokenAccountDataConverter: array must contain only strings');
 
               S := TJSONString(Elem).Value;
               Bag.Add(S);
@@ -136,10 +136,10 @@ begin
 
   // Anything else is unsupported (null/bool/number/...)
   raise EJsonSerializationException.Create
-    ('Unsupported JSON value type in TTransactionMetaInfoTransactionConverter');
+    ('Unsupported JSON value type in TTokenAccountDataConverter');
 end;
 
-procedure TTransactionMetaInfoTransactionConverter.WriteJson
+procedure TTokenAccountDataConverter.WriteJson
   (const AWriter: TJsonWriter; const AValue: TValue;
   const ASerializer: TJsonSerializer);
 
@@ -168,7 +168,7 @@ begin
     Exit();
   end;
 
-  // Otherwise, delegate to the serializer (e.g., TTransactionInfo)
+  // Otherwise, delegate to the serializer (e.g., TTokenAccountData)
   ASerializer.Serialize(AWriter, V);
 end;
 

@@ -21,6 +21,9 @@ unit SlpRpcEnum;
 
 interface
 
+uses
+  System.JSON.Serializers;
+
 type
   /// <summary>
   /// Represents the filter account type.
@@ -57,14 +60,24 @@ type
   );
 
   /// <summary>
-  /// The encodings used for binary data to interact with the Solana nodes.
+  /// The encodings used for binary data to interact with Solana nodes.
   /// </summary>
   TBinaryEncoding = (
 
-     /// <summary>
+    /// <summary>
+    /// JSON
+    /// </summary>
+    Json,
+
+    /// <summary>
     /// JSON with parsed data
     /// </summary>
     JsonParsed,
+
+    /// <summary>
+    /// Base58 encoding
+    /// </summary>
+    Base58,
 
     /// <summary>
     /// Base64 encoding
@@ -72,8 +85,9 @@ type
     Base64,
 
     /// <summary>
-    /// Base64 with zstd compression
+    /// Base64 with ZStandard compression
     /// </summary>
+    [JsonName('base64+zstd')]
     Base64Zstd
   );
 

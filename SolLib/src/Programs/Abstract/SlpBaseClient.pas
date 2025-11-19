@@ -417,7 +417,7 @@ var
   Bytes  : TBytes;
   Item   : T;
 begin
-  LRes := FRpcClient.GetProgramAccounts(AProgramAddress, ADataSize, ADataSlice, AFilters, ACommitment);
+  LRes := FRpcClient.GetProgramAccounts(AProgramAddress, ADataSize, ADataSlice, AFilters, TBinaryEncoding.Base64, ACommitment);
 
   if (not LRes.WasSuccessful) or (LRes.Result = nil) or (LRes.Result.Count = 0) then
     Exit(TProgramAccountsResultWrapper<TObjectList<T>>.Create(LRes));
@@ -451,7 +451,7 @@ var
   Bytes  : TBytes;
   Item   : T;
 begin
-  LRes := FRpcClient.GetMultipleAccounts(AAccountAddresses, ACommitment);
+  LRes := FRpcClient.GetMultipleAccounts(AAccountAddresses, TBinaryEncoding.Base64, ACommitment);
 
   if (not LRes.WasSuccessful) or (LRes.Result = nil) or
      (LRes.Result.Value = nil) or (LRes.Result.Value.Count = 0) then
@@ -631,7 +631,7 @@ begin
   end;
 
   // 4) Send transaction
-  Result := RpcClient.SendTransaction(LTB.Serialize, TNullable<UInt32>.None, TNullable<UInt64>.None, False, ACommitment);
+  Result := RpcClient.SendTransaction(LTB.Serialize, TNullable<UInt32>.None, TNullable<UInt64>.None, False, TBinaryEncoding.Base64, ACommitment);
 end;
 
 function TTransactionalBaseClient<TEnum>.GetProgramError(

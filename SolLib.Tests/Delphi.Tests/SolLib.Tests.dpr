@@ -36,6 +36,7 @@ uses
   SlpValueHelpers in '..\..\SolLib\src\Helpers\SlpValueHelpers.pas',
   SlpBaseJsonConverter in '..\..\SolLib\src\JsonConverters\SlpBaseJsonConverter.pas',
   SlpAccountDataConverter in '..\..\SolLib\src\JsonConverters\SlpAccountDataConverter.pas',
+  SlpTokenAccountDataConverter in '..\..\SolLib\src\JsonConverters\SlpTokenAccountDataConverter.pas',
   SlpEncodingConverter in '..\..\SolLib\src\JsonConverters\SlpEncodingConverter.pas',
   SlpJsonListConverter in '..\..\SolLib\src\JsonConverters\SlpJsonListConverter.pas',
   SlpJsonRpcBatchRequestConverter in '..\..\SolLib\src\JsonConverters\SlpJsonRpcBatchRequestConverter.pas',

@@ -200,7 +200,7 @@ begin
 
   result := rpcClient.GetTokenAccountsByOwner(
     '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5',
-    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '', TCommitment.Confirmed);
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '', TBinaryEncoding.JsonParsed, TCommitment.Confirmed);
 
   AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
   AssertNotNull(result.Result);
@@ -250,6 +250,7 @@ var
   rpcHttpClient: IHttpApiClient;
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  LTokenAccountData: TTokenAccountData;
 begin
   responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateResponse.json']));
   requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateRequest.json']));
@@ -272,13 +273,15 @@ begin
   AssertFalse(result.Result.Value[0].Account.Executable);
   AssertEquals(4, result.Result.Value[0].Account.RentEpoch);
   AssertEquals(1726080, result.Result.Value[0].Account.Lamports);
-  AssertEquals('4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T',
-    result.Result.Value[0].Account.Data.Parsed.Info.Delegate);
-  AssertEquals('1', result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.Amount);
-  AssertEquals(1, result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.Decimals);
-  AssertEquals('0.1', result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.UiAmountString);
-  AssertEquals(0.1, result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.AmountDouble, 0.0);
-  AssertEquals(1, result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.AmountUInt64);
+
+  LTokenAccountData := result.Result.Value[0].Account.Data.AsType<TTokenAccountData>;
+
+  AssertEquals('4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T', LTokenAccountData.Parsed.Info.Delegate);
+  AssertEquals('1', LTokenAccountData.Parsed.Info.DelegatedAmount.Amount);
+  AssertEquals(1, LTokenAccountData.Parsed.Info.DelegatedAmount.Decimals);
+  AssertEquals('0.1', LTokenAccountData.Parsed.Info.DelegatedAmount.UiAmountString);
+  AssertEquals(0.1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountDouble, 0.0);
+  AssertEquals(1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountUInt64);
 
   FinishTest(mockRpcHttpClient, TestnetUrl);
 end;
@@ -290,6 +293,7 @@ var
   rpcHttpClient: IHttpApiClient;
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  LTokenAccountData: TTokenAccountData;
 begin
   responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateResponse.json']));
   requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateProcessedRequest.json']));
@@ -300,7 +304,7 @@ begin
 
   result := rpcClient.GetTokenAccountsByDelegate(
     '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T',
-    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '', TCommitment.Processed);
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '', TBinaryEncoding.JsonParsed, TCommitment.Processed);
 
   AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
   AssertNotNull(result.Result);
@@ -312,13 +316,15 @@ begin
   AssertFalse(result.Result.Value[0].Account.Executable);
   AssertEquals(4, result.Result.Value[0].Account.RentEpoch);
   AssertEquals(1726080, result.Result.Value[0].Account.Lamports);
-  AssertEquals('4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T',
-    result.Result.Value[0].Account.Data.Parsed.Info.Delegate);
-  AssertEquals('1', result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.Amount);
-  AssertEquals(1, result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.Decimals);
-  AssertEquals('0.1', result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.UiAmountString);
-  AssertEquals(0.1, result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.AmountDouble, 0.0);
-  AssertEquals(1, result.Result.Value[0].Account.Data.Parsed.Info.DelegatedAmount.AmountUInt64);
+
+  LTokenAccountData := result.Result.Value[0].Account.Data.AsType<TTokenAccountData>;
+
+  AssertEquals('4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T', LTokenAccountData.Parsed.Info.Delegate);
+  AssertEquals('1', LTokenAccountData.Parsed.Info.DelegatedAmount.Amount);
+  AssertEquals(1, LTokenAccountData.Parsed.Info.DelegatedAmount.Decimals);
+  AssertEquals('0.1', LTokenAccountData.Parsed.Info.DelegatedAmount.UiAmountString);
+  AssertEquals(0.1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountDouble, 0.0);
+  AssertEquals(1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountUInt64);
 
   FinishTest(mockRpcHttpClient, TestnetUrl);
 end;

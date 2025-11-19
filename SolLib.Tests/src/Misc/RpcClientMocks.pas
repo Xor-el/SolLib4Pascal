@@ -151,8 +151,8 @@ type
 
     function GetBalance(const APubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<UInt64>>;
     function GetLatestBlockHash(ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TLatestBlockHash>>;
-    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
-    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>;
+    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>;
   end;
 
   type
@@ -586,14 +586,14 @@ end;
 
 function TMockTokenWalletRpcProxy.GetTokenAccountsByOwner(
   const AOwnerPubKey, ATokenMintPubKey, ATokenProgramId: string;
-  ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
   Result := MockResponseValue<TObjectList<TTokenAccount>>;
 end;
 
 function TMockTokenWalletRpcProxy.SendTransaction(
   const ATransaction: TBytes;  const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>;
-  ASkipPreflight: Boolean; ACommitment: TCommitment): TRequestResult<string>;
+  ASkipPreflight: Boolean; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<string>;
 begin
   Result := MockValue<string>;
 end;
