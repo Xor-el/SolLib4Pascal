@@ -59,6 +59,14 @@ type
   end;
 
   /// <summary>
+  /// Simple transfer + memo (via account private key) using TTransactionBuilder.
+  /// </summary>
+  TTransactionBuilderUsingPrivateKeyExample = class(TBaseExample)
+  public
+    procedure Run; override;
+  end;
+
+  /// <summary>
   /// Transfer using a durable nonce (AdvanceNonce + NonceInformation).
   /// </summary>
   TTransferWithDurableNonceExample = class(TBaseExample)
@@ -153,6 +161,42 @@ begin
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
            .SetFeePayer(LFrom.PublicKey)
            .AddInstruction(TSystemProgram.Transfer(LFrom.PublicKey, LTo.PublicKey, 10000000))
+           .AddInstruction(TMemoProgram.NewMemo(LFrom.PublicKey, 'Hello from SolLib :)'))
+           .Build(LFrom);
+
+  LSignature := SubmitTxSendAndLog(LTx);
+  PollConfirmedTx(LSignature);
+end;
+
+{ TTransactionBuilderUsingPrivateKeyExample }
+
+procedure TTransactionBuilderUsingPrivateKeyExample.Run;
+const
+  SenderPrivateKey = '5S1UT7L6bQ8sVaPjpJyYFEEYh8HAXRXPFUEuj6kHQXs6ZE9F6a2wWrjdokAmSPP5HVP46bYxsrU8yr2FxxYmVBi6';
+  ReceiverPublicKey = '9KmfMX4Ne5ocb8C7PwjmJTWTpQTQcPhkeD2zY35mawhq';
+var
+  LRpc      : IRpcClient;
+  LFrom     : IAccount;
+  LTo       : IPublicKey;
+  LTx       : TBytes;
+  LBlock    : IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LSignature: string;
+  LTxBuilder: ITransactionBuilder;
+begin
+  LRpc    := TestNetRpcClient;
+
+  LFrom := TAccount.FromSecretKey(SenderPrivateKey);
+  LTo   := TPublicKey.FromString(ReceiverPublicKey);
+
+  LBlock := LRpc.GetLatestBlockHash;
+  if (LBlock <> nil) and LBlock.WasSuccessful and (LBlock.Result <> nil) then
+    Writeln(Format('BlockHash >> %s', [LBlock.Result.Value.Blockhash]));
+
+  LTxBuilder := TTransactionBuilder.Create;
+  LTx := LTxBuilder
+           .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
+           .SetFeePayer(LFrom.PublicKey)
+           .AddInstruction(TSystemProgram.Transfer(LFrom.PublicKey, LTo, 10000000))
            .AddInstruction(TMemoProgram.NewMemo(LFrom.PublicKey, 'Hello from SolLib :)'))
            .Build(LFrom);
 
