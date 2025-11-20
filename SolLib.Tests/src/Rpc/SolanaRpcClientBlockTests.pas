@@ -173,6 +173,7 @@ begin
         TTransactionDetailsFilterType.Full,
         False,
         0,
+        TBinaryEncoding.Json,
         TCommitment.Processed
       );
     end,
@@ -530,7 +531,7 @@ begin
   rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
   res := rpcClient.GetTransaction(
     '5as3w4KMpY23MP5T1nkPVksjXjN7hnjHKqiDxRMxUNcw5XsCGtStayZib1kQdyR2D9w8dR11Ha9Xk38KP3kbAwM1',
-    0, 'json', TCommitment.Processed);
+    0, TBinaryEncoding.Json, TCommitment.Processed);
 
   AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
   AssertTrue(res.Result <> nil);

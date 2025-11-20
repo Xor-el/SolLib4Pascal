@@ -241,6 +241,7 @@ var
   mockHttpClient: IHttpApiClient;
   mockRpcClient: IRpcClient;
   batch: TSolanaRpcBatchWithCallbacks;
+  LTokenAccountData: TTokenAccountData;
 begin
   expectedRequests := TTestUtils.ReadAllText(
     TTestUtils.CombineAll([FResDir, 'Batch', 'SampleBatchRequest.json'])
@@ -276,7 +277,8 @@ begin
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', '', TokenProgramProgramId, TCommitment.Finalized,
         procedure (x: TResponseValue<TObjectList<TTokenAccount>>; ex: Exception)
         begin
-          foundBalance := x.Value[0].Account.Data.Parsed.Info.TokenAmount.AmountDouble;
+          LTokenAccountData := x.Value[0].Account.Data.AsType<TTokenAccountData>;
+          foundBalance := LTokenAccountData.Parsed.Info.TokenAmount.AmountDouble;
         end
       );
 

@@ -322,7 +322,6 @@ type
     FLastError: string;
     FLastCode: string;
     FAdditionalParameters: TList<TValue>;
-    FUnsubscribeMap: TArray<TPair<string, string>>;
 
     // Multicast list of handlers
     FSubs: IMulticast<TProc<ISubscriptionState, ISubscriptionEvent>>;

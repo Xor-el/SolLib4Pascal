@@ -647,7 +647,7 @@ var
   LAccounts: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
   LBalance := FRpcClient.GetBalance(FPublicKey.Key, ACommitment);
-  LAccounts := FRpcClient.GetTokenAccountsByOwner(FPublicKey.Key, '', TTokenProgram.ProgramIdKey.Key, ACommitment);
+  LAccounts := FRpcClient.GetTokenAccountsByOwner(FPublicKey.Key, '', TTokenProgram.ProgramIdKey.Key, TBinaryEncoding.JsonParsed, ACommitment);
 
   if LBalance.WasSuccessful then
     FLamports := LBalance.Result.Value
@@ -678,24 +678,26 @@ var
   LBal: ITokenWalletBalance;
   LTokenDef: ITokenDef;
   LDecimals: Integer;
+  LTokenAccountData: TTokenAccountData;
 begin
   LMintBalances := TDictionary<string, ITokenWalletBalance>.Create;
   try
     for LToken in FTokenAccounts do
     begin
-      LMint := LToken.Account.Data.Parsed.Info.Mint;
+      LTokenAccountData := LToken.Account.Data.AsType<TTokenAccountData>;
+      LMint := LTokenAccountData.Parsed.Info.Mint;
 
       if not LMintBalances.TryGetValue(LMint, LBal) then
       begin
         LTokenDef := FMintResolver.Resolve(LMint);
-        LDecimals := LToken.Account.Data.Parsed.Info.TokenAmount.Decimals;
+        LDecimals := LTokenAccountData.Parsed.Info.TokenAmount.Decimals;
         if (LTokenDef.DecimalPlaces = -1) and (LDecimals >= 0) then
           LTokenDef := LTokenDef.CloneWithKnownDecimals(LDecimals);
 
         LBal := TTokenWalletBalance.Create(
           LTokenDef,
-          LToken.Account.Data.Parsed.Info.TokenAmount.AmountDouble,
-          LToken.Account.Data.Parsed.Info.TokenAmount.AmountUInt64,
+          LTokenAccountData.Parsed.Info.TokenAmount.AmountDouble,
+          LTokenAccountData.Parsed.Info.TokenAmount.AmountUInt64,
           LToken.Account.Lamports,
           1
         );
@@ -704,8 +706,8 @@ begin
       else
       begin
         LBal := LBal.AddAccount(
-          LToken.Account.Data.Parsed.Info.TokenAmount.AmountDouble,
-          LToken.Account.Data.Parsed.Info.TokenAmount.AmountUInt64,
+          LTokenAccountData.Parsed.Info.TokenAmount.AmountDouble,
+          LTokenAccountData.Parsed.Info.TokenAmount.AmountUInt64,
           LToken.Account.Lamports,
           1
         );
@@ -747,24 +749,26 @@ var
   LBalDouble: Double;
   LTokenDef: ITokenDef;
   LTokenWalletAccount: ITokenWalletAccount;
+  LTokenAccountData: TTokenAccountData;
 begin
   LList := TList<ITokenWalletAccount>.Create();
   try
     for LAcc in FTokenAccounts do
     begin
-      LMint := LAcc.Account.Data.Parsed.Info.Mint;
+      LTokenAccountData := LAcc.Account.Data.AsType<TTokenAccountData>;
+      LMint := LTokenAccountData.Parsed.Info.Mint;
       LAta := GetAssociatedTokenAddressForMint(LMint);
       LIsAta := SameStr(LAta.Key, LAcc.PublicKey);
       LLamportsRaw := LAcc.Account.Lamports;
 
-      if LAcc.Account.Data.Parsed.Info.Owner <> '' then
-        LOwner := LAcc.Account.Data.Parsed.Info.Owner
+      if LTokenAccountData.Parsed.Info.Owner <> '' then
+        LOwner := LTokenAccountData.Parsed.Info.Owner
       else
         LOwner := FPublicKey.Key;
 
-      LDecimals := LAcc.Account.Data.Parsed.Info.TokenAmount.Decimals;
-      LBalRaw := LAcc.Account.Data.Parsed.Info.TokenAmount.AmountUInt64;
-      LBalDouble := LAcc.Account.Data.Parsed.Info.TokenAmount.AmountDouble;
+      LDecimals := LTokenAccountData.Parsed.Info.TokenAmount.Decimals;
+      LBalRaw := LTokenAccountData.Parsed.Info.TokenAmount.AmountUInt64;
+      LBalDouble := LTokenAccountData.Parsed.Info.TokenAmount.AmountDouble;
 
       LTokenDef := FMintResolver.Resolve(LMint);
       if (LTokenDef.DecimalPlaces = -1) and (LDecimals >= 0) then

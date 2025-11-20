@@ -172,7 +172,7 @@ begin
 
   rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
 
-  result := rpcClient.SendTransaction(bytes, TNullable<UInt32>.None, TNullable<UInt64>.None, True, TCommitment.Confirmed);
+  result := rpcClient.SendTransaction(bytes, TNullable<UInt32>.None, TNullable<UInt64>.None, True, TBinaryEncoding.Base64, TCommitment.Confirmed);
 
   AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
   AssertTrue(result.WasSuccessful);
@@ -212,6 +212,7 @@ begin
     5,             // maxRetries
     259525972,     // minContextSlot
     False,         // skipPreflight
+    TBinaryEncoding.Base64, // binary encoding
     TCommitment.Confirmed  // preFlightCommitment
   );
 
@@ -328,7 +329,7 @@ begin
 
     rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
 
-    result := rpcClient.SimulateTransaction(txData, True, False, acctList.ToArray, TCommitment.Confirmed);
+    result := rpcClient.SimulateTransaction(txData, True, False, acctList.ToArray, TBinaryEncoding.Base64, TCommitment.Confirmed);
 
     AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
     AssertNotNull(result.Result);
@@ -375,7 +376,7 @@ begin
 
     rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
 
-    result := rpcClient.SimulateTransaction(bytes, True, False, acctList.ToArray, TCommitment.Confirmed);
+    result := rpcClient.SimulateTransaction(bytes, True, False, acctList.ToArray, TBinaryEncoding.Base64, TCommitment.Confirmed);
 
     AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
     AssertNotNull(result.Result);

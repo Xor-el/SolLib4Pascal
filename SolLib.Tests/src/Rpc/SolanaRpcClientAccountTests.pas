@@ -106,6 +106,7 @@ var
   rpcHttpClient: IHttpApiClient;
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TTokenAccountInfo>>;
+  LTokenAccountData: TTokenAccountData;
 begin
   responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Accounts', 'GetTokenAccountInfoResponse.json']));
   requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Accounts', 'GetTokenAccountInfoRequest.json']));
@@ -126,18 +127,20 @@ begin
   AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', result.Result.Value.Owner);
   AssertEquals(239, result.Result.Value.RentEpoch);
 
-  AssertEquals('spl-token', result.Result.Value.Data.&Program);
-  AssertEquals(165, result.Result.Value.Data.Space);
+  LTokenAccountData := result.Result.Value.Data.AsType<TTokenAccountData>;
 
-  AssertEquals('account', result.Result.Value.Data.Parsed.&Type);
+  AssertEquals('spl-token', LTokenAccountData.&Program);
+  AssertEquals(165, LTokenAccountData.Space);
 
-  AssertEquals('2v6JjYRt93Z1h8iTZavSdGdDufocHCFKT8gvHpg3GNko', result.Result.Value.Data.Parsed.Info.Mint);
-  AssertEquals('47vp5BqxBQoMJkitajbsZRhyAR5phW28nKPvXhFDKTFH', result.Result.Value.Data.Parsed.Info.Owner);
-  AssertFalse(result.Result.Value.Data.Parsed.Info.IsNative);
-  AssertEquals('initialized', result.Result.Value.Data.Parsed.Info.State);
+  AssertEquals('account', LTokenAccountData.Parsed.&Type);
 
-  AssertEquals('1', result.Result.Value.Data.Parsed.Info.TokenAmount.Amount);
-  AssertEquals(0, result.Result.Value.Data.Parsed.Info.TokenAmount.Decimals);
+  AssertEquals('2v6JjYRt93Z1h8iTZavSdGdDufocHCFKT8gvHpg3GNko', LTokenAccountData.Parsed.Info.Mint);
+  AssertEquals('47vp5BqxBQoMJkitajbsZRhyAR5phW28nKPvXhFDKTFH', LTokenAccountData.Parsed.Info.Owner);
+  AssertFalse(LTokenAccountData.Parsed.Info.IsNative);
+  AssertEquals('initialized', LTokenAccountData.Parsed.Info.State);
+
+  AssertEquals('1', LTokenAccountData.Parsed.Info.TokenAmount.Amount);
+  AssertEquals(0, LTokenAccountData.Parsed.Info.TokenAmount.Decimals);
 
   FinishTest(mockRpcHttpClient, TestnetUrl);
 end;
@@ -157,7 +160,7 @@ begin
   rpcHttpClient := mockRpcHttpClient;
 
   rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetTokenMintInfo('2v6JjYRt93Z1h8iTZavSdGdDufocHCFKT8gvHpg3GNko', TCommitment.Confirmed);
+  result := rpcClient.GetTokenMintInfo('2v6JjYRt93Z1h8iTZavSdGdDufocHCFKT8gvHpg3GNko', TBinaryEncoding.JsonParsed, TCommitment.Confirmed);
 
   AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
   AssertTrue(result.Result <> nil);
@@ -414,7 +417,7 @@ begin
 
   rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
   result := rpcClient.GetProgramAccounts('GrAkKfEpTKQuVHG2Y97Y2FF4i7y7Q5AHLK94JBy7Y5yv',
-                                      TNullable<Integer>.None, nil, nil, TCommitment.Processed);
+                                      TNullable<Integer>.None, nil, nil, TBinaryEncoding.Base64, TCommitment.Processed);
 
   AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
   AssertTrue(result.Result <> nil, 'Result should not be nil');
@@ -500,7 +503,7 @@ begin
   );
 
   rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetMultipleAccounts(pubkeys, TCommitment.Confirmed);
+  result := rpcClient.GetMultipleAccounts(pubkeys, TBinaryEncoding.Base64, TCommitment.Confirmed);
 
   AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
   AssertTrue(result.Result <> nil, 'Result should not be nil');

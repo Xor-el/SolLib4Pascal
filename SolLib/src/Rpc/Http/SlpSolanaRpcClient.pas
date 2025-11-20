@@ -25,6 +25,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Rtti,
+  System.TypInfo,
   System.Generics.Collections,
   System.Json.Serializers,
 {$IFDEF FPC}
@@ -79,9 +80,10 @@ type
     /// </remarks>
     /// </summary>
     /// <param name="APubKey">The token mint public key.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetTokenMintInfo(const APubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenMintInfo>>;
+    function GetTokenMintInfo(const APubKey: string; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenMintInfo>>;
 
     /// <summary>
     /// Gets the token account info.
@@ -90,9 +92,10 @@ type
     /// </remarks>
     /// </summary>
     /// <param name="APubKey">The token account public key.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetTokenAccountInfo(const APubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenAccountInfo>>;
+    function GetTokenAccountInfo(const APubKey: string; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenAccountInfo>>;
 
     /// <summary>
     /// Gets the account info.
@@ -133,13 +136,14 @@ type
     /// </remarks>
     /// </summary>
     /// <param name="ASlot">The slot.</param>
-    /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <param name="ATransactionDetails">The level of transaction detail to return.</param>
     /// <param name="ABlockRewards">Whether to populate the rewards array.</param>
     /// <param name="AMaxSupportedTransactionVersion">Transaction Version.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
+    /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
     function GetBlock(ASlot: UInt64; ATransactionDetails: TTransactionDetailsFilterType = TTransactionDetailsFilterType.Full;
-      ABlockRewards: Boolean = False; AMaxSupportedTransactionVersion: Integer = 0; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TBlockInfo>;
+      ABlockRewards: Boolean = False; AMaxSupportedTransactionVersion: Integer = 0; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TBlockInfo>;
 
     /// <summary>
     /// Gets the block commitment of a certain block, identified by slot.
@@ -320,26 +324,28 @@ type
     /// Gets the account info for multiple accounts.
     /// </summary>
     /// <param name="AAccounts">The list of the accounts public keys.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetMultipleAccounts(const AAccounts: TArray<string>; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
+    function GetMultipleAccounts(const AAccounts: TArray<string>; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
 
     /// <summary>
     /// Returns all accounts owned by the provided program Pubkey.
     /// <remarks>Accounts must meet all filter criteria to be included in the results.</remarks>
     /// </summary>
     /// <param name="APubKey">The program public key.</param>
-    /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <param name="ADataSize">The data size of the account to compare against the program account data.</param>
     /// <param name="ADataSlice">The config param used to request a slice of the account's data.</param>
     /// <param name="AMemCmpList">The list of comparisons to match against the program account data.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
+    /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetProgramAccounts(const APubKey: string; const ADataSize: TNullable<Integer>; const ADataSlice: TDataSlice = nil; const AMemCmpList: TArray<TMemCmp> = nil; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TObjectList<TAccountKeyPair>>;
+    function GetProgramAccounts(const APubKey: string; const ADataSize: TNullable<Integer>; const ADataSlice: TDataSlice = nil; const AMemCmpList: TArray<TMemCmp> = nil; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TObjectList<TAccountKeyPair>>;
 
     /// <summary>
     /// Gets the latest block hash.
     /// </summary>
-    /// <param name="commitment">The state commitment to consider when querying the ledger state.</param>
+    /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
     function GetLatestBlockHash(ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TLatestBlockHash>>;
 
@@ -443,9 +449,10 @@ type
     /// <param name="AOwnerPubKey">Public key of account owner query, as base-58 encoded string.</param>
     /// <param name="ATokenMintPubKey">Public key of the specific token Mint to limit accounts to, as base-58 encoded string.</param>
     /// <param name="ATokenProgramId">Public key of the Token program ID that owns the accounts, as base-58 encoded string.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetTokenAccountsByDelegate(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+    function GetTokenAccountsByDelegate(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 
     /// <summary>
     /// Gets all SPL Token accounts by token owner.
@@ -453,9 +460,10 @@ type
     /// <param name="AOwnerPubKey">Public key of account owner query, as base-58 encoded string.</param>
     /// <param name="ATokenMintPubKey">Public key of the specific token Mint to limit accounts to, as base-58 encoded string.</param>
     /// <param name="ATokenProgramId">Public key of the Token program ID that owns the accounts, as base-58 encoded string.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 
     /// <summary>
     /// Gets the 20 largest token accounts of a particular SPL Token.
@@ -484,10 +492,10 @@ type
     /// </summary>
     /// <param name="ASignature"></param>
     /// <param name="AMaxSupportedTransactionVersion"></param>
-    /// <param name="AEncoding"></param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment"></param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 0; const AEncoding: string = 'json'; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
+    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 0; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
 
     /// <summary>
     /// Gets the total transaction count of the ledger.
@@ -515,9 +523,10 @@ type
     /// <param name="AMaxRetries">The maximum number of times for the RPC node to retry sending the transaction to the leader. If this parameter not provided, the RPC node will retry the transaction until it is finalized or until the blockhash expires.</param>
     /// <param name="AMinContextSlot">The minimum slot at which to perform preflight transaction checks.</param>
     /// <param name="ASkipPreflight">If true skip the preflight transaction checks (default false).</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="APreFlightCommitment">The block commitment used for preflight.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function SendTransaction(const ATransaction: string; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
+    function SendTransaction(const ATransaction: string; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
 
     /// <summary>
     /// Sends a transaction.
@@ -526,9 +535,10 @@ type
     /// <param name="AMaxRetries">The maximum number of times for the RPC node to retry sending the transaction to the leader. If this parameter not provided, the RPC node will retry the transaction until it is finalized or until the blockhash expires.</param>
     /// <param name="AMinContextSlot">The minimum slot at which to perform preflight transaction checks.</param>
     /// <param name="ASkipPreflight">If true skip the preflight transaction checks (default false).</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="APreFlightCommitment">The block commitment used for preflight.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
+    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
 
     /// <summary>
     /// Simulate sending a transaction.
@@ -539,12 +549,14 @@ type
     /// <param name="AReplaceRecentBlockhash">If the transaction recent blockhash should be replaced with the most recent blockhash
     /// (default false, conflicts with <c>ASigVerify</c></param>
     /// <param name="AAccountsToReturn">List of accounts to return, as base-58 encoded strings.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The block commitment used to retrieve block hashes and verify success.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
     function SimulateTransaction(const ATransaction: string;
                                  ASigVerify: Boolean = False;
                                  AReplaceRecentBlockhash: Boolean = False;
                                  const AAccountsToReturn: TArray<string> = nil;
+                                 AEncoding: TBinaryEncoding = TBinaryEncoding.Base64;
                                  ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TSimulationLogs>>; overload;
 
     /// <summary>
@@ -556,12 +568,14 @@ type
     /// <param name="AReplaceRecentBlockhash">If the transaction recent blockhash should be replaced with the most recent blockhash
     /// (default false, conflicts with <c>ASigVerify</c></param>
     /// <param name="AAccountsToReturn">List of accounts to return, as base-58 encoded strings.</param>
+    /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment">The block commitment used to retrieve block hashes and verify success.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
     function SimulateTransaction(const ATransaction: TBytes;
                                  ASigVerify: Boolean = False;
                                  AReplaceRecentBlockhash: Boolean = False;
                                  const AAccountsToReturn: TArray<string> = nil;
+                                 AEncoding: TBinaryEncoding = TBinaryEncoding.Base64;
                                  ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TSimulationLogs>>; overload;
 
     /// <summary>
@@ -659,9 +673,9 @@ type
     property NodeAddress: TURI read GetNodeAddress;
 
     // --- IRpcClient ---
-    function GetTokenMintInfo(const APubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenMintInfo>>;
+    function GetTokenMintInfo(const APubKey: string; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenMintInfo>>;
 
-    function GetTokenAccountInfo(const APubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenAccountInfo>>;
+    function GetTokenAccountInfo(const APubKey: string; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenAccountInfo>>;
 
     function GetAccountInfo(const APubKey: string; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TAccountInfo>>;
 
@@ -671,6 +685,7 @@ type
                       ATransactionDetails: TTransactionDetailsFilterType = TTransactionDetailsFilterType.Full;
                       ABlockRewards: Boolean = False;
                       AMaxSupportedTransactionVersion: Integer = 0;
+                      AEncoding: TBinaryEncoding = TBinaryEncoding.Json;
                       ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TBlockInfo>;
 
     function GetBlockCommitment(ASlot: UInt64): TRequestResult<TBlockCommitment>;
@@ -719,9 +734,9 @@ type
 
     function GetMinimumLedgerSlot: TRequestResult<UInt64>;
 
-    function GetMultipleAccounts(const AAccounts: TArray<string>; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
+    function GetMultipleAccounts(const AAccounts: TArray<string>; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
 
-    function GetProgramAccounts(const APubKey: string; const ADataSize: TNullable<Integer>; const ADataSlice: TDataSlice = nil; const AMemCmpList: TArray<TMemCmp> = nil; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TObjectList<TAccountKeyPair>>;
+    function GetProgramAccounts(const APubKey: string; const ADataSize: TNullable<Integer>; const ADataSlice: TDataSlice = nil; const AMemCmpList: TArray<TMemCmp> = nil; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TObjectList<TAccountKeyPair>>;
 
     function GetLatestBlockHash(ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TLatestBlockHash>>;
 
@@ -747,34 +762,36 @@ type
 
     function GetTokenAccountBalance(const ASplTokenAccountPublicKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenBalance>>;
 
-    function GetTokenAccountsByDelegate(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+    function GetTokenAccountsByDelegate(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 
-    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+    function GetTokenAccountsByOwner(const AOwnerPubKey: string; const ATokenMintPubKey: string = ''; const ATokenProgramId: string = ''; AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 
     function GetTokenLargestAccounts(const ATokenMintPubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
 
     function GetTokenSupply(const ATokenMintPubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenBalance>>;
 
-    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 0; const AEncoding: string = 'json'; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
+    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 0; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
 
     function GetTransactionCount(ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<UInt64>;
 
     function RequestAirdrop(const APubKey: string; ALamports: UInt64; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>;
 
-    function SendTransaction(const ATransaction: string; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
+    function SendTransaction(const ATransaction: string; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
 
-    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
+    function SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean = False; AEncoding: TBinaryEncoding = TBinaryEncoding.Base64; APreflightCommitment: TCommitment = TCommitment.Finalized): TRequestResult<string>; overload;
 
     function SimulateTransaction(const ATransaction: string;
                                  ASigVerify: Boolean = False;
                                  AReplaceRecentBlockhash: Boolean = False;
                                  const AAccountsToReturn: TArray<string> = nil;
+                                 AEncoding: TBinaryEncoding = TBinaryEncoding.Base64;
                                  ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TSimulationLogs>>; overload;
 
     function SimulateTransaction(const ATransaction: TBytes;
                                  ASigVerify: Boolean = False;
                                  AReplaceRecentBlockhash: Boolean = False;
                                  const AAccountsToReturn: TArray<string> = nil;
+                                 AEncoding: TBinaryEncoding = TBinaryEncoding.Base64;
                                  ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TSimulationLogs>>; overload;
 
     function GetVersion: TRequestResult<TNodeVersion>;
@@ -863,14 +880,14 @@ begin
     Result := Default(TKeyValue);
 end;
 
-function TSolanaRpcClient.GetTokenMintInfo(const APubKey: string; ACommitment: TCommitment): TRequestResult<TResponseValue<TTokenMintInfo>>;
+function TSolanaRpcClient.GetTokenMintInfo(const APubKey: string; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TTokenMintInfo>>;
 var
   LParams: TList<TValue>;
 begin
     LParams := TParameters.Make(
       TValue.From<string>(APubKey),
       TConfigObject.Make(
-        TKeyValue.From('encoding', 'jsonParsed'),
+        TKeyValue.From('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
         HandleCommitment(ACommitment)
       )
     );
@@ -878,14 +895,14 @@ begin
   Result := SendRequest<TResponseValue<TTokenMintInfo>>('getAccountInfo', LParams);
 end;
 
-function TSolanaRpcClient.GetTokenAccountInfo(const APubKey: string; ACommitment: TCommitment): TRequestResult<TResponseValue<TTokenAccountInfo>>;
+function TSolanaRpcClient.GetTokenAccountInfo(const APubKey: string; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TTokenAccountInfo>>;
 var
   LParams: TList<TValue>;
 begin
     LParams := TParameters.Make(
       TValue.From<string>(APubKey),
       TConfigObject.Make(
-        TKeyValue.From('encoding', 'jsonParsed'),
+        TKeyValue.From('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
         HandleCommitment(ACommitment)
       )
     );
@@ -927,6 +944,7 @@ function TSolanaRpcClient.GetBlock(
   ATransactionDetails: TTransactionDetailsFilterType;
   ABlockRewards: Boolean;
   AMaxSupportedTransactionVersion: Integer;
+  AEncoding: TBinaryEncoding;
   ACommitment: TCommitment
 ): TRequestResult<TBlockInfo>;
 var
@@ -944,7 +962,7 @@ begin
     LParams := TParameters.Make(
       TValue.From<UInt64>(ASlot),
       TConfigObject.Make(
-        TKeyValue.Make('encoding', 'json'),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
         TKeyValue.Make('maxSupportedTransactionVersion', AMaxSupportedTransactionVersion),
         HandleTransactionDetails(ATransactionDetails),
         TKeyValue.Make('rewards', LRewards),
@@ -1262,14 +1280,14 @@ begin
   Result := SendRequest<UInt64>('minimumLedgerSlot');
 end;
 
-function TSolanaRpcClient.GetMultipleAccounts(const AAccounts: TArray<string>; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
+function TSolanaRpcClient.GetMultipleAccounts(const AAccounts: TArray<string>; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
 var
   LParams: TList<TValue>;
 begin
     LParams := TParameters.Make(
       TValue.From<TArray<string>>(AAccounts),
       TConfigObject.Make(
-        TKeyValue.Make('encoding', 'base64'),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
         HandleCommitment(ACommitment)
       )
     );
@@ -1285,6 +1303,7 @@ function TSolanaRpcClient.GetProgramAccounts(
   const ADataSize: TNullable<Integer>;
   const ADataSlice: TDataSlice;
   const AMemCmpList: TArray<TMemCmp>;
+  AEncoding: TBinaryEncoding;
   ACommitment: TCommitment
 ): TRequestResult<TObjectList<TAccountKeyPair>>;
 var
@@ -1340,7 +1359,7 @@ begin
     LParams := TParameters.Make(
       APubKey,
       TConfigObject.Make(
-        TKeyValue.Make('encoding', 'base64'),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
         TKeyValue.Make('filters', FiltersValue(LFilters)),
         TKeyValue.Make('dataSlice', DataSliceValue(ADataSlice)),
         HandleCommitment(ACommitment)
@@ -1549,7 +1568,7 @@ begin
     );
 end;
 
-function TSolanaRpcClient.GetTokenAccountsByDelegate(const AOwnerPubKey, ATokenMintPubKey, ATokenProgramId: string; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+function TSolanaRpcClient.GetTokenAccountsByDelegate(const AOwnerPubKey, ATokenMintPubKey, ATokenProgramId: string; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 var
   LParams: TList<TValue>;
   LTokenMintPubKey, LTokenProgramId: TValue;
@@ -1573,7 +1592,7 @@ begin
       ),
       TConfigObject.Make(
         HandleCommitment(ACommitment),
-        TKeyValue.Make('encoding', 'jsonParsed')
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding))
       )
     );
 
@@ -1583,7 +1602,7 @@ begin
     );
 end;
 
-function TSolanaRpcClient.GetTokenAccountsByOwner(const AOwnerPubKey, ATokenMintPubKey, ATokenProgramId: string; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+function TSolanaRpcClient.GetTokenAccountsByOwner(const AOwnerPubKey, ATokenMintPubKey, ATokenProgramId: string; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 var
   LParams: TList<TValue>;
   LTokenMintPubKey, LTokenProgramId: TValue;
@@ -1607,7 +1626,7 @@ begin
       ),
       TConfigObject.Make(
         HandleCommitment(ACommitment),
-        TKeyValue.Make('encoding', 'jsonParsed')
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding))
       )
     );
 
@@ -1648,14 +1667,14 @@ begin
   Result := SendRequest<TResponseValue<TTokenBalance>>('getTokenSupply', LParams);
 end;
 
-function TSolanaRpcClient.GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer; const AEncoding: string; ACommitment: TCommitment): TRequestResult<TTransactionMetaSlotInfo>;
+function TSolanaRpcClient.GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer; AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TTransactionMetaSlotInfo>;
 var
   LParams: TList<TValue>;
 begin
     LParams := TParameters.Make(
       TValue.From<string>(ASignature),
       TConfigObject.Make(
-        TKeyValue.Make('encoding', TValue.From<string>(AEncoding)),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
         HandleCommitment(ACommitment),
         TKeyValue.Make('maxSupportedTransactionVersion',
           TValue.From<Integer>(AMaxSupportedTransactionVersion))
@@ -1695,7 +1714,7 @@ begin
   Result := SendRequest<string>('requestAirdrop', LParams);
 end;
 
-function TSolanaRpcClient.SendTransaction(const ATransaction: string; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean; APreflightCommitment: TCommitment): TRequestResult<string>;
+function TSolanaRpcClient.SendTransaction(const ATransaction: string; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean; AEncoding: TBinaryEncoding; APreflightCommitment: TCommitment): TRequestResult<string>;
 var
   LParams: TList<TValue>;
   LSkip, LPreflight, LMaxRetries, LMinContextSlot: TValue;
@@ -1727,21 +1746,37 @@ begin
         TKeyValue.Make('maxRetries',         LMaxRetries),
         TKeyValue.Make('minContextSlot',         LMinContextSlot),
         TKeyValue.Make('preflightCommitment',   LPreflight),
-        TKeyValue.Make('encoding',              TValue.From<TBinaryEncoding>(TBinaryEncoding.Base64))
+        TKeyValue.Make('encoding',              TValue.From<TBinaryEncoding>(AEncoding))
       )
     );
 
   Result := SendRequest<string>('sendTransaction', LParams);
 end;
 
-function TSolanaRpcClient.SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean; APreflightCommitment: TCommitment): TRequestResult<string>;
+function TSolanaRpcClient.SendTransaction(const ATransaction: TBytes; const AMaxRetries: TNullable<UInt32>; const AMinContextSlot: TNullable<UInt64>; ASkipPreflight: Boolean; AEncoding: TBinaryEncoding; APreflightCommitment: TCommitment): TRequestResult<string>;
+var
+  LEncoded: string;
 begin
-  Result := SendTransaction(TEncoders.Base64.EncodeData(ATransaction), AMaxRetries, AMinContextSlot, ASkipPreflight, APreflightCommitment);
+  case AEncoding of
+    TBinaryEncoding.Base58:
+      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+
+    TBinaryEncoding.Base64:
+      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+
+  else
+    raise EArgumentException.CreateFmt(
+      'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
+      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+    );
+  end;
+
+  Result := SendTransaction(LEncoded, AMaxRetries, AMinContextSlot, ASkipPreflight, AEncoding, APreflightCommitment);
 end;
 
 function TSolanaRpcClient.SimulateTransaction(const ATransaction: string; ASigVerify: Boolean;
   AReplaceRecentBlockhash: Boolean; const AAccountsToReturn: TArray<string>;
-  ACommitment: TCommitment): TRequestResult<TResponseValue<TSimulationLogs>>;
+  AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TSimulationLogs>>;
 var
   LParams: TList<TValue>;
   LSigVerify, LReplaceRB: TValue;
@@ -1765,7 +1800,7 @@ begin
     LAccounts := TKeyValue.Make('accounts',
       TValue.From<TDictionary<string, TValue>>(
         TConfigObject.Make(
-          TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.Base64)),
+          TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
           TKeyValue.Make('addresses', TValue.From<TArray<string>>(AAccountsToReturn))
         )
       ))
@@ -1777,7 +1812,7 @@ begin
       TConfigObject.Make(
         TKeyValue.Make('sigVerify', LSigVerify),
         HandleCommitment(ACommitment),
-        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.Base64)),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(AEncoding)),
         TKeyValue.Make('replaceRecentBlockhash', LReplaceRB),
         LAccounts
       )
@@ -1788,10 +1823,27 @@ end;
 
 function TSolanaRpcClient.SimulateTransaction(const ATransaction: TBytes; ASigVerify: Boolean;
   AReplaceRecentBlockhash: Boolean; const AAccountsToReturn: TArray<string>;
-  ACommitment: TCommitment): TRequestResult<TResponseValue<TSimulationLogs>>;
+  AEncoding: TBinaryEncoding; ACommitment: TCommitment): TRequestResult<TResponseValue<TSimulationLogs>>;
+var
+  LEncoded: string;
 begin
-  Result := SimulateTransaction(TEncoders.Base64.EncodeData(ATransaction), ASigVerify, AReplaceRecentBlockhash, AAccountsToReturn, ACommitment);
+  case AEncoding of
+    TBinaryEncoding.Base58:
+      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+
+    TBinaryEncoding.Base64:
+      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+
+  else
+    raise EArgumentException.CreateFmt(
+      'SimulateTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
+      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+    );
+  end;
+
+  Result := SimulateTransaction(LEncoded, ASigVerify, AReplaceRecentBlockhash, AAccountsToReturn, AEncoding, ACommitment);
 end;
+
 
 function TSolanaRpcClient.GetVersion: TRequestResult<TNodeVersion>;
 begin

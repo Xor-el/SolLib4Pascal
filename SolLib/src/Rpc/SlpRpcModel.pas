@@ -35,6 +35,7 @@ uses
   SlpJsonListConverter,
   SlpTransactionErrorJsonConverter,
   SlpNullableConverter,
+  SlpTokenAccountDataConverter,
   SlpTransactionMetaInfoVersionConverter,
   SlpTransactionMetaInfoTransactionConverter;
 
@@ -76,6 +77,7 @@ uses
     FOwner: string;
     FExecutable: Boolean;
     FRentEpoch: UInt64;
+    FSpace: UInt64;
   public
     /// <summary>
     /// The lamports balance of the account
@@ -104,6 +106,11 @@ uses
     /// </remarks>
     [JsonConverter(TJsonUInt64ClampNumberConverter)]
     property RentEpoch: UInt64 read FRentEpoch write FRentEpoch;
+
+    /// <summary>
+    /// The data size of the account
+    /// </summary>
+    property Space: UInt64 read FSpace write FSpace;
   end;
 
   /// <summary>
@@ -116,7 +123,7 @@ uses
     /// <summary>
     /// The actual account data.
     /// <remarks>
-    /// This field should contain two values: first value is the data, the second one is the encoding - should always read base64.
+    /// This field should contain two values: first value is the data, the second one is the encoding.
     /// </remarks>
     /// </summary>
     [JsonConverter(TAccountDataConverter)]
@@ -145,16 +152,17 @@ uses
     destructor Destroy; override;
   end;
 
-    /// <summary>
+  /// <summary>
   /// Represents the account info for a given token account.
   /// </summary>
   TTokenAccountInfo = class(TAccountInfoBase)
   private
-    FData: TTokenAccountData;
+    FData: TValue;
   public
     destructor Destroy; override;
 
-    property Data: TTokenAccountData read FData write FData;
+    [JsonConverter(TTokenAccountDataConverter)]
+    property Data: TValue read FData write FData;
   end;
 
   /// <summary>
@@ -1704,9 +1712,16 @@ begin
 end;
 
 destructor TTokenAccountInfo.Destroy;
+var
+  Obj: TObject;
 begin
- if Assigned(FData) then
-  FData.Free;
+  if FData.IsObject then
+  begin
+    Obj := FData.AsObject;
+    if Assigned(Obj) then
+      Obj.Free;
+    FData := TValue.Empty;
+  end;
 
   inherited Destroy;
 end;

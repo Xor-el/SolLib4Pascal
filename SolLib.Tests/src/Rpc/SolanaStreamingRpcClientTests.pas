@@ -190,6 +190,7 @@ var
   CallbackAmount     : string;
   CallbackUiAmount   : string;
   CallbackDecimals   : Integer;
+  TokenAccountData: TTokenAccountData;
 begin
   // Arrange: mock WS + real SUT
   WS     := TMockWebSocketApiClient.Create;
@@ -227,15 +228,17 @@ begin
         CallbackOwner    := Env.Value.Owner;
         CallbackLamports := Env.Value.Lamports;
 
-        if (Env.Value.Data <> nil) and
-           (Env.Value.Data.Parsed <> nil) and
-           (Env.Value.Data.Parsed.Info <> nil) and
-           (Env.Value.Data.Parsed.Info.TokenAmount <> nil) then
+        TokenAccountData := Env.Value.Data.AsType<TTokenAccountData>;
+
+        if (TokenAccountData <> nil) and
+           (TokenAccountData.Parsed <> nil) and
+           (TokenAccountData.Parsed.Info <> nil) and
+           (TokenAccountData.Parsed.Info.TokenAmount <> nil) then
         begin
-          CallbackTokenOwner := Env.Value.Data.Parsed.Info.Owner;
-          CallbackAmount     := Env.Value.Data.Parsed.Info.TokenAmount.Amount;
-          CallbackUiAmount   := Env.Value.Data.Parsed.Info.TokenAmount.UiAmountString;
-          CallbackDecimals   := Env.Value.Data.Parsed.Info.TokenAmount.Decimals;
+          CallbackTokenOwner := TokenAccountData.Parsed.Info.Owner;
+          CallbackAmount     := TokenAccountData.Parsed.Info.TokenAmount.Amount;
+          CallbackUiAmount   := TokenAccountData.Parsed.Info.TokenAmount.UiAmountString;
+          CallbackDecimals   := TokenAccountData.Parsed.Info.TokenAmount.Decimals;
         end;
       end;
 
