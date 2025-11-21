@@ -85,11 +85,11 @@ end;
 
 destructor TMulticast<THandler>.Destroy;
 begin
-  FLock.Enter;
+  FLock.Acquire;
   try
     FList.Free;
   finally
-    FLock.Leave;
+    FLock.Release;
     FLock.Free;
   end;
   inherited;
@@ -98,11 +98,11 @@ end;
 procedure TMulticast<THandler>.Add(const AHandler: THandler);
 begin
   // Allows duplicates
-  FLock.Enter;
+  FLock.Acquire;
   try
     FList.Add(AHandler);
   finally
-    FLock.Leave;
+    FLock.Release;
   end;
 end;
 
@@ -112,7 +112,7 @@ var
   Cmp: IEqualityComparer<THandler>;
 begin
   // Remove ONE occurrence from the end
-  FLock.Enter;
+  FLock.Acquire;
   try
     Cmp := TEqualityComparer<THandler>.Default;
     for I := FList.Count - 1 downto 0 do
@@ -122,27 +122,27 @@ begin
         Break;
       end;
   finally
-    FLock.Leave;
+    FLock.Release;
   end;
 end;
 
 procedure TMulticast<THandler>.Clear;
 begin
-  FLock.Enter;
+  FLock.Acquire;
   try
     FList.Clear;
   finally
-    FLock.Leave;
+    FLock.Release;
   end;
 end;
 
 function TMulticast<THandler>.Count: Integer;
 begin
-  FLock.Enter;
+  FLock.Acquire;
   try
     Result := FList.Count;
   finally
-    FLock.Leave;
+    FLock.Release;
   end;
 end;
 
@@ -159,12 +159,12 @@ begin
   if not Assigned(AInvoker) then Exit;
 
   // Snapshot to avoid re-entrancy/mutation during callbacks
-  FLock.Enter;
+  FLock.Acquire;
   try
     if FList.Count = 0 then Exit;
     Snapshot := FList.ToArray;
   finally
-    FLock.Leave;
+    FLock.Release;
   end;
 
   for H in Snapshot do

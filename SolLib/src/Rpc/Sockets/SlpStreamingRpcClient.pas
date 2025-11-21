@@ -166,7 +166,6 @@ begin
     begin
       if Assigned(FLogger) then
         FLogger.LogInformation('WebSocket disconnected: {0}', [FNodeAddress.ToString]);
-      CleanupSubscriptions;
     end;
 
   FClient.OnError :=

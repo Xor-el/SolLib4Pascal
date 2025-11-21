@@ -106,9 +106,7 @@ begin
   FLogger := ALogger;
 
   if Assigned(AExisting) then
-  begin
    FClient := AExisting
-  end
   else
   begin
    FClient := TsgcWebSocketClient.Create(nil);
@@ -123,9 +121,9 @@ begin
    FClient.HeartBeat.Timeout  := 90;     // seconds to wait for pong before error/close
 
    // WatchDog: auto-reconnect on unexpected disconnects
-    FClient.WatchDog.Enabled   := True;   // auto reconnect
-    FClient.WatchDog.Interval  := 5;      // seconds between attempts
-    FClient.WatchDog.Attempts  := 0;     // unlimited attempts
+   FClient.WatchDog.Enabled   := True;   // auto reconnect
+   FClient.WatchDog.Interval  := 5;      // seconds between attempts
+   FClient.WatchDog.Attempts  := 0;     // unlimited attempts
   end;
 
    // Wire events

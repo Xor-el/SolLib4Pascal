@@ -80,33 +80,33 @@ begin
   FLogger := ALogger;
 
   if Assigned(AExisting) then
-    FClient := AExisting
+   FClient := AExisting
   else
   begin
-    FClient := TScWebSocketClient.Create(nil);
+   FClient := TScWebSocketClient.Create(nil);
 
-    FClient.EventsCallMode := ecDirectly;
+   FClient.EventsCallMode := ecDirectly;
 
-    // HeartBeat: keepalive pings
-    FClient.HeartBeatOptions.Enabled  := True;   // keepalive on
-    FClient.HeartBeatOptions.Interval := 15;     // seconds between pings
-    FClient.HeartBeatOptions.Timeout  := 90;     // seconds to wait for pong before error/close
+   // HeartBeat: keepalive pings
+   FClient.HeartBeatOptions.Enabled  := True;   // keepalive on
+   FClient.HeartBeatOptions.Interval := 15;     // seconds between pings
+   FClient.HeartBeatOptions.Timeout  := 90;     // seconds to wait for pong before error/close
 
-    // WatchDog: auto-reconnect on unexpected disconnects
-    FClient.WatchDogOptions.Enabled   := True;   // auto reconnect
-    FClient.WatchDogOptions.Interval  := 5;      // seconds between attempts
-    FClient.WatchDogOptions.Attempts  := -1;     // unlimited attempts
+   // WatchDog: auto-reconnect on unexpected disconnects
+   FClient.WatchDogOptions.Enabled   := True;   // auto reconnect
+   FClient.WatchDogOptions.Interval  := 5;      // seconds between attempts
+   FClient.WatchDogOptions.Attempts  := -1;     // unlimited attempts
   end;
 
-  // Wire events
-  FClient.AfterConnect    := HandleAfterConnect;
-  FClient.AfterDisconnect := HandleAfterDisconnect;
-  FClient.OnConnectFail   := HandleConnectFail;
-  FClient.OnAsyncError    := HandleAsyncError;
-  FClient.OnMessage       := HandleMessage;
-  FClient.OnControlMessage:= HandleControlMessage;
+   // Wire events
+   FClient.AfterConnect    := HandleAfterConnect;
+   FClient.AfterDisconnect := HandleAfterDisconnect;
+   FClient.OnConnectFail   := HandleConnectFail;
+   FClient.OnAsyncError    := HandleAsyncError;
+   FClient.OnMessage       := HandleMessage;
+   FClient.OnControlMessage:= HandleControlMessage;
 
-  ResetFragment;
+   ResetFragment;
 end;
 
 destructor TSecureBridgeWebSocketClientImpl.Destroy;

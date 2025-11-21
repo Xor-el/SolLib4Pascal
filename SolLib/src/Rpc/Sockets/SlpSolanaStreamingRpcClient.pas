@@ -695,7 +695,7 @@ begin
     FRpcClient.Unsubscribe(Self as ISubscriptionState);
 end;
 
-{ TSubscriptionStateGeneric<T> }
+{ TSubscriptionStateWithHandler<T> }
 
 constructor TSubscriptionStateWithHandler<T>.Create(const ARpcClient: IStreamingRpcClient;
   const AChannel: string; const AHandler: TProc<ISubscriptionState, T>;
@@ -742,6 +742,8 @@ destructor TSolanaStreamingRpcClient.Destroy;
 var
   I: Integer;
 begin
+  inherited;
+
   if Assigned(FIdGenerator) then
     FIdGenerator.Free;
 
@@ -765,8 +767,6 @@ begin
 
   if Assigned(FLock) then
     FLock.Free;
-
-  inherited;
 end;
 
 procedure TSolanaStreamingRpcClient.SendAs<T>(
@@ -795,17 +795,24 @@ begin
   end;
 end;
 
+
 procedure TSolanaStreamingRpcClient.CleanupSubscriptions;
 var
   Pair: TPair<Integer, ISubscriptionState>;
 begin
   for Pair in FConfirmed do
     if Assigned(Pair.Value) then
+    begin
       Pair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
+      FConfirmed[Pair.Key] := nil;
+    end;
 
   for Pair in FUnconfirmed do
     if Assigned(Pair.Value) then
+    begin
       Pair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
+      FUnconfirmed[Pair.Key] := nil;
+    end;
 
   FUnconfirmed.Clear;
   FConfirmed.Clear;
