@@ -17,8 +17,6 @@
 
 unit SlpHelloWorldExample;
 
-{$I ..\..\SolLib\src\Include\SolLib.inc}
-
 interface
 
 uses
@@ -44,7 +42,7 @@ uses
 
 type
   /// <summary>
-  /// Hello World with WebSocket streaming: transfer → subscribe to signature;
+  /// Hello World with WebSocket streaming: transfer -> subscribe to signature;
   /// on confirmation, print balance.
   /// </summary>
   THelloWorldExample = class(TBaseExample)
