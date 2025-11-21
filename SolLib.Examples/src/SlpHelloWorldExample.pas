@@ -145,7 +145,7 @@ begin
       // Success path: Value present AND no error
       if (AData <> nil) and (AData.Value <> nil) and (AData.Value.Error = nil) then
       begin
-        // Re-check balance after airdrop
+        // Re-check balance after transfer
         LBal := LRpc.GetBalance(LTo.PublicKey.Key);
         if (LBal <> nil) and LBal.WasSuccessful and (LBal.Result <> nil) then
           Writeln(Format('Receiver Balance (Post-Transfer): %d', [LBal.Result.Value]))
