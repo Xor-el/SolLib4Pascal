@@ -68,8 +68,8 @@ begin
   Writeln('SOLLET publicKey>b58  ', LPubKeyB58);
   Writeln('SOLLET privateKey>b58 ', LPrivKeyB58);
 
-  LMatch := SameText(LPubKeyB58, ExpectedSolKeygenPublicKey) and
-            SameText(LPrivKeyB58, ExpectedSolKeygenPrivateKey);
+  LMatch := SameStr(LPubKeyB58, ExpectedSolKeygenPublicKey) and
+            SameStr(LPrivKeyB58, ExpectedSolKeygenPrivateKey);
 
   if not LMatch then
     Writeln('NOT GOOD FOR THE SOL')

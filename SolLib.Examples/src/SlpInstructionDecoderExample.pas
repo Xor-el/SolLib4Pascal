@@ -152,7 +152,7 @@ begin
         if (ProgIdx >= 0) and (ProgIdx < Length(Msg.AccountKeys)) then
         begin
           ProgKey := Msg.AccountKeys[ProgIdx];
-          if SameText(ProgKey, VOTE_PROGRAM) then
+          if SameStr(ProgKey, VOTE_PROGRAM) then
             Continue;
         end;
       end;

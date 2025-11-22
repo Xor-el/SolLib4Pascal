@@ -135,8 +135,8 @@ begin
     LAccount := LRestoredWallet.GetAccountByIndex(I);
     Writeln('RESTORED SOLLET address ', LAccount.PublicKey.Key);
 
-    if (not SameText(LAccount.PublicKey.Key, Expected[I].Pub)) or
-       (not SameText(LAccount.PrivateKey.Key, Expected[I].Priv)) then
+    if (not SameStr(LAccount.PublicKey.Key, Expected[I].Pub)) or
+       (not SameStr(LAccount.PrivateKey.Key, Expected[I].Priv)) then
       LOk := False;
   end;
 

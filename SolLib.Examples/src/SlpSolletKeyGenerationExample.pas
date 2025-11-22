@@ -98,7 +98,8 @@ begin
     Writeln('SOLLET publicKey>b58 ', LPubB58);
     Writeln('SOLLET privateKey>b58 ', LPrivB58);
 
-    if (not SameText(LPubB58, Expected[I].Pub)) or (not SameText(LPrivB58, Expected[I].Priv)) then
+    if (not SameStr(LPubB58, Expected[I].Pub)) or
+       (not SameStr(LPrivB58, Expected[I].Priv)) then
       LOk := False;
   end;
 
