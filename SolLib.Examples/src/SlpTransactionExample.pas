@@ -172,7 +172,7 @@ end;
 
 procedure TTransactionBuilderUsingPrivateKeyExample.Run;
 const
-  SenderPrivateKey = '5S1UT7L6bQ8sVaPjpJyYFEEYh8HAXRXPFUEuj6kHQXs6ZE9F6a2wWrjdokAmSPP5HVP46bYxsrU8yr2FxxYmVBi6';
+  SenderPrivateKey = TBaseExample.ACCOUNT_PRIVATE_KEY;
   ReceiverPublicKey = '9KmfMX4Ne5ocb8C7PwjmJTWTpQTQcPhkeD2zY35mawhq';
 var
   LRpc      : IRpcClient;

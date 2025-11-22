@@ -88,6 +88,8 @@ type
         'route clerk disease box emerge airport loud waste attitude film army tray ' +
         'forward deal onion eight catalog surface unit card window walnut wealth medal';
 
+      ACCOUNT_PRIVATE_KEY = '5S1UT7L6bQ8sVaPjpJyYFEEYh8HAXRXPFUEuj6kHQXs6ZE9F6a2wWrjdokAmSPP5HVP46bYxsrU8yr2FxxYmVBi6';
+
     procedure Run; virtual; abstract;
     /// <summary>
     /// Pretty prints simulation logs (each line indented with two tabs + newline).
