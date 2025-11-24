@@ -35,7 +35,7 @@ type
     /// <summary>
     /// Number of Lamports per SOL.
     /// </summary>
-    const LAMPORTS_PER_SOL = 1000000000; // 1e9
+    const LAMPORTS_PER_SOL = 1000000000; // 10^9 lamports per SOL
 
     /// <summary>
     /// Convert Lamports value into SOL double value.
