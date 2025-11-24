@@ -27,10 +27,8 @@ uses
   System.Rtti,
   System.TypInfo,
   SlpPublicKey,
-
   SlpAccountDomain,
   SlpTransactionInstruction,
-
   SlpDeserialization,
   SlpSerialization,
   SlpDecodedInstruction,
