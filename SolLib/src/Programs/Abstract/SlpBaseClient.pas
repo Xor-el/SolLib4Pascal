@@ -518,7 +518,7 @@ begin
            (Length(AEnv.Value.Data) > 0) and (AEnv.Value.Data[0] <> '') then
         begin
           LBytes  := TEncoders.Base64.DecodeData(AEnv.Value.Data[0]);
-          LParsed := DeserializeAccount<T>(LBytes); // caller owns LParsed
+          LParsed := DeserializeAccount<T>(LBytes);
         end;
 
         if Assigned(ACallback) then
