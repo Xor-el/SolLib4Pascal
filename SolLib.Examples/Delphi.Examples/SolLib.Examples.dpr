@@ -48,7 +48,6 @@ uses
   SlpStringTransformer in '..\..\SolLib\src\Misc\SlpStringTransformer.pas',
   SlpTimeTicker in '..\..\SolLib\src\Misc\SlpTimeTicker.pas',
   SlpMulticast in '..\..\SolLib\src\Misc\SlpMulticast.pas',
-  SlpUTF8NoBOMEncoding in '..\..\SolLib\src\Misc\Encoder\SlpUTF8NoBOMEncoding.pas',
   SlpKdTable in '..\..\SolLib\src\Misc\Normalization\SlpKdTable.pas',
   SlpArrayUtils in '..\..\SolLib\src\Utils\SlpArrayUtils.pas',
   SlpCryptoUtils in '..\..\SolLib\src\Utils\SlpCryptoUtils.pas',

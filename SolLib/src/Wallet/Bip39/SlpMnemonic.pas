@@ -27,7 +27,6 @@ uses
   SlpWordList,
   SlpWalletEnum,
   SlpNullable,
-  SlpUTF8NoBOMEncoding,
   SlpCryptoUtils,
   SlpBitWriter,
   SlpArrayUtils,
@@ -94,7 +93,7 @@ type
     function GenerateEntropy(AWordCount: TWordCount): TBytes;
 
     class function CorrectWordCount(MS: Integer): Boolean; static;
-    class function NormalizeUtf8(const S: string): TBytes; static;
+    class function NormalizeUTF8(const S: string): TBytes; static;
 
     /// <summary>
     /// Generate a mnemonic
@@ -287,7 +286,7 @@ begin
     idx) then
     Exit(nil);
 
-  // Convert bits ? bytes and generate random entropy
+  // Convert bits -> bytes and generate random entropy
   Result := TRandom.RandomBytes(FEntArray[idx] div 8);
 end;
 
@@ -320,9 +319,9 @@ begin
   Result := TKdTable.NormalizeKd(S);
 end;
 
-class function TMnemonic.NormalizeUtf8(const S: string): TBytes;
+class function TMnemonic.NormalizeUTF8(const S: string): TBytes;
 begin
-  Result := TUTF8NoBOMEncoding.Instance.GetBytes(NormalizeString(S));
+  Result := TEncoding.UTF8.GetBytes(NormalizeString(S));
 end;
 
 function TMnemonic.IsValidChecksum: Boolean;
@@ -374,19 +373,17 @@ end;
 
 function TMnemonic.DeriveSeed(const Passphrase: string): TBytes;
 var
-  PP: string;
   SaltPrefix: TBytes;
   SaltTail: TBytes;
   Salt: TBytes;
   PW: TBytes;
 begin
-  PP := Passphrase;
   // salt = "mnemonic" || Normalize(passphrase)
-  SaltPrefix := TUTF8NoBOMEncoding.Instance.GetBytes('mnemonic');
-  SaltTail   := NormalizeUtf8(PP);
+  SaltPrefix := TEncoding.UTF8.GetBytes('mnemonic');
+  SaltTail   := NormalizeUTF8(Passphrase);
   Salt       := TArrayUtils.Concat<Byte>(SaltPrefix, SaltTail);
 
-  PW := NormalizeUtf8(FMnemonic);
+  PW := NormalizeUTF8(FMnemonic);
 
   Result := TPbkdf2SHA512.DeriveKey(PW, Salt, 2048, 64);
 end;
