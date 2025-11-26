@@ -17,6 +17,8 @@
 
 unit SlpComparerFactory;
 
+{$I ../Include/SolLib.inc}
+
 interface
 
 uses
