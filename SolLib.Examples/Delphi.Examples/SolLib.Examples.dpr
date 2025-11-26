@@ -54,7 +54,6 @@ uses
   SlpCryptoUtils in '..\..\SolLib\src\Utils\SlpCryptoUtils.pas',
   SlpEd25519Utils in '..\..\SolLib\src\Utils\SlpEd25519Utils.pas',
   SlpListUtils in '..\..\SolLib\src\Utils\SlpListUtils.pas',
-  SlpStringUtils in '..\..\SolLib\src\Utils\SlpStringUtils.pas',
   SlpValueUtils in '..\..\SolLib\src\Utils\SlpValueUtils.pas',
   SlpIOUtils in '..\..\SolLib\src\Utils\SlpIOUtils.pas',
   SlpMathUtils in '..\..\SolLib\src\Utils\SlpMathUtils.pas',

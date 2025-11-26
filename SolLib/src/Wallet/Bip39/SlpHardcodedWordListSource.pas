@@ -76,11 +76,10 @@ begin
   // Split on LF only, exclude empty entries
   Words := Raw.Split([#10], TStringSplitOptions.ExcludeEmpty);
 
-  // Japanese uses the IDEOGRAPHIC SPACE U+$3000
   if SameText(AName, 'japanese') then
-    Space := WideChar($3000)
+    Space := Char($3000) //IDEOGRAPHIC SPACE U+$3000
   else
-    Space := ' ';
+    Space := Char($0020); //SPACE U+$0020
 
   Result := TWordList.Create(Words, Space, AName) as IWordList;
 end;

@@ -30,7 +30,6 @@ uses
   SlpUTF8NoBOMEncoding,
   SlpCryptoUtils,
   SlpBitWriter,
-  SlpStringUtils,
   SlpArrayUtils,
   SlpKdTable;
 
@@ -141,6 +140,22 @@ begin
 end;
 
 constructor TMnemonic.Create(const AMnemonic: string; AWordList: IWordList);
+const
+  WHITESPACE_SEPARATORS: array[0..12] of Char = (
+    Char($0009),  // TAB
+    Char($000A),  // LF (Line Feed)
+    Char($000B),  // VT (Vertical Tab)
+    Char($000C),  // FF (Form Feed)
+    Char($000D),  // CR (Carriage Return)
+    Char($0020),  // SPACE
+    Char($00A0),  // NBSP (Non-Breaking Space)
+    Char($0085),  // NEL (Next Line)
+    Char($1680),  // OGHAM SPACE MARK
+    Char($2000),  // EN QUAD
+    Char($2001),  // EM QUAD
+    Char($2002),  // EN SPACE
+    Char($3000)   // IDEOGRAPHIC SPACE (full-width space)
+  );
 var
   WL: IWordList;
   WordsSplit: TArray<string>;
@@ -161,10 +176,10 @@ begin
   else
     WL := AWordList;
 
-  // Split on any whitespace
-  WordsSplit := TStringUtils.SplitOnWhitespace(FMnemonic);
+  // Split using full whitespace list
+  WordsSplit := FMnemonic.Split(WHITESPACE_SEPARATORS, TStringSplitOptions.ExcludeEmpty);
 
-  // Re-join using WL.Space to normalize spacing
+  // Normalize using WordList.Spacing
   Sep := WL.Space;
   FMnemonic := string.Join(Sep, WordsSplit);
 
