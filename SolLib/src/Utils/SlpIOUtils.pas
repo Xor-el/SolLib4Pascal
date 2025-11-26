@@ -22,13 +22,12 @@ unit SlpIOUtils;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes;
+  System.Classes,
+  System.IOUtils,
+  System.SysUtils;
 
 type
   TIOUtils = class
-  private
-    class function NormalizePathDelimiters(const APath: string): string; static;
   public
     class function ReadAllText(const AFilePath: string): string; overload; static;
     class function ReadAllText(const AFilePath: string; const AEncoding: TEncoding): string; overload; static;
@@ -45,20 +44,6 @@ type
 implementation
 
 { TIOUtils }
-
-class function TIOUtils.NormalizePathDelimiters(const APath: string): string;
-var
-  I: Integer;
-begin
-  Result := APath;
-  for I := 1 to Length(Result) do
-    if (Result[I] = '\') or (Result[I] = '/') then
-      Result[I] := PathDelim;
-
-  // collapse duplicate delimiters
-  while Pos(PathDelim + PathDelim, Result) > 0 do
-    Result := StringReplace(Result, PathDelim + PathDelim, PathDelim, [rfReplaceAll]);
-end;
 
 class function TIOUtils.ReadAllText(const AFilePath: string): string;
 begin
@@ -123,43 +108,13 @@ begin
 end;
 
 class function TIOUtils.CombinePath(const A, B: string): string;
-var
-  LeftPart, RightPart: string;
 begin
-  LeftPart := NormalizePathDelimiters(A);
-  RightPart := NormalizePathDelimiters(B);
-
-  // If right side is absolute (like /usr/bin or C:\Tools), return it directly
-  if ExtractFileDrive(RightPart) <> '' then
-    Exit(RightPart)
-  else if (Length(RightPart) > 0) and (RightPart[1] = PathDelim) then
-    Exit(RightPart);
-
-  if LeftPart = '' then
-    Exit(RightPart)
-  else if RightPart = '' then
-    Exit(LeftPart);
-
-  Result := IncludeTrailingPathDelimiter(LeftPart) + RightPart;
+  Result := TPath.Combine(A, B);
 end;
 
 class function TIOUtils.GetFullPath(const APath: string): string;
-var
-  CurrentDir: string;
 begin
-  if APath = '' then
-    Exit('');
-
-  // Use ExpandFileName for relative -> absolute conversion
-  if ExtractFileDrive(APath) <> '' then
-    Result := ExpandFileName(APath)
-  else
-  begin
-    CurrentDir := GetCurrentDir;
-    Result := ExpandFileName(IncludeTrailingPathDelimiter(CurrentDir) + APath);
-  end;
-
-  Result := NormalizePathDelimiters(Result);
+  Result := TPath.GetFullPath(APath);
 end;
 
 end.
