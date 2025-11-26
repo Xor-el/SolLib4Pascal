@@ -205,7 +205,7 @@ end;
 
 function TWordList.GetWords: TArray<string>;
 begin
-  Result := Copy(FWords);
+  Result := FWords;
 end;
 
 function TWordList.GetWordsByIndices(const Indices: TArray<Integer>): TArray<string>;
