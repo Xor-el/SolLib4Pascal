@@ -22,7 +22,6 @@ unit SlpIOUtils;
 interface
 
 uses
-  System.Classes,
   System.IOUtils,
   System.SysUtils;
 
@@ -47,64 +46,31 @@ implementation
 
 class function TIOUtils.ReadAllText(const AFilePath: string): string;
 begin
-  Result := ReadAllText(AFilePath, TEncoding.UTF8);
+  Result := TFile.ReadAllText(AFilePath);
 end;
 
 class function TIOUtils.ReadAllText(const AFilePath: string;
   const AEncoding: TEncoding): string;
-var
-  Reader: TStreamReader;
 begin
-  if not FileExists(AFilePath) then
-    raise EFileNotFoundException.CreateFmt('File not found: %s', [AFilePath]);
-
-  Reader := TStreamReader.Create(AFilePath, AEncoding, True);
-  try
-    Result := Reader.ReadToEnd;
-  finally
-    Reader.Free;
-  end;
+  Result := TFile.ReadAllText(AFilePath, AEncoding);
 end;
 
 class procedure TIOUtils.WriteAllBytes(const AFilePath: string;
   const AContent: TBytes);
-var
-  Stream: TFileStream;
 begin
-  ForceDirectories(ExtractFileDir(AFilePath)); // ensure target folder exists
-  Stream := TFileStream.Create(AFilePath, fmCreate);
-  try
-    if Length(AContent) > 0 then
-      Stream.WriteBuffer(AContent[0], Length(AContent));
-  finally
-    Stream.Free;
-  end;
+  TFile.WriteAllBytes(AFilePath, AContent);
 end;
 
 class procedure TIOUtils.WriteAllText(const AFilePath: string;
   const AContent: string);
 begin
-  WriteAllText(AFilePath, AContent, TEncoding.UTF8);
+  TFile.WriteAllText(AFilePath, AContent);
 end;
 
 class procedure TIOUtils.WriteAllText(const AFilePath, AContent: string;
   const AEncoding: TEncoding);
-var
-  Stream: TFileStream;
-  Writer: TStreamWriter;
 begin
-  Stream := TFileStream.Create(AFilePath, fmCreate or fmShareDenyWrite);
-  try
-    Writer := TStreamWriter.Create(Stream, AEncoding);
-    try
-      Writer.Write(AContent);
-      Writer.Flush;
-    finally
-      Writer.Free;
-    end;
-  finally
-    Stream.Free;
-  end;
+  TFile.WriteAllText(AFilePath, AContent, AEncoding);
 end;
 
 class function TIOUtils.CombinePath(const A, B: string): string;
