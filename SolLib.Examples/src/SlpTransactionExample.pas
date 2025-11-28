@@ -394,7 +394,7 @@ var
   LOwner      : IAccount;
   LTo         : IAccount;
   LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LSimPrioFees, LActualPrioFees   : IPriorityFeesInformation;
+  LActualPrioFees   : IPriorityFeesInformation;
   LSimTx, LActualTx         : TBytes;
   LSignature   : string;
   LSimTxBuilder, LActualTxBuilder   : ITransactionBuilder;
@@ -411,12 +411,6 @@ begin
   // Fetch recent blockhash
   LBlock := LRpc.GetLatestBlockHash;
 
-  // Prepare simulation priority fees information
-  LSimPrioFees := TPriorityFeesInformation.Create(
-    TComputeBudgetProgram.SetComputeUnitLimit(400000), // limit
-    TComputeBudgetProgram.SetComputeUnitPrice(100000)  // price (micro-lamports)
-  );
-
   LSimTxBuilder := TTransactionBuilder.Create;
   LSimTx := LSimTxBuilder
            .SetFeePayer(LOwner.PublicKey)
@@ -428,7 +422,6 @@ begin
                1000000
              )
            )
-           .SetPriorityFeesInformation(LSimPrioFees)
            .Build(LOwner);
 
   // Estimate priority fees information

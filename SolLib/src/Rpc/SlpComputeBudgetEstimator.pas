@@ -39,15 +39,8 @@ type
   /// <summary>
   /// Static helper for estimating <c>ComputeBudgetProgram.SetComputeUnitLimit</c> and
   /// <c>ComputeBudgetProgram.SetComputeUnitPrice</c> from a BUILT transaction (bytes)
-  /// that includes compute-budget instructions.
-  /// <para>
-  /// Flow:
-  /// <list type="number">
-  ///   <item><description>Simulate <paramref name="ADraftTransactionBytes"/> to obtain <c>UnitsConsumed</c>.</description></item>
-  ///   <item><description>Compute requested limit = <c>ceil(UnitsConsumed * ASafetyMargin)</c>. (Priority fee is charged on the <i>requested</i> limit.)</description></item>
-  ///   <item><description>Fetch recent prioritization fees and pick µ-lamports/CU at <paramref name="AMaxRequiredFeeRatio"/>. If the call succeeds but returns no samples, use <paramref name="ADefaultMicroLamportsPerCu"/>.</description></item>
-  /// </list>
-  /// </para>
+  /// that represents your workload and does NOT yet include compute-budget
+  /// instructions.
   /// https://solana.com/docs/core/fees
   /// https://solana.com/developers/cookbook/transactions/optimize-compute
   /// https://solana.com/developers/guides/advanced/how-to-optimize-compute
@@ -97,7 +90,7 @@ type
     /// RPC client used to simulate the transaction and fetch recent prioritization fees.
     /// </param>
     /// <param name="ADraftTransactionBytes">
-    /// The fully built transaction (as bytes) which does <b>not</b> yet include compute-budget instructions.
+    /// The fully built transaction (as bytes) which <b>includes</b> the compute-budget instructions.
     /// This is simulated to determine <c>UnitsConsumed</c>.
     /// </param>
     /// <param name="AFeeHintAccounts">
