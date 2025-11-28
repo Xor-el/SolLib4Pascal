@@ -39,8 +39,6 @@ type
   /// <summary>
   /// Static helper for estimating <c>ComputeBudgetProgram.SetComputeUnitLimit</c> and
   /// <c>ComputeBudgetProgram.SetComputeUnitPrice</c> from a BUILT transaction (bytes)
-  /// that represents your workload and does NOT yet include compute-budget
-  /// instructions.
   /// https://solana.com/docs/core/fees
   /// https://solana.com/developers/cookbook/transactions/optimize-compute
   /// https://solana.com/developers/guides/advanced/how-to-optimize-compute
