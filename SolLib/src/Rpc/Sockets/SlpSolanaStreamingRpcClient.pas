@@ -44,7 +44,6 @@ uses
   SlpSubscriptionEvent,
   SlpWebSocketApiClient,
   SlpMulticast,
-  SlpValueHelpers,
   SlpValueUtils,
   SlpNullable,
   SlpLogger,
@@ -593,19 +592,13 @@ implementation
 
 constructor TSubscriptionState.Create(const ARpcClient: IStreamingRpcClient; const AChannel: string;
   const AAdditionalParameters: TList<TValue>);
-var
-  LValue: TValue;
 begin
   inherited Create;
   FRpcClient := ARpcClient;
   FChannel := AChannel;
   FLastError := '';
   FLastCode := '';
-  FAdditionalParameters := TList<TValue>.Create;
-
-  if Assigned(AAdditionalParameters) then
-    for LValue in AAdditionalParameters do
-      FAdditionalParameters.Add(LValue.Clone);
+  FAdditionalParameters := AAdditionalParameters;
 
   FSubs := TMulticast<TProc<ISubscriptionState, ISubscriptionEvent>>.Create;
 end;
@@ -1120,7 +1113,7 @@ begin
             Self as IStreamingRpcClient,
             AChannel,
             ACallback,
-            AParams
+            TValueUtils.CloneValueList(AParams)
           );
 
   // Build the JSON-RPC subscribe request and send it
@@ -1145,7 +1138,7 @@ begin
     TValue.From<string>(APubKey),
     TValue.From<TDictionary<string, TValue>>(
       TConfigObject.Make(
-        TKeyValue.Make('encoding', 'base64'),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.Base64)),
         HandleCommitment(ACommitment)
       )
     )
@@ -1172,7 +1165,7 @@ begin
     TValue.From<string>(APubKey),
     TValue.From<TDictionary<string, TValue>>(
       TConfigObject.Make(
-        TKeyValue.Make('encoding', 'jsonParsed'),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.JsonParsed)),
         HandleCommitment(ACommitment)
       )
     )
@@ -1320,7 +1313,7 @@ begin
       TValue.From<string>(AProgramPubkey),
       TValue.From<TDictionary<string, TValue>>(
         TConfigObject.Make(
-          TKeyValue.Make('encoding', 'base64'),
+          TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.Base64)),
           TKeyValue.Make('filters',  FiltersValue(LFilters)),
           HandleCommitment(ACommitment)
         )
