@@ -72,9 +72,7 @@ begin
   K := PTypeInfo(TypeInfo(T)).Kind;
 
   case K of
-    tkInteger, tkInt64, tkEnumeration, tkFloat, tkSet, tkChar, tkWChar
-    {$IF Declared(tkMRecord)}, tkMRecord {$IFEND},
-    tkRecord:
+    tkInteger, tkInt64, tkEnumeration, tkFloat, tkSet, tkChar, tkWChar, tkRecord:
       Exit; // OK
   else
     raise EInvalidOp.CreateFmt(

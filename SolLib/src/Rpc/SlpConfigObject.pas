@@ -78,50 +78,6 @@ type
 implementation
 
 { Utilities }
-(*
-function IsNullishValue(const V: TValue): Boolean;
-var
-  Ctx: TRttiContext;
-  RType: TRttiType;
-  HasValueMeth: TRttiMethod;
-  Ret: TValue;
-begin
-  // Uninitialized TValue
-  if V.IsEmpty then
-    Exit(True);
-
-  // Nil object/interface wrapped in TValue
-  case V.Kind of
-    tkClass:
-      Exit(V.AsObject = nil);
-    tkInterface:
-      Exit(IInterface(V.AsInterface) = nil);
-  end;
-
-  // Handle TNullable<T> and TKeyValue (record with HasValue: Boolean)
-  if (V.Kind = tkRecord)
-{$IF Declared(tkMRecord)}
-    or (V.Kind = tkMRecord)
-{$IFEND}
-  then
-  begin
-    Ctx := TRttiContext.Create;
-    RType := Ctx.GetType(V.TypeInfo);
-    // Look for a parameterless method named "HasValue" returning Boolean
-    HasValueMeth := RType.GetMethod('HasValue');
-    if Assigned(HasValueMeth)
-      and (Length(HasValueMeth.GetParameters) = 0)
-      and Assigned(HasValueMeth.ReturnType)
-      and (HasValueMeth.ReturnType.Handle = TypeInfo(Boolean)) then
-    begin
-      Ret := HasValueMeth.Invoke(V, []);
-      Exit(not Ret.AsBoolean); // nullish if NOT HasValue
-    end;
-  end;
-
-  // Note: do NOT treat empty string, 0, False, etc. as "nullish"
-  Result := False;
-end; *)
 
 function IsNullishValue(const V: TValue): Boolean;
 var
@@ -152,11 +108,7 @@ begin
   end;
 
   // Handle TNullable<T> and TKeyValue (record with HasValue: Boolean)
-  if (V.Kind = tkRecord)
-{$IF Declared(tkMRecord)}
-    or (V.Kind = tkMRecord)
-{$IFEND}
-  then
+  if (V.Kind = tkRecord) then
   begin
     Ctx := TRttiContext.Create;
     try

@@ -451,7 +451,7 @@ function TEnhancedJsonSerializerWriter.ShouldSkipByCondition(
         Result := IsNullLike(V);
 
       // Records: conservative (zero-init)
-      tkRecord{$IF Declared(tkMRecord)}, tkMRecord{$IFEND}:
+      tkRecord:
         Result := V.IsEmpty;
     else
       Result := V.IsEmpty;

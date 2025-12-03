@@ -29,9 +29,21 @@ uses
   System.JSON;
 
 type
+  TEnumeratorInfo = record
+    EnumObject: TObject;
+    MoveNext: TRttiMethod;
+    CurrentProp: TRttiProperty;
+    CurrentField: TRttiField;
+
+    function IsValid: Boolean;
+    function HasCurrent: Boolean;
+    function GetCurrentValue: TValue;
+    procedure FreeEnumObject;
+  end;
+
   TValueUtils = class sealed
   private
-    class function NewContainerInstanceRequireCtor(const AType: TRttiType): TObject; static;
+    class function CreateCollectionInstance(const AType: TRttiType): TObject; static;
 
     { detection }
     class function IsListLikeType(const RType: TRttiType;
@@ -42,8 +54,7 @@ type
       out GetEnum: TRttiMethod): Boolean; static;
 
     { enumeration & helpers }
-    class function GetEnumeratorTriple(const RType: TRttiType; const AInstance: TObject;
-      out EnumObj: TObject; out MoveNext: TRttiMethod; out CurrentGetter: TRttiProperty): Boolean; static;
+    class function GetEnumeratorInfo(const RType: TRttiType; const AInstance: TObject): TEnumeratorInfo; static;
 
     class function ExtractPairKV(const PairValue: TValue; out Key, Val: TValue): Boolean; static;
 
@@ -57,11 +68,31 @@ type
     { ownership flags for TObjectList / TObjectDictionary }
     class procedure CopyOwnershipFlags(const SrcObj, DstObj: TObject); static;
 
-    class procedure FreeParamCore(const AParam: TValue; const Seen: TDictionary<Pointer, Byte>); static;
+    { free helpers }
+    class function TryGetBooleanProperty(const Obj: TObject; const PropName: string;
+      out B: Boolean): Boolean; static;
 
-  public
-    /// Deep-clone a TValue (DTOs, dyn arrays, generic lists/dictionaries supported).
-    class function CloneValue(const V: TValue): TValue; static;
+    class procedure FreeRecordFields(const RecVal: TValue; const Seen: TDictionary<Pointer, Byte>); static;
+    class procedure FreePairKeyValue(const PairValue: TValue;
+      const FreeKey, FreeVal: Boolean; const Seen: TDictionary<Pointer, Byte>); static;
+
+    class procedure DrainList(const Obj: TObject; const Seen: TDictionary<Pointer, Byte>); static;
+    class procedure DrainDict(const Obj: TObject; const FreeKeys, FreeValues: Boolean;
+      const Seen: TDictionary<Pointer, Byte>); static;
+
+    class procedure DetectListOwnership(const Obj: TObject;
+      out OwnsItems, HasOwnsProp: Boolean); static;
+
+    class procedure DetectDictOwnership(const Obj: TObject;
+      out OwnsKeys, OwnsValues, HasKeysProp, HasValuesProp: Boolean); static;
+
+    class function HasAddWithArity(const Obj: TObject; const Arity: Integer): Boolean; static;
+    class function IsListLikeObject(const Obj: TObject): Boolean; static;
+    class function IsDictionaryLikeObject(const Obj: TObject): Boolean; static;
+
+    class function MarkVisited(const Ptr: Pointer; const Seen: TDictionary<Pointer, Byte>): Boolean; static;
+    class procedure FreeValueTree(const V: TValue; const Seen: TDictionary<Pointer, Byte>); static;
+    class procedure FreeParameterInternal(const AParam: TValue; const Seen: TDictionary<Pointer, Byte>); static;
 
     /// Assign ASrc into ADest (recursively). Instantiates ADest as needed.
     class procedure AssignValue(var ADest: TValue; const ASrc: TValue); static;
@@ -69,25 +100,28 @@ type
     /// Create a new instance of ANativeType and copy/morph ASource into it.
     class function CloneObjectToType(const ASource: TValue; ANativeType: PTypeInfo): TValue; static;
 
-    /// <summary>
+  public
+      /// <summary>
     /// Creates an instance of the given class type for population.
     /// - Prefers a parameterless constructor if available.
     /// - Falls back to raw allocation for DTOs with no constructor.
     /// </summary>
     class function MakeInstanceForPopulate(ANativeType: PTypeInfo): TValue; static;
 
+    /// Deep-clone a TValue (DTOs, dyn arrays, generic lists/dictionaries supported).
+    class function CloneValue(const V: TValue): TValue; static;
+
     class function CloneValueList(const AParams: TList<TValue>): TList<TValue>; static;
 
     class function UnwrapValue(const AValue: TValue): TValue; static;
 
-        // Recursively frees anything reachable from AParam that is a class instance.
+    // Recursively frees anything reachable from AParam that is a class instance.
     // - Arrays: recurse elements
     // - JSON DOM (TJSONValue): free the root (children go with it)
     // - Generic containers (lists/dictionaries via GetEnumerator):
     //     * Recurse into yielded items (TPair<K,V> -> both Key & Value)
     //     * TObjectList<T>  : free container only if OwnsObjects=True
     //     * TObjectDictionary<K,V> : free container only if (OwnsKeys or OwnsValues)=True
-    //     * If enumerator Current type is TValue, after draining we free the container
     //     * If ownership is unknown and not TValue items -> do NOT free container
     class procedure FreeParameter(var AParam: TValue); static;
     class procedure FreeParameters(var AParams: TList<TValue>); overload; static;
@@ -99,11 +133,17 @@ type
 implementation
 
 const
-  SKey = 'Key';
-  SValue = 'Value';
-  SAdd = 'Add';
-
-{ TValueUtils }
+  SKey           = 'Key';
+  SValue         = 'Value';
+  SAdd           = 'Add';
+  SCreate        = 'Create';
+  SGetEnumerator = 'GetEnumerator';
+  SMoveNext      = 'MoveNext';
+  SCurrent       = 'Current';
+  SOwnsObjects   = 'OwnsObjects';
+  SOwnsKeys      = 'OwnsKeys';
+  SOwnsValues    = 'OwnsValues';
+  SOwnerships    = 'Ownerships';
 
 function TypedNil(ATypeInfo: PTypeInfo): TValue;
 begin
@@ -111,6 +151,78 @@ begin
     Exit(TValue.Empty);
   Result := TValue.From<TObject>(nil);
   Result := Result.Cast(ATypeInfo);
+end;
+
+{ TEnumeratorInfo }
+
+function TEnumeratorInfo.IsValid: Boolean;
+begin
+  Result := Assigned(EnumObject) and Assigned(MoveNext) and HasCurrent;
+end;
+
+function TEnumeratorInfo.HasCurrent: Boolean;
+begin
+  Result := Assigned(CurrentProp) or Assigned(CurrentField);
+end;
+
+function TEnumeratorInfo.GetCurrentValue: TValue;
+begin
+  if Assigned(CurrentProp) then
+    Result := CurrentProp.GetValue(EnumObject)
+  else if Assigned(CurrentField) then
+    Result := CurrentField.GetValue(EnumObject)
+  else
+    Result := TValue.Empty;
+end;
+
+procedure TEnumeratorInfo.FreeEnumObject;
+begin
+  EnumObject.Free;
+  EnumObject := nil;
+  MoveNext := nil;
+  CurrentProp := nil;
+  CurrentField := nil;
+end;
+
+{=== Core RTTI helpers ===}
+
+class function TValueUtils.TryGetBooleanProperty(const Obj: TObject; const PropName: string;
+  out B: Boolean): Boolean;
+var
+  Ctx: TRttiContext;
+  T: TRttiType;
+  P: TRttiProperty;
+  V: TValue;
+begin
+  Result := False;
+  B := False;
+  if Obj = nil then
+    Exit;
+
+  Ctx := TRttiContext.Create;
+  try
+    T := Ctx.GetType(Obj.ClassType);
+    if T = nil then Exit;
+    P := T.GetProperty(PropName);
+    if (P <> nil) and P.IsReadable and (P.PropertyType <> nil) and
+       (P.PropertyType.Handle = TypeInfo(Boolean)) then
+    begin
+      V := P.GetValue(Obj);
+      B := V.AsBoolean;
+      Result := True;
+    end;
+  finally
+    Ctx.Free;
+  end;
+end;
+
+class function TValueUtils.MarkVisited(const Ptr: Pointer; const Seen: TDictionary<Pointer, Byte>): Boolean;
+begin
+  if (Ptr = nil) or (Seen = nil) then
+    Exit(False);
+  Result := Seen.ContainsKey(Ptr);
+  if not Result then
+    Seen.Add(Ptr, 0);
 end;
 
 class function TValueUtils.MakeInstanceForPopulate(ANativeType: PTypeInfo): TValue;
@@ -137,7 +249,7 @@ begin
     // 1) Prefer a parameterless "Create" constructor
     Ctor := nil;
     for M in InstT.GetMethods do
-      if (M.MethodKind = mkConstructor) and SameText(M.Name, 'Create') and
+      if (M.MethodKind = mkConstructor) and SameText(M.Name, SCreate) and
          (Length(M.GetParameters) = 0) then
       begin
         Ctor := M;
@@ -157,7 +269,7 @@ begin
   end;
 end;
 
-class function TValueUtils.NewContainerInstanceRequireCtor(const AType: TRttiType): TObject;
+class function TValueUtils.CreateCollectionInstance(const AType: TRttiType): TObject;
 var
   InstT: TRttiInstanceType;
   M, Ctor: TRttiMethod;
@@ -168,10 +280,11 @@ begin
   InstT := TRttiInstanceType(AType);
   Ctor := nil;
   for M in InstT.GetMethods do
-    if (M.MethodKind = mkConstructor) and SameText(M.Name, 'Create') and
+    if (M.MethodKind = mkConstructor) and SameText(M.Name, SCreate) and
        (Length(M.GetParameters) = 0) then
     begin
-      Ctor := M; Break;
+      Ctor := M;
+      Break;
     end;
 
   if not Assigned(Ctor) then
@@ -193,7 +306,7 @@ begin
   AddMethod := nil;
   ElemType := nil;
   for M in RType.GetMethods do
-    if (M.Name = 'Add') and (M.MethodKind in [mkProcedure, mkFunction]) then
+    if (M.Name = SAdd) and (M.MethodKind in [mkProcedure, mkFunction]) then
     begin
       Params := M.GetParameters;
       if Length(Params) = 1 then
@@ -219,7 +332,7 @@ begin
 
   for M in RType.GetMethods do
   begin
-    if (M.Name = 'Add') and (M.MethodKind in [mkProcedure, mkFunction]) then
+    if (M.Name = SAdd) and (M.MethodKind in [mkProcedure, mkFunction]) then
     begin
       Params := M.GetParameters;
       if Length(Params) = 2 then
@@ -229,7 +342,7 @@ begin
         ValType := Params[1].ParamType.Handle;
       end;
     end
-    else if (M.Name = 'GetEnumerator') and (Length(M.GetParameters) = 0) then
+    else if (M.Name = SGetEnumerator) and (Length(M.GetParameters) = 0) then
       GetEnum := M;
   end;
 
@@ -238,23 +351,25 @@ end;
 
 {=== Enumeration helpers ===}
 
-class function TValueUtils.GetEnumeratorTriple(const RType: TRttiType; const AInstance: TObject;
-  out EnumObj: TObject; out MoveNext: TRttiMethod; out CurrentGetter: TRttiProperty): Boolean;
+class function TValueUtils.GetEnumeratorInfo(const RType: TRttiType; const AInstance: TObject): TEnumeratorInfo;
 var
-  Ctx: TRttiContext;
-  EnumT: TRttiType;
   GetEnum: TRttiMethod;
   LocalEnum: TObject;
+  Ctx: TRttiContext;
+  EnumT: TRttiType;
+  MoveNext: TRttiMethod;
+  CurrentProp: TRttiProperty;
+  CurrentField: TRttiField;
 begin
-  Result := False;
-  EnumObj := nil;
-  MoveNext := nil;
-  CurrentGetter := nil;
+  Result.EnumObject := nil;
+  Result.MoveNext := nil;
+  Result.CurrentProp := nil;
+  Result.CurrentField := nil;
 
   if (RType = nil) or (AInstance = nil) then
     Exit;
 
-  GetEnum := RType.GetMethod('GetEnumerator');
+  GetEnum := RType.GetMethod(SGetEnumerator);
   if GetEnum = nil then
     Exit;
 
@@ -267,14 +382,18 @@ begin
     EnumT := Ctx.GetType(LocalEnum.ClassType);
     if EnumT <> nil then
     begin
-      MoveNext := EnumT.GetMethod('MoveNext');
-      CurrentGetter := EnumT.GetProperty('Current');
-      if Assigned(MoveNext) and Assigned(CurrentGetter) then
+      MoveNext := EnumT.GetMethod(SMoveNext);
+      CurrentProp := EnumT.GetProperty(SCurrent);
+      if CurrentProp = nil then
+        CurrentField := EnumT.GetField(SCurrent);
+
+      if Assigned(MoveNext) and (Assigned(CurrentProp) or Assigned(CurrentField)) then
       begin
-        // success: transfer ownership to caller
-        EnumObj := LocalEnum;
-        LocalEnum := nil;
-        Result := True;
+        Result.EnumObject   := LocalEnum;
+        Result.MoveNext     := MoveNext;
+        Result.CurrentProp  := CurrentProp;
+        Result.CurrentField := CurrentField;
+        LocalEnum := nil; // transferred
       end;
     end;
   finally
@@ -333,26 +452,27 @@ class procedure TValueUtils.AssignListLike(ADstList, ASrcList: TObject; const AL
 var
   AddM: TRttiMethod;
   ElemTI: PTypeInfo;
-  EnumObj: TObject;
-  MoveNext: TRttiMethod;
-  Current: TRttiProperty;
+  EnumInfo: TEnumeratorInfo;
   Cur, ToAdd: TValue;
 begin
   if (ADstList = nil) or (ASrcList = nil) then Exit;
   if not IsListLikeType(AListType, AddM, ElemTI) then Exit;
-  if not GetEnumeratorTriple(AListType, ASrcList, EnumObj, MoveNext, Current) then Exit;
+
+  EnumInfo := GetEnumeratorInfo(AListType, ASrcList);
+  if not EnumInfo.IsValid then
+    Exit;
 
   try
-    while MoveNext.Invoke(EnumObj, []).AsBoolean do
+    while EnumInfo.MoveNext.Invoke(EnumInfo.EnumObject, []).AsBoolean do
     begin
-      Cur := Current.GetValue(EnumObj);
+      Cur := EnumInfo.GetCurrentValue;
       ToAdd := CloneValue(Cur);
       if Assigned(ElemTI) and (not ToAdd.IsEmpty) and (ToAdd.TypeInfo <> ElemTI) then
         ToAdd := ToAdd.Cast(ElemTI);
       AddM.Invoke(ADstList, [ToAdd]);
     end;
   finally
-    EnumObj.Free; // ensure no leak
+    EnumInfo.FreeEnumObject;
   end;
 end;
 
@@ -360,19 +480,20 @@ class procedure TValueUtils.AssignDictionaryLike(ADstDict, ASrcDict: TObject; co
 var
   AddM, GetEnumM: TRttiMethod;
   KeyTI, ValTI: PTypeInfo;
-  EnumObj: TObject;
-  MoveNext: TRttiMethod;
-  Current: TRttiProperty;
+  EnumInfo: TEnumeratorInfo;
   Pair, K, V, CK, CV: TValue;
 begin
   if (ADstDict = nil) or (ASrcDict = nil) then Exit;
   if not IsDictionaryLikeType(ADictType, AddM, KeyTI, ValTI, GetEnumM) then Exit;
-  if not GetEnumeratorTriple(ADictType, ASrcDict, EnumObj, MoveNext, Current) then Exit;
+
+  EnumInfo := GetEnumeratorInfo(ADictType, ASrcDict);
+  if not EnumInfo.IsValid then
+    Exit;
 
   try
-    while MoveNext.Invoke(EnumObj, []).AsBoolean do
+    while EnumInfo.MoveNext.Invoke(EnumInfo.EnumObject, []).AsBoolean do
     begin
-      Pair := Current.GetValue(EnumObj);
+      Pair := EnumInfo.GetCurrentValue;
       if not ExtractPairKV(Pair, K, V) then
         raise EInvalidOp.Create('Enumerator Current is not a TPair<K,V>.');
 
@@ -387,7 +508,7 @@ begin
       AddM.Invoke(ADstDict, [CK, CV]);
     end;
   finally
-    EnumObj.Free;
+    EnumInfo.FreeEnumObject;
   end;
 end;
 
@@ -455,8 +576,8 @@ begin
     DstT := Ctx.GetType(DstObj.ClassType);
 
     // TObjectList<T> : OwnsObjects: Boolean
-    PSrc := SrcT.GetProperty('OwnsObjects');
-    PDst := DstT.GetProperty('OwnsObjects');
+    PSrc := SrcT.GetProperty(SOwnsObjects);
+    PDst := DstT.GetProperty(SOwnsObjects);
     if Assigned(PSrc) and PSrc.IsReadable and Assigned(PDst) and PDst.IsWritable then
     begin
       V := PSrc.GetValue(SrcObj);
@@ -464,8 +585,8 @@ begin
     end;
 
     // TObjectDictionary<TKey,TValue> : Ownerships: set; or OwnsKeys/OwnsValues
-    PSrc := SrcT.GetProperty('Ownerships');
-    PDst := DstT.GetProperty('Ownerships');
+    PSrc := SrcT.GetProperty(SOwnerships);
+    PDst := DstT.GetProperty(SOwnerships);
     if Assigned(PSrc) and PSrc.IsReadable and Assigned(PDst) and PDst.IsWritable then
     begin
       V := PSrc.GetValue(SrcObj);
@@ -473,16 +594,16 @@ begin
     end
     else
     begin
-      PSrc := SrcT.GetProperty('OwnsKeys');
-      PDst := DstT.GetProperty('OwnsKeys');
+      PSrc := SrcT.GetProperty(SOwnsKeys);
+      PDst := DstT.GetProperty(SOwnsKeys);
       if Assigned(PSrc) and PSrc.IsReadable and Assigned(PDst) and PDst.IsWritable then
       begin
         V := PSrc.GetValue(SrcObj);
         PDst.SetValue(DstObj, V);
       end;
 
-      PSrc := SrcT.GetProperty('OwnsValues');
-      PDst := DstT.GetProperty('OwnsValues');
+      PSrc := SrcT.GetProperty(SOwnsValues);
+      PDst := DstT.GetProperty(SOwnsValues);
       if Assigned(PSrc) and PSrc.IsReadable and Assigned(PDst) and PDst.IsWritable then
       begin
         V := PSrc.GetValue(SrcObj);
@@ -532,7 +653,7 @@ begin
           // Generic list?
           if IsListLikeType(RType, AddM, ElemTI) then
           begin
-            NewObj := NewContainerInstanceRequireCtor(RType);
+            NewObj := CreateCollectionInstance(RType);
             CopyOwnershipFlags(Cur.AsObject, NewObj);
             TValue.Make(@NewObj, Cur.TypeInfo, Result);
             AssignListLike(Result.AsObject, Cur.AsObject, RType);
@@ -542,7 +663,7 @@ begin
           // Generic dictionary?
           if IsDictionaryLikeType(RType, AddM, KeyTI, ValTI, GetEnumM) then
           begin
-            NewObj := NewContainerInstanceRequireCtor(RType);
+            NewObj := CreateCollectionInstance(RType);
             CopyOwnershipFlags(Cur.AsObject, NewObj);
             TValue.Make(@NewObj, Cur.TypeInfo, Result);
             AssignDictionaryLike(Result.AsObject, Cur.AsObject, RType);
@@ -583,8 +704,8 @@ begin
   begin
     if (P.PropertyType = nil) or (not P.IsWritable) then
       Continue;
-    if not (P.Visibility in [mvPublic, mvPublished]) then
-      Continue;
+    //if not (P.Visibility in [mvPublic, mvPublished]) then
+    //  Continue;
 
     try
       SrcVal := P.GetValue(ASrcObj);
@@ -606,7 +727,7 @@ begin
           // list-like?
           if IsListLikeType(P.PropertyType, AddM, ElemTI) then
           begin
-            NewObj := NewContainerInstanceRequireCtor(P.PropertyType);
+            NewObj := CreateCollectionInstance(P.PropertyType);
             CopyOwnershipFlags(SrcVal.AsObject, NewObj);
             TValue.Make(@NewObj, P.PropertyType.Handle, DstVal);
             AssignListLike(DstVal.AsObject, SrcVal.AsObject, P.PropertyType);
@@ -615,7 +736,7 @@ begin
           // dictionary-like?
           else if IsDictionaryLikeType(P.PropertyType, AddM, KeyTI, ValTI, GetEnum) then
           begin
-            NewObj := NewContainerInstanceRequireCtor(P.PropertyType);
+            NewObj := CreateCollectionInstance(P.PropertyType);
             CopyOwnershipFlags(SrcVal.AsObject, NewObj);
             TValue.Make(@NewObj, P.PropertyType.Handle, DstVal);
             AssignDictionaryLike(DstVal.AsObject, SrcVal.AsObject, P.PropertyType);
@@ -659,7 +780,7 @@ begin
     if F.FieldType = nil then
       Continue;
     //if not (F.Visibility in [mvPublic, mvPublished]) then
-      //Continue;
+    //  Continue;
 
     SrcVal := F.GetValue(ASrcObj);
 
@@ -687,13 +808,12 @@ begin
           F.SetValue(ADstObj, DstVal);
         end;
 
-      else
-        // scalar/enum/set/record by value
-        F.SetValue(ADstObj, SrcVal);
+    else
+      // scalar/enum/set/record by value
+      F.SetValue(ADstObj, SrcVal);
     end;
   end;
 end;
-
 
 class procedure TValueUtils.AssignValue(var ADest: TValue; const ASrc: TValue);
 var
@@ -750,7 +870,7 @@ end;
 
 class function TValueUtils.UnwrapValue(const AValue: TValue): TValue;
 const
-  MAX_UNWRAPS = 4;
+  MAX_UNWRAPS = 4; // guard to avoid infinite unboxing loops
 var
   Cur: TValue;
   Guard: Integer;
@@ -771,388 +891,299 @@ begin
   Result := Cur;
 end;
 
-class procedure TValueUtils.FreeParamCore(const AParam: TValue; const Seen: TDictionary<Pointer, Byte>);
+{=== Free helpers (records, pairs, containers) ===}
 
-  function MarkVisited(const Ptr: Pointer): Boolean;
+class procedure TValueUtils.FreeRecordFields(const RecVal: TValue; const Seen: TDictionary<Pointer, Byte>);
+var
+  Ctx: TRttiContext;
+  T: TRttiType;
+  F: TRttiField;
+  P: Pointer;
+begin
+  Ctx := TRttiContext.Create;
+  try
+    T := Ctx.GetType(RecVal.TypeInfo);
+    if T = nil then Exit;
+    P := RecVal.GetReferenceToRawData;
+    for F in T.GetFields do
+      FreeValueTree(F.GetValue(P), Seen);
+  finally
+    Ctx.Free;
+  end;
+end;
+
+class procedure TValueUtils.FreePairKeyValue(const PairValue: TValue;
+  const FreeKey, FreeVal: Boolean; const Seen: TDictionary<Pointer, Byte>);
+var
+  K, V: TValue;
+begin
+  if PairValue.Kind <> tkRecord then Exit;
+  if not ExtractPairKV(PairValue, K, V) then
+    Exit;
+
+  if FreeKey then
+    FreeValueTree(K, Seen);
+  if FreeVal then
+    FreeValueTree(V, Seen);
+end;
+
+class procedure TValueUtils.DetectListOwnership(const Obj: TObject;
+  out OwnsItems, HasOwnsProp: Boolean);
+var
+  B: Boolean;
+begin
+  OwnsItems := False;
+  HasOwnsProp := False;
+  if TryGetBooleanProperty(Obj, SOwnsObjects, B) then
   begin
-    if Ptr = nil then Exit(False);
-    Result := Seen.ContainsKey(Ptr);
-    if not Result then Seen.Add(Ptr, 0);
+    HasOwnsProp := True;
+    OwnsItems := B;
+  end;
+end;
+
+class procedure TValueUtils.DetectDictOwnership(const Obj: TObject;
+  out OwnsKeys, OwnsValues, HasKeysProp, HasValuesProp: Boolean);
+var
+  B: Boolean;
+begin
+  OwnsKeys := False;
+  OwnsValues := False;
+  HasKeysProp := False;
+  HasValuesProp := False;
+
+  if TryGetBooleanProperty(Obj, SOwnsKeys, B) then
+  begin
+    HasKeysProp := True;
+    OwnsKeys := B;
   end;
 
-  function TryGetBoolProp(const Obj: TObject; const PropName: string;
-    out B: Boolean; out Known: Boolean): Boolean;
-  var
-    Ctx: TRttiContext; T: TRttiType; P: TRttiProperty; V: TValue;
+  if TryGetBooleanProperty(Obj, SOwnsValues, B) then
   begin
-    Result := False; Known := False; B := False;
-    Ctx := TRttiContext.Create;
-    try
-      T := Ctx.GetType(Obj.ClassType);
-      if T = nil then Exit(False);
-      P := T.GetProperty(PropName);
-      if (P <> nil) and P.IsReadable and (P.PropertyType <> nil) and
-         (P.PropertyType.Handle = TypeInfo(Boolean)) then
-      begin
-        Known := True;
-        V := P.GetValue(Obj);
-        B := V.AsBoolean;
+    HasValuesProp := True;
+    OwnsValues := B;
+  end;
+end;
+
+class function TValueUtils.HasAddWithArity(const Obj: TObject; const Arity: Integer): Boolean;
+var
+  Ctx: TRttiContext;
+  T: TRttiType;
+  M: TRttiMethod;
+begin
+  Result := False;
+  if Obj = nil then Exit;
+
+  Ctx := TRttiContext.Create;
+  try
+    T := Ctx.GetType(Obj.ClassType);
+    if T = nil then Exit;
+    for M in T.GetMethods do
+      if (M.Name = SAdd) and (Length(M.GetParameters) = Arity) then
         Exit(True);
-      end;
-    finally
-      Ctx.Free;
-    end;
+  finally
+    Ctx.Free;
   end;
-
-  function SafeGetType(const Ctx: TRttiContext; const Obj: TObject): TRttiType;
-  begin
-    if Obj = nil then Exit(nil);
-    Result := Ctx.GetType(Obj.ClassType);
-  end;
-
-  // Detect generic list-like: an Add with 1 parameter
-  // Helper: check if type has an 'Add' method with a given arity
-  function HasAddWithArity(const Obj: TObject; const Arity: Integer): Boolean;
-  var
-    Ctx: TRttiContext; T: TRttiType; M: TRttiMethod;
-  begin
-    if Obj = nil then Exit(False);
-    Result := False;
-    Ctx := TRttiContext.Create;
-    try
-      T := SafeGetType(Ctx, Obj);
-      if T = nil then Exit(False);
-      for M in T.GetMethods do
-        if (M.Name = SAdd) and (Length(M.GetParameters) = Arity) then
-          Exit(True);
-    finally
-      Ctx.Free;
-    end;
-  end;
-
-  function IsListLike(const Obj: TObject): Boolean;
-  begin
-    if Obj = nil then Exit(False);
-    Result := HasAddWithArity(Obj, 1);
-
-  end;
-
-  // Detect dictionary-like: an Add with 2 parameters
-  function IsDictionaryLike(const Obj: TObject): Boolean;
-  begin
-    if Obj = nil then Exit(False);
-    Result := HasAddWithArity(Obj, 2);
-
-  end;
-
-  procedure ProbeListOwnership(const Obj: TObject; out OwnsItems, HasProp: Boolean);
-  begin
-    OwnsItems := False; HasProp := False;
-    TryGetBoolProp(Obj, 'OwnsObjects', OwnsItems, HasProp);
-  end;
-
-  procedure ProbeDictOwnership(const Obj: TObject;
-                               out OwnsKeys, OwnsValues, HasKeysProp, HasValuesProp: Boolean);
-  begin
-    OwnsKeys := False; OwnsValues := False;
-    HasKeysProp := False; HasValuesProp := False;
-    TryGetBoolProp(Obj, 'OwnsKeys',   OwnsKeys,   HasKeysProp);
-    TryGetBoolProp(Obj, 'OwnsValues', OwnsValues, HasValuesProp);
-  end;
-
-  // Enumerator lookup: supports Current as PROPERTY or FIELD
-  function GetEnumeratorQuad(const RType: TRttiType; const Inst: TObject;
-    out EnumObj: TObject; out MoveNext: TRttiMethod; out CurrentProp: TRttiProperty; out CurrentField: TRttiField): Boolean;
-  var
-    GetEnum: TRttiMethod; Ctx: TRttiContext; EnumT: TRttiType;
-  begin
-    Result := False;
-    EnumObj := nil; MoveNext := nil; CurrentProp := nil; CurrentField := nil;
-    if (RType = nil) or (Inst = nil) then Exit;
-    GetEnum := RType.GetMethod('GetEnumerator');
-    if GetEnum = nil then Exit;
-
-    EnumObj := GetEnum.Invoke(Inst, []).AsObject;
-    if EnumObj = nil then Exit;
-
-    Ctx := TRttiContext.Create;
-    try
-      EnumT := Ctx.GetType(EnumObj.ClassType);
-      if EnumT <> nil then
-      begin
-        MoveNext    := EnumT.GetMethod('MoveNext');
-        CurrentProp := EnumT.GetProperty('Current');
-        if CurrentProp = nil then
-          CurrentField := EnumT.GetField('Current');
-        Result := Assigned(MoveNext) and (Assigned(CurrentProp) or Assigned(CurrentField));
-      end;
-      if not Result then
-        EnumObj.Free;
-    finally
-      Ctx.Free;
-    end;
-  end;
-
-  function GetCurrentValue(const EnumObj: TObject; const CurrentProp: TRttiProperty; const CurrentField: TRttiField): TValue;
-  begin
-    if Assigned(CurrentProp) then Exit(CurrentProp.GetValue(EnumObj));
-    if Assigned(CurrentField) then Exit(CurrentField.GetValue(EnumObj));
-    Result := TValue.Empty;
-  end;
-
-function TryGetProp(const T: TRttiType; const Name: string; out P: TRttiProperty): Boolean;
-begin
-  P := T.GetProperty(Name);
-  Result := Assigned(P);
 end;
 
-function TryGetCurrentValue(EnumObj: TObject; CurProp: TRttiProperty; CurField: TRttiField; out V: TValue): Boolean;
+class function TValueUtils.IsListLikeObject(const Obj: TObject): Boolean;
 begin
-  if (CurProp = nil) and (CurField = nil) then Exit(False);
-  V := GetCurrentValue(EnumObj, CurProp, CurField);
-  Result := True;
+  Result := HasAddWithArity(Obj, 1);
 end;
 
-function TryGetField(const T: TRttiType; const Name: string; out F: TRttiField): Boolean;
+class function TValueUtils.IsDictionaryLikeObject(const Obj: TObject): Boolean;
 begin
-  F := T.GetField(Name);
-  Result := Assigned(F);
+  Result := HasAddWithArity(Obj, 2);
 end;
 
-  procedure FreePairKV(const PairValue: TValue; const FreeKey, FreeVal: Boolean);
-  var
-    Ctx: TRttiContext; T: TRttiType;
-    Pk, Pv: TRttiProperty; Fk, Fv: TRttiField;
-    K, V: TValue;
-  begin
-    if PairValue.Kind <> tkRecord then Exit;
-    Ctx := TRttiContext.Create;
-    try
-      T := Ctx.GetType(PairValue.TypeInfo);
-      if TryGetProp(T, SKey, Pk) and TryGetProp(T, SValue, Pv) then
-      if TryGetProp(T, SKey, Pk) and TryGetProp(T, SValue, Pv) then
-      begin
-        if FreeKey then begin K := Pk.GetValue(PairValue.GetReferenceToRawData); FreeParamCore(K, Seen); end;
-        if FreeVal then begin V := Pv.GetValue(PairValue.GetReferenceToRawData); FreeParamCore(V, Seen); end;
-        Exit;
-      end;
-      if TryGetField(T, SKey, Fk) and TryGetField(T, SValue, Fv) then
-      if TryGetField(T, SKey, Fk) and TryGetField(T, SValue, Fv) then
-      begin
-        if FreeKey then begin K := Fk.GetValue(PairValue.GetReferenceToRawData); FreeParamCore(K, Seen); end;
-        if FreeVal then begin V := Fv.GetValue(PairValue.GetReferenceToRawData); FreeParamCore(V, Seen); end;
-      end;
-    finally
-      Ctx.Free;
-    end;
+class procedure TValueUtils.DrainList(const Obj: TObject; const Seen: TDictionary<Pointer, Byte>);
+var
+  Ctx: TRttiContext;
+  RType: TRttiType;
+  EnumInfo: TEnumeratorInfo;
+  CurrVal: TValue;
+begin
+  if Obj = nil then Exit;
 
-  end;
-
-  procedure DrainList(const Obj: TObject);
-  var
-    Ctx: TRttiContext; RType: TRttiType; EnumObj: TObject;
-    MoveNext: TRttiMethod; CurProp: TRttiProperty; CurField: TRttiField;
-    CurrVal: TValue;
-  begin
-    Ctx := TRttiContext.Create;
-    try
-      RType := SafeGetType(Ctx, Obj);
-      EnumObj := nil;
-      if GetEnumeratorQuad(RType, Obj, EnumObj, MoveNext, CurProp, CurField) then      {$IFDEF DEBUG} Assert(Assigned(MoveNext)); {$ENDIF}
-
-      try
-        while MoveNext.Invoke(EnumObj, []).AsBoolean do
-        begin
-          if TryGetCurrentValue(EnumObj, CurProp, CurField, CurrVal) then
-          begin
-            FreeParamCore(CurrVal, Seen);
-          end;
-        end;
-      finally
-        EnumObj.Free;
-      end;
-    finally
-      Ctx.Free;
-    end;
-  end;
-
-  procedure DrainDict(const Obj: TObject; const FreeKeys, FreeValues: Boolean);
-  var
-    Ctx: TRttiContext; RType: TRttiType; EnumObj: TObject;
-    MoveNext: TRttiMethod; CurProp: TRttiProperty; CurField: TRttiField;
-    CurrVal: TValue;
-  begin
-    Ctx := TRttiContext.Create;
-    try
-      RType := SafeGetType(Ctx, Obj);
-      EnumObj := nil;
-      if GetEnumeratorQuad(RType, Obj, EnumObj, MoveNext, CurProp, CurField) then      {$IFDEF DEBUG} Assert(Assigned(MoveNext)); {$ENDIF}
-
-      try
-        while MoveNext.Invoke(EnumObj, []).AsBoolean do
-        begin
-          CurrVal := GetCurrentValue(EnumObj, CurProp, CurField);
-          if CurrVal.Kind = tkRecord then
-            FreePairKV(CurrVal, FreeKeys, FreeValues)
-          else
-            FreeParamCore(CurrVal, Seen); // unusual, but recurse anyway
-        end;
-      finally
-        EnumObj.Free;
-      end;
-    finally
-      Ctx.Free;
-    end;
-  end;
-
-  procedure FreeRecordFields(const RecVal: TValue);
-  var
-    Ctx: TRttiContext; T: TRttiType; F: TRttiField; P: Pointer;
-  begin
-    Ctx := TRttiContext.Create;
-    try
-      T := Ctx.GetType(RecVal.TypeInfo);
-      if T = nil then Exit;
-      P := RecVal.GetReferenceToRawData;
-      for F in T.GetFields do
-        FreeParamCore(F.GetValue(P), Seen);
-    finally
-      Ctx.Free;
-    end;
-  end;
-
-  procedure FreeValueTree(const V: TValue);
-  var
-    Cur: TValue;
-    I, N: Integer;
-    Obj: TObject;
-    OwnsItems, HasOwnsProp: Boolean;
-    OwnsKeys, OwnsValues, HasKeysProp, HasValuesProp: Boolean;
-    Ctx: TRttiContext; RType: TRttiType;
-    EnumObj: TObject; MoveNext: TRttiMethod; CurProp: TRttiProperty; CurField: TRttiField;
-    HadEnum: Boolean;
-  begin
-    Cur := UnwrapValue(V);
-
-    // Arrays
-    if Cur.IsArray then
-    begin
-      N := Cur.GetArrayLength;
-      for I := 0 to N - 1 do
-      begin
-        FreeValueTree(Cur.GetArrayElement(I));
-      end;
+  Ctx := TRttiContext.Create;
+  try
+    RType := Ctx.GetType(Obj.ClassType);
+    EnumInfo := GetEnumeratorInfo(RType, Obj);
+    if not EnumInfo.IsValid then
       Exit;
-    end;
 
-    // Records (generic): walk all fields
-    if (Cur.Kind = tkRecord) or (Cur.Kind = tkMRecord)
-    then
-    begin
-      FreeRecordFields(Cur);
+    try
+      while EnumInfo.MoveNext.Invoke(EnumInfo.EnumObject, []).AsBoolean do
+      begin
+        CurrVal := EnumInfo.GetCurrentValue;
+        FreeValueTree(CurrVal, Seen);
+      end;
+    finally
+      EnumInfo.FreeEnumObject;
+    end;
+  finally
+    Ctx.Free;
+  end;
+end;
+
+class procedure TValueUtils.DrainDict(const Obj: TObject; const FreeKeys, FreeValues: Boolean;
+  const Seen: TDictionary<Pointer, Byte>);
+var
+  Ctx: TRttiContext;
+  RType: TRttiType;
+  EnumInfo: TEnumeratorInfo;
+  CurrVal: TValue;
+begin
+  if Obj = nil then Exit;
+
+  Ctx := TRttiContext.Create;
+  try
+    RType := Ctx.GetType(Obj.ClassType);
+    EnumInfo := GetEnumeratorInfo(RType, Obj);
+    if not EnumInfo.IsValid then
       Exit;
+
+    try
+      while EnumInfo.MoveNext.Invoke(EnumInfo.EnumObject, []).AsBoolean do
+      begin
+        CurrVal := EnumInfo.GetCurrentValue;
+        if CurrVal.Kind = tkRecord then
+          FreePairKeyValue(CurrVal, FreeKeys, FreeValues, Seen)
+        else
+          FreeValueTree(CurrVal, Seen);
+      end;
+    finally
+      EnumInfo.FreeEnumObject;
     end;
+  finally
+    Ctx.Free;
+  end;
+end;
 
-    // Objects
-    if Cur.IsObject then
+class procedure TValueUtils.FreeValueTree(const V: TValue; const Seen: TDictionary<Pointer, Byte>);
+var
+  Cur: TValue;
+  I, N: Integer;
+  Obj: TObject;
+  OwnsItems, HasOwnsProp: Boolean;
+  OwnsKeys, OwnsValues, HasKeysProp, HasValuesProp: Boolean;
+  Ctx: TRttiContext;
+  RType: TRttiType;
+  EnumInfo: TEnumeratorInfo;
+begin
+  Cur := UnwrapValue(V);
+
+  // Arrays
+  if Cur.IsArray then
+  begin
+    N := Cur.GetArrayLength;
+    for I := 0 to N - 1 do
+      FreeValueTree(Cur.GetArrayElement(I), Seen);
+    Exit;
+  end;
+
+  // Records (generic): walk all fields
+  if (Cur.Kind = tkRecord) then
+  begin
+    FreeRecordFields(Cur, Seen);
+    Exit;
+  end;
+
+  // Objects
+  if Cur.IsObject then
+  begin
+    Obj := Cur.AsObject;
+    if Obj = nil then Exit;
+    if MarkVisited(Obj, Seen) then Exit;
+
+    // JSON DOM
+    if Obj is TJSONValue then
     begin
-      Obj := Cur.AsObject;
-      if Obj = nil then Exit;
-      if MarkVisited(Obj) then Exit;
-
-      // JSON DOM
-      if Obj is TJSONValue then
-      begin
-        Obj.Free;
-        Exit;
-      end;
-
-      // TObjectList<T>
-      ProbeListOwnership(Obj, OwnsItems, HasOwnsProp);
-      if HasOwnsProp then
-      begin
-        if OwnsItems then
-        begin
-          Obj.Free;   // owns -> free container only
-          Exit;
-        end
-        else
-        begin
-          DrainList(Obj); // non-owning -> free items
-          Obj.Free;       // then free container
-          Exit;
-        end;
-      end;
-
-      // TObjectDictionary<K,V>
-      ProbeDictOwnership(Obj, OwnsKeys, OwnsValues, HasKeysProp, HasValuesProp);
-      if HasKeysProp or HasValuesProp then
-      begin
-        if (not OwnsKeys) and (not OwnsValues) then
-        begin
-          // both False -> free K & V, then container
-          DrainDict(Obj, True, True);
-          Obj.Free;
-          Exit;
-        end
-        else
-        begin
-          // owns one/both -> do NOT free owned sides; drain only non-owned, then container
-          DrainDict(Obj, not OwnsKeys, not OwnsValues);
-          Obj.Free;
-          Exit;
-        end;
-      end;
-
-      // Regular list/dictionary
-      if IsListLike(Obj) then
-      begin
-        DrainList(Obj);
-        Obj.Free;
-        Exit;
-      end;
-
-      if IsDictionaryLike(Obj) then
-      begin
-        DrainDict(Obj, True, True);
-        Obj.Free;
-        Exit;
-      end;
-
-      // Generic enumerable fallback
-      Ctx := TRttiContext.Create;
-      try
-        RType := SafeGetType(Ctx, Obj);
-        EnumObj := nil; HadEnum := False;
-        if GetEnumeratorQuad(RType, Obj, EnumObj, MoveNext, CurProp, CurField) then
-        try
-          HadEnum := True;
-          while MoveNext.Invoke(EnumObj, []).AsBoolean do
-            FreeValueTree(GetCurrentValue(EnumObj, CurProp, CurField));
-        finally
-          EnumObj.Free;
-        end;
-      finally
-        Ctx.Free;
-      end;
-
-      if HadEnum then
-      begin
-        Obj.Free;
-        Exit;
-      end;
-
-      // Plain DTO
       Obj.Free;
       Exit;
     end;
 
-    // Non-object scalars/strings/etc.: nothing to free
+    // TObjectList<T>
+    DetectListOwnership(Obj, OwnsItems, HasOwnsProp);
+    if HasOwnsProp then
+    begin
+      if OwnsItems then
+      begin
+        Obj.Free;   // owns -> free container only
+        Exit;
+      end
+      else
+      begin
+        DrainList(Obj, Seen); // non-owning -> free items
+        Obj.Free;             // then free container
+        Exit;
+      end;
+    end;
+
+    // TObjectDictionary<K,V>
+    DetectDictOwnership(Obj, OwnsKeys, OwnsValues, HasKeysProp, HasValuesProp);
+    if HasKeysProp or HasValuesProp then
+    begin
+      if (not OwnsKeys) and (not OwnsValues) then
+      begin
+        // both False -> free K & V, then container
+        DrainDict(Obj, True, True, Seen);
+        Obj.Free;
+        Exit;
+      end
+      else
+      begin
+        // owns one/both -> do NOT free owned sides; drain only non-owned, then container
+        DrainDict(Obj, not OwnsKeys, not OwnsValues, Seen);
+        Obj.Free;
+        Exit;
+      end;
+    end;
+
+    // Regular list/dictionary
+    if IsListLikeObject(Obj) then
+    begin
+      DrainList(Obj, Seen);
+      Obj.Free;
+      Exit;
+    end;
+
+    if IsDictionaryLikeObject(Obj) then
+    begin
+      DrainDict(Obj, True, True, Seen);
+      Obj.Free;
+      Exit;
+    end;
+
+    // Generic enumerable fallback
+    Ctx := TRttiContext.Create;
+    try
+      RType := Ctx.GetType(Obj.ClassType);
+      EnumInfo := GetEnumeratorInfo(RType, Obj);
+      if EnumInfo.IsValid then
+      try
+        while EnumInfo.MoveNext.Invoke(EnumInfo.EnumObject, []).AsBoolean do
+          FreeValueTree(EnumInfo.GetCurrentValue, Seen);
+        Obj.Free;
+        Exit;
+      finally
+        EnumInfo.FreeEnumObject;
+      end;
+    finally
+      Ctx.Free;
+    end;
+
+    // Plain DTO
+    Obj.Free;
+    Exit;
   end;
 
+  // Non-object scalars/strings/etc.: nothing to free
+end;
+
+class procedure TValueUtils.FreeParameterInternal(const AParam: TValue; const Seen: TDictionary<Pointer, Byte>);
 begin
   if AParam.IsEmpty then Exit;
-  FreeValueTree(AParam);
+  FreeValueTree(AParam, Seen);
 end;
 
 class procedure TValueUtils.FreeParameter(var AParam: TValue);
@@ -1162,7 +1193,7 @@ begin
   if AParam.IsEmpty then Exit;
   Seen := TDictionary<Pointer, Byte>.Create;
   try
-    FreeParamCore(AParam, Seen);
+    FreeParameterInternal(AParam, Seen);
   finally
     Seen.Free;
   end;
@@ -1183,7 +1214,7 @@ begin
     begin
       V := AParams[I];
       if not V.IsEmpty then
-        FreeParamCore(V, Seen);  // shared Seen across all params
+        FreeParameterInternal(V, Seen);  // shared Seen across all params
       AParams[I] := TValue.Empty;
     end;
   finally
@@ -1204,9 +1235,7 @@ begin
   Seen := TDictionary<Pointer, Byte>.Create;
   try
     for Pair in AParams do
-    begin
-     FreeParamCore(Pair.Value, Seen);
-    end;
+      FreeParameterInternal(Pair.Value, Seen);
   finally
     Seen.Free;
   end;
@@ -1278,3 +1307,4 @@ begin
 end;
 
 end.
+
