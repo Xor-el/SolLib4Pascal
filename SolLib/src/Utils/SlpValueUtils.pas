@@ -120,9 +120,8 @@ type
     // - JSON DOM (TJSONValue): free the root (children go with it)
     // - Generic containers (lists/dictionaries via GetEnumerator):
     //     * Recurse into yielded items (TPair<K,V> -> both Key & Value)
-    //     * TObjectList<T>  : free container only if OwnsObjects=True
-    //     * TObjectDictionary<K,V> : free container only if (OwnsKeys or OwnsValues)=True
-    //     * If ownership is unknown and not TValue items -> do NOT free container
+    //     * TObjectList<T>  : only free container if OwnsObjects=True
+    //     * TObjectDictionary<K,V> : only free container if (OwnsKeys or OwnsValues)=True
     class procedure FreeParameter(var AParam: TValue); static;
     class procedure FreeParameters(var AParams: TList<TValue>); overload; static;
     class procedure FreeParameters(var AParams: TDictionary<string, TValue>); overload; static;
