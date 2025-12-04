@@ -311,7 +311,7 @@ begin
   end;
 
   // We should now be at the start of an element; materialize it
-  Elem := Self.ReadJsonValue; // your existing function
+  Elem := Self.ReadJsonValue;
   if Elem = nil then
   begin
     // Defensive: treat nil as "no element" (e.g., if we were mis-positioned)
