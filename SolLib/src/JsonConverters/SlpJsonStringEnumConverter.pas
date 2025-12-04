@@ -31,6 +31,7 @@ uses
   System.JSON.Serializers,
   SlpStringTransformer,
   SlpJsonKit,
+  SlpRpcEnum,
   SlpJsonHelpers;
 
 type
@@ -121,19 +122,22 @@ begin
 end;
 
 function TJsonStringEnumConverter.CanConvert(ATypeInf: PTypeInfo): Boolean;
-function IsBooleanType(ATypeInf: PTypeInfo): Boolean; inline;
-begin
-  Result :=
-    (ATypeInf = TypeInfo(Boolean))  or
-    (ATypeInf = TypeInfo(ByteBool)) or
-    (ATypeInf = TypeInfo(WordBool)) or
-    (ATypeInf = TypeInfo(LongBool));
-end;
+
+  function IsExcludedEnumType(ATypeInf: PTypeInfo): Boolean; inline;
+  begin
+    Result :=
+      (ATypeInf = TypeInfo(Boolean))  or
+      (ATypeInf = TypeInfo(ByteBool)) or
+      (ATypeInf = TypeInfo(WordBool)) or
+      (ATypeInf = TypeInfo(LongBool)) or
+      (ATypeInf = TypeInfo(TBinaryEncoding));
+  end;
+
 begin
   Result :=
     (ATypeInf <> nil) and
     (ATypeInf^.Kind = tkEnumeration) and
-    not IsBooleanType(ATypeInf);
+    not IsExcludedEnumType(ATypeInf);
 end;
 
 class function TJsonStringEnumConverter.ComposeProviderThenPolicy(

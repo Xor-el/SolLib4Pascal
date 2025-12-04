@@ -30,6 +30,7 @@ uses
 {$ENDIF}
   SlpJsonKit,
   SlpJsonStringEnumConverter,
+  SlpEncodingConverter,
   SlpRpcEnum,
   SlpHttpApiClient,
   SlpHttpApiResponse,
@@ -96,6 +97,7 @@ begin
   Converters := TList<TJsonConverter>.Create;
   try
     Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+    Converters.Add(TEncodingConverter.Create());
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,

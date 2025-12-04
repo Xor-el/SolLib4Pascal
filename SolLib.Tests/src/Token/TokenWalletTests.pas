@@ -46,6 +46,7 @@ uses
   SlpSolanaRpcClient,
   SlpSolanaRpcBatchWithCallbacks,
   SlpJsonKit,
+  SlpEncodingConverter,
   SlpJsonStringEnumConverter,
   SlpAssociatedTokenAccountProgram,
   RpcClientMocks,
@@ -101,6 +102,7 @@ begin
   Converters := TList<TJsonConverter>.Create;
   try
     Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+    Converters.Add(TEncodingConverter.Create());
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,

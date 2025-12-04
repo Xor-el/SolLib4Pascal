@@ -21,9 +21,6 @@ unit SlpRpcEnum;
 
 interface
 
-uses
-  System.JSON.Serializers;
-
 type
   /// <summary>
   /// Represents the filter account type.
@@ -87,7 +84,6 @@ type
     /// <summary>
     /// Base64 with ZStandard compression
     /// </summary>
-    [JsonName('base64+zstd')]
     Base64Zstd
   );
 

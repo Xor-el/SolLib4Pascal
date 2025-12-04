@@ -50,8 +50,32 @@ end;
 
 function TEncodingConverter.ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
+var
+  S: string;
+  Enc: TBinaryEncoding;
 begin
-  raise ENotImplemented.Create('Not implemented');
+  if AReader.TokenType = TJsonToken.Null then
+    Exit(TValue.Empty);
+
+  if (ATypeInfo = nil) or (ATypeInfo.Kind <> tkEnumeration) then
+    raise EJsonException.Create('EncodingConverter called for non-enum type.');
+
+  S := AReader.Value.AsString;
+
+  if SameText(S, 'json') then
+    Enc := TBinaryEncoding.Json
+  else if SameText(S, 'jsonParsed') then
+    Enc := TBinaryEncoding.JsonParsed
+  else if SameText(S, 'base58') then
+    Enc := TBinaryEncoding.Base58
+  else if SameText(S, 'base64') then
+    Enc := TBinaryEncoding.Base64
+  else if SameText(S, 'base64+zstd') then
+    Enc := TBinaryEncoding.Base64Zstd
+  else
+    raise EJsonException.CreateFmt('Unknown binary encoding "%s".', [S]);
+
+  Result := TValue.From<TBinaryEncoding>(Enc);
 end;
 
 procedure TEncodingConverter.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
@@ -62,13 +86,29 @@ begin
   if not AValue.TryAsType<TBinaryEncoding>(Enc) then
     raise EJsonException.Create('EncodingConverter received unexpected value type.');
 
-  if Enc = TBinaryEncoding.JsonParsed then
-    AWriter.WriteValue('jsonParsed')
-  else if Enc = TBinaryEncoding.Base64Zstd then
-    AWriter.WriteValue('base64+zstd')
+  case Enc of
+    TBinaryEncoding.Json:
+      AWriter.WriteValue('json');
+
+    TBinaryEncoding.JsonParsed:
+      AWriter.WriteValue('jsonParsed');
+
+    TBinaryEncoding.Base58:
+      AWriter.WriteValue('base58');
+
+    TBinaryEncoding.Base64:
+      AWriter.WriteValue('base64');
+
+    TBinaryEncoding.Base64Zstd:
+      AWriter.WriteValue('base64+zstd');
   else
-    AWriter.WriteValue('base64');
+    raise EJsonException.CreateFmt(
+      'EncodingConverter received unsupported encoding value (%d).',
+      [Ord(Enc)]
+    );
+  end;
 end;
+
 
 end.
 
