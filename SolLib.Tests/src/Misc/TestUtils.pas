@@ -21,6 +21,12 @@ interface
 
 uses
   System.SysUtils,
+  System.Generics.Collections,
+  System.JSON.Serializers,
+  SlpJsonKit,
+  SlpJsonStringEnumConverter,
+  SlpEncodingConverter,
+  SlpJsonConverterFactory,
   SlpIOUtils;
 
 type
@@ -28,6 +34,7 @@ type
   TTestUtils = class
   private
     class var FTestSourceRoot: string; // optional explicit override
+    class var FSerializer: TJsonSerializer;
 
     /// Resolve a base dir using either FTestSourceRoot or a climb for Marker(s).
     class function GetSourceDir(
@@ -43,6 +50,7 @@ type
       const Targets: array of string;
       out FoundAncestorDir, FoundFullPath: string
     ): Boolean; overload; static;
+    class function BuildSerializer: TJsonSerializer; static;
 
   public
     /// Set once (e.g., in test init) to pin the repo/test root explicitly.
@@ -60,11 +68,80 @@ type
     /// Read whole file as UTF-8 (default).
     class function ReadAllText(const AFileName: string): string; overload; static;
     class function ReadAllText(const AFileName: string; const AEncoding: TEncoding): string; overload; static;
+
+    class function Serialize<T>(const AData: T): string; static;
+    class function Deserialize<T>(const AData: string): T; static;
+
+    class constructor Create();
+    class destructor Destroy();
   end;
 
 implementation
 
 { TTestUtils }
+
+class constructor TTestUtils.Create;
+begin
+  FSerializer := BuildSerializer();
+end;
+
+class destructor TTestUtils.Destroy;
+var
+ I: Integer;
+begin
+  if Assigned(FSerializer) then
+  begin
+    if Assigned(FSerializer.Converters) then
+    begin
+      for I := 0 to FSerializer.Converters.Count - 1 do
+        if Assigned(FSerializer.Converters[I]) then
+          FSerializer.Converters[I].Free;
+      FSerializer.Converters.Clear;
+    end;
+    FSerializer.Free;
+  end;
+
+  inherited;
+end;
+
+class function TTestUtils.BuildSerializer: TJsonSerializer;
+var
+  Converters     : TList<TJsonConverter>;
+  LRpcConverters : TList<TJsonConverter>;
+begin
+  Converters := TList<TJsonConverter>.Create;
+  try
+    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+    Converters.Add(TEncodingConverter.Create);
+
+    LRpcConverters := TJsonConverterFactory.GetRpcConverters;
+    try
+      Converters.AddRange(LRpcConverters);
+    finally
+      LRpcConverters.Free;
+    end;
+
+    Result := TJsonSerializerFactory.CreateSerializer(
+      TEnhancedContractResolver.Create(
+        TJsonMemberSerialization.Public,
+        TJsonNamingPolicy.CamelCase
+      ),
+      Converters
+    );
+  finally
+    Converters.Free;
+  end;
+end;
+
+class function TTestUtils.Serialize<T>(const AData: T): string;
+begin
+  Result := FSerializer.Serialize<T>(AData);
+end;
+
+class function TTestUtils.Deserialize<T>(const AData: string): T;
+begin
+  Result := FSerializer.Deserialize<T>(AData);
+end;
 
 class procedure TTestUtils.SetTestSourceRoot(const Dir: string);
 begin

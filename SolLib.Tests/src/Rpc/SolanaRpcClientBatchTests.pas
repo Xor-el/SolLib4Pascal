@@ -22,15 +22,11 @@ interface
 uses
   System.SysUtils,
   System.Generics.Collections,
-  System.JSON.Serializers,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpJsonKit,
-  SlpJsonStringEnumConverter,
-  SlpEncodingConverter,
   SlpRpcEnum,
   SlpHttpApiClient,
   SlpHttpApiResponse,
@@ -50,15 +46,11 @@ type
   const
     TokenProgramProgramId: string = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
   private
-    FSerializer: TJsonSerializer;
-    function BuildSerializer: TJsonSerializer;
     function CreateMockRequestResult<T>(
       const Req, Resp: string;
       const StatusCode: Integer
     ): IRequestResult<T>;
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
+
   published
     procedure TestCreateAndSerializeBatchTokenMintInfoRequest;
     procedure TestDeserializeBatchResponse;
@@ -85,54 +77,9 @@ begin
   LRes.RawRpcResponse := Resp;
 
   if StatusCode = 200 then
-    LRes.Result := FSerializer.Deserialize<T>(Resp);
+    LRes.Result := TTestUtils.Deserialize<T>(Resp);
 
   Result := LRes;
-end;
-
-function TSolanaRpcClientBatchTests.BuildSerializer: TJsonSerializer;
-var
-  Converters: TList<TJsonConverter>;
-begin
-  Converters := TList<TJsonConverter>.Create;
-  try
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-    Converters.Add(TEncodingConverter.Create());
-    Result := TJsonSerializerFactory.CreateSerializer(
-      TEnhancedContractResolver.Create(
-        TJsonMemberSerialization.Public,
-        TJsonNamingPolicy.CamelCase
-      ),
-      Converters
-    );
-  finally
-    Converters.Free;
-  end;
-end;
-
-procedure TSolanaRpcClientBatchTests.SetUp;
-begin
-  inherited;
-  FSerializer := BuildSerializer;
-end;
-
-procedure TSolanaRpcClientBatchTests.TearDown;
-var
- I: Integer;
-begin
-  if Assigned(FSerializer) then
-  begin
-    if Assigned(FSerializer.Converters) then
-    begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
-      FSerializer.Converters.Clear;
-    end;
-    FSerializer.Free;
-  end;
-
-  inherited;
 end;
 
 procedure TSolanaRpcClientBatchTests.TestCreateAndSerializeBatchTokenMintInfoRequest;
@@ -164,7 +111,7 @@ begin
       AssertNotNull(reqs, 'reqs should not be nil');
       AssertEquals(2, reqs.Count, 'reqs.Count');
 
-      json := FSerializer.Serialize(reqs);
+      json := TTestUtils.Serialize(reqs);
       AssertJsonMatch(expected, json, 'Serialized batch JSON mismatch');
     finally
       reqs.Free;
@@ -185,7 +132,7 @@ begin
 
   res := nil;
   try
-    res := FSerializer.Deserialize<TJsonRpcBatchResponse>(responseData);
+    res := TTestUtils.Deserialize<TJsonRpcBatchResponse>(responseData);
     AssertNotNull(res, 'Batch response should not be nil');
     AssertEquals(5, res.Count, 'Batch response item count');
   finally
@@ -204,7 +151,7 @@ begin
 
   res := nil;
   try
-    res := FSerializer.Deserialize<TJsonRpcBatchResponse>(responseData);
+    res := TTestUtils.Deserialize<TJsonRpcBatchResponse>(responseData);
     AssertNotNull(res);
     AssertEquals(2, res.Count);
   finally
@@ -220,11 +167,11 @@ begin
   exampleFail := '{''InstructionError'':[0,''InvalidAccountData'']}';
   exampleFail := StringReplace(exampleFail, '''', '"', [rfReplaceAll]);
 
-  obj := FSerializer.Deserialize<TTransactionError>(exampleFail);
+  obj := TTestUtils.Deserialize<TTransactionError>(exampleFail);
   try
     AssertNotNull(obj, 'Deserialized object should not be nil');
 
-    json := FSerializer.Serialize(obj);
+    json := TTestUtils.Serialize(obj);
     AssertTrue(json <> '', 'Serialized JSON should not be empty');
     AssertJsonMatch(exampleFail, json, 'Round-trip JSON mismatch');
   finally

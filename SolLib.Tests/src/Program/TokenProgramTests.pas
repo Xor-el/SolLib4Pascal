@@ -23,14 +23,11 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   System.Rtti,
-  System.JSON.Serializers,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpJsonKit,
-  SlpJsonStringEnumConverter,
   SlpDataEncoders,
   SlpWallet,
   SlpAccount,
@@ -48,7 +45,6 @@ uses
 type
   TTokenProgramTests = class(TSolLibProgramTestCase)
   private
-    FSerializer: TJsonSerializer;
 
     const MnemonicWords =
       'route clerk disease box emerge airport loud waste attitude film army tray ' +
@@ -194,8 +190,6 @@ type
 
       const TokenMintAccountBase64Data = 'AQAAABzjWe1aAS4E+hQrnHUaHF6Hz9CgFhuchf/TG3jN/Nj2du5fou7/EAAGAQEAAAAqnl7btTwEZ5CY/3sSZRcUQ0/AjFYqmjuGEQXmctQicw==';
 
-    function BuildSerializer: TJsonSerializer;
-
     class function TokenProgramIdBytes: TBytes; static;
 
     class function ExpectedTransferData: TBytes; static;
@@ -218,10 +212,6 @@ type
     class function ExpectedFreezeAccountData: TBytes; static;
     class function ExpectedThawAccountData: TBytes; static;
     class function ExpectedSyncNativeData: TBytes; static;
-
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
 
   published
     procedure TestTransfer;
@@ -418,50 +408,6 @@ end;
 class function TTokenProgramTests.ExpectedSyncNativeData: TBytes;
 begin
   Result := TBytes.Create(17);
-end;
-
-function TTokenProgramTests.BuildSerializer: TJsonSerializer;
-var
-  Converters: TList<TJsonConverter>;
-begin
-  Converters := TList<TJsonConverter>.Create;
-  try
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-    Result := TJsonSerializerFactory.CreateSerializer(
-      TEnhancedContractResolver.Create(
-        TJsonMemberSerialization.Public,
-        TJsonNamingPolicy.CamelCase
-      ),
-      Converters
-    );
-  finally
-    Converters.Free;
-  end;
-end;
-
-procedure TTokenProgramTests.SetUp;
-begin
-  inherited;
-  FSerializer := BuildSerializer;
-end;
-
-procedure TTokenProgramTests.TearDown;
-var
- I: Integer;
-begin
-  if Assigned(FSerializer) then
-  begin
-    if Assigned(FSerializer.Converters) then
-    begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
-      FSerializer.Converters.Clear;
-    end;
-    FSerializer.Free;
-  end;
-
-  inherited;
 end;
 
 procedure TTokenProgramTests.TestTransfer;
@@ -2119,7 +2065,7 @@ var
 begin
   // arrange
   LJson := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'DecodeInitAccount3.json']));
-  LTxMeta := FSerializer.Deserialize<TTransactionMetaInfo>(LJson);
+  LTxMeta := TTestUtils.Deserialize<TTransactionMetaInfo>(LJson);
 
   // act
   LDecoded := TInstructionDecoder.DecodeInstructions(LTxMeta);

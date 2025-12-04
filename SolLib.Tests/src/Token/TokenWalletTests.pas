@@ -23,7 +23,6 @@ uses
   System.SysUtils,
   System.Classes,
   System.Generics.Collections,
-  System.Json.Serializers,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
@@ -45,9 +44,6 @@ uses
   SlpTransactionBuilder,
   SlpSolanaRpcClient,
   SlpSolanaRpcBatchWithCallbacks,
-  SlpJsonKit,
-  SlpEncodingConverter,
-  SlpJsonStringEnumConverter,
   SlpAssociatedTokenAccountProgram,
   RpcClientMocks,
   TestUtils,
@@ -62,12 +58,8 @@ type
         ' forward deal onion eight catalog surface unit card window walnut wealth medal';
       Blockhash = '5cZja93sopRB9Bkhckj5WzCxCaVyriv2Uh5fFDPDFFfj';
   private
-    FSerializer: TJsonSerializer;
-    function BuildSerializer: TJsonSerializer;
     function CreateMockRequestResult<T>(const AReqJson, ARespJson: string; const AHttpStatusCode: Integer): IRequestResult<T>;
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
+
   published
     procedure TestLoadKnownMint;
     procedure TestLoadUnknownMint;
@@ -95,51 +87,6 @@ implementation
 
 { TTokenWalletTests }
 
-function TTokenWalletTests.BuildSerializer: TJsonSerializer;
-var
-  Converters: TList<TJsonConverter>;
-begin
-  Converters := TList<TJsonConverter>.Create;
-  try
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-    Converters.Add(TEncodingConverter.Create());
-    Result := TJsonSerializerFactory.CreateSerializer(
-      TEnhancedContractResolver.Create(
-        TJsonMemberSerialization.Public,
-        TJsonNamingPolicy.CamelCase
-      ),
-      Converters
-    );
-  finally
-    Converters.Free;
-  end;
-end;
-
-procedure TTokenWalletTests.SetUp;
-begin
-  inherited;
-  FSerializer := BuildSerializer;
-end;
-
-procedure TTokenWalletTests.TearDown;
-var
- I: Integer;
-begin
-  if Assigned(FSerializer) then
-  begin
-    if Assigned(FSerializer.Converters) then
-    begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
-      FSerializer.Converters.Clear;
-    end;
-    FSerializer.Free;
-  end;
-
-  inherited;
-end;
-
 function TTokenWalletTests.CreateMockRequestResult<T>(
   const AReqJson, ARespJson: string; const AHttpStatusCode: Integer): IRequestResult<T>;
 var
@@ -151,7 +98,7 @@ begin
   LRes.RawRpcResponse := ARespJson;
 
   if AHttpStatusCode = 200 then
-    LRes.Result := FSerializer.Deserialize<T>(ARespJson);
+    LRes.Result := TTestUtils.Deserialize<T>(ARespJson);
 
   Result := LRes;
 end;
@@ -608,7 +555,7 @@ begin
   Json := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
   Resp := nil;
   try
-    Resp := FSerializer.Deserialize<TJsonRpcResponse<TResponseValue<UInt64>>>(Json);
+    Resp := TTestUtils.Deserialize<TJsonRpcResponse<TResponseValue<UInt64>>>(Json);
     AssertNotNull(Resp);
   finally
     if Assigned(Resp) then
@@ -624,7 +571,7 @@ begin
   Json := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'SendTransactionResponse.json']));
   Resp := nil;
   try
-    Resp := FSerializer.Deserialize<TJsonRpcResponse<string>>(Json);
+    Resp := TTestUtils.Deserialize<TJsonRpcResponse<string>>(Json);
     AssertNotNull(Resp);
   finally
     if Assigned(Resp) then
@@ -703,7 +650,7 @@ begin
       AssertNotNull(Reqs);
       AssertEquals(2, Reqs.Count);
 
-      Json := FSerializer.Serialize<TJsonRpcBatchRequest>(Reqs);
+      Json := TTestUtils.Serialize<TJsonRpcBatchRequest>(Reqs);
       AssertJsonMatch(ExpectedReq, Json);
 
       // Fake RPC response

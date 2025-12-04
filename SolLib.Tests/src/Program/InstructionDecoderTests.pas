@@ -23,14 +23,11 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   System.Rtti,
-  System.JSON.Serializers,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpJsonKit,
-  SlpJsonStringEnumConverter,
   SlpRpcModel,
   SlpPublicKey,
   SlpMessageDomain,
@@ -42,8 +39,6 @@ uses
 type
   TInstructionDecoderTests = class(TSolLibProgramTestCase)
   private
-    FSerializer: TJsonSerializer;
-
     const
       Base64Message =
         'AgAEBmeEU5GowlV7Ug3Y0gjKv+31fvJ5iq+FC+pj+blJfEu615Bs5Vo6mnXZXvh35ULmThtyhwH8xzD' +
@@ -171,12 +166,6 @@ type
         'U6rja/SG+12TgmTuZF10tgFuD0euuz7BZDi/e/++G6sYz49vuFr7rLN/dMfUEvpaHxP6DxaNZa' +
         'SUp0zrIUswEKCgcIAAECAwQFBgkRBUBCDwAAAAAAoIYBAAAAAAA=';
 
-    function BuildSerializer: TJsonSerializer;
-
-  protected
-    procedure SetUp; override;
-    procedure TearDown; override;
-
   published
     // registration tests
     procedure InstructionDecoderRegisterTest;
@@ -211,50 +200,6 @@ type
 implementation
 
 { TInstructionDecoderTests }
-
-function TInstructionDecoderTests.BuildSerializer: TJsonSerializer;
-var
-  Converters: TList<TJsonConverter>;
-begin
-  Converters := TList<TJsonConverter>.Create;
-  try
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-    Result := TJsonSerializerFactory.CreateSerializer(
-      TEnhancedContractResolver.Create(
-        TJsonMemberSerialization.Public,
-        TJsonNamingPolicy.CamelCase
-      ),
-      Converters
-    );
-  finally
-    Converters.Free;
-  end;
-end;
-
-procedure TInstructionDecoderTests.SetUp;
-begin
-  inherited;
-  FSerializer := BuildSerializer;
-end;
-
-procedure TInstructionDecoderTests.TearDown;
-var
- I: Integer;
-begin
-  if Assigned(FSerializer) then
-  begin
-    if Assigned(FSerializer.Converters) then
-    begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
-      FSerializer.Converters.Clear;
-    end;
-    FSerializer.Free;
-  end;
-
-  inherited;
-end;
 
 procedure TInstructionDecoderTests.InstructionDecoderRegisterTest;
 var
@@ -364,7 +309,7 @@ begin
   LJson   := TTestUtils.ReadAllText(
                TTestUtils.CombineAll([FResDir, 'AssociatedTokenAccount', 'TestDecodeInstructionFromBlockTransactionMetaInfo.json'])
              );
-  LTxMeta := FSerializer.Deserialize<TTransactionMetaInfo>(LJson);
+  LTxMeta := TTestUtils.Deserialize<TTransactionMetaInfo>(LJson);
 
   // act
   LDecoded := TInstructionDecoder.DecodeInstructions(LTxMeta);
@@ -435,7 +380,7 @@ begin
   LJson   := TTestUtils.ReadAllText(
                TTestUtils.CombineAll([FResDir, 'Unknown', 'TestDecodeFromTransactionUnknownInstruction.json'])
              );
-  LTxMeta := FSerializer.Deserialize<TTransactionMetaSlotInfo>(LJson);
+  LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act
   LDecoded := TInstructionDecoder.DecodeInstructions(LTxMeta);
@@ -463,7 +408,7 @@ begin
   LJson   := TTestUtils.ReadAllText(
                TTestUtils.CombineAll([FResDir, 'Unknown', 'TestDecodeFromTransactionUnknownInnerInstruction.json'])
              );
-  LTxMeta := FSerializer.Deserialize<TTransactionMetaSlotInfo>(LJson);
+  LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act
   LDecoded := TInstructionDecoder.DecodeInstructions(LTxMeta);
