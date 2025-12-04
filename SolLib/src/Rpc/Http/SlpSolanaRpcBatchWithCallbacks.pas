@@ -301,7 +301,7 @@ begin
       ),
       TConfigObject.Make(
         HandleCommitment(ACommitment),
-        TKeyValue.Make('encoding', TValue.From<string>('jsonParsed'))
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.JsonParsed))
       )
     );
 
@@ -377,7 +377,7 @@ begin
       LParams := TParameters.Make(
         TValue.From<string>(AProgramPubKey),
         TConfigObject.Make(
-          TKeyValue.Make('encoding', TValue.From<string>('base64')),
+          TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.Base64)),
           TKeyValue.Make('filters',  TValue.From<TArray<TValue>>(LFilters)),
           HandleCommitment(ACommitment)
         )
@@ -388,7 +388,7 @@ begin
       LParams := TParameters.Make(
         TValue.From<string>(AProgramPubKey),
         TConfigObject.Make(
-          TKeyValue.Make('encoding', TValue.From<string>('base64')),
+          TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.Base64)),
           HandleCommitment(ACommitment)
         )
       );
@@ -406,7 +406,7 @@ begin
     LParams := TParameters.Make(
       TValue.From<string>(ASignature),
       TConfigObject.Make(
-        TKeyValue.Make('encoding', TValue.From<string>('json')),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.Json)),
         HandleCommitment(ACommitment)
       )
     );
@@ -441,7 +441,7 @@ begin
     LParams := TParameters.Make(
       TValue.From<string>(APubKey),
       TConfigObject.Make(
-        TKeyValue.Make('encoding', TValue.From<string>('jsonParsed')),
+        TKeyValue.Make('encoding', TValue.From<TBinaryEncoding>(TBinaryEncoding.JsonParsed)),
         HandleCommitment(ACommitment)
       )
     );
