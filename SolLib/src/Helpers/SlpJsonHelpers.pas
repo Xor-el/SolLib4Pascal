@@ -172,12 +172,6 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
     Name: string;
     V: TJSONValue;
   begin
-    (* // tolerate being called on a PropertyName by jumping to its value
-      if R.TokenType = TJsonToken.PropertyName then
-      begin
-      R.Read;                 // move to the property's value
-      Exit(ReadValue(R));     // read that value
-      end; *)
 
     // If we hit a comment at value position, advance past it
     if R.TokenType = TJsonToken.Comment then
