@@ -29,6 +29,7 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpValueHelpers,
   SlpRpcEnum;
 
 type
@@ -82,8 +83,11 @@ procedure TEncodingConverter.WriteJson(const AWriter: TJsonWriter; const AValue:
   const ASerializer: TJsonSerializer);
 var
   Enc: TBinaryEncoding;
+  V: TValue;
 begin
-  if not AValue.TryAsType<TBinaryEncoding>(Enc) then
+  V := AValue.Unwrap();
+
+  if not V.TryAsType<TBinaryEncoding>(Enc) then
     raise EJsonException.Create('EncodingConverter received unexpected value type.');
 
   case Enc of

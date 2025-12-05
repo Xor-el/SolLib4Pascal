@@ -1,0 +1,16 @@
+[
+    {
+        "method": "getBalance",
+        "params": [
+            "9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5"
+        ],
+        "jsonrpc": "2.0",
+        "id": 0
+    },
+    {
+        "method": "getEpochInfo",
+        "params": [],
+        "jsonrpc": "2.0",
+        "id": 1
+    }
+]

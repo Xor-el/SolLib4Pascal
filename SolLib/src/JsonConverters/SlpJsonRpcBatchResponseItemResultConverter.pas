@@ -55,13 +55,7 @@ end;
 procedure TJsonRpcBatchResponseItemResultConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
 begin
-  if AValue.IsEmpty then
-  begin
-    AWriter.WriteNull;
-    Exit;
-  end;
-
-  WriteTValue(AWriter, ASerializer, AValue.Unwrap());
+  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 function TJsonRpcBatchResponseItemResultConverter.ReadJson(

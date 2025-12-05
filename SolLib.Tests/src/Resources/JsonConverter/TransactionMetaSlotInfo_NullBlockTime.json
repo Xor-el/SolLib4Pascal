@@ -1,0 +1,46 @@
+{
+    "slot": 166598,
+    "blockTime": null,
+    "meta": {
+        "err": null,
+        "fee": 5000,
+        "preBalances": [
+            341696716126
+        ],
+        "postBalances": [
+            341696711126
+        ],
+        "innerInstructions": [],
+        "logMessages": [],
+        "preTokenBalances": [],
+        "postTokenBalances": [],
+        "rewards": [],
+        "loadedAddresses": null
+    },
+    "transaction": {
+        "message": {
+            "accountKeys": [
+                "8onJp7KyshoMcxVm5CemhPgGvA1hdSnHbcjLCvJidV8o"
+            ],
+            "header": {
+                "numReadonlySignedAccounts": 0,
+                "numReadonlyUnsignedAccounts": 1,
+                "numRequiredSignatures": 1
+            },
+            "instructions": [
+                {
+                    "accounts": [
+                        0
+                    ],
+                    "data": "Test",
+                    "programIdIndex": 0
+                }
+            ],
+            "recentBlockhash": "8yjM8Yp4FxeG3ieTSeVtWbgYHrQA1qNvST11trjwz8en"
+        },
+        "signatures": [
+            "3hzNSkKDsZxK8UCE8G9nKXdh6zrV5Ta4wbR1YzxoD2sddTYKo1wK1KhszcwhVjMG6tuCvi23zTwCG1yimdVKqhdc"
+        ]
+    },
+    "version": "legacy"
+}

@@ -96,30 +96,8 @@ end;
 
 procedure TTokenListItemExtensionsConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
-var
-  Dict: TDictionary<string, TValue>;
-  KVP : TPair<string, TValue>;
 begin
-  if AValue.IsEmpty then
-  begin
-    AWriter.WriteNull;
-    Exit;
-  end;
-
-  Dict := TDictionary<string, TValue>(AValue.AsObject);
-  if Dict = nil then
-  begin
-    AWriter.WriteNull;
-    Exit;
-  end;
-
-  AWriter.WriteStartObject;
-  for KVP in Dict do
-  begin
-    AWriter.WritePropertyName(KVP.Key);
-    WriteTValue(AWriter, ASerializer, KVP.Value.Unwrap());
-  end;
-  AWriter.WriteEndObject;
+  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 end.

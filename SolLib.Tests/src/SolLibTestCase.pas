@@ -55,6 +55,9 @@ type
     procedure AssertEquals(Expected, Actual: Single; Delta: Single = 0; const Msg: string = ''); overload;
     procedure AssertNotEquals(Expected, Actual: Single; Delta: Single = 0; const Msg: string = ''); overload;
 
+    procedure AssertEquals(Expected, Actual: Boolean; const Msg: string = ''); overload;
+    procedure AssertNotEquals(Expected, Actual: Boolean; const Msg: string = ''); overload;
+
     procedure AssertEquals(Expected, Actual: Double; Delta: Double = 0; const Msg: string = ''); overload;
     procedure AssertNotEquals(Expected, Actual: Double; Delta: Double = 0; const Msg: string = ''); overload;
 
@@ -147,6 +150,18 @@ procedure TSolLibTestCase.AssertNotEquals(Expected, Actual, Delta: Double;
 begin
   CheckNotEquals(Expected, Actual, Delta, Msg);
 end;
+
+procedure TSolLibTestCase.AssertEquals(Expected, Actual: Boolean; const Msg: string);
+begin
+  CheckEquals(Expected, Actual, Msg);
+end;
+
+procedure TSolLibTestCase.AssertNotEquals(Expected, Actual: Boolean;
+  const Msg: string);
+begin
+  CheckNotEquals(Expected, Actual, Msg);
+end;
+
 
 procedure TSolLibTestCase.AssertEquals<T>(const Expected, Actual: TArray<T>;
   const Msg: string);

@@ -1,0 +1,28 @@
+{
+    "lamports": 2039280,
+    "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "executable": false,
+    "rentEpoch": 228,
+    "space": 165,
+    "data": {
+        "parsed": {
+            "info": {
+                "isNative": false,
+                "mint": "kinXdEcpDQeHPEuQnqmUgtYykqKGVFq6CeVX5iAHJq6",
+                "owner": "GpJdjMNZMaZT6cCPkVXnVvLp4q67mq8aJGSXEbbq8SzY",
+                "state": "initialized",
+                "delegate": "",
+                "delegatedAmount": null,
+                "tokenAmount": {
+                    "amount": "100000000",
+                    "decimals": 5,
+                    "uiAmount": 1000.0,
+                    "uiAmountString": "1000"
+                }
+            },
+            "type": "account"
+        },
+        "program": "spl-token",
+        "space": 165
+    }
+}

@@ -45,14 +45,6 @@ type
   private
     class function CreateCollectionInstance(const AType: TRttiType): TObject; static;
 
-    { detection }
-    class function IsListLikeType(const RType: TRttiType;
-      out AddMethod: TRttiMethod; out ElemType: PTypeInfo): Boolean; static;
-
-    class function IsDictionaryLikeType(const RType: TRttiType;
-      out AddMethod: TRttiMethod; out KeyType, ValType: PTypeInfo;
-      out GetEnum: TRttiMethod): Boolean; static;
-
     { enumeration & helpers }
     class function GetEnumeratorInfo(const RType: TRttiType; const AInstance: TObject): TEnumeratorInfo; static;
 
@@ -101,6 +93,13 @@ type
     class function CloneObjectToType(const ASource: TValue; ANativeType: PTypeInfo): TValue; static;
 
   public
+    { detection }
+    class function IsListLikeType(const RType: TRttiType;
+      out AddMethod: TRttiMethod; out ElemType: PTypeInfo): Boolean; static;
+
+    class function IsDictionaryLikeType(const RType: TRttiType;
+      out AddMethod: TRttiMethod; out KeyType, ValType: PTypeInfo;
+      out GetEnum: TRttiMethod): Boolean; static;
       /// <summary>
     /// Creates an instance of the given class type for population.
     /// - Prefers a parameterless constructor if available.
@@ -352,17 +351,17 @@ end;
 
 class function TValueUtils.GetEnumeratorInfo(const RType: TRttiType; const AInstance: TObject): TEnumeratorInfo;
 var
-  GetEnum: TRttiMethod;
-  LocalEnum: TObject;
-  Ctx: TRttiContext;
-  EnumT: TRttiType;
-  MoveNext: TRttiMethod;
-  CurrentProp: TRttiProperty;
+  GetEnum     : TRttiMethod;
+  LocalEnum   : TObject;
+  Ctx         : TRttiContext;
+  EnumT       : TRttiType;
+  MoveNext    : TRttiMethod;
+  CurrentProp : TRttiProperty;
   CurrentField: TRttiField;
 begin
-  Result.EnumObject := nil;
-  Result.MoveNext := nil;
-  Result.CurrentProp := nil;
+  Result.EnumObject   := nil;
+  Result.MoveNext     := nil;
+  Result.CurrentProp  := nil;
   Result.CurrentField := nil;
 
   if (RType = nil) or (AInstance = nil) then
@@ -378,10 +377,12 @@ begin
 
   Ctx := TRttiContext.Create;
   try
-    EnumT := Ctx.GetType(LocalEnum.ClassType);
+    EnumT        := Ctx.GetType(LocalEnum.ClassType);
+    CurrentField := nil;
+
     if EnumT <> nil then
     begin
-      MoveNext := EnumT.GetMethod(SMoveNext);
+      MoveNext    := EnumT.GetMethod(SMoveNext);
       CurrentProp := EnumT.GetProperty(SCurrent);
       if CurrentProp = nil then
         CurrentField := EnumT.GetField(SCurrent);
@@ -392,7 +393,7 @@ begin
         Result.MoveNext     := MoveNext;
         Result.CurrentProp  := CurrentProp;
         Result.CurrentField := CurrentField;
-        LocalEnum := nil; // transferred
+        LocalEnum := nil; // ownership transferred
       end;
     end;
   finally

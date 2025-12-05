@@ -1,0 +1,16 @@
+{
+  "slot": 72,
+  "confirmations": 10,
+  "err": {
+    "InstructionError": [
+      0,
+      {
+        "Custom": 1
+      }
+    ]
+  },
+  "confirmationStatus": "confirmed",
+  "memo": "Test transaction with error",
+  "signature": "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW",
+  "blockTime": 1234567890
+}

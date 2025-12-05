@@ -1,0 +1,11 @@
+{
+    "lamports": 5478840,
+    "owner": "11111111111111111111111111111111",
+    "executable": false,
+    "rentEpoch": 195,
+    "space": 0,
+    "data": [
+        "",
+        "base64"
+    ]
+}

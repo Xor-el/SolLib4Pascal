@@ -1,0 +1,9 @@
+{
+    "slot": 72,
+    "confirmations": 10,
+    "err": null,
+    "confirmationStatus": "finalized",
+    "memo": "Test transaction",
+    "signature": "3hzNSkKDsZxK8UCE8G9nKXdh6zrV5Ta4wbR1YzxoD2sddTYKo1wK1KhszcwhVjMG6tuCvi23zTwCG1yimdVKqhdc",
+    "blockTime": 1234567890
+}

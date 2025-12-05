@@ -29,13 +29,14 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpBaseJsonConverter,
   SlpValueHelpers;
 
 type
   /// <summary>
   /// JSON converter for a "dynamic" value that is either a string or a 32-bit integer.
   /// </summary>
-  TTransactionMetaInfoVersionConverter = class(TJsonConverter)
+  TTransactionMetaInfoVersionConverter = class(TBaseJsonConverter)
   public
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
 
@@ -106,7 +107,7 @@ begin
   // Only accept Delphi string or 32-bit Integer
   if V.IsType<Integer> or V.IsType<string> then
   begin
-    ASerializer.Serialize(AWriter, V);
+    WriteTValue(AWriter, ASerializer, V);
     Exit;
   end;
 

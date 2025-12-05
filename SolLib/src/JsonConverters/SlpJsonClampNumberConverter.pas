@@ -30,10 +30,11 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpBaseJsonConverter,
   SlpMathUtils;
 
 type
-  TJsonClampNumberConverter<T> = class(TJsonConverter)
+  TJsonClampNumberConverter<T> = class(TBaseJsonConverter)
   public
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
@@ -190,7 +191,7 @@ end;
 procedure TJsonClampNumberConverter<T>.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
   const ASerializer: TJsonSerializer);
 begin
-  inherited WriteJson(AWriter, AValue, ASerializer);
+  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 end.

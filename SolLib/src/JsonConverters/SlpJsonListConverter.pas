@@ -86,7 +86,7 @@ begin
     begin
       try
         if (JV.Null) then
-          Item := Default (V)
+          Item := Default(V)
         else
           Item := ASerializer.Deserialize<V>(JV.ToJSON);
 

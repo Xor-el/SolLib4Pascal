@@ -199,7 +199,8 @@ uses
   SharedMemoryProgramTests in '..\src\Program\SharedMemoryProgramTests.pas',
   AddressLookupTableProgramTests in '..\src\Program\AddressLookupTableProgramTests.pas',
   BPFLoaderProgramTests in '..\src\Program\BPFLoaderProgramTests.pas',
-  TokenSwapProgramTests in '..\src\Program\TokenSwapProgramTests.pas';
+  TokenSwapProgramTests in '..\src\Program\TokenSwapProgramTests.pas',
+  JsonConverterTests in '..\src\JsonConverter\JsonConverterTests.pas';
 
 begin
 

@@ -83,28 +83,8 @@ end;
 
 procedure TJsonRpcRequestParamsConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
-var
-  L: TList<TValue>;
-  V: TValue;
 begin
-  if AValue.IsEmpty then
-  begin
-    AWriter.WriteNull;
-    Exit;
-  end;
-
-  L := TList<TValue>(AValue.AsObject);
-  if L = nil then
-  begin
-    AWriter.WriteNull;
-    Exit;
-  end;
-
-  // Emit [] even if empty (JSON-RPC allows empty array params)
-  AWriter.WriteStartArray;
-  for V in L do
-    WriteTValue(AWriter, ASerializer, V.Unwrap());
-  AWriter.WriteEndArray;
+  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 function TJsonRpcRequestParamsConverter.ReadJson(

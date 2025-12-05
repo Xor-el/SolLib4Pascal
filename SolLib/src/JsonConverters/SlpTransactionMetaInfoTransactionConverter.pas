@@ -32,6 +32,7 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpBaseJsonConverter,
   SlpValueHelpers,
   SlpJsonHelpers;
 
@@ -43,7 +44,7 @@ type
   /// - JSON [string] -> TValue(TArray&lt;string&gt;)
   /// Anything else     -> raises EJsonSerializationException.
   /// </summary>
-  TTransactionMetaInfoTransactionConverter = class(TJsonConverter)
+  TTransactionMetaInfoTransactionConverter = class(TBaseJsonConverter)
 
   public
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
@@ -142,34 +143,8 @@ end;
 procedure TTransactionMetaInfoTransactionConverter.WriteJson
   (const AWriter: TJsonWriter; const AValue: TValue;
   const ASerializer: TJsonSerializer);
-
-var
-  V: TValue;
-  I, N: Integer;
 begin
-  V := AValue.Unwrap();
-
-  if V.IsEmpty then
-  begin
-    AWriter.WriteNull;
-    Exit;
-  end;
-
-  // If the TValue holds an array of strings, emit it directly
-  if V.IsType<TArray<string>> then
-  begin
-    N := V.GetArrayLength;
-    AWriter.WriteStartArray;
-    for I := 0 to N - 1 do
-    begin
-      ASerializer.Serialize(AWriter, V.GetArrayElement(I));
-    end;
-    AWriter.WriteEndArray;
-    Exit();
-  end;
-
-  // Otherwise, delegate to the serializer (e.g., TTransactionInfo)
-  ASerializer.Serialize(AWriter, V);
+  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 end.

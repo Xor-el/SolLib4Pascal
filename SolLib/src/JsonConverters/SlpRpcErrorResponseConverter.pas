@@ -32,6 +32,7 @@ uses
   System.JSON.Writers,
   System.JSON.Serializers,
   SlpJsonHelpers,
+  SlpValueHelpers,
   SlpNullable;
 
 type
@@ -151,15 +152,18 @@ var
   PId: TRttiProperty;
   VId: TValue;
   NId: TNullable<Integer>;
+  V: TValue;
 begin
+  V := AValue.Unwrap();
+
   // null / empty input -> write null
-  if AValue.IsEmpty or (AValue.AsObject = nil) then
+  if V.IsEmpty or (V.AsObject = nil) then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
-  Resp := TJsonRpcErrorResponse(AValue.AsObject);
+  Resp := TJsonRpcErrorResponse(V.AsObject);
 
   AWriter.WriteStartObject;
   try

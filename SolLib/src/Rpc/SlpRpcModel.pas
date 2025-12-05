@@ -1042,6 +1042,7 @@ uses
     FEpoch: UInt64;
     FSlotIndex: UInt64;
     FSlotsInEpoch: UInt64;
+    FTransactionCount: TNullable<UInt64>;
   public
     /// <summary>
     /// The current slot.
@@ -1067,6 +1068,12 @@ uses
     /// The number of slots in this epoch
     /// </summary>
     property SlotsInEpoch: UInt64 read FSlotsInEpoch write FSlotsInEpoch;
+
+    /// <summary>
+    /// Total number of transactions processed without error since genesis
+    /// </summary>
+    [JsonConverter(TNullableUInt64Converter)]
+    property TransactionCount: TNullable<UInt64> read FTransactionCount write FTransactionCount;
   end;
 
   /// <summary>

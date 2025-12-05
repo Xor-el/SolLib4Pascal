@@ -31,6 +31,7 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpValueHelpers,
   SlpJsonHelpers;
 
 type
@@ -98,14 +99,17 @@ procedure TJsonRpcBatchRequestConverter.WriteJson(
 var
   Batch: TJsonRpcBatchRequest;
   I: Integer;
+  V: TValue;
 begin
-  if AValue.IsEmpty or (AValue.AsObject = nil) then
+  V := AValue.Unwrap();
+
+  if V.IsEmpty or (V.AsObject = nil) then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
-  Batch := TJsonRpcBatchRequest(AValue.AsObject);
+  Batch := TJsonRpcBatchRequest(V.AsObject);
 
   AWriter.WriteStartArray;
   for I := 0 to Batch.Count - 1 do

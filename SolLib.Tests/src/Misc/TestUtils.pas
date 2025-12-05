@@ -26,7 +26,6 @@ uses
   SlpJsonKit,
   SlpJsonStringEnumConverter,
   SlpEncodingConverter,
-  SlpJsonConverterFactory,
   SlpIOUtils;
 
 type
@@ -107,19 +106,11 @@ end;
 class function TTestUtils.BuildSerializer: TJsonSerializer;
 var
   Converters     : TList<TJsonConverter>;
-  LRpcConverters : TList<TJsonConverter>;
 begin
   Converters := TList<TJsonConverter>.Create;
   try
     Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
     Converters.Add(TEncodingConverter.Create);
-
-    LRpcConverters := TJsonConverterFactory.GetRpcConverters;
-    try
-      Converters.AddRange(LRpcConverters);
-    finally
-      LRpcConverters.Free;
-    end;
 
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(

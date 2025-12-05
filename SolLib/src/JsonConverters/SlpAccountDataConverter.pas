@@ -30,6 +30,7 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpValueHelpers,
   SlpJsonHelpers;
 
 type
@@ -86,18 +87,20 @@ procedure TAccountDataConverter.WriteJson(
 var
   SArr: TArray<string>;
   JV: TJSONValue;
+  V: TValue;
 begin
+  V := AValue.Unwrap();
   // Expecting a TArray<string> in all cases
-  if AValue.IsEmpty then
+  if V.IsEmpty then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
-  if not AValue.IsType<TArray<string>> then
+  if not V.IsType<TArray<string>> then
     raise EJsonSerializationException.Create('TAccountDataConverter: expected TArray<string>');
 
-  SArr := AValue.AsType<TArray<string>>;
+  SArr := V.AsType<TArray<string>>;
 
   // Special shape: [ json, 'jsonParsed' ] -> write the json as the actual object
   if (Length(SArr) = 2) and SameText(SArr[1], 'jsonParsed') then

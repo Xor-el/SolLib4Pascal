@@ -122,7 +122,7 @@ type
     /// <summary>
     /// The request method.
     /// </summary>
-    property Method: string read FMethod;
+    property Method: string read FMethod write FMethod;
 
     /// <summary>
     /// The method parameters list (only written if not empty).
