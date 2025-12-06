@@ -148,14 +148,13 @@ end;
 
 procedure TSolanaRpcClientTests.TestBadAddressExceptionRequest;
 var
-  msg, responseData, requestData: string;
+  msg, requestData: string;
   mockRpcHttpClient: TMockRpcHttpClient;
   rpcHttpClient: IHttpApiClient;
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<UInt64>>;
 begin
   msg := 'something bad happenned';
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'EmptyPayloadResponse.json']));
   requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'EmptyPayloadRequest.json']));
 
   mockRpcHttpClient := SetupTestForThrow(msg);

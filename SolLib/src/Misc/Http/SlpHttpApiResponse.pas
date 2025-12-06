@@ -21,15 +21,24 @@ unit SlpHttpApiResponse;
 
 interface
 
+uses
+  System.Math;
+
 type
   /// <summary>
   /// Minimal HTTP response abstraction usable by RPC layer without tying to a specific HTTP stack.
   /// </summary>
   IHttpApiResponse = interface
     ['{E9A4E7E1-8F5F-4C07-B28A-0A4B0EAB5C6A}']
-    function StatusCode: Integer;
-    function StatusText: string;
-    function ResponseBody: string;
+    function GetStatusCode: Integer;
+    function GetStatusText: string;
+    function GetResponseBody: string;
+    function GetIsSuccessStatusCode: Boolean;
+
+    property StatusCode: Integer read GetStatusCode;
+    property StatusText: string read GetStatusText;
+    property ResponseBody: string read GetResponseBody;
+    property IsSuccessStatusCode: Boolean read GetIsSuccessStatusCode;
   end;
 
 type
@@ -37,12 +46,14 @@ type
   private
     FStatusCode: Integer;
     FStatusText, FResponseBody: string;
+
+    function GetStatusCode: Integer;
+    function GetStatusText: string;
+    function GetResponseBody: string;
+    function GetIsSuccessStatusCode: Boolean;
   public
     constructor Create(AStatusCode: Integer; const AStatusText: string;
       const ABody: String);
-    function StatusCode: Integer;
-    function StatusText: string;
-    function ResponseBody: string;
   end;
 
 implementation
@@ -57,20 +68,24 @@ begin
   FResponseBody := ABody;
 end;
 
-function THttpApiResponse.StatusCode: Integer;
+function THttpApiResponse.GetStatusCode: Integer;
 begin
   Result := FStatusCode;
 end;
 
-function THttpApiResponse.StatusText: string;
+function THttpApiResponse.GetStatusText: string;
 begin
   Result := FStatusText;
 end;
 
-function THttpApiResponse.ResponseBody: string;
+function THttpApiResponse.GetResponseBody: string;
 begin
   Result := FResponseBody;
 end;
 
+function THttpApiResponse.GetIsSuccessStatusCode: Boolean;
+begin
+  Result := InRange(FStatusCode, 200, 299);
+end;
 
 end.

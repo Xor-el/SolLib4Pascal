@@ -24,7 +24,6 @@ interface
 uses
   System.SysUtils,
   System.Rtti,
-  System.Math,
   SlpRpcModel,
   SlpHttpApiResponse,
   SlpValueUtils;
@@ -145,7 +144,7 @@ begin
   if AResponse <> nil then
   begin
     FHttpStatusCode := AResponse.StatusCode;
-    FWasHttpRequestSuccessful := InRange(AResponse.StatusCode, 200, 299);
+    FWasHttpRequestSuccessful := AResponse.IsSuccessStatusCode;
     FReason := AResponse.StatusText;
   end;
   FResult := AResult;

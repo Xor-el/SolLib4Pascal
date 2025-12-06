@@ -137,7 +137,7 @@ begin
 
   Resp := AHttpClient.GetJson(AUrl);
 
-  if Resp.StatusCode <> 200 then
+  if not Resp.IsSuccessStatusCode then
     raise ETokenMintResolveException.CreateFmt(
       'Failed to fetch token list. HTTP %d %s',
       [Resp.StatusCode, Resp.StatusText]

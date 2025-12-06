@@ -129,7 +129,7 @@ begin
     StatusText := Resp.StatusText;
   except
     on E: Exception do
-      Exit(THttpApiResponse.Create(500, 'HTTP error: ' + E.Message, ''));
+      raise;
   end;
 
   Result := THttpApiResponse.Create(StatusCode, StatusText, Body);
@@ -176,7 +176,7 @@ begin
       StatusText := Resp.StatusText;
     except
       on E: Exception do
-        Exit(THttpApiResponse.Create(500, 'HTTP error: ' + E.Message, ''));
+        raise;
     end;
 
     Result := THttpApiResponse.Create(StatusCode, StatusText, Body);

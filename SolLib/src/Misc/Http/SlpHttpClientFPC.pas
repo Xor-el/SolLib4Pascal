@@ -136,7 +136,7 @@ begin
     end;
   except
     on E: Exception do
-      Exit(THttpApiResponse.Create(500, 'HTTP error: ' + E.Message, ''));
+      raise;
   finally
     ExtraHdrs.Free;
     DefaultHdrs.Free;
@@ -200,7 +200,7 @@ begin
     end;
   except
     on E: Exception do
-      Exit(THttpApiResponse.Create(500, 'HTTP error: ' + E.Message, ''));
+      raise;
   finally
     ExtraHdrs.Free;
     DefaultHdrs.Free;
