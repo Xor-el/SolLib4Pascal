@@ -22,6 +22,7 @@ interface
 uses
   System.SysUtils,
   System.Rtti,
+  System.TypInfo,
   System.Generics.Collections,
   SlpHttpApiClient,
   SlpDataEncoders,
@@ -209,7 +210,7 @@ begin
     if LSim.Result.Value.&Error <> nil then
     begin
       Writeln(Format('Transaction Simulation:%s%sError: %s',
-        [NEWLINE, TAB, LSim.Result.Value.&Error.QualifiedClassName]));
+        [NEWLINE, TAB, GetEnumName(TypeInfo(TTransactionErrorType), Ord(LSim.Result.Value.&Error.&Type))]));
 
       Result := True;
     end;
