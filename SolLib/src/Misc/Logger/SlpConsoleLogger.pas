@@ -183,7 +183,7 @@ begin
   if L < 2 then Exit;
   for i := 1 to L - 1 do
     if Template[i] = '{' then
-      if CharInSet(Template[i+1], ['0'..'9']) then
+      if CharInSet(Template[i + 1], ['0'..'9']) then
       begin
         Result := True;
         Exit;
