@@ -106,33 +106,45 @@ begin
   FLogger := ALogger;
 
   if Assigned(AExisting) then
-   FClient := AExisting
+  begin
+    // Use caller-provided client instance.
+    FClient := AExisting;
+  end
   else
   begin
-   FClient := TsgcWebSocketClient.Create(nil);
+    // Create and fully configure our own client.
+    FClient := TsgcWebSocketClient.Create(nil);
 
-   FClient.NotifyEvents := neNoSync;
-   FClient.Options.FragmentedMessages := frgOnlyBuffer;
-   FClient.Options.CleanDisconnect := True;
+    FClient.NotifyEvents := neNoSync;
+    FClient.Options.FragmentedMessages := frgOnlyBuffer;
+    FClient.Options.CleanDisconnect := True;
 
-   // HeartBeat: keepalive pings
-   FClient.HeartBeat.Enabled  := True;   // keepalive on
-   FClient.HeartBeat.Interval := 15;     // seconds between pings
-   FClient.HeartBeat.Timeout  := 90;     // seconds to wait for pong before error/close
+    // HeartBeat: keepalive pings
+    FClient.HeartBeat.Enabled  := True;   // keepalive on
+    FClient.HeartBeat.Interval := 15;     // seconds between pings
+    FClient.HeartBeat.Timeout  := 90;     // seconds to wait for pong before error/close
 
-   // WatchDog: auto-reconnect on unexpected disconnects
-   FClient.WatchDog.Enabled   := True;   // auto reconnect
-   FClient.WatchDog.Interval  := 5;      // seconds between attempts
-   FClient.WatchDog.Attempts  := 0;     // unlimited attempts
+    // WatchDog: auto-reconnect on unexpected disconnects
+    FClient.WatchDog.Enabled  := True;    // auto reconnect
+    FClient.WatchDog.Interval := 5;       // seconds between attempts
+    FClient.WatchDog.Attempts := 0;       // unlimited attempts
   end;
 
-   // Wire events
-   FClient.OnConnect := DoConnect;
-   FClient.OnDisconnect := DoDisconnect;
-   FClient.OnMessage := DoMessage;
-   FClient.OnBinary := DoBinary;
-   FClient.OnError := DoError;
-   FClient.OnException := DoException;
+  // Wire events:
+  //  - If caller already set a callback, keep theirs.
+  //  - If it's nil, assign ours so we can surface events via Callbacks.
+  if not Assigned(FClient.OnConnect) then
+    FClient.OnConnect := DoConnect;
+  if not Assigned(FClient.OnDisconnect) then
+    FClient.OnDisconnect := DoDisconnect;
+  if not Assigned(FClient.OnMessage) then
+    FClient.OnMessage := DoMessage;
+  if not Assigned(FClient.OnBinary) then
+    FClient.OnBinary := DoBinary;
+  if not Assigned(FClient.OnError) then
+    FClient.OnError := DoError;
+  if not Assigned(FClient.OnException) then
+    FClient.OnException := DoException;
 end;
 
 destructor TSgcWebSocketClientImpl.Destroy;

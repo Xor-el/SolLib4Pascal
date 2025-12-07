@@ -80,33 +80,45 @@ begin
   FLogger := ALogger;
 
   if Assigned(AExisting) then
-   FClient := AExisting
+  begin
+    // Use caller-provided client instance.
+    FClient := AExisting;
+  end
   else
   begin
-   FClient := TScWebSocketClient.Create(nil);
+    // Create and configure our own client.
+    FClient := TScWebSocketClient.Create(nil);
 
-   FClient.EventsCallMode := ecDirectly;
+    FClient.EventsCallMode := ecDirectly;
 
-   // HeartBeat: keepalive pings
-   FClient.HeartBeatOptions.Enabled  := True;   // keepalive on
-   FClient.HeartBeatOptions.Interval := 15;     // seconds between pings
-   FClient.HeartBeatOptions.Timeout  := 90;     // seconds to wait for pong before error/close
+    // HeartBeat: keepalive pings
+    FClient.HeartBeatOptions.Enabled  := True;   // keepalive on
+    FClient.HeartBeatOptions.Interval := 15;     // seconds between pings
+    FClient.HeartBeatOptions.Timeout  := 90;     // seconds to wait for pong before error/close
 
-   // WatchDog: auto-reconnect on unexpected disconnects
-   FClient.WatchDogOptions.Enabled   := True;   // auto reconnect
-   FClient.WatchDogOptions.Interval  := 5;      // seconds between attempts
-   FClient.WatchDogOptions.Attempts  := -1;     // unlimited attempts
+    // WatchDog: auto-reconnect on unexpected disconnects
+    FClient.WatchDogOptions.Enabled  := True;    // auto reconnect
+    FClient.WatchDogOptions.Interval := 5;       // seconds between attempts
+    FClient.WatchDogOptions.Attempts := -1;      // unlimited attempts
   end;
 
-   // Wire events
-   FClient.AfterConnect    := HandleAfterConnect;
-   FClient.AfterDisconnect := HandleAfterDisconnect;
-   FClient.OnConnectFail   := HandleConnectFail;
-   FClient.OnAsyncError    := HandleAsyncError;
-   FClient.OnMessage       := HandleMessage;
-   FClient.OnControlMessage:= HandleControlMessage;
+  // Wire events:
+  //  - If caller already set a callback, keep theirs.
+  //  - If it's nil, assign ours so we can surface events via Callbacks.
+  if not Assigned(FClient.AfterConnect) then
+    FClient.AfterConnect := HandleAfterConnect;
+  if not Assigned(FClient.AfterDisconnect) then
+    FClient.AfterDisconnect := HandleAfterDisconnect;
+  if not Assigned(FClient.OnConnectFail) then
+    FClient.OnConnectFail := HandleConnectFail;
+  if not Assigned(FClient.OnAsyncError) then
+    FClient.OnAsyncError := HandleAsyncError;
+  if not Assigned(FClient.OnMessage) then
+    FClient.OnMessage := HandleMessage;
+  if not Assigned(FClient.OnControlMessage) then
+    FClient.OnControlMessage := HandleControlMessage;
 
-   ResetFragment;
+  ResetFragment;
 end;
 
 destructor TSecureBridgeWebSocketClientImpl.Destroy;

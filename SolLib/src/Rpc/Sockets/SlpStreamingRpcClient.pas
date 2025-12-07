@@ -122,15 +122,15 @@ begin
   FClient.OnReceiveTextMessage :=
     procedure(AData: string)
     var
-      LPayload: TBytes;
+      LData: TBytes;
     begin
       if Assigned(FLogger) then
         FLogger.LogInformation('Text Received: {0}', [AData]);
 
-      LPayload := TEncoding.UTF8.GetBytes(AData);
+      LData := TEncoding.UTF8.GetBytes(AData);
       try
-        FConnectionStats.AddReceived(Length(LPayload));
-        HandleNewMessage(LPayload);
+        FConnectionStats.AddReceived(Length(LData));
+        HandleNewMessage(LData);
       except
         on E: Exception do
           if Assigned(FLogger) then
@@ -141,12 +141,12 @@ begin
   FClient.OnReceiveBinaryMessage :=
     procedure(AData: TBytes)
     var
-      LCopyB: TBytes;
+      LData: TBytes;
     begin
-      LCopyB := System.Copy(AData, 0, Length(AData));
+      LData := System.Copy(AData, 0, Length(AData));
       try
-        FConnectionStats.AddReceived(Length(LCopyB));
-        HandleNewMessage(LCopyB);
+        FConnectionStats.AddReceived(Length(LData));
+        HandleNewMessage(LData);
       except
         on E: Exception do
           if Assigned(FLogger) then
