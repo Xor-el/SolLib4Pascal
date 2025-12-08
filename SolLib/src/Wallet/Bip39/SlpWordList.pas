@@ -434,7 +434,7 @@ class function TWordList.AutoDetectLanguage(const Sentence: string): TLanguage;
 var
   Words: TArray<string>;
 begin
-  Words := Sentence.Split([' ', '　']);  //normal space and JP space
+  Words := Sentence.Split([Char($0020), Char($3000)]);  //normal space and JP space
   Result := AutoDetectLanguage(Words);
 end;
 
