@@ -124,7 +124,6 @@ type
     class function IsOnCurveXY(const x, y: TBigInteger): Boolean; static;
     class function BigIntFromLEUnsigned(const Key: TBytes): TBigInteger; static;
     class function IsEven(const x: TBigInteger): Boolean; static;
-    // class function ModNonNeg(const num, modulo: TBigInteger): TBigInteger; static;
   public
     /// <summary>
     /// Checks whether the PublicKey bytes are 'On The Curve'
