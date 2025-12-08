@@ -21,7 +21,6 @@ interface
 
 uses
   System.SysUtils,
-  System.Generics.Collections,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -40,8 +39,7 @@ uses
   SlpRequestResult,
   SlpDataEncoders,
   SlpExample,
-  SlpComputeBudgetEstimator,
-  SlpTokenMintHelper;
+  SlpComputeBudgetEstimator;
 
 const
   /// <summary>
