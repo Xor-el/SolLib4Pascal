@@ -199,29 +199,28 @@ begin
   CoinGeckoId := '';
   ProjectUrl := '';
 
-  if (ATokenItem.Extensions <> nil) then
-  begin
-    if (ATokenItem.Extensions <> nil) then
-    begin
-      if ATokenItem.Extensions.TryGetValue('coingeckoId', V) then
-        if V.IsType<string> then
-          CoinGeckoId := V.AsType<string>;
+  if ATokenItem.Extensions = nil then
+    Exit;
 
-      if ATokenItem.Extensions.TryGetValue('website', V) then
-        if V.IsType<string> then
-          ProjectUrl := V.AsType<string>;
-    end;
+  if ATokenItem.Extensions.TryGetValue('coingeckoId', V) and V.IsType<string> then
+    CoinGeckoId := V.AsType<string>;
 
-    Token := TTokenDef.Create(ATokenItem.Address, ATokenItem.Name,
-      ATokenItem.Symbol, ATokenItem.Decimals);
-    Token.CoinGeckoId := CoinGeckoId;
-    Token.TokenLogoUrl := LogoUrl;
-    Token.TokenProjectUrl := ProjectUrl;
+  if ATokenItem.Extensions.TryGetValue('website', V) and V.IsType<string> then
+    ProjectUrl := V.AsType<string>;
 
-    FTokens.AddOrSetValue(Token.TokenMint, Token);
-  end;
+  Token := TTokenDef.Create(
+    ATokenItem.Address,
+    ATokenItem.Name,
+    ATokenItem.Symbol,
+    ATokenItem.Decimals
+  );
+  Token.CoinGeckoId := CoinGeckoId;
+  Token.TokenLogoUrl := LogoUrl;
+  Token.TokenProjectUrl := ProjectUrl;
 
+  FTokens.AddOrSetValue(Token.TokenMint, Token);
 end;
+
 
 class function TTokenMintResolver.ParseJsonToTokenListDoc(const AJson: string)
   : TTokenListDoc;
