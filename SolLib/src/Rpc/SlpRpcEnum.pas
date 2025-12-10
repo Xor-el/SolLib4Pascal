@@ -621,9 +621,9 @@ type
     /// Tour de SOL initiative runs on Testnet, where malicious behavior and attacks are encouraged on the network to help find and squash bugs or network vulnerabilities.
     /// Key points:
     /// <list type="bullet">
-    ///   <item>Devnet tokens are not real</item>
-    ///   <item>Devnet includes a token faucet for airdrops for application testing</item>
-    ///   <item>Devnet may be subject to ledger resets</item>
+    ///   <item>Testnet tokens are not real</item>
+    ///   <item>Testnet includes a token faucet for airdrops for application testing</item>
+    ///   <item>Testnet may be subject to ledger resets</item>
     ///   <item>Testnet typically runs a newer software release than both Devnet and Mainnet Beta</item>
     /// </list>
     /// </remarks>

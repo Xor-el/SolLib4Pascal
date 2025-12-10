@@ -62,7 +62,7 @@ type
       const AHintAccounts: TArray<string>
     ): TArray<UInt64>; static;
 
-        /// <summary>Round up <paramref name="AValue"/> to the nearest multiple of <paramref name="AStep"/>.</summary>
+    /// <summary>Round up <paramref name="AValue"/> to the nearest multiple of <paramref name="AStep"/>.</summary>
     class function RoundUpToStep(const AValue, AStep: UInt64): UInt64; static;
 
     /// <summary>

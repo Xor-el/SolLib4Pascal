@@ -171,7 +171,7 @@ type
     ): TJsonRpcBatchResponse;
 
     /// <summary>
-    /// Convert a generic value to desired response native type (no-op in Delphi unless you box JSON).
+    /// Convert a TValue to desired response native type.
     /// </summary>
     /// <param name="AInput">Input value.</param>
     /// <param name="ANativeType">Target type info.</param>
