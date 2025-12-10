@@ -117,7 +117,7 @@ type
   /// </summary>
   TWebSocketApiClient = class(TInterfacedObject, IWebSocketApiClient)
   private
-    FWebSocketClientImpl: TWebSocketClientBaseImpl;
+    FWebSocketClientImpl: TWebSocketClientBase;
 
     FOnConnect: TProc;
     FOnDisconnect: TProc;
@@ -162,7 +162,7 @@ type
     procedure Send(const AData: string); overload;
     procedure Send(const AData: TBytes); overload;
   public
-    constructor Create(const AExisting: TWebSocketClientBaseImpl);
+    constructor Create(const AExisting: TWebSocketClientBase);
     destructor Destroy; override;
   end;
 
@@ -213,7 +213,7 @@ begin
   FWebSocketClientImpl.Callbacks := LCallbacks;
 end;
 
-constructor TWebSocketApiClient.Create(const AExisting: TWebSocketClientBaseImpl);
+constructor TWebSocketApiClient.Create(const AExisting: TWebSocketClientBase);
 begin
   inherited Create;
 

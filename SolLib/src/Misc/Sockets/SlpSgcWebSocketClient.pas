@@ -32,9 +32,9 @@ uses
 
 type
   /// <summary>
-  /// Sgc (eSeGeCe) TsgcWebSocketClient-based implementation of TWebSocketClientBaseImpl.
+  /// Sgc (eSeGeCe) TsgcWebSocketClient-based implementation of TWebSocketClientBase.
   /// </summary>
-  TSgcWebSocketClientImpl = class(TWebSocketClientBaseImpl)
+  TSgcWebSocketClientImpl = class(TWebSocketClientBase)
   private
     FClient: TsgcWebSocketClient;
     FLogger: ILogger;

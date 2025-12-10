@@ -24,18 +24,14 @@ interface
 uses
   System.SysUtils,
   System.Generics.Collections,
-{$IFDEF FPC}
-  httpprotocol,
-{$ELSE}
   System.NetEncoding,
-{$ENDIF}
   SlpHttpApiResponse;
 
 type
   THttpApiQueryParams  = TDictionary<string,string>;
   THttpApiHeaderParams = TDictionary<string,string>;
   // Abstract base for compiler-specific HTTP implementations
-  TBaseHttpClientImpl = class abstract
+  THttpClientBase = class abstract
 
   public
 
@@ -52,18 +48,14 @@ type
 
 implementation
 
-{ TBaseHttpClientImpl }
+{ THttpClientBase }
 
-class function TBaseHttpClientImpl.UrlEncode(const S: string): string;
+class function THttpClientBase.UrlEncode(const S: string): string;
 begin
-{$IFDEF FPC}
-  Result:= HTTPEncode(S);
-{$ELSE}
   Result:= TNetEncoding.URL.Encode(S);
-{$ENDIF}
 end;
 
-class function TBaseHttpClientImpl.BuildUrlWithQuery(const BaseUrl: string; const Q: THttpApiQueryParams): string;
+class function THttpClientBase.BuildUrlWithQuery(const BaseUrl: string; const Q: THttpApiQueryParams): string;
 var
   Key, Sep, Val: string;
 begin

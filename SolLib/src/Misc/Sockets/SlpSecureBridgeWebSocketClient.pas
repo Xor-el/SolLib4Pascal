@@ -30,9 +30,9 @@ uses
 
 type
   /// <summary>
-  /// SecureBridge (Devart) TScWebSocketClient-based implementation of TWebSocketClientBaseImpl.
+  /// SecureBridge (Devart) TScWebSocketClient-based implementation of TWebSocketClientBase.
   /// </summary>
-  TSecureBridgeWebSocketClientImpl = class(TWebSocketClientBaseImpl)
+  TSecureBridgeWebSocketClientImpl = class(TWebSocketClientBase)
   private
     FClient: TScWebSocketClient;
     FLogger: ILogger;

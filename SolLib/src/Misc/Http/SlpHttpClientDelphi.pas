@@ -31,7 +31,7 @@ uses
   SlpHttpClientBase;
 
 type
-  TDelphiHttpClientImpl = class(TBaseHttpClientImpl)
+  TDelphiHttpClientImpl = class(THttpClientBase)
   private
     FClient: THTTPClient;
 

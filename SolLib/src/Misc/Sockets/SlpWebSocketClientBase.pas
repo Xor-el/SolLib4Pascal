@@ -35,7 +35,7 @@ type
   end;
 
   // Abstract base for different WebSocket implementations
-  TWebSocketClientBaseImpl = class abstract
+  TWebSocketClientBase = class abstract
   private
     FCallbacks: TWebSocketClientCallbacks;
 
@@ -56,9 +56,9 @@ type
 
 implementation
 
-{ TWebSocketClientBaseImpl }
+{ TWebSocketClientBase }
 
-procedure TWebSocketClientBaseImpl.ClearCallbacks;
+procedure TWebSocketClientBase.ClearCallbacks;
 begin
   FCallbacks.OnConnect := nil;
   FCallbacks.OnDisconnect := nil;

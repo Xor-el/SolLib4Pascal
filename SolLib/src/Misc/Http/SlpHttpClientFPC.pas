@@ -33,7 +33,7 @@ uses
   SlpComparerFactory;
 
 type
-  TFPCHttpClientImpl = class(TBaseHttpClientImpl)
+  TFPCHttpClientImpl = class(THttpClientBase)
   private
     FClient: TFPHTTPClient;
 

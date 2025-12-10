@@ -50,9 +50,9 @@ type
   /// </summary>
   THttpApiClient = class(TInterfacedObject, IHttpApiClient)
   private
-    FHttpClientImpl: TBaseHttpClientImpl;
+    FHttpClientImpl: THttpClientBase;
   public
-    constructor Create(const AExisting: TBaseHttpClientImpl = nil);
+    constructor Create(const AExisting: THttpClientBase = nil);
     destructor Destroy; override;
 
     function GetJson(const AUrl: string): IHttpApiResponse; overload;
@@ -69,7 +69,7 @@ implementation
 
 { THttpApiClient }
 
-constructor THttpApiClient.Create(const AExisting: TBaseHttpClientImpl);
+constructor THttpApiClient.Create(const AExisting: THttpClientBase);
 begin
   inherited Create;
   if Assigned(AExisting) then

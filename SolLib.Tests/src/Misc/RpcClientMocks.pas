@@ -310,7 +310,7 @@ var
   _ : string;
 begin
    // computed but not used; kept to mirror real flow
-  _ := TBaseHttpClientImpl.BuildUrlWithQuery(AUrl, AQuery);
+  _ := THttpClientBase.BuildUrlWithQuery(AUrl, AQuery);
   // Headers are ignored in this simple mock;
   Inc(FCallCount);
   FLastUrl := AUrl;
@@ -413,7 +413,7 @@ var
   _ : string;
 begin
   // computed but not used; kept to mirror real flow
-  _ := TBaseHttpClientImpl.BuildUrlWithQuery(AUrl, AQuery);
+  _ := THttpClientBase.BuildUrlWithQuery(AUrl, AQuery);
    // headers ignored in this mock
   Result := DequeueOrDefault;
 end;
