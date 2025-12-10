@@ -248,17 +248,19 @@ type
 
    destructor Destroy; override;
 
-        /// <summary>
+    /// <summary>
     /// Load a TokenWallet instance for a given public key.
     /// </summary>
     /// <param name="AClient">An instance of the RPC client.</param>
     /// <param name="AMintResolver">An instance of a mint resolver.</param>
     /// <param name="APublicKey">The account public key (base58 string).</param>
+    /// <param name="AEncoding">The encoding of the token account data.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>An instance of TokenWallet loaded with the token accounts of the publicKey provided.</returns>
     class function Load(const AClient: IRpcClient;
                         const AMintResolver: ITokenMintResolver;
                         const APublicKey: string;
+                        AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed;
                         ACommitment: TCommitment = TCommitment.Finalized): ITokenWallet; overload;
 
     /// <summary>
@@ -267,11 +269,13 @@ type
     /// <param name="AClient">An instance of the RPC client.</param>
     /// <param name="AMintResolver">An instance of a mint resolver.</param>
     /// <param name="APublicKey">The account public key.</param>
+    /// <param name="AEncoding">The encoding of the token account data.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>An instance of TokenWallet loaded with the token accounts of the publicKey provided.</returns>
     class function Load(const AClient: IRpcClient;
                         const AMintResolver: ITokenMintResolver;
                         const APublicKey: IPublicKey;
+                        AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed;
                         ACommitment: TCommitment = TCommitment.Finalized): ITokenWallet; overload;
 
     /// <summary>
@@ -280,11 +284,13 @@ type
     /// <param name="Alient">An instance of the RPC client proxy.</param>
     /// <param name="AMintResolver">An instance of a mint resolver.</param>
     /// <param name="APublicKey">The account public key (base58 string).</param>
+    /// <param name="AEncoding">The encoding of the token account data.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>An instance of TokenWallet loaded with the token accounts of the publicKey provided.</returns>
     class function Load(const AClient: ITokenWalletRpcProxy;
                         const AMintResolver: ITokenMintResolver;
                         const APublicKey: string;
+                        AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed;
                         ACommitment: TCommitment = TCommitment.Finalized): ITokenWallet; overload;
 
     /// <summary>
@@ -293,11 +299,13 @@ type
     /// <param name="AClient">An instance of the RPC client proxy.</param>
     /// <param name="AMintResolver">An instance of a mint resolver.</param>
     /// <param name="APublicKey">The account public key.</param>
+    /// <param name="AEncoding">The encoding of the token account data.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>An instance of TokenWallet loaded with the token accounts of the publicKey provided.</returns>
     class function Load(const AClient: ITokenWalletRpcProxy;
                         const AMintResolver: ITokenMintResolver;
                         const APublicKey: IPublicKey;
+                        AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed;
                         ACommitment: TCommitment = TCommitment.Finalized): ITokenWallet; overload;
 
      /// <summary>
@@ -307,11 +315,13 @@ type
     /// <param name="ABatch">An instance of SolanaRpcBatchWithCallbacks</param>
     /// <param name="AMintResolver">An instance of a mint resolver.</param>
     /// <param name="APublicKey">The account public key.</param>
+    /// <param name="AEncoding">The encoding of the token account data.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>A func that materializes an instance of TokenWallet populated once the batch has executed.</returns>
     class function Load(const ABatch: TSolanaRpcBatchWithCallbacks;
                         const AMintResolver: ITokenMintResolver;
                         const APublicKey: IPublicKey;
+                        AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed;
                         ACommitment: TCommitment = TCommitment.Finalized): TFunc<ITokenWallet>; overload;
 
     /// <summary>
@@ -321,11 +331,13 @@ type
     /// <param name="ABatch">An instance of SolanaRpcBatchWithCallbacks</param>
     /// <param name="AMintResolver">An instance of a mint resolver.</param>
     /// <param name="APublicKey">The account public key (base58 string).</param>
+    /// <param name="AEncoding">The encoding of the token account data.</param>
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>A func that materializes an instance of TokenWallet populated once the batch has executed.</returns>
     class function Load(const ABatch: TSolanaRpcBatchWithCallbacks;
                          const AMintResolver: ITokenMintResolver;
                         const APublicKey: string;
+                        AEncoding: TBinaryEncoding = TBinaryEncoding.JsonParsed;
                         ACommitment: TCommitment = TCommitment.Finalized): TFunc<ITokenWallet>; overload;
 
   end;
@@ -486,6 +498,7 @@ end;
 class function TTokenWallet.Load(const AClient: IRpcClient;
                                  const AMintResolver: ITokenMintResolver;
                                  const APublicKey: string;
+                                 AEncoding: TBinaryEncoding;
                                  ACommitment: TCommitment): ITokenWallet;
 var
  LTokenWalletRpcProxy: ITokenWalletRpcProxy;
@@ -495,23 +508,25 @@ begin
     raise EArgumentNilException.Create('APublicKey');
   LTokenWalletRpcProxy := TTokenWalletRpcProxy.Create(AClient);
   LPublicKey := TPublicKey.Create(APublicKey);
-  Result := Load(LTokenWalletRpcProxy, AMintResolver, LPublicKey, ACommitment);
+  Result := Load(LTokenWalletRpcProxy, AMintResolver, LPublicKey, AEncoding, ACommitment);
 end;
 
 class function TTokenWallet.Load(const AClient: IRpcClient;
                                  const AMintResolver: ITokenMintResolver;
                                  const APublicKey: IPublicKey;
+                                 AEncoding: TBinaryEncoding;
                                  ACommitment: TCommitment): ITokenWallet;
 var
  LTokenWalletRpcProxy: ITokenWalletRpcProxy;
 begin
   LTokenWalletRpcProxy := TTokenWalletRpcProxy.Create(AClient);
-  Result := Load(LTokenWalletRpcProxy, AMintResolver, APublicKey, ACommitment);
+  Result := Load(LTokenWalletRpcProxy, AMintResolver, APublicKey, AEncoding, ACommitment);
 end;
 
 class function TTokenWallet.Load(const AClient: ITokenWalletRpcProxy;
                                  const AMintResolver: ITokenMintResolver;
                                  const APublicKey: string;
+                                 AEncoding: TBinaryEncoding;
                                  ACommitment: TCommitment): ITokenWallet;
 var
  LPublicKey: IPublicKey;
@@ -519,12 +534,13 @@ begin
   if APublicKey = '' then
     raise EArgumentNilException.Create('APublicKey');
   LPublicKey := TPublicKey.Create(APublicKey);
-  Result := Load(AClient, AMintResolver, LPublicKey, ACommitment);
+  Result := Load(AClient, AMintResolver, LPublicKey, AEncoding, ACommitment);
 end;
 
 class function TTokenWallet.Load(const AClient: ITokenWalletRpcProxy;
                                  const AMintResolver: ITokenMintResolver;
                                  const APublicKey: IPublicKey;
+                                 AEncoding: TBinaryEncoding;
                                  ACommitment: TCommitment): ITokenWallet;
 begin
   if AClient = nil then raise EArgumentNilException.Create('AClient');
@@ -541,18 +557,20 @@ end;
 class function TTokenWallet.Load(const ABatch: TSolanaRpcBatchWithCallbacks;
                                  const AMintResolver: ITokenMintResolver;
                                  const APublicKey: IPublicKey;
+                                 AEncoding: TBinaryEncoding;
                                  ACommitment: TCommitment): TFunc<ITokenWallet>;
 begin
   if APublicKey = nil then raise EArgumentNilException.Create('publicKey');
   if not APublicKey.IsOnCurve then
     raise EArgumentException.Create('APublicKey not valid - check this is native wallet address (not an ATA, PDA or aux account)');
-  Result := Load(ABatch, AMintResolver, APublicKey.Key, ACommitment);
+  Result := Load(ABatch, AMintResolver, APublicKey.Key, AEncoding, ACommitment);
 end;
 
 class function TTokenWallet.Load(
   const ABatch: TSolanaRpcBatchWithCallbacks;
   const AMintResolver: ITokenMintResolver;
   const APublicKey: string;
+  AEncoding: TBinaryEncoding;
   ACommitment: TCommitment
 ): TFunc<ITokenWallet>;
 var
@@ -587,7 +605,7 @@ begin
     end);
 
   // === Enqueue: token accounts ===
-  ABatch.GetTokenAccountsByOwner(Ctx.PublicKey, '', TTokenProgram.ProgramIdKey.Key, ACommitment,
+  ABatch.GetTokenAccountsByOwner(Ctx.PublicKey, '', TTokenProgram.ProgramIdKey.Key, AEncoding, ACommitment,
     procedure (AResp: TResponseValue<TObjectList<TTokenAccount>>; AErr: Exception)
     begin
       if Assigned(Ctx.Lock) then Ctx.Lock.Acquire;
@@ -833,7 +851,7 @@ begin
   if not SameStr(ASource.Owner, FPublicKey.Key) then
     raise EArgumentException.Create('Source account does not belong to this wallet.');
 
-  LDestWallet := Load(FRpcClient, FMintResolver, ADestination, TCommitment.Finalized);
+  LDestWallet := Load(FRpcClient, FMintResolver, ADestination, TBinaryEncoding.JsonParsed, TCommitment.Finalized);
   LBlockHash := FRpcClient.GetLatestBlockHash;
 
   LTxB := TTransactionBuilder.Create;

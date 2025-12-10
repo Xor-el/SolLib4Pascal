@@ -223,7 +223,7 @@ begin
       );
 
       batch.GetTokenAccountsByOwner(
-        '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', '', TokenProgramProgramId, TCommitment.Finalized,
+        '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', '', TokenProgramProgramId, TBinaryEncoding.JsonParsed, TCommitment.Finalized,
         procedure (x: TResponseValue<TObjectList<TTokenAccount>>; ex: Exception)
         begin
           LTokenAccountData := x.Value[0].Account.Data.AsType<TTokenAccountData>;
@@ -309,7 +309,7 @@ begin
         end
       );
       batch.GetTokenAccountsByOwner(
-        '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', '', TokenProgramProgramId, TCommitment.Finalized,
+        '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', '', TokenProgramProgramId, TBinaryEncoding.JsonParsed, TCommitment.Finalized,
         procedure (x: TResponseValue<TObjectList<TTokenAccount>>; ex: Exception)
         begin
           if ex <> nil then Inc(exceptionsEncountered);
