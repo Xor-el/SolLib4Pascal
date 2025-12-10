@@ -36,8 +36,7 @@ uses
   SlpRequestResult,
   SlpRpcMessage,
   SlpJsonKit,
-  SlpEncodingConverter,
-  SlpJsonStringEnumConverter,
+  SlpJsonConverterFactory,
   SlpHttpApiResponse,
   SlpHttpApiClient,
   SlpLogger;
@@ -153,9 +152,7 @@ end;
 
 function TJsonRpcClient.GetConverters: TList<TJsonConverter>;
 begin
-  Result := TList<TJsonConverter>.Create;
-  Result.Add(TEncodingConverter.Create);
-  Result.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+  Result := TJsonConverterFactory.GetRpcConverters();
 end;
 
 function TJsonRpcClient.BuildSerializer: TJsonSerializer;

@@ -46,8 +46,7 @@ uses
   SlpMulticast,
   SlpValueUtils,
   SlpNullable,
-  SlpLogger,
-  SlpJsonConverterFactory;
+  SlpLogger;
 
 type
   /// <summary>
@@ -543,8 +542,6 @@ type
     /// </summary>
     function BuildUnsubscribeMap: TArray<TPair<string, string>>; virtual;
 
-    function GetConverters: TList<TJsonConverter>; override;
-
     /// <summary>
     /// Send a request synchronously.
     /// </summary>
@@ -771,20 +768,6 @@ begin
     TValueUtils.FreeParameter(V);
   end;
 end;
-
-function TSolanaStreamingRpcClient.GetConverters: TList<TJsonConverter>;
-var
-  LRpcConverters: TList<TJsonConverter>;
-begin
-  LRpcConverters := TJsonConverterFactory.GetRpcConverters();
-  try
-    Result := inherited GetConverters();
-    Result.AddRange(LRpcConverters);
-  finally
-    LRpcConverters.Free;
-  end;
-end;
-
 
 procedure TSolanaStreamingRpcClient.CleanupSubscriptions;
 var

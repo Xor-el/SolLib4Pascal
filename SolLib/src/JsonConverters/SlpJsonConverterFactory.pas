@@ -26,6 +26,9 @@ uses
   System.Generics.Collections,
   System.JSON.Serializers,
   System.JSON.Converters,
+  SlpJsonKit,
+  SlpJsonStringEnumConverter,
+  SlpEncodingConverter,
   SlpJsonListConverter,
   SlpRpcModel;
 
@@ -42,6 +45,10 @@ implementation
 class function TJsonConverterFactory.GetRpcConverters: TList<TJsonConverter>;
 begin
   Result := TList<TJsonConverter>.Create;
+
+  // === Enum converters ===
+  Result.Add(TEncodingConverter.Create);
+  Result.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
 
   // === Basic list converters ===
   Result.Add(TJsonListConverter<string>.Create);

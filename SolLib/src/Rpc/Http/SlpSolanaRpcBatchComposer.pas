@@ -38,8 +38,7 @@ uses
   SlpRequestResult,
   SlpSolLibExceptions,
   SlpJsonKit,
-  SlpJsonConverterFactory,
-  SlpJsonStringEnumConverter;
+  SlpJsonConverterFactory;
 
 type
   /// <summary>
@@ -97,11 +96,22 @@ type
     FSerializer: TJsonSerializer;
 
     function GetCount: Integer;
-    function BuildSerializer: TJsonSerializer;
 
     class function WrapCallback<T>(
       const ACallback: TProc<T, Exception>
     ): TProc<TJsonRpcBatchResponseItem, Exception>; static;
+
+  protected
+    /// <summary>
+    /// Override to customize the converter list.
+    /// </summary>
+    function GetConverters: TList<TJsonConverter>; virtual;
+
+    /// <summary>
+    /// Override to customize the serializer
+    /// </summary>
+    function BuildSerializer: TJsonSerializer; virtual;
+
 
   public
     /// <summary>
@@ -280,13 +290,17 @@ begin
   Result := FReqs.Count;
 end;
 
+function TSolanaRpcBatchComposer.GetConverters: TList<TJsonConverter>;
+begin
+  Result := TJsonConverterFactory.GetRpcConverters();
+end;
+
 function TSolanaRpcBatchComposer.BuildSerializer: TJsonSerializer;
 var
   Converters: TList<TJsonConverter>;
 begin
-  Converters := TJsonConverterFactory.GetRpcConverters();
+  Converters := GetConverters();
   try
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,

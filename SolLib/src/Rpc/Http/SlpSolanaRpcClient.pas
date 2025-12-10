@@ -45,8 +45,7 @@ uses
   SlpRateLimiter,
   SlpNullable,
   SlpValueUtils,
-  SlpLogger,
-  SlpJsonConverterFactory;
+  SlpLogger;
 
 type
   /// <summary>
@@ -631,8 +630,6 @@ type
 
   protected
 
-    function GetConverters: TList<TJsonConverter>; override;
-
     /// <summary>
     /// Build the request for the passed RPC method and parameters.
     /// </summary>
@@ -806,19 +803,6 @@ constructor TSolanaRpcClient.Create(const AUrl: string; const AClient: IHttpApiC
 begin
   inherited Create(AUrl, AClient, ALogger, ARateLimiter);
   FIdGenerator := TIdGenerator.Create();
-end;
-
-function TSolanaRpcClient.GetConverters: TList<TJsonConverter>;
-var
-  LRpcConverters: TList<TJsonConverter>;
-begin
-  LRpcConverters := TJsonConverterFactory.GetRpcConverters();
-  try
-    Result := inherited GetConverters();
-    Result.AddRange(LRpcConverters);
-  finally
-    LRpcConverters.Free;
-  end;
 end;
 
 function TSolanaRpcClient.GetNextIdForReq: Integer;

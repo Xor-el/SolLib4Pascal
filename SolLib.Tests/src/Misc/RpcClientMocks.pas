@@ -32,8 +32,6 @@ uses
   SlpRpcMessage,
   SlpRpcModel,
   SlpJsonKit,
-  SlpEncodingConverter,
-  SlpJsonStringEnumConverter,
   SlpJsonConverterFactory,
   SlpHttpClientBase,
   SlpHttpApiClient,
@@ -138,10 +136,20 @@ type
     FSerializer: TJsonSerializer;
 
   private
-    function  BuildSerializer: TJsonSerializer;
     function  GetNextJsonResponse<T>: TJsonRpcResponse<T>;
     function  MockResponseValue<T>: TRequestResult<TResponseValue<T>>;
     function  MockValue<T>: TRequestResult<T>;
+
+  protected
+    /// <summary>
+    /// Override to customize the converter list.
+    /// </summary>
+    function GetConverters: TList<TJsonConverter>; virtual;
+
+    /// <summary>
+    /// Override to customize the serializer
+    /// </summary>
+    function BuildSerializer: TJsonSerializer; virtual;
 
   public
     constructor Create;
@@ -472,15 +480,17 @@ begin
   inherited;
 end;
 
+function TMockTokenWalletRpcProxy.GetConverters: TList<TJsonConverter>;
+begin
+  Result := TJsonConverterFactory.GetRpcConverters();
+end;
+
 function TMockTokenWalletRpcProxy.BuildSerializer: TJsonSerializer;
 var
   Converters: TList<TJsonConverter>;
 begin
-  Converters := TJsonConverterFactory.GetRpcConverters();
+  Converters := GetConverters();
   try
-    Converters.Add(TEncodingConverter.Create);
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,

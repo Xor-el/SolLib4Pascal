@@ -32,8 +32,7 @@ uses
   System.Net.URLClient,
 {$ENDIF}
   SlpJsonKit,
-  SlpEncodingConverter,
-  SlpJsonStringEnumConverter,
+  SlpJsonConverterFactory,
   SlpLogger,
   SlpWebSocketApiClient,
   SlpConnectionStatistics;
@@ -212,9 +211,7 @@ end;
 
 function TStreamingRpcClient.GetConverters: TList<TJsonConverter>;
 begin
-  Result := TList<TJsonConverter>.Create;
-  Result.Add(TEncodingConverter.Create);
-  Result.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+  Result := TJsonConverterFactory.GetRpcConverters();
 end;
 
 function TStreamingRpcClient.BuildSerializer: TJsonSerializer;
