@@ -52,7 +52,7 @@ implementation
 
 class function THttpClientBase.UrlEncode(const S: string): string;
 begin
-  Result:= TNetEncoding.URL.Encode(S);
+  Result := TNetEncoding.URL.Encode(S);
 end;
 
 class function THttpClientBase.BuildUrlWithQuery(const BaseUrl: string; const Q: THttpApiQueryParams): string;
