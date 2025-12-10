@@ -598,7 +598,7 @@ type
   /// </summary>
   TSolanaRpcClient = class(TJsonRpcClient, IRpcClient)
   private
-    FIdGenerator: TIdGenerator;
+    FIdGenerator: IIdGenerator;
 
     /// <summary>
     /// Generates the next unique id for the request.
@@ -668,7 +668,6 @@ type
     /// <param name="ALogger">The abstracted Logger instance or nil for no logger</param>
     /// <param name="ARateLimiter">A rate limiting strategy or null.</param>
     constructor Create(const AUrl: string; const AClient: IHttpApiClient; const ALogger: ILogger = nil; const ARateLimiter: IRateLimiter = nil);
-    destructor Destroy; override;
 
     property NodeAddress: TURI read GetNodeAddress;
 
@@ -807,13 +806,6 @@ constructor TSolanaRpcClient.Create(const AUrl: string; const AClient: IHttpApiC
 begin
   inherited Create(AUrl, AClient, ALogger, ARateLimiter);
   FIdGenerator := TIdGenerator.Create();
-end;
-
-destructor TSolanaRpcClient.Destroy;
-begin
-   if Assigned(FIdGenerator) then
-     FIdGenerator.Free;
-  inherited;
 end;
 
 function TSolanaRpcClient.GetConverters: TList<TJsonConverter>;

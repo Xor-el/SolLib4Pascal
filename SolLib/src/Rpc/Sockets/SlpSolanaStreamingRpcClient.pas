@@ -390,7 +390,7 @@ type
      /// <summary>
      /// Message Id generator.
     /// </summary>
-    FIdGenerator: TIdGenerator;
+    FIdGenerator: IIdGenerator;
      /// <summary>
      /// Json Serializer.
     /// </summary>
@@ -736,9 +736,6 @@ var
   I: Integer;
 begin
   inherited;
-
-  if Assigned(FIdGenerator) then
-    FIdGenerator.Free;
 
   if Assigned(FUnconfirmed) then
     FUnconfirmed.Free;

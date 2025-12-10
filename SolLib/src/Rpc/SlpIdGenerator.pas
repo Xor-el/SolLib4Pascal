@@ -29,20 +29,31 @@ type
   /// <summary>
   /// Id generator
   /// </summary>
-  TIdGenerator = class
-  private
-    FId: Integer;
-    FLock: TCriticalSection;
-  public
-
-    constructor Create;
-    destructor Destroy; override;
-    
+  IIdGenerator = interface
+    ['{9A99F7C1-5C42-41C2-9F3D-1A9A2C91F7E3}']
     /// <summary>
     /// Gets the id of the next request
     /// </summary>
     /// <returns>The id</returns>
     function GetNextId: Integer;
+  end;
+
+  /// <summary>
+  /// Id generator
+  /// </summary>
+  TIdGenerator = class(TInterfacedObject, IIdGenerator)
+  private
+    FId: Integer;
+    FLock: TCriticalSection;
+
+    /// <summary>
+    /// Gets the id of the next request
+    /// </summary>
+    /// <returns>The id</returns>
+    function GetNextId: Integer;
+  public
+    constructor Create;
+    destructor Destroy; override;
   end;
 
 implementation
