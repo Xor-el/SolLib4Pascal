@@ -35,7 +35,7 @@ type
   {                                     AddressLookupTableProgramInstructions                                          }
   {====================================================================================================================}
   /// <summary>
-  /// Instruction kinds for the Address Lookup Table Program, with user-friendly names.
+  /// Instruction kinds for the Address Lookup Table Program.
   /// </summary>
   TAddressLookupTableProgramInstructions = class sealed
   public

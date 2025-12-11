@@ -36,7 +36,7 @@ type
   {                                          BPFLoaderProgramInstructions                                             }
   {====================================================================================================================}
   /// <summary>
-  /// Represents the instruction types for the Upgradeable BPF Loader along with a friendly name.
+  /// Represents the instruction types for the Upgradeable BPF Loader.
   /// <remarks>
   /// See: solana sdk UpgradeableLoaderInstruction.
   /// </remarks>

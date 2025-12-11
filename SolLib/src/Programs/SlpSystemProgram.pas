@@ -36,7 +36,7 @@ uses
 
 type
   /// <summary>
-  /// Represents the instruction types for the <see cref="SystemProgram"/> along with a friendly name so as not to use reflection.
+  /// Represents the instruction types for the <see cref="SystemProgram"/>.
   /// <remarks>
   /// For more information see:
   /// https://docs.solana.com/developing/runtime-facilities/programs#system-program

@@ -35,7 +35,7 @@ uses
 
 type
   /// <summary>
-  /// Represents the instruction types for the <see cref="ComputeBudgetProgram"/> along with a friendly name so as not to use reflection.
+  /// Represents the instruction types for the <see cref="ComputeBudgetProgram"/>.
   /// </summary>
   TComputeBudgetProgramInstructions = class sealed
   public
