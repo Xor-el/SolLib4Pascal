@@ -299,7 +299,7 @@ type
   end;
 
   /// <summary>
-  /// Represents the state of a given subscription with specified type handler (ref-counted).
+  /// Represents the state of a given subscription with specified type handler.
   /// </summary>
   /// <typeparam name="T">The type of the data received by this subscription.</typeparam>
   ISubscriptionStateWithHandler<T> = interface(ISubscriptionState)

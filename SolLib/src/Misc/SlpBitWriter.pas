@@ -69,7 +69,7 @@ type
     /// <summary>Export as array of 11-bit integers (BIP-39 style grouping).</summary>
     function ToIntegers: TArray<Integer>;
 
-    /// <summary>Static helper: convert any TBits to 11-bit integers like the LINQ version.</summary>
+    /// <summary>Convert any TBits to 11-bit integers.</summary>
     class function ToIntegersFromBits(const Bits: TBits): TArray<Integer>; static;
 
     /// <summary>Human-readable bit dump with spaces every 8 bits.</summary>
@@ -165,7 +165,7 @@ var
   ByteLen, I, B, Offs: Integer;
   Raw: TBytes;
 begin
-  // pack to little-endian in-byte order (BitArray semantics)
+  // pack to little-endian in-byte order
   ByteLen := FValues.Count div 8;
   if (FValues.Count mod 8) <> 0 then
     Inc(ByteLen);
