@@ -176,7 +176,7 @@ begin
   // 1) Update recent blockhash from nonce info
   FRecentBlockHash := FNonceInformation.Nonce;
 
-  // 2) Extend account metas with the nonce instruction�s keys and program id
+  // 2) Extend account metas with the nonce instruction keys and program id
   LNonceInstruction := FNonceInformation.Instruction;
   if Assigned(LNonceInstruction) then
   begin

@@ -261,7 +261,7 @@ begin
   try
     AssertEquals(2, LDecoded.Count, 'Count');
 
-    // I0 � System: Create Account
+    // I0 - System: Create Account
     AssertEquals('Create Account',  LDecoded[0].InstructionName, 'I0 name');
     AssertEquals('System Program',  LDecoded[0].ProgramName,     'I0 program');
     AssertEquals('11111111111111111111111111111111', LDecoded[0].PublicKey.Key, 'I0 program id');
@@ -279,7 +279,7 @@ begin
     AssertTrue(LDecoded[0].Values.TryGetValue('Space', LVal), 'I0 missing "Space"');
     AssertEquals(165, LVal.AsType<UInt64>, 'I0 Space');
 
-    // I1 � Token: Initialize Account
+    // I1 - Token: Initialize Account
     AssertEquals('Initialize Account', LDecoded[1].InstructionName, 'I1 name');
     AssertEquals('Token Program',      LDecoded[1].ProgramName,     'I1 program');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LDecoded[1].PublicKey.Key, 'I1 program id');
@@ -317,7 +317,7 @@ begin
     // assert
     AssertEquals(3, LDecoded.Count, 'Decoded instruction count');
 
-    // I0 � Associated Token Account Program: Create Associated Token Account
+    // I0 - Associated Token Account Program: Create Associated Token Account
     AssertEquals('Create Associated Token Account', LDecoded[0].InstructionName, 'I0 name');
     AssertEquals('Associated Token Account Program', LDecoded[0].ProgramName, 'I0 program');
     AssertEquals('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', LDecoded[0].PublicKey.Key, 'I0 program id');
@@ -335,7 +335,7 @@ begin
     AssertTrue(LDecoded[0].Values.TryGetValue('Mint', LVal), 'I0 missing "Mint"');
     AssertEquals('4NtWFCwJDebDw16pEPh9JJo9XkuufK1tvY8A2MmkrsRP', LVal.AsType<IPublicKey>.Key, 'I0 Mint');
 
-    // I1 � Token Program: Transfer
+    // I1 - Token Program: Transfer
     AssertEquals('Transfer', LDecoded[1].InstructionName, 'I1 name');
     AssertEquals('Token Program', LDecoded[1].ProgramName, 'I1 program');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LDecoded[1].PublicKey.Key, 'I1 program id');
@@ -353,7 +353,7 @@ begin
     AssertTrue(LDecoded[1].Values.TryGetValue('Amount', LVal), 'I1 missing "Amount"');
     AssertEquals(25000, LVal.AsType<UInt64>, 'I1 Amount');
 
-    // I2 � Memo Program: New Memo
+    // I2 - Memo Program: New Memo
     AssertEquals('New Memo', LDecoded[2].InstructionName, 'I2 name');
     AssertEquals('Memo Program', LDecoded[2].ProgramName, 'I2 program');
     AssertEquals('Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo', LDecoded[2].PublicKey.Key, 'I2 program id');
@@ -535,7 +535,7 @@ begin
   try
     AssertEquals(3, LDecoded.Count, 'Count');
 
-    // I0 � System: Create Account With Seed
+    // I0 - System: Create Account With Seed
     AssertEquals('Create Account With Seed', LDecoded[0].InstructionName, 'I0 name');
     AssertEquals('System Program',           LDecoded[0].ProgramName,     'I0 program');
     AssertEquals('11111111111111111111111111111111', LDecoded[0].PublicKey.Key, 'I0 program id');
@@ -562,7 +562,7 @@ begin
     AssertTrue(LDecoded[0].Values.TryGetValue('Seed', LVal), 'I0 missing "Seed"');
     AssertEquals('Some Seed', LVal.AsString, 'I0 Seed');
 
-    // I2 � Token: Transfer Checked
+    // I2 - Token: Transfer Checked
     AssertEquals('Transfer Checked', LDecoded[2].InstructionName, 'I2 name');
     AssertEquals('Token Program',    LDecoded[2].ProgramName,     'I2 program');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LDecoded[2].PublicKey.Key, 'I2 program id');
@@ -600,7 +600,7 @@ begin
   try
     AssertEquals(6, LDecoded.Count, 'Count');
 
-    // I1 � System: Allocate With Seed
+    // I1 - System: Allocate With Seed
     AssertEquals('Allocate With Seed', LDecoded[1].InstructionName, 'I1 name');
     AssertEquals('System Program',     LDecoded[1].ProgramName,     'I1 program');
     AssertEquals('11111111111111111111111111111111', LDecoded[1].PublicKey.Key, 'I1 program id');
@@ -621,7 +621,7 @@ begin
     AssertTrue(LDecoded[1].Values.TryGetValue('Space', LVal), 'I1 missing "Space"');
     AssertEquals(165, LVal.AsType<UInt64>, 'I1 Space');
 
-    // I2 � System: Transfer With Seed
+    // I2 - System: Transfer With Seed
     AssertEquals('Transfer With Seed', LDecoded[2].InstructionName, 'I2 name');
     AssertEquals('System Program',     LDecoded[2].ProgramName,     'I2 program');
     AssertEquals('11111111111111111111111111111111', LDecoded[2].PublicKey.Key, 'I2 program id');
@@ -660,7 +660,7 @@ begin
   try
     AssertEquals(6, LDecoded.Count, 'Count');
 
-    // I1 � System: Assign With Seed
+    // I1 - System: Assign With Seed
     AssertEquals('Assign With Seed', LDecoded[1].InstructionName, 'I1 name');
     AssertEquals('System Program',   LDecoded[1].ProgramName,     'I1 program');
     AssertEquals('11111111111111111111111111111111', LDecoded[1].PublicKey.Key, 'I1 program id');
@@ -678,7 +678,7 @@ begin
     AssertTrue(LDecoded[1].Values.TryGetValue('Seed', LVal), 'I1 missing "Seed"');
     AssertEquals('Some Seed', LVal.AsString, 'I1 Seed');
 
-    // I2 � System: Withdraw Nonce Account
+    // I2 - System: Withdraw Nonce Account
     AssertEquals('Withdraw Nonce Account', LDecoded[2].InstructionName, 'I2 name');
     AssertEquals('System Program',         LDecoded[2].ProgramName,     'I2 program');
     AssertEquals('11111111111111111111111111111111', LDecoded[2].PublicKey.Key, 'I2 program id');

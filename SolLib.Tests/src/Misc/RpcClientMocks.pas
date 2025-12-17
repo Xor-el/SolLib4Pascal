@@ -652,7 +652,7 @@ procedure TMockWebSocketApiClient.Send(const AText: string);
 begin
   // capture outbound text exactly as sent (for later assertions)
   FSentText.Add(AText);
-  // no immediate echo/delivery here�tests control inbound via Enqueue* + Trigger*
+  // no immediate echo/delivery here. tests control inbound via Enqueue* + Trigger*
 end;
 
 procedure TMockWebSocketApiClient.Send(const AData: TBytes);
