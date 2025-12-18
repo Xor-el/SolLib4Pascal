@@ -1,0 +1,158 @@
+package SolLib4PascalPackage;
+
+{$R *.res}
+{$WARNINGS OFF}
+{$HINTS OFF}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE RELEASE}
+{$ENDIF IMPLICITBUILDING}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  HashLib4PascalPackage,
+  SimpleBaseLib4PascalPackage,
+  CryptoLib4PascalPackage;
+
+contains
+  SlpJsonHelpers in '..\..\Helpers\SlpJsonHelpers.pas',
+  SlpValueHelpers in '..\..\Helpers\SlpValueHelpers.pas',
+  SlpAccountDataConverter in '..\..\JsonConverters\SlpAccountDataConverter.pas',
+  SlpBaseJsonConverter in '..\..\JsonConverters\SlpBaseJsonConverter.pas',
+  SlpEncodingConverter in '..\..\JsonConverters\SlpEncodingConverter.pas',
+  SlpJsonClampNumberConverter in '..\..\JsonConverters\SlpJsonClampNumberConverter.pas',
+  SlpJsonConverterFactory in '..\..\JsonConverters\SlpJsonConverterFactory.pas',
+  SlpJsonListConverter in '..\..\JsonConverters\SlpJsonListConverter.pas',
+  SlpJsonRpcBatchRequestConverter in '..\..\JsonConverters\SlpJsonRpcBatchRequestConverter.pas',
+  SlpJsonRpcBatchResponseConverter in '..\..\JsonConverters\SlpJsonRpcBatchResponseConverter.pas',
+  SlpJsonRpcBatchResponseItemResultConverter in '..\..\JsonConverters\SlpJsonRpcBatchResponseItemResultConverter.pas',
+  SlpJsonRpcRequestParamsConverter in '..\..\JsonConverters\SlpJsonRpcRequestParamsConverter.pas',
+  SlpJsonStringEnumConverter in '..\..\JsonConverters\SlpJsonStringEnumConverter.pas',
+  SlpNullableConverter in '..\..\JsonConverters\SlpNullableConverter.pas',
+  SlpRpcErrorResponseConverter in '..\..\JsonConverters\SlpRpcErrorResponseConverter.pas',
+  SlpTokenAccountDataConverter in '..\..\JsonConverters\SlpTokenAccountDataConverter.pas',
+  SlpTokenListItemExtensionsConverter in '..\..\JsonConverters\SlpTokenListItemExtensionsConverter.pas',
+  SlpTransactionErrorJsonConverter in '..\..\JsonConverters\SlpTransactionErrorJsonConverter.pas',
+  SlpTransactionMetaInfoTransactionConverter in '..\..\JsonConverters\SlpTransactionMetaInfoTransactionConverter.pas',
+  SlpTransactionMetaInfoVersionConverter in '..\..\JsonConverters\SlpTransactionMetaInfoVersionConverter.pas',
+  SlpJsonKeyStoreSerializer in '..\..\KeyStore\SlpJsonKeyStoreSerializer.pas',
+  SlpKeyStoreCrypto in '..\..\KeyStore\SlpKeyStoreCrypto.pas',
+  SlpKeyStoreEnum in '..\..\KeyStore\SlpKeyStoreEnum.pas',
+  SlpKeyStoreKdfChecker in '..\..\KeyStore\SlpKeyStoreKdfChecker.pas',
+  SlpKeyStoreModel in '..\..\KeyStore\SlpKeyStoreModel.pas',
+  SlpKeyStoreService in '..\..\KeyStore\SlpKeyStoreService.pas',
+  SlpSecretKeyStoreService in '..\..\KeyStore\SlpSecretKeyStoreService.pas',
+  SlpSolanaKeyStoreService in '..\..\KeyStore\SlpSolanaKeyStoreService.pas',
+  SlpScryptImpl in '..\..\Misc\Crypto\SlpScryptImpl.pas',
+  SlpDataEncoders in '..\..\Misc\Encoder\SlpDataEncoders.pas',
+  SlpHttpApiClient in '..\..\Misc\Http\SlpHttpApiClient.pas',
+  SlpHttpApiResponse in '..\..\Misc\Http\SlpHttpApiResponse.pas',
+  SlpHttpClientBase in '..\..\Misc\Http\SlpHttpClientBase.pas',
+  SlpHttpClientDelphi in '..\..\Misc\Http\SlpHttpClientDelphi.pas',
+  SlpLogger in '..\..\Misc\Logger\SlpLogger.pas',
+  SlpKdTable in '..\..\Misc\Normalization\SlpKdTable.pas',
+  SlpWebSocketApiClient in '..\..\Misc\Sockets\SlpWebSocketApiClient.pas',
+  SlpWebSocketClientBase in '..\..\Misc\Sockets\SlpWebSocketClientBase.pas',
+  SlpBinaryPrimitives in '..\..\Misc\SlpBinaryPrimitives.pas',
+  SlpBitWriter in '..\..\Misc\SlpBitWriter.pas',
+  SlpJsonKit in '..\..\Misc\SlpJsonKit.pas',
+  SlpMulticast in '..\..\Misc\SlpMulticast.pas',
+  SlpNullable in '..\..\Misc\SlpNullable.pas',
+  SlpSolLibExceptions in '..\..\Misc\SlpSolLibExceptions.pas',
+  SlpStringTransformer in '..\..\Misc\SlpStringTransformer.pas',
+  SlpTimeTicker in '..\..\Misc\SlpTimeTicker.pas',
+  SlpBaseClient in '..\..\Programs\Abstract\SlpBaseClient.pas',
+  SlpBaseProgram in '..\..\Programs\Abstract\SlpBaseProgram.pas',
+  SlpFlag in '..\..\Programs\Abstract\SlpFlag.pas',
+  SlpResultWrapper in '..\..\Programs\Abstract\SlpResultWrapper.pas',
+  SlpDecodedInstruction in '..\..\Programs\Models\SlpDecodedInstruction.pas',
+  SlpNonceAccount in '..\..\Programs\Models\SlpNonceAccount.pas',
+  SlpTokenProgramModel in '..\..\Programs\Models\SlpTokenProgramModel.pas',
+  SlpTokenSwapModel in '..\..\Programs\Models\SlpTokenSwapModel.pas',
+  SlpDeserialization in '..\..\Programs\Utils\SlpDeserialization.pas',
+  SlpInstructionDecoder in '..\..\Programs\Utils\SlpInstructionDecoder.pas',
+  SlpSerialization in '..\..\Programs\Utils\SlpSerialization.pas',
+  SlpJsonRpcClient in '..\..\Rpc\Http\SlpJsonRpcClient.pas',
+  SlpRequestResult in '..\..\Rpc\Http\SlpRequestResult.pas',
+  SlpSolanaRpcBatchComposer in '..\..\Rpc\Http\SlpSolanaRpcBatchComposer.pas',
+  SlpSolanaRpcBatchWithCallbacks in '..\..\Rpc\Http\SlpSolanaRpcBatchWithCallbacks.pas',
+  SlpSolanaRpcClient in '..\..\Rpc\Http\SlpSolanaRpcClient.pas',
+  SlpSolanaStreamingRpcClient in '..\..\Rpc\Sockets\SlpSolanaStreamingRpcClient.pas',
+  SlpStreamingRpcClient in '..\..\Rpc\Sockets\SlpStreamingRpcClient.pas',
+  SlpSubscriptionEvent in '..\..\Rpc\Sockets\SlpSubscriptionEvent.pas',
+  SlpAccountDomain in '..\..\Rpc\SlpAccountDomain.pas',
+  SlpClientFactory in '..\..\Rpc\SlpClientFactory.pas',
+  SlpComputeBudgetEstimator in '..\..\Rpc\SlpComputeBudgetEstimator.pas',
+  SlpConfigObject in '..\..\Rpc\SlpConfigObject.pas',
+  SlpConnectionStatistics in '..\..\Rpc\SlpConnectionStatistics.pas',
+  SlpIdGenerator in '..\..\Rpc\SlpIdGenerator.pas',
+  SlpMessageBuilder in '..\..\Rpc\SlpMessageBuilder.pas',
+  SlpMessageDomain in '..\..\Rpc\SlpMessageDomain.pas',
+  SlpRateLimiter in '..\..\Rpc\SlpRateLimiter.pas',
+  SlpRpcEnum in '..\..\Rpc\SlpRpcEnum.pas',
+  SlpRpcMessage in '..\..\Rpc\SlpRpcMessage.pas',
+  SlpRpcModel in '..\..\Rpc\SlpRpcModel.pas',
+  SlpShortVectorEncoding in '..\..\Rpc\SlpShortVectorEncoding.pas',
+  SlpTransactionBuilder in '..\..\Rpc\SlpTransactionBuilder.pas',
+  SlpTransactionDomain in '..\..\Rpc\SlpTransactionDomain.pas',
+  SlpTransactionInstruction in '..\..\Rpc\SlpTransactionInstruction.pas',
+  SlpTransactionInstructionFactory in '..\..\Rpc\SlpTransactionInstructionFactory.pas',
+  SlpSolConverter in '..\..\Token\SlpSolConverter.pas',
+  SlpTokenDomain in '..\..\Token\SlpTokenDomain.pas',
+  SlpTokenMintResolver in '..\..\Token\SlpTokenMintResolver.pas',
+  SlpTokenModel in '..\..\Token\SlpTokenModel.pas',
+  SlpTokenWallet in '..\..\Token\SlpTokenWallet.pas',
+  SlpTokenWalletRpcProxy in '..\..\Token\SlpTokenWalletRpcProxy.pas',
+  SlpWellKnownTokens in '..\..\Token\SlpWellKnownTokens.pas',
+  SlpArrayUtils in '..\..\Utils\SlpArrayUtils.pas',
+  SlpComparerFactory in '..\..\Utils\SlpComparerFactory.pas',
+  SlpCryptoUtils in '..\..\Utils\SlpCryptoUtils.pas',
+  SlpEd25519Utils in '..\..\Utils\SlpEd25519Utils.pas',
+  SlpIOUtils in '..\..\Utils\SlpIOUtils.pas',
+  SlpListUtils in '..\..\Utils\SlpListUtils.pas',
+  SlpMathUtils in '..\..\Utils\SlpMathUtils.pas',
+  SlpValueUtils in '..\..\Utils\SlpValueUtils.pas',
+  SlpHardcodedWordListSource in '..\..\Wallet\Bip39\SlpHardcodedWordListSource.pas',
+  SlpMnemonic in '..\..\Wallet\Bip39\SlpMnemonic.pas',
+  SlpWordList in '..\..\Wallet\Bip39\SlpWordList.pas',
+  SlpAccount in '..\..\Wallet\SlpAccount.pas',
+  SlpEd25519Bip32 in '..\..\Wallet\SlpEd25519Bip32.pas',
+  SlpPrivateKey in '..\..\Wallet\SlpPrivateKey.pas',
+  SlpPublicKey in '..\..\Wallet\SlpPublicKey.pas',
+  SlpWallet in '..\..\Wallet\SlpWallet.pas',
+  SlpWalletEnum in '..\..\Wallet\SlpWalletEnum.pas',
+  SlpSysVars in '..\..\Programs\SlpSysVars.pas',
+  SlpAddressLookupTableProgram in '..\..\Programs\SlpAddressLookupTableProgram.pas',
+  SlpAssociatedTokenAccountProgram in '..\..\Programs\SlpAssociatedTokenAccountProgram.pas',
+  SlpBPFLoaderProgram in '..\..\Programs\SlpBPFLoaderProgram.pas',
+  SlpComputeBudgetProgram in '..\..\Programs\SlpComputeBudgetProgram.pas',
+  SlpMemoProgram in '..\..\Programs\SlpMemoProgram.pas',
+  SlpSharedMemoryProgram in '..\..\Programs\SlpSharedMemoryProgram.pas',
+  SlpSystemProgram in '..\..\Programs\SlpSystemProgram.pas',
+  SlpToken2022Program in '..\..\Programs\SlpToken2022Program.pas',
+  SlpTokenProgram in '..\..\Programs\SlpTokenProgram.pas',
+  SlpTokenSwapProgram in '..\..\Programs\SlpTokenSwapProgram.pas';
+
+end.

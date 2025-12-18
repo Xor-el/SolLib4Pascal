@@ -15,21 +15,31 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-{---------------------------- Compiler Family Switch --------------------------}
+{========================= Compiler Specific Settings =========================}
 {$IFDEF FPC}
-  {$I SolLibFPC.inc} // FPC-specific settings
+  {$I SolLibFPC.inc}
 {$ELSE}
+   // Delphi 10.4 Sydney and Above
+  {$IF CompilerVersion < 34.0}
+    {$MESSAGE ERROR 'This Library requires Delphi 10.4 Sydney or higher.'}
+  {$IFEND}
+
   {$DEFINE DELPHI}
-  {$I ../../SolLib/src/Include/SolLibDelphi.inc} // Delphi-specific settings
+
+  {$DEFINITIONINFO ON} // Enable code browsing (Ctrl+Click)
+  {$STRINGCHECKS OFF}
+  {$WARN DUPLICATE_CTOR_DTOR OFF}
+
 {$ENDIF}
 
-{-------------------------- Common Compiler Settings --------------------------}
-{$SCOPEDENUMS ON}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
-{$POINTERMATH ON}
-{$WARNINGS OFF}
+{========================== Common Compiler Settings ==========================}
+
 {$HINTS OFF}
+{$WARNINGS OFF}
+{$RANGECHECKS OFF}
+{$OVERFLOWCHECKS OFF}
+{$SCOPEDENUMS ON}
+{$POINTERMATH ON}
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
