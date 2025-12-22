@@ -26,8 +26,6 @@ uses
   System.Generics.Collections;
 
 type
-  //TPredicate<T> = reference to function(const Value: T): Boolean;
-
   TListUtils = class
   public
     class function Any<T>(const L: TList<T>; const Pred: TPredicate<T>): Boolean; overload; static;
