@@ -58,15 +58,18 @@ uses
   SlpRpcMessage,
   SlpTokenModel,
   SolLibTestCase,
+  TestResourceLoader,
   TestUtils;
 
 type
   TJsonConverterTests = class(TSolLibTestCase)
   private
-    FResDir: string;
-    function LoadJson(const AFileName: string): string;
+    FResCategory: string;
+    function ResPath(const ASubPath: string): string;
+    function LoadTestData(const ASubPath: string): string;
   protected
     procedure SetUp; override;
+    procedure TearDown; override;
 
   published
     { TAccountDataConverter - via TAccountInfo.Data }
@@ -136,12 +139,23 @@ implementation
 procedure TJsonConverterTests.SetUp;
 begin
   inherited;
-  FResDir := TTestUtils.GetSourceDirWithSuffix('src\Resources\JsonConverter', '');
+  FResCategory := 'JsonConverter';
 end;
 
-function TJsonConverterTests.LoadJson(const AFileName: string): string;
+procedure TJsonConverterTests.TearDown;
 begin
-  Result := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, AFileName]));
+  FResCategory := '';
+  inherited;
+end;
+
+function TJsonConverterTests.ResPath(const ASubPath: string): string;
+begin
+  Result := FResCategory + '/' + ASubPath;
+end;
+
+function TJsonConverterTests.LoadTestData(const ASubPath: string): string;
+begin
+  Result := TTestResourceLoader.LoadTestData(ResPath(ASubPath));
 end;
 
 { TAccountDataConverter Tests - via TAccountInfo.Data }
@@ -151,7 +165,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TAccountInfo;
 begin
-  JsonInput := LoadJson('AccountInfo_Data_Base64.json');
+  JsonInput := LoadTestData('AccountInfo_Data_Base64.json');
   ExpectedJson := JsonInput; // Should match after roundtrip
   
   Model := TTestUtils.Deserialize<TAccountInfo>(JsonInput);
@@ -180,7 +194,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model, Model2: TAccountInfo;
 begin
-  JsonInput := LoadJson('AccountInfo_Data_JsonParsed.json');
+  JsonInput := LoadTestData('AccountInfo_Data_JsonParsed.json');
   ExpectedJson := JsonInput;
    
   Model := TTestUtils.Deserialize<TAccountInfo>(JsonInput);
@@ -208,7 +222,7 @@ var
   JsonInput, JsonOutput: string;
   Model: TAccountInfo;
 begin
-  JsonInput := LoadJson('AccountInfo_Data_Base64.json');
+  JsonInput := LoadTestData('AccountInfo_Data_Base64.json');
   
   Model := TTestUtils.Deserialize<TAccountInfo>(JsonInput);
   try
@@ -229,7 +243,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TTokenBalance;
 begin
-  JsonInput := LoadJson('TokenBalance_WithUiAmount.json');
+  JsonInput := LoadTestData('TokenBalance_WithUiAmount.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TTokenBalance>(JsonInput);
@@ -250,7 +264,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TTokenBalance;
 begin
-  JsonInput := LoadJson('TokenBalance_NullUiAmount.json');
+  JsonInput := LoadTestData('TokenBalance_NullUiAmount.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TTokenBalance>(JsonInput);
@@ -272,7 +286,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TBlockInfo;
 begin
-  JsonInput := LoadJson('BlockInfo_Full.json');
+  JsonInput := LoadTestData('BlockInfo_Full.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TBlockInfo>(JsonInput);
@@ -293,7 +307,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TBlockInfo;
 begin
-  JsonInput := LoadJson('BlockInfo_NullBlockHeight.json');
+  JsonInput := LoadTestData('BlockInfo_NullBlockHeight.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TBlockInfo>(JsonInput);
@@ -314,7 +328,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TJsonRpcRequest;
 begin
-  JsonInput := LoadJson('RpcRequest_WithParams.json');
+  JsonInput := LoadTestData('RpcRequest_WithParams.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TJsonRpcRequest>(JsonInput);
@@ -335,7 +349,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TJsonRpcRequest;
 begin
-  JsonInput := LoadJson('RpcRequest_EmptyParams.json');
+  JsonInput := LoadTestData('RpcRequest_EmptyParams.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TJsonRpcRequest>(JsonInput);
@@ -357,7 +371,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TJsonRpcBatchRequest;
 begin
-  JsonInput := LoadJson('RpcBatchRequest.json');
+  JsonInput := LoadTestData('RpcBatchRequest.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TJsonRpcBatchRequest>(JsonInput);
@@ -378,7 +392,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TJsonRpcBatchResponse;
 begin
-  JsonInput := LoadJson('RpcBatchResponse.json');
+  JsonInput := LoadTestData('RpcBatchResponse.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TJsonRpcBatchResponse>(JsonInput);
@@ -407,7 +421,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TJsonRpcErrorResponse;
 begin
-  JsonInput := LoadJson('RpcError_WithMessage.json');
+  JsonInput := LoadTestData('RpcError_WithMessage.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TJsonRpcErrorResponse>(JsonInput);
@@ -427,7 +441,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TJsonRpcErrorResponse;
 begin
-  JsonInput := LoadJson('RpcError_WithErrorObject.json');
+  JsonInput := LoadTestData('RpcError_WithErrorObject.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TJsonRpcErrorResponse>(JsonInput);
@@ -450,7 +464,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TTokenListItem;
 begin
-  JsonInput := LoadJson('TokenListItem_WithExtensions.json');
+  JsonInput := LoadTestData('TokenListItem_WithExtensions.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TTokenListItem>(JsonInput);
@@ -474,7 +488,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TEpochInfo;
 begin
-  JsonInput := LoadJson('EpochInfo_Full.json');
+  JsonInput := LoadTestData('EpochInfo_Full.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TEpochInfo>(JsonInput);
@@ -494,7 +508,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TJsonRpcResponse<TEpochInfo>;
 begin
-  JsonInput := LoadJson('RpcResponse_EpochInfo.json');
+  JsonInput := LoadTestData('RpcResponse_EpochInfo.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TJsonRpcResponse<TEpochInfo>>(JsonInput);
@@ -516,7 +530,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TTransactionMetaSlotInfo;
 begin
-  JsonInput := LoadJson('TransactionMetaSlotInfo_WithBlockTime.json');
+  JsonInput := LoadTestData('TransactionMetaSlotInfo_WithBlockTime.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(JsonInput);
@@ -548,7 +562,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TTransactionMetaSlotInfo;
 begin
-  JsonInput := LoadJson('TransactionMetaSlotInfo_NullBlockTime.json');
+  JsonInput := LoadTestData('TransactionMetaSlotInfo_NullBlockTime.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(JsonInput);
@@ -569,7 +583,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TSignatureStatusInfo;
 begin
-  JsonInput := LoadJson('SignatureStatusInfo_WithError.json');
+  JsonInput := LoadTestData('SignatureStatusInfo_WithError.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TSignatureStatusInfo>(JsonInput);
@@ -589,7 +603,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TSignatureStatusInfo;
 begin
-  JsonInput := LoadJson('SignatureStatusInfo_NoError.json');
+  JsonInput := LoadTestData('SignatureStatusInfo_NoError.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TSignatureStatusInfo>(JsonInput);
@@ -610,7 +624,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TTokenAccountInfo;
 begin
-  JsonInput := LoadJson('TokenAccountInfo_ParsedData.json');
+  JsonInput := LoadTestData('TokenAccountInfo_ParsedData.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TTokenAccountInfo>(JsonInput);
@@ -636,7 +650,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Model: TBlockProductionInfo;
 begin
-  JsonInput := LoadJson('BlockProductionInfo_ByIdentity.json');
+  JsonInput := LoadTestData('BlockProductionInfo_ByIdentity.json');
   ExpectedJson := JsonInput;
   
   Model := TTestUtils.Deserialize<TBlockProductionInfo>(JsonInput);
@@ -659,7 +673,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Value: TCommitment;
 begin
-  JsonInput := LoadJson('Enum_Commitment_Finalized.json');
+  JsonInput := LoadTestData('Enum_Commitment_Finalized.json');
   ExpectedJson := '"finalized"'; // Should be lowercase camelCase
   
   Value := TTestUtils.Deserialize<TCommitment>(JsonInput);
@@ -674,7 +688,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Value1, Value2: TCommitment;
 begin
-  JsonInput := LoadJson('Enum_Commitment_Confirmed.json');
+  JsonInput := LoadTestData('Enum_Commitment_Confirmed.json');
   ExpectedJson := '"confirmed"';
   
   Value1 := TTestUtils.Deserialize<TCommitment>(JsonInput);
@@ -695,7 +709,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Value: TBinaryEncoding;
 begin
-  JsonInput := LoadJson('Encoding_Base64.json');
+  JsonInput := LoadTestData('Encoding_Base64.json');
   ExpectedJson := '"base64"';
   
   Value := TTestUtils.Deserialize<TBinaryEncoding>(JsonInput);
@@ -710,7 +724,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Value: TBinaryEncoding;
 begin
-  JsonInput := LoadJson('Encoding_JsonParsed.json');
+  JsonInput := LoadTestData('Encoding_JsonParsed.json');
   ExpectedJson := '"jsonParsed"'; // CamelCase conversion
   
   Value := TTestUtils.Deserialize<TBinaryEncoding>(JsonInput);
@@ -725,7 +739,7 @@ var
   JsonInput, JsonOutput, ExpectedJson: string;
   Value: TBinaryEncoding;
 begin
-  JsonInput := LoadJson('Encoding_Base64Zstd.json');
+  JsonInput := LoadTestData('Encoding_Base64Zstd.json');
   ExpectedJson := '"base64+zstd"'; // Special character handling
   
   Value := TTestUtils.Deserialize<TBinaryEncoding>(JsonInput);

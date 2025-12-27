@@ -35,7 +35,6 @@ uses
   SlpRequestResult,
   SlpSolanaRpcClient,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -63,8 +62,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressRequest.json']));
+  responseData := LoadTestData('Signatures/GetSignaturesForAddressResponse.json');
+  requestData  := LoadTestData('Signatures/GetSignaturesForAddressRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -119,8 +118,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressUntilResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressUntilRequest.json']));
+  responseData := LoadTestData('Signatures/GetSignaturesForAddressUntilResponse.json');
+  requestData  := LoadTestData('Signatures/GetSignaturesForAddressUntilRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -154,8 +153,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressBeforeResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressBeforeRequest.json']));
+  responseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
+  requestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -187,8 +186,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressBeforeResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignaturesForAddressBeforeConfirmedRequest.json']));
+  responseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
+  requestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeConfirmedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -223,8 +222,8 @@ var
   sigs: TArray<string>;
   result: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignatureStatusesResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignatureStatusesRequest.json']));
+  responseData := LoadTestData('Signatures/GetSignatureStatusesResponse.json');
+  requestData  := LoadTestData('Signatures/GetSignatureStatusesRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -260,8 +259,8 @@ var
   sigs: TArray<string>;
   result: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignatureStatusesWithHistoryResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Signatures', 'GetSignatureStatusesWithHistoryRequest.json']));
+  responseData := LoadTestData('Signatures/GetSignatureStatusesWithHistoryResponse.json');
+  requestData  := LoadTestData('Signatures/GetSignatureStatusesWithHistoryRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;

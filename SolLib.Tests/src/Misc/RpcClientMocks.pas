@@ -156,6 +156,7 @@ type
     destructor Destroy; override;
 
     procedure AddTextFile(const AFilePath: string);
+    procedure AddTextContent(const AContent: string);
 
     function GetBalance(const APubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<UInt64>>;
     function GetLatestBlockHash(ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TLatestBlockHash>>;
@@ -505,7 +506,12 @@ end;
 
 procedure TMockTokenWalletRpcProxy.AddTextFile(const AFilePath: string);
 begin
-  FResponses.Enqueue(TestUtils.TTestUtils.ReadAllText(AFilePath, TEncoding.UTF8));
+  FResponses.Enqueue(TTestUtils.ReadAllText(AFilePath, TEncoding.UTF8));
+end;
+
+procedure TMockTokenWalletRpcProxy.AddTextContent(const AContent: string);
+begin
+  FResponses.Enqueue(AContent);
 end;
 
 function TMockTokenWalletRpcProxy.GetNextJsonResponse<T>: TJsonRpcResponse<T>;

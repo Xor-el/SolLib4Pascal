@@ -30,7 +30,6 @@ uses
   SlpTokenDomain,
   SlpPublicKey,
   SlpWellKnownTokens,
-  TestUtils,
   SolLibTokenTestCase;
 
 type
@@ -54,7 +53,7 @@ var
   tokens: ITokenMintResolver;
   wsol: ITokenDef;
 begin
-  json := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenMint', 'SimpleTokenList.json']));
+  json := LoadTestData('TokenMint/SimpleTokenList.json');
 
   tokens := TTokenMintResolver.ParseTokenList(json);
 
@@ -74,7 +73,7 @@ var
   unknown, unknown2, known, known2: ITokenDef;
   mint: string;
 begin
-  json := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenMint', 'SimpleTokenList.json']));
+  json := LoadTestData('TokenMint/SimpleTokenList.json');
 
   tokens := TTokenMintResolver.ParseTokenList(json);
 
@@ -169,7 +168,7 @@ var
   tokens: ITokenMintResolver;
   usdc: ITokenDef;
 begin
-  json := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenMint', 'SimpleTokenList.json']));
+  json := LoadTestData('TokenMint/SimpleTokenList.json');
   tokens := TTokenMintResolver.ParseTokenList(json);
 
   usdc := tokens.Resolve('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');

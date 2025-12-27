@@ -32,7 +32,6 @@ uses
   SlpKdTable,
   SlpWalletEnum,
   SlpDataEncoders,
-  TestUtils,
   SolLibWalletTestCase;
 
 type
@@ -74,21 +73,19 @@ end;
 
 function TBip39Tests.LoadJsonArrayFromFile(const FileName: string): TJSONArray;
 var
-  FullPath: string;
   Text: string;
   V: TJSONValue;
 begin
-  FullPath := TTestUtils.CombineAll([FResDir, FileName]);
-  Text := TTestUtils.ReadAllText(FullPath);
+  Text := LoadTestData(FileName);
 
   V := TJSONObject.ParseJSONValue(Text);
   if not Assigned(V) then
-    raise Exception.CreateFmt('Invalid JSON in %s', [FullPath]);
+    raise Exception.CreateFmt('Invalid JSON in resource: %s', [FileName]);
   try
     if V is TJSONArray then
       Exit(TJSONArray(V).Clone as TJSONArray) // own a clone
     else
-      raise Exception.CreateFmt('Expected JSON array in %s', [FullPath]);
+      raise Exception.CreateFmt('Expected JSON array in resource: %s', [FileName]);
   finally
     V.Free;
   end;

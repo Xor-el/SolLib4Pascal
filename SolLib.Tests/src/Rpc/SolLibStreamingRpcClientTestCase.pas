@@ -21,16 +21,17 @@ interface
 
 uses
   System.SysUtils,
-  TestUtils,
+  TestResourceLoader,
   SolLibRpcSocketMockTestCase;
 
 type
   TSolLibStreamingRpcClientTestCase = class abstract(TSolLibRpcSocketMockTestCase)
   protected
     var
-     FResDir: string;
+     FResCategory: string;
 
-    function ResDir: string;
+    function ResPath(const ASubPath: string): string;
+    function LoadTestData(const ASubPath: string): string;
 
     procedure SetUp; override;
     procedure TearDown; override;
@@ -41,21 +42,23 @@ implementation
 procedure TSolLibStreamingRpcClientTestCase.SetUp;
 begin
   inherited;
-  FResDir := ResDir;
+  FResCategory := 'Rpc/Streaming';
 end;
 
 procedure TSolLibStreamingRpcClientTestCase.TearDown;
 begin
-  FResDir := '';
+  FResCategory := '';
   inherited;
 end;
 
-function TSolLibStreamingRpcClientTestCase.ResDir: string;
+function TSolLibStreamingRpcClientTestCase.ResPath(const ASubPath: string): string;
 begin
-  Result := TTestUtils.GetSourceDirWithSuffix('src\Resources\Rpc', 'Streaming');
-  // Marker is the project folder we can reliably find on the way up
-  //Result := TTestUtils.GetSourceDirWithSuffix('SolLib.Tests', 'src\Resources\Rpc\Streaming');
+  Result := FResCategory + '/' + ASubPath;
+end;
+
+function TSolLibStreamingRpcClientTestCase.LoadTestData(const ASubPath: string): string;
+begin
+  Result := TTestResourceLoader.LoadTestData(ResPath(ASubPath));
 end;
 
 end.
-

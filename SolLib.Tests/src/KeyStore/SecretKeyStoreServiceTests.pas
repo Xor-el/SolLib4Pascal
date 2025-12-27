@@ -21,6 +21,7 @@ interface
 
 uses
   System.SysUtils,
+  System.JSON,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
@@ -30,7 +31,6 @@ uses
   SlpSolLibExceptions,
   SlpSecretKeyStoreService,
   SlpKeyStoreService,
-  TestUtils,
   SolLibKeyStoreTestCase;
 
 type
@@ -84,7 +84,7 @@ var
   sut: TSecretKeyStoreService;
   path: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'DoesNotExist.json']);
+  path := 'DoesNotExist.json';
   sut := TSecretKeyStoreService.Create;
   try
     AssertException(
@@ -102,17 +102,19 @@ end;
 procedure TSecretKeyStoreServiceTests.TestKeyStoreInvalidEmptyFilePath;
 var
   sut: TSecretKeyStoreService;
-  path: string;
+  json: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'InvalidEmptyFile.json']);
+  json := LoadTestData('InvalidEmptyFile.json');
   sut := TSecretKeyStoreService.Create;
   try
+    // Note: Resource contains whitespace (for embedding compatibility), 
+    // so it throws EJSONParseException instead of EArgumentNilException
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromFile('randomPassword', path);
+        sut.DecryptKeyStoreFromJson('randomPassword', json);
       end,
-      EArgumentNilException
+      EJSONParseException
     );
   finally
     sut.Free;
@@ -122,13 +124,13 @@ end;
 procedure TSecretKeyStoreServiceTests.TestKeyStoreValid;
 var
   sut: TSecretKeyStoreService;
-  path: string;
+  json: string;
   seed: TBytes;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'ValidKeyStore.json']);
+  json := LoadTestData('ValidKeyStore.json');
   sut := TSecretKeyStoreService.Create;
   try
-    seed := sut.DecryptKeyStoreFromFile('randomPassword', path);
+    seed := sut.DecryptKeyStoreFromJson('randomPassword', json);
     AssertEquals<Byte>(SeedWithPassphrase, seed, 'Seed mismatch');
   finally
     sut.Free;
@@ -138,15 +140,15 @@ end;
 procedure TSecretKeyStoreServiceTests.TestKeyStoreInvalidPassword;
 var
   sut: TSecretKeyStoreService;
-  path: string;
+  json: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'ValidKeyStore.json']);
+  json := LoadTestData('ValidKeyStore.json');
   sut := TSecretKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromFile('randomPassworasdd', path);
+        sut.DecryptKeyStoreFromJson('randomPassworasdd', json);
       end,
       EDecryptionException
     );
@@ -158,15 +160,15 @@ end;
 procedure TSecretKeyStoreServiceTests.TestKeyStoreInvalid;
 var
   sut: TSecretKeyStoreService;
-  path: string;
+  json: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'InvalidKeyStore.json']);
+  json := LoadTestData('InvalidKeyStore.json');
   sut := TSecretKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromFile('randomPassword', path);
+        sut.DecryptKeyStoreFromJson('randomPassword', json);
       end,
       EArgumentException
     );
@@ -212,7 +214,7 @@ var
   fileJson: string;
   addr: string;
 begin
-  fileJson := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'ValidPbkdf2KeyStore.json']));
+  fileJson := LoadTestData('ValidPbkdf2KeyStore.json');
   addr := TSecretKeyStoreService.GetAddressFromKeyStore(fileJson);
   AssertEquals(ExpectedKeyStoreAddress, addr, 'Address mismatch from file');
 end;
@@ -223,7 +225,7 @@ var
   fileJson: string;
   seed: TBytes;
 begin
-  fileJson := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'ValidPbkdf2KeyStore.json']));
+  fileJson := LoadTestData('ValidPbkdf2KeyStore.json');
 
   ks := TKeyStorePbkdf2Service.Create;
   try
@@ -254,7 +256,7 @@ var
   ks: TKeyStorePbkdf2Service;
   fileJson: string;
 begin
-  fileJson := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'InvalidPbkdf2KeyStore.json']));
+  fileJson := LoadTestData('InvalidPbkdf2KeyStore.json');
 
   ks := TKeyStorePbkdf2Service.Create;
   try
@@ -276,7 +278,7 @@ var
   fileJson: string;
   seed: TBytes;
 begin
-  fileJson := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'ValidScryptKeyStoreWithEthTestVector.json']));
+  fileJson := LoadTestData('ValidScryptKeyStoreWithEthTestVector.json');
 
   sut := TKeyStoreScryptService.Create;
   try
@@ -294,7 +296,7 @@ var
   fileJson: string;
   seed: TBytes;
 begin
-  fileJson := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'ValidPbkdf2KeyStoreWithEthTestVector.json']));
+  fileJson := LoadTestData('ValidPbkdf2KeyStoreWithEthTestVector.json');
 
   ks := TKeyStorePbkdf2Service.Create;
   try

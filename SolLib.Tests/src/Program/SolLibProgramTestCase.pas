@@ -22,7 +22,7 @@ interface
 uses
   System.SysUtils,
   System.Rtti,
-  TestUtils,
+  TestResourceLoader,
   SolLibTestCase;
 
 type
@@ -30,9 +30,10 @@ type
   protected
     var
      FRttiContext: TRttiContext;
-     FResDir: string;
+     FResCategory: string;
 
-    function ResDir: string;
+    function ResPath(const ASubPath: string): string;
+    function LoadTestData(const ASubPath: string): string;
 
     procedure SetUp; override;
     procedure TearDown; override;
@@ -44,23 +45,24 @@ procedure TSolLibProgramTestCase.SetUp;
 begin
   inherited;
   FRttiContext := TRttiContext.Create;
-  FResDir := ResDir;
+  FResCategory := 'Program';
 end;
 
 procedure TSolLibProgramTestCase.TearDown;
 begin
   FRttiContext.Free;
-  FResDir := '';
+  FResCategory := '';
   inherited;
 end;
 
-function TSolLibProgramTestCase.ResDir: string;
+function TSolLibProgramTestCase.ResPath(const ASubPath: string): string;
 begin
-  // Marker already points to the exact resources folder → suffix empty
-  Result := TTestUtils.GetSourceDirWithSuffix('src\Resources\Program', '');
-  // Marker is the project folder we can reliably find on the way up
-  //Result := TTestUtils.GetSourceDirWithSuffix('SolLib.Tests', 'src\Resources\Program');
+  Result := FResCategory + '/' + ASubPath;
+end;
+
+function TSolLibProgramTestCase.LoadTestData(const ASubPath: string): string;
+begin
+  Result := TTestResourceLoader.LoadTestData(ResPath(ASubPath));
 end;
 
 end.
-

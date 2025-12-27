@@ -2064,7 +2064,7 @@ var
   LVal          : TValue;
 begin
   // arrange
-  LJson := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'DecodeInitAccount3.json']));
+  LJson := LoadTestData('Token/DecodeInitAccount3.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaInfo>(LJson);
 
   // act

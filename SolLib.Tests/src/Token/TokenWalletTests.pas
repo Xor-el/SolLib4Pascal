@@ -124,8 +124,8 @@ begin
   RpcProxy := MockRpcClient;
 
   // Load mock responses
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
 
   // Token resolver setup
   Tokens := TTokenMintResolver.Create;
@@ -196,8 +196,8 @@ begin
   RpcProxy := MockRpcClient;
 
   // Load mock responses
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
 
   // Token resolver (no known mints)
   Tokens := TTokenMintResolver.Create;
@@ -243,12 +243,8 @@ begin
   RpcProxy := MockRpcClient;
 
   // Load mock responses
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([
-    FResDir, 'TokenWallet', 'GetBalanceResponse.json'
-  ]));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([
-    FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json'
-  ]));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
 
   // Token resolver setup
   Tokens := TTokenMintResolver.Create;
@@ -316,10 +312,10 @@ begin
   RpcProxy := MockRpcClient;
 
   // Add mock JSON responses
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
 
   // Token resolver
   Tokens := TTokenMintResolver.Create;
@@ -366,8 +362,8 @@ begin
   RpcProxy := MockRpcClient;
 
   // setup mock responses
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
 
   // define some mints
   Tokens := TTokenMintResolver.Create;
@@ -384,10 +380,10 @@ begin
 
   // going to send some TEST token to destination wallet that does not have an ATA
   // internally triggers a wallet load so we preload responses
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse2.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetRecentBlockhashResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'SendTransactionResponse.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse2.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetRecentBlockhashResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/SendTransactionResponse.json'));
 
   // send token
   SendResponse := Wallet.Send(
@@ -449,8 +445,8 @@ begin
   RpcProxy := MockRpcClient;
 
   // setup mock responses
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
 
   // define some mints
   Tokens := TTokenMintResolver.Create;
@@ -511,15 +507,15 @@ begin
   // load wallet A
   AccountA := OwnerWallet.GetAccountByIndex(1);
   AssertEquals('9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', AccountA.PublicKey.Key);
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse.json'));
   WalletA := TTokenWallet.Load(RpcProxy, Tokens, AccountA.PublicKey);
 
   // load wallet B
   AccountB := OwnerWallet.GetAccountByIndex(2);
   AssertEquals('3F2RNf2f2kWYgJ2XsqcjzVeh3rsEQnwf6cawtBiJGyKV', AccountB.PublicKey.Key);
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
-  MockRpcClient.AddTextFile(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetTokenAccountsByOwnerResponse2.json']));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetBalanceResponse.json'));
+  MockRpcClient.AddTextContent(LoadTestData('TokenWallet/GetTokenAccountsByOwnerResponse2.json'));
   WalletB := TTokenWallet.Load(RpcProxy, Tokens, AccountB.PublicKey);
 
   // use another account as mock target and check derived PDA
@@ -552,7 +548,7 @@ var
   Json: string;
   Resp: TJsonRpcResponse<TResponseValue<UInt64>>;
 begin
-  Json := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'GetBalanceResponse.json']));
+  Json := LoadTestData('TokenWallet/GetBalanceResponse.json');
   Resp := nil;
   try
     Resp := TTestUtils.Deserialize<TJsonRpcResponse<TResponseValue<UInt64>>>(Json);
@@ -568,7 +564,7 @@ var
   Json: string;
   Resp: TJsonRpcResponse<string>;
 begin
-  Json := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'SendTransactionResponse.json']));
+  Json := LoadTestData('TokenWallet/SendTransactionResponse.json');
   Resp := nil;
   try
     Resp := TTestUtils.Deserialize<TJsonRpcResponse<string>>(Json);
@@ -620,8 +616,8 @@ var
   MockRpcHttpClient: TMockRpcHttpClient;
   RpcHttpClient: IHttpApiClient;
 begin
-  ExpectedReq  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'SampleBatchRequest.json']));
-  ExpectedResp := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'TokenWallet', 'SampleBatchResponse.json']));
+  ExpectedReq  := LoadTestData('TokenWallet/SampleBatchRequest.json');
+  ExpectedResp := LoadTestData('TokenWallet/SampleBatchResponse.json');
 
   // Token resolver setup
   Tokens := TTokenMintResolver.Create;

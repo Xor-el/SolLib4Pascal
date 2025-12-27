@@ -306,9 +306,7 @@ var
   LVal     : TValue;
 begin
   // arrange
-  LJson   := TTestUtils.ReadAllText(
-               TTestUtils.CombineAll([FResDir, 'AssociatedTokenAccount', 'TestDecodeInstructionFromBlockTransactionMetaInfo.json'])
-             );
+  LJson   := LoadTestData('AssociatedTokenAccount/TestDecodeInstructionFromBlockTransactionMetaInfo.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaInfo>(LJson);
 
   // act
@@ -377,9 +375,7 @@ var
   LDecoded : TList<IDecodedInstruction>;
 begin
   // arrange
-  LJson   := TTestUtils.ReadAllText(
-               TTestUtils.CombineAll([FResDir, 'Unknown', 'TestDecodeFromTransactionUnknownInstruction.json'])
-             );
+  LJson   := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInstruction.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act
@@ -405,9 +401,7 @@ var
   LDecoded : TList<IDecodedInstruction>;
 begin
   // arrange
-  LJson   := TTestUtils.ReadAllText(
-               TTestUtils.CombineAll([FResDir, 'Unknown', 'TestDecodeFromTransactionUnknownInnerInstruction.json'])
-             );
+  LJson   := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInnerInstruction.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act

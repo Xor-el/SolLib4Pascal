@@ -27,7 +27,6 @@ uses
 {$ENDIF}
   SlpSecretKeyStoreService,
   SlpSolLibExceptions,
-  TestUtils,
   SolLibKeyStoreTestCase;
 
 type
@@ -43,16 +42,16 @@ implementation
 procedure TKeyStoreKdfCheckerTests.TestInvalidKdf;
 var
   sut: TSecretKeyStoreService;
-  path: string;
+  json: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'InvalidKdfType.json']);
+  json := LoadTestData('InvalidKdfType.json');
 
   sut := TSecretKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromFile('randomPassword', path);
+        sut.DecryptKeyStoreFromJson('randomPassword', json);
       end,
       EInvalidKdfException
     );
@@ -69,4 +68,5 @@ initialization
 {$ENDIF}
 
 end.
+
 

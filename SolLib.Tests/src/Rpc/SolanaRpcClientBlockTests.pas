@@ -36,7 +36,6 @@ uses
   SlpNullable,
   SlpSolanaRpcClient,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -85,10 +84,8 @@ var
   first: TTransactionMetaInfo;
   firstTransactionInfo: TTransactionInfo;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -190,10 +187,8 @@ var
   res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
   k   : string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionNoArgsResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionNoArgsRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockProductionNoArgsResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockProductionNoArgsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -246,10 +241,8 @@ var
   res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
   k   : string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionIdentityResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionIdentityRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockProductionIdentityResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockProductionIdentityRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -280,10 +273,8 @@ var
   res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
   k   : string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionRangeStartResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionRangeStartRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockProductionRangeStartResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockProductionRangeStartRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -314,10 +305,8 @@ var
   res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
   k   : string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionIdentityRangeResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockProductionIdentityRangeRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockProductionIdentityRangeResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockProductionIdentityRangeRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -349,10 +338,8 @@ var
   tmi : TTransactionMetaInfo;
   tmiTransactionInfo: TTransactionInfo;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionRequest.json']));
+  responseData := LoadTestData('Transaction/GetTransactionResponse.json');
+  requestData  := LoadTestData('Transaction/GetTransactionRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -414,10 +401,8 @@ var
   res : IRequestResult<TTransactionMetaSlotInfo>;
   first : TTransactionMetaInfo;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionResponse2.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionRequest2.json']));
+  responseData := LoadTestData('Transaction/GetTransactionResponse2.json');
+  requestData  := LoadTestData('Transaction/GetTransactionRequest2.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -450,10 +435,8 @@ var
   tmi : TTransactionMetaInfo;
   tmiTransactionInfo: TTransactionInfo;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionVersionedResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionVersionedRequest.json']));
+  responseData := LoadTestData('Transaction/GetTransactionVersionedResponse.json');
+  requestData  := LoadTestData('Transaction/GetTransactionVersionedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -520,10 +503,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<TTransactionMetaSlotInfo>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionProcessedRequest.json']));
+  responseData := LoadTestData('Transaction/GetTransactionResponse.json');
+  requestData  := LoadTestData('Transaction/GetTransactionProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -547,10 +528,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<TList<UInt64>>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlocksResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlocksRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlocksResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlocksRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -598,10 +577,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<TList<UInt64>>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlocksWithLimitResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlocksWithLimitRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlocksWithLimitResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlocksWithLimitRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -649,10 +626,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetFirstAvailableBlockResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetFirstAvailableBlockRequest.json']));
+  responseData := LoadTestData('Blocks/GetFirstAvailableBlockResponse.json');
+  requestData  := LoadTestData('Blocks/GetFirstAvailableBlockRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -675,10 +650,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockHeightResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockHeightRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockHeightRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -702,10 +675,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockHeightResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockHeightConfirmedRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockHeightConfirmedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -729,10 +700,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<TBlockCommitment>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockCommitmentResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockCommitmentRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockCommitmentResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockCommitmentRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -757,10 +726,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockTimeResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetBlockTimeRequest.json']));
+  responseData := LoadTestData('Blocks/GetBlockTimeResponse.json');
+  requestData  := LoadTestData('Blocks/GetBlockTimeRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -784,10 +751,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<TResponseValue<TLatestBlockHash>>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetLatestBlockhashResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'GetLatestBlockhashRequest.json']));
+  responseData := LoadTestData('Blocks/GetLatestBlockhashResponse.json');
+  requestData  := LoadTestData('Blocks/GetLatestBlockhashRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;
@@ -813,10 +778,8 @@ var
   rpcClient : IRpcClient;
   res : IRequestResult<TResponseValue<Boolean>>;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'IsBlockhashValidResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Blocks', 'IsBlockhashValidRequest.json']));
+  responseData := LoadTestData('Blocks/IsBlockhashValidResponse.json');
+  requestData  := LoadTestData('Blocks/IsBlockhashValidRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient  := mockRpcHttpClient;

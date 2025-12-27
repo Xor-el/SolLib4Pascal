@@ -21,16 +21,17 @@ interface
 
 uses
   System.SysUtils,
-  TestUtils,
+  TestResourceLoader,
   SolLibRpcHttpMockTestCase;
 
 type
   TSolLibRpcClientTestCase = class abstract(TSolLibRpcHttpMockTestCase)
   protected
     var
-     FResDir: string;
+     FResCategory: string;
 
-    function ResDir: string;
+    function ResPath(const ASubPath: string): string;
+    function LoadTestData(const ASubPath: string): string;
 
     procedure SetUp; override;
     procedure TearDown; override;
@@ -41,21 +42,23 @@ implementation
 procedure TSolLibRpcClientTestCase.SetUp;
 begin
   inherited;
-  FResDir := ResDir;
+  FResCategory := 'Rpc/Http';
 end;
 
 procedure TSolLibRpcClientTestCase.TearDown;
 begin
-  FResDir := '';
+  FResCategory := '';
   inherited;
 end;
 
-function TSolLibRpcClientTestCase.ResDir: string;
+function TSolLibRpcClientTestCase.ResPath(const ASubPath: string): string;
 begin
-  Result := TTestUtils.GetSourceDirWithSuffix('src\Resources\Rpc', 'Http');
-  // Marker is the project folder we can reliably find on the way up
-  //Result := TTestUtils.GetSourceDirWithSuffix('SolLib.Tests', 'src\Resources\Rpc\Http');
+  Result := FResCategory + '/' + ASubPath;
+end;
+
+function TSolLibRpcClientTestCase.LoadTestData(const ASubPath: string): string;
+begin
+  Result := TTestResourceLoader.LoadTestData(ResPath(ASubPath));
 end;
 
 end.
-

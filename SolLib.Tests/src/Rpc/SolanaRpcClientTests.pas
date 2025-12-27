@@ -36,7 +36,6 @@ uses
   SlpRequestResult,
   SlpSolanaRpcClient,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -87,8 +86,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<UInt64>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'EmptyPayloadResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'EmptyPayloadRequest.json']));
+  responseData := LoadTestData('EmptyPayloadResponse.json');
+  requestData  := LoadTestData('EmptyPayloadRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200, 'OK');
   rpcHttpClient := mockRpcHttpClient;
@@ -120,8 +119,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<UInt64>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'StringErrorResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'EmptyPayloadRequest.json']));
+  responseData := LoadTestData('StringErrorResponse.json');
+  requestData  := LoadTestData('EmptyPayloadRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -155,7 +154,7 @@ var
   result: IRequestResult<TResponseValue<UInt64>>;
 begin
   msg := 'something bad happenned';
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'EmptyPayloadRequest.json']));
+  requestData  := LoadTestData('EmptyPayloadRequest.json');
 
   mockRpcHttpClient := SetupTestForThrow(msg);
   rpcHttpClient := mockRpcHttpClient;
@@ -180,8 +179,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<UInt64>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetBalanceResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetBalanceRequest.json']));
+  responseData := LoadTestData('GetBalanceResponse.json');
+  requestData  := LoadTestData('GetBalanceRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -211,8 +210,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<UInt64>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetBalanceResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetBalanceConfirmedRequest.json']));
+  responseData := LoadTestData('GetBalanceResponse.json');
+  requestData  := LoadTestData('GetBalanceConfirmedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -237,8 +236,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TObjectList<TClusterNode>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetClusterNodesResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetClusterNodesRequest.json']));
+  responseData := LoadTestData('GetClusterNodesResponse.json');
+  requestData  := LoadTestData('GetClusterNodesRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -269,8 +268,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TEpochInfo>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Epoch', 'GetEpochInfoResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Epoch', 'GetEpochInfoRequest.json']));
+  responseData := LoadTestData('Epoch/GetEpochInfoResponse.json');
+  requestData  := LoadTestData('Epoch/GetEpochInfoRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -298,8 +297,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TEpochInfo>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Epoch', 'GetEpochInfoResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Epoch', 'GetEpochInfoProcessedRequest.json']));
+  responseData := LoadTestData('Epoch/GetEpochInfoResponse.json');
+  requestData  := LoadTestData('Epoch/GetEpochInfoProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -327,8 +326,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TEpochScheduleInfo>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Epoch', 'GetEpochScheduleResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Epoch', 'GetEpochScheduleRequest.json']));
+  responseData := LoadTestData('Epoch/GetEpochScheduleResponse.json');
+  requestData  := LoadTestData('Epoch/GetEpochScheduleRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -356,8 +355,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetGenesisHashResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetGenesisHashRequest.json']));
+  responseData := LoadTestData('GetGenesisHashResponse.json');
+  requestData  := LoadTestData('GetGenesisHashRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -381,8 +380,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TNodeIdentity>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetIdentityResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetIdentityRequest.json']));
+  responseData := LoadTestData('GetIdentityResponse.json');
+  requestData  := LoadTestData('GetIdentityRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -406,8 +405,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMaxRetransmitSlotResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMaxRetransmitSlotRequest.json']));
+  responseData := LoadTestData('GetMaxRetransmitSlotResponse.json');
+  requestData  := LoadTestData('GetMaxRetransmitSlotRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -430,8 +429,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMaxShredInsertSlotResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMaxShredInsertSlotRequest.json']));
+  responseData := LoadTestData('GetMaxShredInsertSlotResponse.json');
+  requestData  := LoadTestData('GetMaxShredInsertSlotRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -454,8 +453,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TList<string>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotLeadersEmptyResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotLeadersEmptyRequest.json']));
+  responseData := LoadTestData('Slot/GetSlotLeadersEmptyResponse.json');
+  requestData  := LoadTestData('Slot/GetSlotLeadersEmptyRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -478,8 +477,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TList<string>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotLeadersResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotLeadersRequest.json']));
+  responseData := LoadTestData('Slot/GetSlotLeadersResponse.json');
+  requestData  := LoadTestData('Slot/GetSlotLeadersRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -506,8 +505,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotLeaderResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotLeaderRequest.json']));
+  responseData := LoadTestData('Slot/GetSlotLeaderResponse.json');
+  requestData  := LoadTestData('Slot/GetSlotLeaderRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -531,8 +530,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotRequest.json']));
+  responseData := LoadTestData('Slot/GetSlotResponse.json');
+  requestData  := LoadTestData('Slot/GetSlotRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -555,8 +554,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Slot', 'GetSlotProcessedRequest.json']));
+  responseData := LoadTestData('Slot/GetSlotResponse.json');
+  requestData  := LoadTestData('Slot/GetSlotProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -579,8 +578,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TObjectList<TPerformanceSample>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetRecentPerformanceSamplesResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetRecentPerformanceSamplesRequest.json']));
+  responseData := LoadTestData('GetRecentPerformanceSamplesResponse.json');
+  requestData  := LoadTestData('GetRecentPerformanceSamplesRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -608,8 +607,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TSnapshotSlotInfo>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetHighestSnapshotSlotResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetHighestSnapshotSlotRequest.json']));
+  responseData := LoadTestData('GetHighestSnapshotSlotResponse.json');
+  requestData  := LoadTestData('GetHighestSnapshotSlotRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -634,8 +633,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TSupply>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetSupplyResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetSupplyRequest.json']));
+  responseData := LoadTestData('GetSupplyResponse.json');
+  requestData  := LoadTestData('GetSupplyRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -662,8 +661,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TSupply>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetSupplyResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetSupplyProcessedRequest.json']));
+  responseData := LoadTestData('GetSupplyResponse.json');
+  requestData  := LoadTestData('GetSupplyProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -690,8 +689,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMinimumLedgerSlotResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMinimumLedgerSlotRequest.json']));
+  responseData := LoadTestData('GetMinimumLedgerSlotResponse.json');
+  requestData  := LoadTestData('GetMinimumLedgerSlotRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -714,8 +713,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TNodeVersion>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetVersionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetVersionRequest.json']));
+  responseData := LoadTestData('GetVersionResponse.json');
+  requestData  := LoadTestData('GetVersionRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -740,8 +739,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Health', 'GetHealthHealthyResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Health', 'GetHealthRequest.json']));
+  responseData := LoadTestData('Health/GetHealthHealthyResponse.json');
+  requestData  := LoadTestData('Health/GetHealthRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -763,8 +762,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Health', 'GetHealthUnhealthyResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Health', 'GetHealthRequest.json']));
+  responseData := LoadTestData('Health/GetHealthUnhealthyResponse.json');
+  requestData  := LoadTestData('Health/GetHealthRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -790,8 +789,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMinimumBalanceForRateExemptionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMinimumBalanceForRateExemptionRequest.json']));
+  responseData := LoadTestData('GetMinimumBalanceForRateExemptionResponse.json');
+  requestData  := LoadTestData('GetMinimumBalanceForRateExemptionRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -814,8 +813,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMinimumBalanceForRateExemptionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetMinimumBalanceForRateExemptionConfirmedRequest.json']));
+  responseData := LoadTestData('GetMinimumBalanceForRateExemptionResponse.json');
+  requestData  := LoadTestData('GetMinimumBalanceForRateExemptionConfirmedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -838,8 +837,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'RequestAirdropResult.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'RequestAirdropRequest.json']));
+  responseData := LoadTestData('RequestAirdropResult.json');
+  requestData  := LoadTestData('RequestAirdropRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -864,8 +863,8 @@ var
   filters: TArray<TMemCmp>;
   result: IRequestResult<TObjectList<TAccountKeyPair>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetProgramAccountsResponse-Fail-410.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetProgramAccountsRequest-Fail-410.json']));
+  responseData := LoadTestData('GetProgramAccountsResponse-Fail-410.json');
+  requestData  := LoadTestData('GetProgramAccountsRequest-Fail-410.json');
 
   // Simulate HTTP 410 Gone
   mockRpcHttpClient := SetupTest(responseData, 410);
@@ -910,7 +909,7 @@ var
   result: IRequestResult<TResponseValue<UInt64>>;
 begin
   responseData := 'Supplied content type is not allowed. Content-Type: application/json is required';
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'GetBalanceRequest.json']));
+  requestData  := LoadTestData('GetBalanceRequest.json');
 
   // Simulate HTTP 415 Unsupported Media Type
   mockRpcHttpClient := SetupTest(responseData, 415);
