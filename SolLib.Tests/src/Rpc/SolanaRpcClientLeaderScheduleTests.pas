@@ -34,7 +34,6 @@ uses
   SlpRequestResult,
   SlpSolanaRpcClient,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -61,10 +60,8 @@ var
   res: IRequestResult<TDictionary<string, TList<UInt64>>>;
   key: string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleSlotArgsRequest.json']));
+  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotArgsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -95,10 +92,8 @@ var
   res: IRequestResult<TDictionary<string, TList<UInt64>>>;
   key: string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleIdentityArgsRequest.json']));
+  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleIdentityArgsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -129,10 +124,8 @@ var
   res: IRequestResult<TDictionary<string, TList<UInt64>>>;
   key: string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleSlotIdentityArgsRequest.json']));
+  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotIdentityArgsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -163,10 +156,8 @@ var
   res: IRequestResult<TDictionary<string, TList<UInt64>>>;
   key: string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleNoArgsRequest.json']));
+  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -197,10 +188,8 @@ var
   result: IRequestResult<TDictionary<string, TList<UInt64>>>;
   key: string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleNoArgsRequest.json']));
+  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -231,10 +220,8 @@ var
   result: IRequestResult<TDictionary<string, TList<UInt64>>>;
   key: string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'LeaderSchedule', 'GetLeaderScheduleProcessedRequest.json']));
+  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;

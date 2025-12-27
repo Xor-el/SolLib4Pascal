@@ -34,7 +34,6 @@ uses
   SlpRequestResult,
   SlpSolanaRpcClient,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -57,8 +56,8 @@ var
   result: IRequestResult<TResponseValue<UInt64>>;
   msg: string;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Fees', 'GetFeeForMessageResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Fees', 'GetFeeForMessageRequest.json']));
+  responseData := LoadTestData('Fees/GetFeeForMessageResponse.json');
+  requestData  := LoadTestData('Fees/GetFeeForMessageRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -87,8 +86,8 @@ var
   result: IRequestResult<TObjectList<TPrioritizationFeeItem>>;
   accounts: TArray<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Fees', 'GetRecentPrioritizationFeesResponse.json']));
-  requestData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Fees', 'GetRecentPrioritizationFeesRequest.json']));
+  responseData := LoadTestData('Fees/GetRecentPrioritizationFeesResponse.json');
+  requestData := LoadTestData('Fees/GetRecentPrioritizationFeesRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;

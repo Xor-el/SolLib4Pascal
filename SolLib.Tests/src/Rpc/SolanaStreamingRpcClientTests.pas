@@ -35,7 +35,6 @@ uses
   SlpSolanaStreamingRpcClient,
   SlpNullable,
   RpcClientMocks,
-  TestUtils,
   SolLibStreamingRpcClientTestCase;
 
 type
@@ -112,15 +111,9 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Prepare frames
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Account', 'AccountSubscribe.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
-  Notification := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Account', 'AccountSubscribeNotification.json'])
-  );
+  ExpectedSend := LoadTestData('Account/AccountSubscribe.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Account/AccountSubscribeNotification.json');
 
   WS.EnqueueText(SubConfirm);
   WS.EnqueueText(Notification);
@@ -198,15 +191,9 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Prepare frames
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Account', 'TokenAccountSubscribe.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
-  Notification := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Account', 'TokenAccountSubscribeNotification.json'])
-  );
+  ExpectedSend := LoadTestData('Account/TokenAccountSubscribe.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Account/TokenAccountSubscribeNotification.json');
 
   WS.EnqueueText(SubConfirm);
   WS.EnqueueText(Notification);
@@ -293,15 +280,9 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Prepare frames: subscription confirm, then notification
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Account', 'AccountSubscribeProcessed.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
-  Notification := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Account', 'AccountSubscribeNotification.json'])
-  );
+  ExpectedSend := LoadTestData('Account/AccountSubscribeProcessed.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Account/AccountSubscribeNotification.json');
 
   WS.EnqueueText(SubConfirm);
   WS.EnqueueText(Notification);
@@ -370,8 +351,8 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Frames (deliver in two phases)
-  SubConfirm    := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json']));
-  UnsubResponse := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Account', 'AccountSubUnsubscription.json']));
+  SubConfirm    := LoadTestData('SubscribeConfirm.json');
+  UnsubResponse := LoadTestData('Account/AccountSubUnsubscription.json');
 
   // Phase 1: only the subscription confirmation
   WS.EnqueueText(SubConfirm);
@@ -440,12 +421,8 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Expected subscribe payload and confirm frame
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeMention.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
+  ExpectedSend := LoadTestData('Logs/LogsSubscribeMention.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
 
   // Only confirmation (no notification needed for this test)
   WS.EnqueueText(SubConfirm);
@@ -490,12 +467,8 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Expected subscribe payload (with commitment=confirmed) and confirm frame
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeMentionConfirmed.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
+  ExpectedSend := LoadTestData('Logs/LogsSubscribeMentionConfirmed.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
 
   // Only confirmation
   WS.EnqueueText(SubConfirm);
@@ -548,15 +521,9 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Expected outgoing subscribe payload and incoming frames
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeAll.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
-  Notification := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeNotification.json'])
-  );
+  ExpectedSend := LoadTestData('Logs/LogsSubscribeAll.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Logs/LogsSubscribeNotification.json');
 
   // Queue: confirmation then notification
   WS.EnqueueText(SubConfirm);
@@ -637,15 +604,9 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Expected outgoing subscribe payload (commitment=processed) and incoming frames
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeAllProcessed.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
-  Notification := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeNotification.json'])
-  );
+  ExpectedSend := LoadTestData('Logs/LogsSubscribeAllProcessed.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Logs/LogsSubscribeNotification.json');
 
   // Queue: confirmation then notification
   WS.EnqueueText(SubConfirm);
@@ -729,15 +690,9 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Expected outgoing subscribe payload (commitment=processed) and incoming frames (with error)
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeAllProcessed.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
-  Notification := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Logs', 'LogsSubscribeNotificationWithError.json'])
-  );
+  ExpectedSend := LoadTestData('Logs/LogsSubscribeAllProcessed.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Logs/LogsSubscribeNotificationWithError.json');
 
   // Queue: confirmation then error notification
   WS.EnqueueText(SubConfirm);
@@ -828,15 +783,9 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Expected outgoing subscribe payload and incoming frames
-  ExpectedSend := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Program', 'ProgramSubscribe.json'])
-  );
-  SubConfirm := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-  );
-  Notification := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Program', 'ProgramSubscribeNotification.json'])
-  );
+  ExpectedSend := LoadTestData('Program/ProgramSubscribe.json');
+  SubConfirm := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Program/ProgramSubscribeNotification.json');
 
   // Queue: confirmation then notification
   WS.EnqueueText(SubConfirm);
@@ -910,9 +859,7 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  Expected  := TTestUtils.ReadAllText(
-                 TTestUtils.CombineAll([FResDir, 'Program', 'ProgramSubscribeFilters.json'])
-               );
+  Expected  := LoadTestData('Program/ProgramSubscribeFilters.json');
   ProgramId := '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin';
 
   DataSize := TNullable<Integer>.Some(3228);
@@ -962,9 +909,7 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  Expected  := TTestUtils.ReadAllText(
-                 TTestUtils.CombineAll([FResDir, 'Program', 'ProgramSubscribeMemcmpFilter.json'])
-               );
+  Expected  := LoadTestData('Program/ProgramSubscribeMemcmpFilter.json');
   ProgramId := '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin';
 
   // No dataSize; only memcmp filter
@@ -1015,9 +960,7 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  Expected  := TTestUtils.ReadAllText(
-                 TTestUtils.CombineAll([FResDir, 'Program', 'ProgramSubscribeDataSizeFilter.json'])
-               );
+  Expected  := LoadTestData('Program/ProgramSubscribeDataSizeFilter.json');
   ProgramId := '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin';
 
   DataSize := TNullable<Integer>.Some(3228);
@@ -1065,15 +1008,9 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  ExpectedSend := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Program', 'ProgramSubscribeConfirmed.json'])
-                  );
-  SubConfirm   := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-                  );
-  Notification := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Program', 'ProgramSubscribeNotification.json'])
-                  );
+  ExpectedSend := LoadTestData('Program/ProgramSubscribeConfirmed.json');
+  SubConfirm   := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Program/ProgramSubscribeNotification.json');
 
   // Queue server frames
   WS.EnqueueText(SubConfirm);
@@ -1153,15 +1090,9 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  ExpectedSend := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SlotSubscribe.json'])
-                  );
-  SubConfirm   := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-                  );
-  Notification := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SlotSubscribeNotification.json'])
-                  );
+  ExpectedSend := LoadTestData('SlotSubscribe.json');
+  SubConfirm   := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('SlotSubscribeNotification.json');
 
   // Queue server frames
   WS.EnqueueText(SubConfirm);
@@ -1222,15 +1153,9 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  ExpectedSend := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'RootSubscribe.json'])
-                  );
-  SubConfirm   := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json'])
-                  );
-  Notification := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'RootSubscribeNotification.json'])
-                  );
+  ExpectedSend := LoadTestData('RootSubscribe.json');
+  SubConfirm   := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('RootSubscribeNotification.json');
 
   // Queue server frames
   WS.EnqueueText(SubConfirm);
@@ -1291,12 +1216,9 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  ExpectedSend := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Signature', 'SignatureSubscribe.json']));
-  SubConfirm   := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json']));
-  Notification := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Signature', 'SignatureSubscribeNotification.json']));
+  ExpectedSend := LoadTestData('Signature/SignatureSubscribe.json');
+  SubConfirm   := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Signature/SignatureSubscribeNotification.json');
 
   // server frames: confirm -> notification
   WS.EnqueueText(SubConfirm);
@@ -1390,12 +1312,9 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  ExpectedSend := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Signature', 'SignatureSubscribe.json']));
-  SubConfirm   := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json']));
-  Notification := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Signature', 'SignatureSubscribeErrorNotification.json']));
+  ExpectedSend := LoadTestData('Signature/SignatureSubscribe.json');
+  SubConfirm   := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Signature/SignatureSubscribeErrorNotification.json');
 
   // server frames: confirm -> error notification
   WS.EnqueueText(SubConfirm);
@@ -1494,12 +1413,9 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  ExpectedSend := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Signature', 'SignatureSubscribeProcessed.json']));
-  SubConfirm   := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json']));
-  Notification := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Signature', 'SignatureSubscribeNotification.json']));
+  ExpectedSend := LoadTestData('Signature/SignatureSubscribeProcessed.json');
+  SubConfirm   := LoadTestData('SubscribeConfirm.json');
+  Notification := LoadTestData('Signature/SignatureSubscribeNotification.json');
 
   // server frames: confirm -> success notification (no error)
   WS.EnqueueText(SubConfirm);
@@ -1583,10 +1499,8 @@ begin
   WSIntf := WS;
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
-  ExpectedSend := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Account', 'BadAccountSubscribe.json']));
-  SubConfirm   := TTestUtils.ReadAllText(
-                    TTestUtils.CombineAll([FResDir, 'Account', 'BadAccountSubscribeResult.json']));
+  ExpectedSend := LoadTestData('Account/BadAccountSubscribe.json');
+  SubConfirm   := LoadTestData('Account/BadAccountSubscribeResult.json');
 
   WS.EnqueueText(SubConfirm);
 
@@ -1670,14 +1584,10 @@ begin
   SUT    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, WSIntf);
 
   // Files
-  ExpectedSend     := TTestUtils.ReadAllText(
-                        TTestUtils.CombineAll([FResDir, 'Account', 'BigAccountSubscribe.json']));
-  SubConfirm       := TTestUtils.ReadAllText(
-                        TTestUtils.CombineAll([FResDir, 'SubscribeConfirm.json']));
-  Notification     := TTestUtils.ReadAllText(
-                        TTestUtils.CombineAll([FResDir, 'Account', 'BigAccountNotificationPayload.json']));
-  ExpectedDataBody := TTestUtils.ReadAllText(
-                        TTestUtils.CombineAll([FResDir, 'Account', 'BigAccountNotificationPayloadData.txt']));
+  ExpectedSend     := LoadTestData('Account/BigAccountSubscribe.json');
+  SubConfirm       := LoadTestData('SubscribeConfirm.json');
+  Notification     := LoadTestData('Account/BigAccountNotificationPayload.json');
+  ExpectedDataBody := LoadTestData('Account/BigAccountNotificationPayloadData.txt');
 
   // Queue frames: subscription confirmation then BIG notification payload
   WS.EnqueueText(SubConfirm);

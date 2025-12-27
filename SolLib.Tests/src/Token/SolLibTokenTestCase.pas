@@ -21,16 +21,17 @@ interface
 
 uses
   System.SysUtils,
-  TestUtils,
+  TestResourceLoader,
   SolLibRpcHttpMockTestCase;
 
 type
   TSolLibTokenTestCase = class abstract(TSolLibRpcHttpMockTestCase)
   protected
     var
-     FResDir: string;
+     FResCategory: string;
 
-    function ResDir: string;
+    function ResPath(const ASubPath: string): string;
+    function LoadTestData(const ASubPath: string): string;
 
     procedure SetUp; override;
     procedure TearDown; override;
@@ -41,21 +42,23 @@ implementation
 procedure TSolLibTokenTestCase.SetUp;
 begin
   inherited;
-  FResDir := ResDir;
+  FResCategory := 'Token';
 end;
 
 procedure TSolLibTokenTestCase.TearDown;
 begin
-  FResDir := '';
+  FResCategory := '';
   inherited;
 end;
 
-function TSolLibTokenTestCase.ResDir: string;
+function TSolLibTokenTestCase.ResPath(const ASubPath: string): string;
 begin
-  Result := TTestUtils.GetSourceDirWithSuffix('src\Resources\Token', '');
-  // Marker is the project folder we can reliably find on the way up
-  //Result := TTestUtils.GetSourceDirWithSuffix('SolLib.Tests', 'src\Resources\Token');
+  Result := FResCategory + '/' + ASubPath;
+end;
+
+function TSolLibTokenTestCase.LoadTestData(const ASubPath: string): string;
+begin
+  Result := TTestResourceLoader.LoadTestData(ResPath(ASubPath));
 end;
 
 end.
-

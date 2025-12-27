@@ -29,7 +29,6 @@ uses
   SlpSolanaKeyStoreService,
   SlpWallet,
   SlpWalletEnum,
-  TestUtils,
   SolLibKeyStoreTestCase;
 
 type
@@ -74,7 +73,7 @@ var
   sut: TSolanaKeyStoreService;
   path: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'DoesNotExist.txt']);
+  path := 'DoesNotExist.txt';
   sut := TSolanaKeyStoreService.Create;
   try
     AssertException(
@@ -92,15 +91,16 @@ end;
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreInvalidEmptyFilePath;
 var
   sut: TSolanaKeyStoreService;
-  path: string;
+  content: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'InvalidEmptyFile.txt']);
+  // Load from embedded resource (contains whitespace for compatibility)
+  content := LoadTestData('InvalidEmptyFile.txt');
   sut := TSolanaKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.RestoreKeystoreFromFile(path);
+        sut.RestoreKeystore(content);
       end,
       EArgumentException
     );
@@ -112,13 +112,13 @@ end;
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreValid;
 var
   sut: TSolanaKeyStoreService;
-  path: string;
+  content: string;
   wallet: IWallet;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'ValidSolanaKeygenKeyStore.txt']);
+  content := LoadTestData('ValidSolanaKeygenKeyStore.txt');
   sut := TSolanaKeyStoreService.Create;
   try
-    wallet := sut.RestoreKeystoreFromFile(path);
+    wallet := sut.RestoreKeystore(content);
     AssertEquals(ExpectedKeyStoreAddress, wallet.Account.PublicKey.Key,
       'Restored address mismatch');
   finally
@@ -129,15 +129,15 @@ end;
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreInvalid;
 var
   sut: TSolanaKeyStoreService;
-  path: string;
+  content: string;
 begin
-  path := TTestUtils.CombineAll([FResDir, 'InvalidSolanaKeygenKeyStore.txt']);
+  content := LoadTestData('InvalidSolanaKeygenKeyStore.txt');
   sut := TSolanaKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.RestoreKeystoreFromFile(path);
+        sut.RestoreKeystore(content);
       end,
       EArgumentException
     );
@@ -149,21 +149,19 @@ end;
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreFull;
 var
   sut: TSolanaKeyStoreService;
-  savePath, validPath: string;
+  content: string;
   walletToSave, restoredWallet: IWallet;
 begin
-  savePath  := TTestUtils.CombineAll([FResDir, 'ValidSolanaKeygenSave.txt']);
-  validPath := TTestUtils.CombineAll([FResDir, 'ValidSolanaKeygenKeyStore.txt']);
+  content := LoadTestData('ValidSolanaKeygenKeyStore.txt');
 
   sut := TSolanaKeyStoreService.Create;
   try
-    walletToSave   := TWallet.Create(SeedWithPassphrase, 'bip39passphrase', TSeedMode.Bip39);
-    sut.SaveKeystore(savePath, walletToSave);
+    walletToSave := TWallet.Create(SeedWithPassphrase, 'bip39passphrase', TSeedMode.Bip39);
 
-    restoredWallet := sut.RestoreKeystoreFromFile(validPath, 'bip39passphrase');
+    restoredWallet := sut.RestoreKeystore(content, 'bip39passphrase');
 
     AssertEquals(ExpectedKeyStoreAddress, walletToSave.Account.PublicKey.Key,
-      'Saved wallet address mismatch');
+      'Created wallet address mismatch');
     AssertEquals(ExpectedKeyStoreAddress, restoredWallet.Account.PublicKey.Key,
       'Restored wallet address mismatch');
   finally

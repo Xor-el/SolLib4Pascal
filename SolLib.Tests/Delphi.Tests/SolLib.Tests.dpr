@@ -145,6 +145,7 @@ uses
   SlpAddressLookupTableProgram in '..\..\SolLib\src\Programs\SlpAddressLookupTableProgram.pas',
   SlpBPFLoaderProgram in '..\..\SolLib\src\Programs\SlpBPFLoaderProgram.pas',
   TestUtils in '..\src\Misc\TestUtils.pas',
+  TestResourceLoader in '..\src\Misc\TestResourceLoader.pas',
   RpcClientMocks in '..\src\Misc\RpcClientMocks.pas',
   JsonStructuralComparer in '..\src\Misc\JsonStructuralComparer.pas',
   SolLibTestCase in '..\src\SolLibTestCase.pas',

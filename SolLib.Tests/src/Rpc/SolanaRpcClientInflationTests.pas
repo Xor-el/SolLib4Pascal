@@ -34,7 +34,6 @@ uses
   SlpRequestResult,
   SlpSolanaRpcClient,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -60,8 +59,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TInflationGovernor>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationGovernorResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationGovernorRequest.json']));
+  responseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
+  requestData  := LoadTestData('Inflation/GetInflationGovernorRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -90,8 +89,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TInflationGovernor>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationGovernorResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationGovernorConfirmedRequest.json']));
+  responseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
+  requestData  := LoadTestData('Inflation/GetInflationGovernorConfirmedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -120,8 +119,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TInflationRate>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRateResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRateRequest.json']));
+  responseData := LoadTestData('Inflation/GetInflationRateResponse.json');
+  requestData  := LoadTestData('Inflation/GetInflationRateRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -150,8 +149,8 @@ var
   addrs: TArray<string>;
   result: IRequestResult<TObjectList<TInflationReward>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRewardResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRewardRequest.json']));
+  responseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
+  requestData  := LoadTestData('Inflation/GetInflationRewardRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -187,8 +186,8 @@ var
   addrs: TArray<string>;
   result: IRequestResult<TObjectList<TInflationReward>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRewardResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRewardProcessedRequest.json']));
+  responseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
+  requestData  := LoadTestData('Inflation/GetInflationRewardProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -224,8 +223,8 @@ var
   addrs: TArray<string>;
   result: IRequestResult<TObjectList<TInflationReward>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRewardNoEpochResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Inflation', 'GetInflationRewardNoEpochRequest.json']));
+  responseData := LoadTestData('Inflation/GetInflationRewardNoEpochResponse.json');
+  requestData  := LoadTestData('Inflation/GetInflationRewardNoEpochRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;

@@ -21,16 +21,17 @@ interface
 
 uses
   System.SysUtils,
-  TestUtils,
+  TestResourceLoader,
   SolLibTestCase;
 
 type
   TSolLibKeyStoreTestCase = class abstract(TSolLibTestCase)
   protected
     var
-     FResDir: string;
+     FResCategory: string;
 
-    function ResDir: string;
+    function ResPath(const AFileName: string): string;
+    function LoadTestData(const AFileName: string): string;
 
     procedure SetUp; override;
     procedure TearDown; override;
@@ -41,21 +42,23 @@ implementation
 procedure TSolLibKeyStoreTestCase.SetUp;
 begin
   inherited;
-  FResDir := ResDir;
+  FResCategory := 'KeyStore';
 end;
 
 procedure TSolLibKeyStoreTestCase.TearDown;
 begin
-  FResDir := '';
+  FResCategory := '';
   inherited;
 end;
 
-function TSolLibKeyStoreTestCase.ResDir: string;
+function TSolLibKeyStoreTestCase.ResPath(const AFileName: string): string;
 begin
-  // Marker already points to the exact resources folder → suffix empty
-  Result := TTestUtils.GetSourceDirWithSuffix('src\Resources\KeyStore', '');
-  // Marker is the project folder we can reliably find on the way up
-  //Result := TTestUtils.GetSourceDirWithSuffix('SolLib.Tests', 'src\Resources\KeyStore');
+  Result := FResCategory + '/' + AFileName;
+end;
+
+function TSolLibKeyStoreTestCase.LoadTestData(const AFileName: string): string;
+begin
+  Result := TTestResourceLoader.LoadTestData(ResPath(AFileName));
 end;
 
 end.

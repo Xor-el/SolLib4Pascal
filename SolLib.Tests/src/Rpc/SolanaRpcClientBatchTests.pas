@@ -90,9 +90,7 @@ var
   batch: TSolanaRpcBatchWithCallbacks;
   reqs: TJsonRpcBatchRequest;
 begin
-  expected := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Batch', 'SampleBatchTokenMintInfoRequest.json'])
-  );
+  expected := LoadTestData('Batch/SampleBatchTokenMintInfoRequest.json');
 
   unusedMockRpcHttpClient := SetupTest('', 200);
   // compose a new batch of requests
@@ -126,9 +124,7 @@ var
   responseData: string;
   res: TJsonRpcBatchResponse;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Batch', 'SampleBatchResponse.json'])
-  );
+  responseData := LoadTestData('Batch/SampleBatchResponse.json');
 
   res := nil;
   try
@@ -145,9 +141,7 @@ var
   responseData: string;
   res: TJsonRpcBatchResponse;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Batch', 'SampleBatchTokenMintInfoResponse.json'])
-  );
+  responseData := LoadTestData('Batch/SampleBatchTokenMintInfoResponse.json');
 
   res := nil;
   try
@@ -192,12 +186,8 @@ var
   batch: TSolanaRpcBatchWithCallbacks;
   LTokenAccountData: TTokenAccountData;
 begin
-  expectedRequests := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Batch', 'SampleBatchRequest.json'])
-  );
-  expectedResponses := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Batch', 'SampleBatchResponse.json'])
-  );
+  expectedRequests := LoadTestData('Batch/SampleBatchRequest.json');
+  expectedResponses := LoadTestData('Batch/SampleBatchResponse.json');
 
   foundLamports := 0;
   foundBalance := 0.0;
@@ -283,9 +273,7 @@ var
   batch: TSolanaRpcBatchWithCallbacks;
   catchForAssert: EBatchRequestException;
 begin
-  expectedRequests := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Batch', 'SampleBatchRequest.json'])
-  );
+  expectedRequests := LoadTestData('Batch/SampleBatchRequest.json');
   expectedResponses := 'BAD REQUEST';
   exceptionsEncountered := 0;
   catchForAssert := nil;

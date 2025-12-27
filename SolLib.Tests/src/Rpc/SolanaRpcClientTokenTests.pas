@@ -35,7 +35,6 @@ uses
   SlpRequestResult,
   SlpSolanaRpcClient,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -82,8 +81,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenSupplyResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenSupplyRequest.json']));
+  responseData := LoadTestData('Token/GetTokenSupplyResponse.json');
+  requestData  := LoadTestData('Token/GetTokenSupplyRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -111,8 +110,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenSupplyResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenSupplyProcessedRequest.json']));
+  responseData := LoadTestData('Token/GetTokenSupplyResponse.json');
+  requestData  := LoadTestData('Token/GetTokenSupplyProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -162,8 +161,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByOwnerResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByOwnerRequest.json']));
+  responseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
+  requestData  := LoadTestData('Token/GetTokenAccountsByOwnerRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -191,8 +190,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByOwnerResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByOwnerConfirmedRequest.json']));
+  responseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
+  requestData  := LoadTestData('Token/GetTokenAccountsByOwnerConfirmedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -220,8 +219,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Response.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Request.json']));
+  responseData := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Response.json');
+  requestData  := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Request.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -252,8 +251,8 @@ var
   result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
   LTokenAccountData: TTokenAccountData;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateRequest.json']));
+  responseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
+  requestData  := LoadTestData('Token/GetTokenAccountsByDelegateRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -295,8 +294,8 @@ var
   result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
   LTokenAccountData: TTokenAccountData;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountsByDelegateProcessedRequest.json']));
+  responseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
+  requestData  := LoadTestData('Token/GetTokenAccountsByDelegateProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -359,8 +358,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountBalanceResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountBalanceRequest.json']));
+  responseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
+  requestData  := LoadTestData('Token/GetTokenAccountBalanceRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -388,8 +387,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountBalanceResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenAccountBalanceConfirmedRequest.json']));
+  responseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
+  requestData  := LoadTestData('Token/GetTokenAccountBalanceConfirmedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -417,8 +416,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenLargestAccountsResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenLargestAccountsRequest.json']));
+  responseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
+  requestData  := LoadTestData('Token/GetTokenLargestAccountsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -448,8 +447,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenLargestAccountsResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Token', 'GetTokenLargestAccountsProcessedRequest.json']));
+  responseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
+  requestData  := LoadTestData('Token/GetTokenLargestAccountsProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;

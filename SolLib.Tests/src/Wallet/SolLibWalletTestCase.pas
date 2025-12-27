@@ -21,16 +21,17 @@ interface
 
 uses
   System.SysUtils,
-  TestUtils,
+  TestResourceLoader,
   SolLibTestCase;
 
 type
   TSolLibWalletTestCase = class abstract(TSolLibTestCase)
   protected
     var
-     FResDir: string;
+     FResCategory: string;
 
-    function ResDir: string;
+    function ResPath(const AFileName: string): string;
+    function LoadTestData(const AFileName: string): string;
 
     procedure SetUp; override;
     procedure TearDown; override;
@@ -41,22 +42,23 @@ implementation
 procedure TSolLibWalletTestCase.SetUp;
 begin
   inherited;
-  FResDir := ResDir;
+  FResCategory := 'Wallet';
 end;
 
 procedure TSolLibWalletTestCase.TearDown;
 begin
-  FResDir := '';
+  FResCategory := '';
   inherited;
 end;
 
-function TSolLibWalletTestCase.ResDir: string;
+function TSolLibWalletTestCase.ResPath(const AFileName: string): string;
 begin
-  // Marker already points to the exact resources folder so suffix can be empty
-  Result := TTestUtils.GetSourceDirWithSuffix('src\Resources\Wallet', '');
-  // Marker is the project folder we can reliably find on the way up
-  //Result := TTestUtils.GetSourceDirWithSuffix('SolLib.Tests', 'src\Resources\Wallet');
+  Result := FResCategory + '/' + AFileName;
+end;
+
+function TSolLibWalletTestCase.LoadTestData(const AFileName: string): string;
+begin
+  Result := TTestResourceLoader.LoadTestData(ResPath(AFileName));
 end;
 
 end.
-

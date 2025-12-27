@@ -37,7 +37,6 @@ uses
   SlpDataEncoders,
   SlpNullable,
   RpcClientMocks,
-  TestUtils,
   SolLibRpcClientTestCase;
 
 type
@@ -70,8 +69,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionCountResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionCountRequest.json']));
+  responseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
+  requestData  := LoadTestData('Transaction/GetTransactionCountRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -95,8 +94,8 @@ var
   rpcClient: IRpcClient;
   result: IRequestResult<UInt64>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionCountResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'GetTransactionCountProcessedRequest.json']));
+  responseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
+  requestData  := LoadTestData('Transaction/GetTransactionCountProcessedRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -121,8 +120,8 @@ var
   result: IRequestResult<string>;
   txData: string;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SendTransactionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SendTransactionRequest.json']));
+  responseData := LoadTestData('Transaction/SendTransactionResponse.json');
+  requestData  := LoadTestData('Transaction/SendTransactionRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -155,8 +154,8 @@ var
   txData: string;
   bytes: TBytes;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SendTransactionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SendTransactionWithParamsRequest.json']));
+  responseData := LoadTestData('Transaction/SendTransactionResponse.json');
+  requestData  := LoadTestData('Transaction/SendTransactionWithParamsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -190,10 +189,8 @@ var
   result: IRequestResult<string>;
   txData: string;
 begin
-  responseData := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'SendTransactionExtraParamsResponse.json']));
-  requestData  := TTestUtils.ReadAllText(
-    TTestUtils.CombineAll([FResDir, 'Transaction', 'SendTransactionExtraParamsRequest.json']));
+  responseData := LoadTestData('Transaction/SendTransactionExtraParamsResponse.json');
+  requestData  := LoadTestData('Transaction/SendTransactionExtraParamsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -236,8 +233,8 @@ var
   result: IRequestResult<TResponseValue<TSimulationLogs>>;
   txData: string;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionRequest.json']));
+  responseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
+  requestData  := LoadTestData('Transaction/SimulateTransactionRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -272,8 +269,8 @@ var
   result: IRequestResult<TResponseValue<TSimulationLogs>>;
   txData: string;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionResponse2.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionRequest.json']));
+  responseData := LoadTestData('Transaction/SimulateTransactionResponse2.json');
+  requestData  := LoadTestData('Transaction/SimulateTransactionRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -310,8 +307,8 @@ var
   txData: string;
   acctList: TList<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionExtraParamsRequest.json']));
+  responseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
+  requestData  := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -356,8 +353,8 @@ var
   bytes: TBytes;
   acctList: TList<string>;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionExtraParamsRequest.json']));
+  responseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
+  requestData  := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
@@ -425,8 +422,8 @@ var
   result: IRequestResult<TResponseValue<TSimulationLogs>>;
   txData: string;
 begin
-  responseData := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionInsufficientLamportsResponse.json']));
-  requestData  := TTestUtils.ReadAllText(TTestUtils.CombineAll([FResDir, 'Transaction', 'SimulateTransactionInsufficientLamportsRequest.json']));
+  responseData := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsResponse.json');
+  requestData  := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsRequest.json');
 
   mockRpcHttpClient := SetupTest(responseData, 200);
   rpcHttpClient := mockRpcHttpClient;
