@@ -17,8 +17,6 @@
 
 unit SlpConsoleLogger;
 
-{$I ../../Include/SolLib.inc}
-
 interface
 
 uses
