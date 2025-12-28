@@ -141,11 +141,11 @@ begin
     for ResName in RESOURCE_NAMES do
     begin
       // Skip if resource doesn't exist
-      if not TSlpResourceLoader.ResourceExists(ResName) then
+      if not TSlpResourceLoader.Instance.ResourceExists(ResName) then
         Continue;
 
       try
-        Raw := TSlpResourceLoader.LoadAsString(ResName, AEncoding);
+        Raw := TSlpResourceLoader.Instance.LoadAsString(ResName, AEncoding);
         Key := MakeKeyFromResourceName(ResName);
         Dict.AddOrSetValue(Key, Raw);
       except

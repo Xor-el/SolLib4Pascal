@@ -103,7 +103,7 @@ end;
 class function TTestResourceLoader.LoadTestData(const ARelativePath: string;
   const AEncoding: TEncoding): string;
 begin
-  Result := TSlpResourceLoader.LoadAsString(PathToResourceName(ARelativePath), AEncoding);
+  Result := TSlpResourceLoader.Instance.LoadAsString(PathToResourceName(ARelativePath), AEncoding);
 end;
 
 class function TTestResourceLoader.LoadByName(const AResourceName: string): string;
@@ -114,17 +114,17 @@ end;
 class function TTestResourceLoader.LoadByName(const AResourceName: string;
   const AEncoding: TEncoding): string;
 begin
-  Result := TSlpResourceLoader.LoadAsString(AResourceName, AEncoding);
+  Result := TSlpResourceLoader.Instance.LoadAsString(AResourceName, AEncoding);
 end;
 
 class function TTestResourceLoader.LoadTestDataBytes(const ARelativePath: string): TBytes;
 begin
-  Result := TSlpResourceLoader.LoadAsBytes(PathToResourceName(ARelativePath));
+  Result := TSlpResourceLoader.Instance.LoadAsBytes(PathToResourceName(ARelativePath));
 end;
 
 class function TTestResourceLoader.ResourceExists(const ARelativePath: string): Boolean;
 begin
-  Result := TSlpResourceLoader.ResourceExists(PathToResourceName(ARelativePath));
+  Result := TSlpResourceLoader.Instance.ResourceExists(PathToResourceName(ARelativePath));
 end;
 
 end.

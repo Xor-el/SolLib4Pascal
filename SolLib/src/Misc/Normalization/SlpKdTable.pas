@@ -73,7 +73,7 @@ implementation
 
 class constructor TKdTable.Create;
 begin
-  FSubstitutionTable := TSlpResourceLoader.LoadAsString('KD_SUBSTITUTION_TABLE', TEncoding.UTF8);
+  FSubstitutionTable := TSlpResourceLoader.Instance.LoadAsString('KD_SUBSTITUTION_TABLE', TEncoding.UTF8);
 end;
 
 class function TKdTable.NormalizeKd(const S: string): string;
