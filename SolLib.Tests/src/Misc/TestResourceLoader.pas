@@ -24,7 +24,8 @@ interface
 uses
   System.SysUtils,
   System.Classes,
-  System.Types;
+  System.Types,
+  SlpResourceLoader;
 
 type
   /// <summary>
@@ -38,15 +39,6 @@ type
     /// </summary>
     class function PathToResourceName(const APath: string): string; static;
 
-    /// <summary>
-    /// Loads raw bytes from a resource.
-    /// </summary>
-    class function LoadResourceBytes(const AResourceName: string): TBytes; static;
-
-    /// <summary>
-    /// Loads a resource as a string with the specified encoding.
-    /// </summary>
-    class function LoadResourceString(const AResourceName: string; const AEncoding: TEncoding): string; static;
   public
     /// <summary>
     /// Load a test resource by its relative path (e.g., 'JsonConverter/AccountInfo_Data_Base64.json').
@@ -103,41 +95,6 @@ begin
   Result := Result.ToUpper;
 end;
 
-class function TTestResourceLoader.LoadResourceBytes(const AResourceName: string): TBytes;
-var
-  RS: TResourceStream;
-begin
-  RS := TResourceStream.Create(HInstance, AResourceName, RT_RCDATA);
-  try
-    SetLength(Result, RS.Size);
-    if RS.Size > 0 then
-      RS.ReadBuffer(Result[0], RS.Size);
-  finally
-    RS.Free;
-  end;
-end;
-
-class function TTestResourceLoader.LoadResourceString(const AResourceName: string;
-  const AEncoding: TEncoding): string;
-var
-  Bytes: TBytes;
-  BOMLength: Integer;
-  Enc: TEncoding;
-begin
-  Result := '';
-  Bytes := LoadResourceBytes(AResourceName);
-
-  if Length(Bytes) > 0 then
-  begin
-    // Detect and skip BOM at byte level
-    Enc := AEncoding;
-    BOMLength := TEncoding.GetBufferEncoding(Bytes, Enc);
-
-    // Convert bytes to string, skipping BOM
-    Result := Enc.GetString(Bytes, BOMLength, Length(Bytes) - BOMLength);
-  end;
-end;
-
 class function TTestResourceLoader.LoadTestData(const ARelativePath: string): string;
 begin
   Result := LoadTestData(ARelativePath, TEncoding.UTF8);
@@ -146,7 +103,7 @@ end;
 class function TTestResourceLoader.LoadTestData(const ARelativePath: string;
   const AEncoding: TEncoding): string;
 begin
-  Result := LoadResourceString(PathToResourceName(ARelativePath), AEncoding);
+  Result := TSlpResourceLoader.LoadAsString(PathToResourceName(ARelativePath), AEncoding);
 end;
 
 class function TTestResourceLoader.LoadByName(const AResourceName: string): string;
@@ -157,20 +114,17 @@ end;
 class function TTestResourceLoader.LoadByName(const AResourceName: string;
   const AEncoding: TEncoding): string;
 begin
-  Result := LoadResourceString(AResourceName, AEncoding);
+  Result := TSlpResourceLoader.LoadAsString(AResourceName, AEncoding);
 end;
 
 class function TTestResourceLoader.LoadTestDataBytes(const ARelativePath: string): TBytes;
 begin
-  Result := LoadResourceBytes(PathToResourceName(ARelativePath));
+  Result := TSlpResourceLoader.LoadAsBytes(PathToResourceName(ARelativePath));
 end;
 
 class function TTestResourceLoader.ResourceExists(const ARelativePath: string): Boolean;
-var
-  ResourceName: string;
 begin
-  ResourceName := PathToResourceName(ARelativePath);
-  Result := FindResource(HInstance, PChar(ResourceName), RT_RCDATA) <> 0;
+  Result := TSlpResourceLoader.ResourceExists(PathToResourceName(ARelativePath));
 end;
 
 end.

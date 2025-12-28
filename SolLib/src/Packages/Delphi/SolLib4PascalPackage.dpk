@@ -79,6 +79,7 @@ contains
   SlpBitWriter in '..\..\Misc\SlpBitWriter.pas',
   SlpJsonKit in '..\..\Misc\SlpJsonKit.pas',
   SlpMulticast in '..\..\Misc\SlpMulticast.pas',
+  SlpResourceLoader in '..\..\Misc\SlpResourceLoader.pas',
   SlpNullable in '..\..\Misc\SlpNullable.pas',
   SlpSolLibExceptions in '..\..\Misc\SlpSolLibExceptions.pas',
   SlpStringTransformer in '..\..\Misc\SlpStringTransformer.pas',

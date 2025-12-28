@@ -48,6 +48,7 @@ uses
   SlpStringTransformer in '..\..\SolLib\src\Misc\SlpStringTransformer.pas',
   SlpTimeTicker in '..\..\SolLib\src\Misc\SlpTimeTicker.pas',
   SlpMulticast in '..\..\SolLib\src\Misc\SlpMulticast.pas',
+  SlpResourceLoader in '..\..\SolLib\src\Misc\SlpResourceLoader.pas',
   SlpKdTable in '..\..\SolLib\src\Misc\Normalization\SlpKdTable.pas',
   SlpArrayUtils in '..\..\SolLib\src\Utils\SlpArrayUtils.pas',
   SlpCryptoUtils in '..\..\SolLib\src\Utils\SlpCryptoUtils.pas',

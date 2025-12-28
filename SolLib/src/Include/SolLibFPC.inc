@@ -31,5 +31,11 @@
   {$OPTIMIZATION DEADVALUES}
   {$IFDEF CPUI386}  {$OPTIMIZATION USEEBP} {$ENDIF}
   {$IFDEF CPUX86_64} {$OPTIMIZATION USERBP} {$ENDIF}
+
+{========================== Resource Loading Strategy =========================}
+
+  // FPC supports embedded resources via TResourceStream
+  {$DEFINE USE_EMBEDDED_RESOURCES}
+
 {$ENDIF}
 

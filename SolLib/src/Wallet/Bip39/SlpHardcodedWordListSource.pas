@@ -18,7 +18,10 @@
 unit SlpHardcodedWordlistSource;
 
 {$I ../../Include/SolLib.inc}
+
+{$IFDEF USE_EMBEDDED_RESOURCES}
 {$R '../../Resources/WordLists.res'}
+{$ENDIF}
 
 interface
 
@@ -50,7 +53,8 @@ type
 implementation
 
 uses
- SlpWordList;
+  SlpWordList,
+  SlpResourceLoader;
 
 class constructor THardcodedWordlistSource.Create;
 begin
@@ -100,8 +104,6 @@ const
 var
   Dict: TDictionary<string, string>;
   ResName, Key, Raw: string;
-  RS: TResourceStream;
-  SS: TStringStream;
 
   function MakeKeyFromResourceName(const FullName: string): string;
   var
@@ -138,26 +140,17 @@ begin
   try
     for ResName in RESOURCE_NAMES do
     begin
-      try
-        RS := TResourceStream.Create(HInstance, ResName, RT_RCDATA);
-      except
-        on E: Exception do
-          Continue; // Skip missing resources
-      end;
+      // Skip if resource doesn't exist
+      if not TSlpResourceLoader.ResourceExists(ResName) then
+        Continue;
 
       try
-        SS := TStringStream.Create('', AEncoding);
-        try
-          SS.CopyFrom(RS, RS.Size);
-          Raw := SS.DataString;
-        finally
-          SS.Free;
-        end;
-
+        Raw := TSlpResourceLoader.LoadAsString(ResName, AEncoding);
         Key := MakeKeyFromResourceName(ResName);
         Dict.AddOrSetValue(Key, Raw);
-      finally
-        RS.Free;
+      except
+        on E: Exception do
+          Continue; // Skip on error
       end;
     end;
 

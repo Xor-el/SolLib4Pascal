@@ -18,7 +18,10 @@
 unit SlpKdTable;
 
 {$I ../../Include/SolLib.inc}
+
+{$IFDEF USE_EMBEDDED_RESOURCES}
 {$R '../../Resources/Normalization.res'}
+{$ENDIF}
 
 interface
 
@@ -26,6 +29,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Types,
+  SlpResourceLoader,
   SlpSolLibExceptions;
 
 type
@@ -40,8 +44,6 @@ type
     class function Supported(const Ch: Char): Boolean; static;
     class procedure Substitute(Ch: Char; SB: TStringBuilder); overload; static;
     class procedure Substitute(Pos: Integer; SB: TStringBuilder); overload; static;
-
-    class function LoadResource(const AResourceName: string; const AEncoding: TEncoding): string;
 
     class constructor Create();
   public
@@ -71,36 +73,8 @@ implementation
 
 class constructor TKdTable.Create;
 begin
-   FSubstitutionTable := LoadResource('KD_SUBSTITUTION_TABLE', TEncoding.UTF8);
+  FSubstitutionTable := TSlpResourceLoader.LoadAsString('KD_SUBSTITUTION_TABLE', TEncoding.UTF8);
 end;
-
-class function TKdTable.LoadResource(const AResourceName: string; const AEncoding: TEncoding): string;
-var
-  RS: TResourceStream;
-  SS: TStringStream;
-begin
-  Result := '';
-
-  try
-    RS := TResourceStream.Create(HInstance, AResourceName, RT_RCDATA);
-  except
-    on E: Exception do
-      Exit; // Return empty string if resource not found
-  end;
-
-  try
-    SS := TStringStream.Create('', AEncoding);
-    try
-      SS.CopyFrom(RS, RS.Size);
-      Result := SS.DataString;
-    finally
-      SS.Free;
-    end;
-  finally
-    RS.Free;
-  end;
-end;
-
 
 class function TKdTable.NormalizeKd(const S: string): string;
 var

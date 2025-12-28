@@ -30,6 +30,18 @@
   {$STRINGCHECKS OFF}
   {$WARN DUPLICATE_CTOR_DTOR OFF}
 
+{========================== Resource Loading Strategy =========================}
+
+  // Platforms that support embedded .res resources (TResourceStream)
+  {$IF DEFINED(MSWINDOWS) OR DEFINED(MACOS) OR DEFINED(LINUX)}
+    {$DEFINE USE_EMBEDDED_RESOURCES}
+  {$IFEND}
+
+  // Platforms that require file-based asset loading
+  {$IF DEFINED(ANDROID) OR DEFINED(IOS)}
+    {$DEFINE USE_FILE_RESOURCES}
+  {$IFEND}
+
 {$ENDIF}
 
 {========================== Common Compiler Settings ==========================}
