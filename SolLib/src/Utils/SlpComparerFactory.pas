@@ -50,7 +50,7 @@ begin
     begin
       Result := SameText(Left, Right);
     end,
-    function(const Value: string): Integer
+    function(const Value: string):{$IFDEF FPC}UInt32{$ELSE}Integer{$ENDIF}
     begin
       Result := THashBobJenkins.GetHashValue(UpperCase(Value));
     end
