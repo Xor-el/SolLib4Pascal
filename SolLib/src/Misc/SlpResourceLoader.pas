@@ -287,9 +287,10 @@ class constructor TSlpResourceLoader.Create;
 begin
   {$IFDEF USE_EMBEDDED_RESOURCES}
   FInstance := TEmbeddedResourceLoader.Create;
-  {$ENDIF}
-  {$IFDEF USE_FILE_RESOURCES}
+  {$ELSEIF DEFINED(USE_FILE_RESOURCES)}
   FInstance := TFileResourceLoader.Create;
+  {$ELSE}
+  {$MESSAGE ERROR 'Either USE_EMBEDDED_RESOURCES or USE_FILE_RESOURCES must be defined'}
   {$ENDIF}
 end;
 

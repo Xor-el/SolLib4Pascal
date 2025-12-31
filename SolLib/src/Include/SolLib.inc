@@ -53,5 +53,12 @@
 {$SCOPEDENUMS ON}
 {$POINTERMATH ON}
 
+{========================== Resource Loading Validation =======================}
+
+// Ensure one resource loading strategy is defined
+{$IF NOT DEFINED(USE_EMBEDDED_RESOURCES) AND NOT DEFINED(USE_FILE_RESOURCES)}
+  {$MESSAGE ERROR 'Unsupported platform: Either USE_EMBEDDED_RESOURCES or USE_FILE_RESOURCES must be defined'}
+{$IFEND}
+
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
