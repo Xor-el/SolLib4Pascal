@@ -466,13 +466,14 @@ begin
     procedure
     begin
       Wallet.Send(
-        TestTokenAccount, 1.0, TargetOwner, Signer.PublicKey,
-        TFunc<ITransactionBuilder, TBytes>(
-          function (const B: ITransactionBuilder): TBytes
-          begin
-            Result := B.Build(Signer);
-          end
-        )
+        TestTokenAccount,
+        1.0,
+        TargetOwner,
+        Signer.PublicKey,
+        function(B: ITransactionBuilder): TBytes
+        begin
+          Result := B.Build(Signer);
+        end
       );
     end,
     Exception
