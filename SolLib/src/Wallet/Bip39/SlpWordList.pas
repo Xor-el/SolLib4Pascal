@@ -188,12 +188,10 @@ begin
 
   Result := TArrayUtils.IndexOf<string>(
     FWords,
-    TFunc<string, Boolean>(
-      function(const S: string): Boolean
-      begin
-        Result := SameStr(N, S);
-      end
-    ),
+    function (S: string): Boolean
+    begin
+      Result := SameStr(N, S);
+    end,
     Index
   );
 end;

@@ -156,15 +156,17 @@ begin
   AssertEquals(2039280, TestList.First.Lamports);
   AssertEquals(0, TestList.WhichAreAssociatedTokenAccounts.Count);
 
-  AssertEquals(1,
-    Wallet.TokenAccounts.WithCustomFilter(
-      TPredicate<ITokenWalletAccount>(
-        function(const X: ITokenWalletAccount): Boolean
+  AssertEquals(
+    1,
+    Wallet.TokenAccounts
+      .WithCustomFilter(
+        function(X: ITokenWalletAccount): Boolean
         begin
           Result := X.PublicKey.StartsWith('G');
         end
       )
-    ).Count);
+      .Count
+  );
 
   // Verify mint data
   AssertEquals(2, Wallet.TokenAccounts.WithSymbol('TEST').First.DecimalPlaces);
@@ -391,12 +393,10 @@ begin
     1.0,
     TargetOwner.PublicKey,
     Signer.PublicKey,
-    TFunc<ITransactionBuilder, TBytes>(
-      function (const B: ITransactionBuilder): TBytes
-      begin
-        Result := B.Build(Signer);
-      end
-    )
+    function(B: ITransactionBuilder): TBytes
+    begin
+      Result := B.Build(Signer);
+    end
   );
 
   AssertEquals('FAKEGpFLmgktqjTu3cXW4wbTkfXpdGZUnxjVDHTet22F3rZNPQbmQaVFvYmLmGuhvFjuuSVrAR4BWJAGxNDNrFDU', SendResponse.Result);
@@ -530,13 +530,14 @@ begin
     procedure
     begin
       WalletB.Send(
-        AccountInA, 1.0, Destination.PublicKey, AccountA.PublicKey,
-        TFunc<ITransactionBuilder, TBytes>(
-          function (const B: ITransactionBuilder): TBytes
-          begin
-            Result := B.Build(AccountB);
-          end
-        )
+        AccountInA,
+        1.0,
+        Destination.PublicKey,
+        AccountA.PublicKey,
+        function (B: ITransactionBuilder): TBytes
+        begin
+          Result := B.Build(AccountB);
+        end
       );
     end,
     EArgumentException

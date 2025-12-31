@@ -229,13 +229,12 @@ begin
 
   if not TArrayUtils.IndexOf<Integer>(
     FEntArray,
-    TFunc<Integer, Boolean>(
-      function(const Value: Integer): Boolean
-      begin
-        Result := (Value = EntBits);
-      end
-    ),
-    I) then
+    function (Value: Integer): Boolean
+    begin
+      Result := (Value = EntBits);
+    end,
+    I
+  ) then
     raise EArgumentException.CreateFmt(
       'The length for entropy should be %s bits',
       [JoinInts(FEntArray)]
@@ -273,17 +272,16 @@ begin
   ms := Ord(AWordCount);
 
   if not CorrectWordCount(ms) then
-    raise EArgumentException.Create('Word count should be 12,15,18,21 or 24');
+    raise EArgumentException.Create('Word count should be 12, 15, 18, 21 or 24');
 
   if not TArrayUtils.IndexOf<Integer>(
     FMsArray,
-    TFunc<Integer, Boolean>(
-      function(const Value: Integer): Boolean
-      begin
-        Result := (Value = ms);
-      end
-    ),
-    idx) then
+    function (Value: Integer): Boolean
+    begin
+      Result := (Value = ms);
+    end,
+    idx
+  ) then
     Exit(nil);
 
   // Convert bits -> bytes and generate random entropy
