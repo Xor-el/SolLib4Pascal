@@ -24,9 +24,9 @@ interface
 uses
   System.SysUtils,
 {$IFDEF FPC}
-  SlpHttpClientFPC,
+  SlpFPCHttpClient,
 {$ELSE}
-  SlpHttpClientDelphi,
+  SlpDelphiHttpClient,
 {$ENDIF}
   SlpHttpApiResponse,
   SlpHttpClientBase;

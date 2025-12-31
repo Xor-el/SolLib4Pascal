@@ -117,7 +117,7 @@ uses
   SlpJsonConverterFactory in '..\..\SolLib\src\JsonConverters\SlpJsonConverterFactory.pas',
   SlpScryptImpl in '..\..\SolLib\src\Misc\Crypto\SlpScryptImpl.pas',
   SlpHttpClientBase in '..\..\SolLib\src\Misc\Http\SlpHttpClientBase.pas',
-  SlpHttpClientDelphi in '..\..\SolLib\src\Misc\Http\SlpHttpClientDelphi.pas',
+  SlpDelphiHttpClient in '..\..\SolLib\src\Misc\Http\SlpDelphiHttpClient.pas',
   SlpComparerFactory in '..\..\SolLib\src\Utils\SlpComparerFactory.pas',
   SlpBinaryPrimitives in '..\..\SolLib\src\Misc\SlpBinaryPrimitives.pas',
   SlpLogger in '..\..\SolLib\src\Misc\Logger\SlpLogger.pas',

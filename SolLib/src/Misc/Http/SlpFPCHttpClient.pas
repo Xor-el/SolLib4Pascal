@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpHttpClientFPC;
+unit SlpFPCHttpClient;
 
 {$I ../../Include/SolLib.inc}
 

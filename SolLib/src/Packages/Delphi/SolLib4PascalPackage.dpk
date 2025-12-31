@@ -70,7 +70,7 @@ contains
   SlpHttpApiClient in '..\..\Misc\Http\SlpHttpApiClient.pas',
   SlpHttpApiResponse in '..\..\Misc\Http\SlpHttpApiResponse.pas',
   SlpHttpClientBase in '..\..\Misc\Http\SlpHttpClientBase.pas',
-  SlpHttpClientDelphi in '..\..\Misc\Http\SlpHttpClientDelphi.pas',
+  SlpDelphiHttpClient in '..\..\Misc\Http\SlpDelphiHttpClient.pas',
   SlpLogger in '..\..\Misc\Logger\SlpLogger.pas',
   SlpKdTable in '..\..\Misc\Normalization\SlpKdTable.pas',
   SlpWebSocketApiClient in '..\..\Misc\Sockets\SlpWebSocketApiClient.pas',

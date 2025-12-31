@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpHttpClientDelphi;
+unit SlpDelphiHttpClient;
 
 {$I ../../Include/SolLib.inc}
 
