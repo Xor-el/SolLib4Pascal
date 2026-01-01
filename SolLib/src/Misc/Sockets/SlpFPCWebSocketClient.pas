@@ -24,6 +24,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  opensslsockets,
   fpwebsocketclient,
   fpwebsocket,
   SlpLogger,
@@ -138,6 +139,8 @@ begin
   try
     Disconnect;
   finally
+    if Assigned(FClient.MessagePump) then
+      FClient.MessagePump.Free;
     FClient.Free;
   end;
   inherited;

@@ -56,9 +56,9 @@ constructor TDelphiHttpClientImpl.Create(const AExisting: THTTPClient);
 begin
   inherited Create;
   if Assigned(AExisting) then
-   FClient := AExisting
+    FClient := AExisting
   else
-   FClient := THTTPClient.Create;
+    FClient := THTTPClient.Create;
 end;
 
 destructor TDelphiHttpClientImpl.Destroy;
@@ -103,23 +103,17 @@ var
   Url, Body, StatusText: string;
   Resp: IHTTPResponse;
   StatusCode: Integer;
-  DefaultHdrs, ExtraHdrs: THttpApiHeaderParams;
+  DefaultHdrs: THttpApiHeaderParams;
   NetHeaders: TNetHeaders;
 begin
   Url := BuildUrlWithQuery(AUrl, AQuery);
 
   DefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
-  ExtraHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
     DefaultHdrs.Add('Accept', 'application/json');
-
-    if AHeaders <> nil then
-      for var K in AHeaders.Keys do ExtraHdrs.AddOrSetValue(K, AHeaders.Items[K]);
-
-    NetHeaders := MergeHeaders(DefaultHdrs, ExtraHdrs);
+    NetHeaders := MergeHeaders(DefaultHdrs, AHeaders);
   finally
     DefaultHdrs.Free;
-    ExtraHdrs.Free;
   end;
 
   try
@@ -143,21 +137,15 @@ var
   Body, StatusText: string;
   Resp: IHTTPResponse;
   StatusCode: Integer;
-  DefaultHdrs, ExtraHdrs: THttpApiHeaderParams;
+  DefaultHdrs: THttpApiHeaderParams;
   NetHeaders: TNetHeaders;
 begin
   DefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
-  ExtraHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
     DefaultHdrs.Add('Content-Type', 'application/json');
-
-    if AHeaders <> nil then
-      for var K in AHeaders.Keys do ExtraHdrs.AddOrSetValue(K, AHeaders.Items[K]);
-
-    NetHeaders := MergeHeaders(DefaultHdrs, ExtraHdrs);
+    NetHeaders := MergeHeaders(DefaultHdrs, AHeaders);
   finally
     DefaultHdrs.Free;
-    ExtraHdrs.Free;
   end;
 
   MS := TMemoryStream.Create;
@@ -186,4 +174,3 @@ begin
 end;
 
 end.
-

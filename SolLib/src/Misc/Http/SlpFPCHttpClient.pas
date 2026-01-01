@@ -24,6 +24,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  opensslsockets,
   fphttpclient,
   SlpHttpClientBase,
   SlpHttpApiResponse,
@@ -56,9 +57,9 @@ constructor TFPCHttpClientImpl.Create(const AExisting: TFPHTTPClient);
 begin
   inherited Create;
   if Assigned(AExisting) then
-   FClient := AExisting
+    FClient := AExisting
   else
-   FClient := TFPHTTPClient.Create(nil);
+    FClient := TFPHTTPClient.Create(nil);
 end;
 
 destructor TFPCHttpClientImpl.Destroy;
@@ -95,51 +96,41 @@ end;
 function TFPCHttpClientImpl.GetJson(const AUrl: string;
   const AQuery: THttpApiQueryParams; const AHeaders: THttpApiHeaderParams): IHttpApiResponse;
 var
-  Url, Body, StatusText, K: string;
+  Url, Body, StatusText: string;
   StatusCode: Integer;
-  DefaultHdrs, ExtraHdrs, FinalHdrs: THttpApiHeaderParams;
+  DefaultHdrs, FinalHdrs: THttpApiHeaderParams;
   ResponseStream: TStringStream;
 begin
   Url := BuildUrlWithQuery(AUrl, AQuery);
 
+  FinalHdrs := nil;
+  ResponseStream := nil;
   DefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
-  ExtraHdrs   := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
     try
       DefaultHdrs.Add('Accept', 'application/json');
 
-      if AHeaders <> nil then
-        for K in AHeaders.Keys do
-          ExtraHdrs.AddOrSetValue(K, AHeaders.Items[K]);
+      FinalHdrs := MergeHeaders(DefaultHdrs, AHeaders);
+      ApplyHeaders(FClient, FinalHdrs);
 
-      FinalHdrs := MergeHeaders(DefaultHdrs, ExtraHdrs);
-      try
-        ApplyHeaders(FClient, FinalHdrs);
+      ResponseStream := TStringStream.Create('', TEncoding.UTF8);
+      FClient.Get(Url, ResponseStream);
 
-        ResponseStream := TStringStream.Create('', TEncoding.UTF8);
-        try
-          FClient.Get(Url, ResponseStream);
+      StatusCode := FClient.ResponseStatusCode;
+      StatusText := FClient.ResponseStatusText;
+      Body := ResponseStream.DataString;
 
-          StatusCode := FClient.ResponseStatusCode;
-          StatusText := FClient.ResponseStatusText;
-
-          Body := ResponseStream.DataString;
-          Result := THttpApiResponse.Create(StatusCode, StatusText, Body);
-        finally
-          ResponseStream.Free;
-          FClient.RequestHeaders.Clear;
-        end;
-      finally
-        FinalHdrs.Free;
-      end;
+      Result := THttpApiResponse.Create(StatusCode, StatusText, Body);
     except
       on E: Exception do
-      begin
         raise;
-      end;
     end;
   finally
-    ExtraHdrs.Free;
+    FClient.RequestHeaders.Clear;
+    if Assigned(ResponseStream) then
+      ResponseStream.Free;
+    if Assigned(FinalHdrs) then
+      FinalHdrs.Free;
     DefaultHdrs.Free;
   end;
 end;
@@ -149,60 +140,46 @@ function TFPCHttpClientImpl.PostJson(const AUrl, AJson: string;
 var
   Body, StatusText: string;
   StatusCode: Integer;
-  DefaultHdrs, ExtraHdrs, FinalHdrs: THttpApiHeaderParams;
+  DefaultHdrs, FinalHdrs: THttpApiHeaderParams;
   ResponseStream: TStringStream;
   RequestBodyStream: TStringStream;
-  K: string;
 begin
+  FinalHdrs := nil;
+  RequestBodyStream := nil;
+  ResponseStream := nil;
   DefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
-  ExtraHdrs   := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
     try
       DefaultHdrs.Add('Content-Type', 'application/json');
 
-      if AHeaders <> nil then
-        for K in AHeaders.Keys do
-          ExtraHdrs.AddOrSetValue(K, AHeaders.Items[K]);
+      FinalHdrs := MergeHeaders(DefaultHdrs, AHeaders);
+      ApplyHeaders(FClient, FinalHdrs);
 
-      FinalHdrs := MergeHeaders(DefaultHdrs, ExtraHdrs);
-      try
-        ApplyHeaders(FClient, FinalHdrs);
+      RequestBodyStream := TStringStream.Create(AJson, TEncoding.UTF8);
+      FClient.RequestBody := RequestBodyStream;
 
-        RequestBodyStream := TStringStream.Create(AJson, TEncoding.UTF8);
-        try
-          FClient.RequestBody := RequestBodyStream;
+      ResponseStream := TStringStream.Create('', TEncoding.UTF8);
+      FClient.Post(AUrl, ResponseStream);
 
-          ResponseStream := TStringStream.Create('', TEncoding.UTF8);
-          try
-            FClient.Post(AUrl, ResponseStream);
+      StatusCode := FClient.ResponseStatusCode;
+      StatusText := FClient.ResponseStatusText;
+      Body := ResponseStream.DataString;
 
-            StatusCode := FClient.ResponseStatusCode;
-            StatusText := FClient.ResponseStatusText;
-
-            Body := ResponseStream.DataString;
-            Result := THttpApiResponse.Create(StatusCode, StatusText, Body);
-          finally
-            ResponseStream.Free;
-            FClient.RequestHeaders.Clear;
-          end;
-        finally
-          RequestBodyStream.Free;
-        end;
-      finally
-        FinalHdrs.Free;
-      end;
+      Result := THttpApiResponse.Create(StatusCode, StatusText, Body);
     except
       on E: Exception do
-      begin
         raise;
-      end;
     end;
   finally
-    ExtraHdrs.Free;
+    FClient.RequestHeaders.Clear;
+    if Assigned(ResponseStream) then
+      ResponseStream.Free;
+    if Assigned(RequestBodyStream) then
+      RequestBodyStream.Free;
+    if Assigned(FinalHdrs) then
+      FinalHdrs.Free;
     DefaultHdrs.Free;
   end;
 end;
 
-
 end.
-
