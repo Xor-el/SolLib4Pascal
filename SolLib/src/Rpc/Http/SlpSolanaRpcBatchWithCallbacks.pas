@@ -34,7 +34,8 @@ uses
   SlpRpcMessage,
   SlpConfigObject,
   SlpValueUtils,
-  SlpNullable;
+  SlpNullable,
+  SlpSolLibTypes;
 
 type
   /// <summary>

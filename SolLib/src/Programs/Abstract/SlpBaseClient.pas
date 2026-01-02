@@ -38,7 +38,8 @@ uses
   SlpMessageDomain,
   SlpPublicKey,
   SlpNullable,
-  SlpResultWrapper;
+  SlpResultWrapper,
+  SlpSolLibTypes;
 
 type
   /// <summary>

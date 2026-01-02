@@ -22,7 +22,8 @@ unit SlpWebSocketClientBase;
 interface
 
 uses
-  System.SysUtils;
+  System.SysUtils,
+  SlpSolLibTypes;
 
 type
   TWebSocketClientCallbacks = record

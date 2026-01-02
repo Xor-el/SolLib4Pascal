@@ -23,7 +23,8 @@ interface
 
 uses
   System.SysUtils,
-  SlpWebSocketClientBase;
+  SlpWebSocketClientBase,
+  SlpSolLibTypes;
 
 type
   /// <summary>

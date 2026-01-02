@@ -30,7 +30,8 @@ uses
   SlpCryptoUtils,
   SlpBitWriter,
   SlpArrayUtils,
-  SlpKdTable;
+  SlpKdTable,
+  SlpSolLibTypes;
 
 type
 

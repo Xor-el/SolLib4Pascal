@@ -46,7 +46,8 @@ uses
   SlpMulticast,
   SlpValueUtils,
   SlpNullable,
-  SlpLogger;
+  SlpLogger,
+  SlpSolLibTypes;
 
 type
   /// <summary>

@@ -42,7 +42,8 @@ uses
   SlpListUtils,
   SlpNullable,
   SlpTokenProgram,
-  SlpAssociatedTokenAccountProgram;
+  SlpAssociatedTokenAccountProgram,
+  SlpSolLibTypes;
 
 type
   ITokenWalletLoadCtx = interface

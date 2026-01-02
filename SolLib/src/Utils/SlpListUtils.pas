@@ -23,7 +23,8 @@ interface
 
 uses
   System.SysUtils,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  SlpSolLibTypes;
 
 type
   TListUtils = class

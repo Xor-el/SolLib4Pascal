@@ -25,7 +25,8 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   System.Generics.Defaults,
-  System.SyncObjs;
+  System.SyncObjs,
+  SlpSolLibTypes;
 
 type
   /// <summary>

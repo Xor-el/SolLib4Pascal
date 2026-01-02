@@ -114,6 +114,7 @@ uses
   SlpHttpApiResponse in '..\..\SolLib\src\Misc\Http\SlpHttpApiResponse.pas',
   SlpWebSocketClientBase in '..\..\SolLib\src\Misc\Sockets\SlpWebSocketClientBase.pas',
   SlpWebSocketApiClient in '..\..\SolLib\src\Misc\Sockets\SlpWebSocketApiClient.pas',
+  SlpSolLibTypes in '..\..\SolLib\src\Misc\SlpSolLibTypes.pas',
   SlpJsonConverterFactory in '..\..\SolLib\src\JsonConverters\SlpJsonConverterFactory.pas',
   SlpScryptImpl in '..\..\SolLib\src\Misc\Crypto\SlpScryptImpl.pas',
   SlpHttpClientBase in '..\..\SolLib\src\Misc\Http\SlpHttpClientBase.pas',

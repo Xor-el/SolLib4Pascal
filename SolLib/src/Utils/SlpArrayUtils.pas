@@ -24,7 +24,8 @@ interface
 uses
   System.SysUtils,
   System.Math,
-  System.Generics.Defaults;
+  System.Generics.Defaults,
+  SlpSolLibTypes;
 
 type
   TArrayUtils = class sealed
