@@ -24,6 +24,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  URIParser,
   opensslsockets,
   fpwebsocketclient,
   fpwebsocket,
@@ -89,9 +90,6 @@ type
   end;
 
 implementation
-
-uses
-  URIParser;
 
 { TFPCWebSocketClientImpl }
 
