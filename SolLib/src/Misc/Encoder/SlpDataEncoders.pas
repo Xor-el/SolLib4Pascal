@@ -28,9 +28,38 @@ uses
 
 type
   /// <summary>
+  /// Interface for data encoding operations.
+  /// </summary>
+  IDataEncoder = interface
+    ['{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}']
+    /// <summary>
+    /// Encode the data.
+    /// </summary>
+    /// <param name="data">The data to encode.</param>
+    /// <returns>The data encoded.</returns>
+    function EncodeData(const data: TBytes): string; overload;
+
+    /// <summary>
+    /// Encode the data.
+    /// </summary>
+    /// <param name="data">The data to encode.</param>
+    /// <param name="offset">The offset at which to start encoding.</param>
+    /// <param name="count">The number of bytes to encode.</param>
+    /// <returns>The encoded data.</returns>
+    function EncodeData(const data: TBytes; offset, count: Integer): string; overload;
+
+    /// <summary>
+    /// Decode the data.
+    /// </summary>
+    /// <param name="encoded">The data to decode.</param>
+    /// <returns>The decoded data.</returns>
+    function DecodeData(const encoded: string): TBytes;
+  end;
+
+  /// <summary>
   /// Abstract data encoder class.
   /// </summary>
-  TDataEncoder = class abstract
+  TDataEncoder = class abstract(TInterfacedObject, IDataEncoder)
   public
     /// <summary>
     /// Check if the character is a space...
@@ -145,22 +174,56 @@ type
   /// </summary>
   TEncoders = class sealed
   strict private
-    class var FBase58: TBase58Encoder;
-    class var FBase64: TBase64Encoder;
-    class var FHex: THexEncoder;
-    class var FSolana: TSolanaEncoder;
+    class var FBase58: IDataEncoder;
+    class var FBase64: IDataEncoder;
+    class var FHex: IDataEncoder;
+    class var FSolana: IDataEncoder;
   public
     /// <summary>
-    /// The encoders.
+    /// The encoders. Can be replaced with custom implementations.
     /// </summary>
-    class function Base58: TDataEncoder; static;
-    class function Base64: TDataEncoder; static;
-    class function Hex: TDataEncoder; static;
-    class function Solana: TDataEncoder; static;
+    class property Base58: IDataEncoder read FBase58 write FBase58;
+    class property Base64: IDataEncoder read FBase64 write FBase64;
+    class property Hex: IDataEncoder read FHex write FHex;
+    class property Solana: IDataEncoder read FSolana write FSolana;
 
     class constructor Create;
-    class destructor Destroy;
   end;
+
+// =============================================================================
+// Example: Providing a custom encoder implementation
+// =============================================================================
+//
+// To use a custom encoder, create a class implementing IDataEncoder and assign
+// it to the appropriate TEncoders property:
+//
+//   type
+//     TMyCustomBase58Encoder = class(TInterfacedObject, IDataEncoder)
+//     public
+//       function EncodeData(const data: TBytes): string; overload;
+//       function EncodeData(const data: TBytes; offset, count: Integer): string; overload;
+//       function DecodeData(const encoded: string): TBytes;
+//     end;
+//
+//   function TMyCustomBase58Encoder.EncodeData(const data: TBytes): string;
+//   begin
+//     Result := EncodeData(data, 0, Length(data));
+//   end;
+//
+//   function TMyCustomBase58Encoder.EncodeData(const data: TBytes; offset, count: Integer): string;
+//   begin
+//     // Custom encoding logic here
+//   end;
+//
+//   function TMyCustomBase58Encoder.DecodeData(const encoded: string): TBytes;
+//   begin
+//     // Custom decoding logic here
+//   end;
+//
+//   // At application startup:
+//   TEncoders.Base58 := TMyCustomBase58Encoder.Create;
+//
+// =============================================================================
 
 implementation
 
@@ -592,46 +655,6 @@ begin
   FBase64 := TBase64Encoder.Create;
   FHex := THexEncoder.Create;
   FSolana := TSolanaEncoder.Create;
-end;
-
-class destructor TEncoders.Destroy;
-begin
- if Assigned(FBase58) then
-   FBase58.Free;
- if Assigned(FBase64) then
-  FBase64.Free;
- if Assigned(FHex) then
-  FHex.Free;
- if Assigned(FSolana) then
-  FSolana.Free;
-end;
-
-class function TEncoders.Base58: TDataEncoder;
-begin
-  if FBase58 = nil then
-    FBase58 := TBase58Encoder.Create;
-  Result := FBase58;
-end;
-
-class function TEncoders.Base64: TDataEncoder;
-begin
-  if FBase64 = nil then
-    FBase64 := TBase64Encoder.Create;
-  Result := FBase64;
-end;
-
-class function TEncoders.Hex: TDataEncoder;
-begin
-  if FHex = nil then
-    FHex := THexEncoder.Create;
-  Result := FHex;
-end;
-
-class function TEncoders.Solana: TDataEncoder;
-begin
-  if FSolana = nil then
-    FSolana := TSolanaEncoder.Create;
-  Result := FSolana;
 end;
 
 end.
