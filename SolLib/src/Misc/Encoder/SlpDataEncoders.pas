@@ -54,6 +54,13 @@ type
     /// <param name="encoded">The data to decode.</param>
     /// <returns>The decoded data.</returns>
     function DecodeData(const encoded: string): TBytes;
+
+    /// <summary>
+    /// Check if the encoded string is valid for this encoding.
+    /// </summary>
+    /// <param name="encoded">The encoded string to validate.</param>
+    /// <returns>True if valid, false otherwise.</returns>
+    function IsValid(const encoded: string): Boolean;
   end;
 
   /// <summary>
@@ -95,6 +102,13 @@ type
     /// <param name="encoded">The data to decode.</param>
     /// <returns>The decoded data.</returns>
     function DecodeData(const encoded: string): TBytes; virtual; abstract;
+
+    /// <summary>
+    /// Check if the encoded string is valid for this encoding.
+    /// </summary>
+    /// <param name="encoded">The encoded string to validate.</param>
+    /// <returns>True if valid, false otherwise.</returns>
+    function IsValid(const encoded: string): Boolean; virtual; abstract;
   end;
 
   /// <summary>
@@ -109,16 +123,14 @@ type
     /// </summary>
     const PszBase58: string = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
-    /// <summary>
-    ///
-    /// </summary>
-    class function IsValidWithoutWhitespace(const Value: string): Boolean; static;
-
     /// <inheritdoc />
     function EncodeData(const data: TBytes; offset, count: Integer): string; override;
 
     /// <inheritdoc />
     function DecodeData(const encoded: string): TBytes; override;
+
+    /// <inheritdoc />
+    function IsValid(const encoded: string): Boolean; override;
   end;
 
   /// <summary>
@@ -126,13 +138,16 @@ type
   /// </summary>
   TBase64Encoder = class sealed(TDataEncoder)
   private
-    procedure ValidateBase64Strict(const S: string);
+    function ValidateBase64Strict(const S: string): Boolean;
   public
     /// <inheritdoc />
     function EncodeData(const data: TBytes; offset, count: Integer): string; override;
 
     /// <inheritdoc />
     function DecodeData(const encoded: string): TBytes; override;
+
+    /// <inheritdoc />
+    function IsValid(const encoded: string): Boolean; override;
   end;
 
   /// <summary>
@@ -145,12 +160,20 @@ type
 
     /// <inheritdoc />
     function DecodeData(const encoded: string): TBytes; override;
+
+    /// <inheritdoc />
+    function IsValid(const encoded: string): Boolean; override;
   end;
 
   /// <summary>
   /// Implements the original solana-keygen encoder.
   /// </summary>
   TSolanaEncoder = class sealed(TDataEncoder)
+  private
+    /// <summary>
+    /// Shared parsing logic for DecodeData and IsValid.
+    /// </summary>
+    function TryParse(const encoded: string; out Bytes: TBytes): Boolean;
   public
     /// <summary>
     /// Formats a byte array into a string in order to be compatible with the original solana-keygen made in rust.
@@ -167,6 +190,9 @@ type
     /// <param name="encoded">The string to be formatted.</param>
     /// <returns>A formatted byte array.</returns>
     function DecodeData(const encoded: string): TBytes; override;
+
+    /// <inheritdoc />
+    function IsValid(const encoded: string): Boolean; override;
   end;
 
   /// <summary>
@@ -203,6 +229,7 @@ type
 //       function EncodeData(const data: TBytes): string; overload;
 //       function EncodeData(const data: TBytes; offset, count: Integer): string; overload;
 //       function DecodeData(const encoded: string): TBytes;
+//       function IsValid(const encoded: string): Boolean;
 //     end;
 //
 //   function TMyCustomBase58Encoder.EncodeData(const data: TBytes): string;
@@ -218,6 +245,11 @@ type
 //   function TMyCustomBase58Encoder.DecodeData(const encoded: string): TBytes;
 //   begin
 //     // Custom decoding logic here
+//   end;
+//
+//   function TMyCustomBase58Encoder.IsValid(const encoded: string): Boolean;
+//   begin
+//     // Custom validation logic here
 //   end;
 //
 //   // At application startup:
@@ -431,16 +463,16 @@ begin
   end;
 end;
 
-class function TBase58Encoder.IsValidWithoutWhitespace(const Value: string): Boolean;
+function TBase58Encoder.IsValid(const encoded: string): Boolean;
 var
   i: Integer;
   c: Char;
 begin
-  if Value = '' then
+  if encoded = '' then
     Exit(False);
-  for i := 1 to Value.Length do
+  for i := 1 to encoded.Length do
   begin
-    c := Value[i];
+    c := encoded[i];
 
     // reject whitespace and any char not in Base58 map
     if TDataEncoder.IsSpace(c) or (MapBase58[Ord(c) and $FF] = -1) then
@@ -451,7 +483,7 @@ end;
 
 { TBase64Encoder }
 
-procedure TBase64Encoder.ValidateBase64Strict(const S: string);
+function TBase64Encoder.ValidateBase64Strict(const S: string): Boolean;
 
 function IsB64Char(const Ch: Char): Boolean; inline;
 begin
@@ -467,16 +499,16 @@ var
 begin
   L := Length(S);
   if L = 0 then
-    raise Exception.Create('Empty string is not valid Base64.');
+    Exit(False);
 
   // no whitespace or control chars
   for I := 1 to L do
     if S[I] <= #32 then
-      raise Exception.CreateFmt('Whitespace not allowed in strict Base64 (pos %d).', [I]);
+      Exit(False);
 
   // total length must be a multiple of 4 (including padding)
   if (L and 3) <> 0 then
-    raise Exception.CreateFmt('Length %d is not a multiple of 4.', [L]);
+    Exit(False);
 
   // locate first '=' (padding), if any
   EqPos := Pos('=', S);
@@ -485,30 +517,37 @@ begin
     // no padding at all: every char must be a Base64 alphabet char
     for I := 1 to L do
       if not IsB64Char(S[I]) then
-        raise Exception.CreateFmt('Invalid Base64 character "%s" at position %d.', [S[I], I]);
+        Exit(False);
   end
   else
   begin
     // ensure all chars before '=' are valid Base64
     for I := 1 to EqPos - 1 do
       if not IsB64Char(S[I]) then
-        raise Exception.CreateFmt('Invalid Base64 character "%s" at position %d.', [S[I], I]);
+        Exit(False);
 
     // only '=' allowed from first '=' to the end; length of padding must be 1 or 2
     PadCount := L - EqPos + 1;
     if (PadCount <> 1) and (PadCount <> 2) then
-      raise Exception.CreateFmt('Invalid padding length: %d (must be 1 or 2).', [PadCount]);
+      Exit(False);
 
     for I := EqPos to L do
       if S[I] <> '=' then
-        raise Exception.CreateFmt('Padding "=" expected at position %d.', [I]);
+        Exit(False);
   end;
+  Result := True;
 end;
 
 function TBase64Encoder.DecodeData(const encoded: string): TBytes;
 begin
-  ValidateBase64Strict(encoded);
+  if not ValidateBase64Strict(encoded) then
+    raise Exception.Create('Invalid Base64 data');
   Result := TNetEncoding.Base64.DecodeStringToBytes(encoded);
+end;
+
+function TBase64Encoder.IsValid(const encoded: string): Boolean;
+begin
+  Result := ValidateBase64Strict(encoded);
 end;
 
 function TBase64Encoder.EncodeData(const data: TBytes; offset, count: Integer): string;
@@ -583,6 +622,27 @@ begin
   end;
 end;
 
+function THexEncoder.IsValid(const encoded: string): Boolean;
+var
+  len, i: Integer;
+  c: Char;
+begin
+  len := Length(encoded);
+  if (len = 0) or ((len mod 2) <> 0) then
+    Exit(False);
+
+  for i := 1 to len do
+  begin
+    c := encoded[i];
+    case c of
+      '0'..'9', 'A'..'F', 'a'..'f': ; // valid
+    else
+      Exit(False);
+    end;
+  end;
+  Result := True;
+end;
+
 { TSolanaEncoder }
 
 function TSolanaEncoder.EncodeData(const data: TBytes; offset, count: Integer): string;
@@ -612,18 +672,20 @@ begin
   end;
 end;
 
-function TSolanaEncoder.DecodeData(const encoded: string): TBytes;
+function TSolanaEncoder.TryParse(const encoded: string; out Bytes: TBytes): Boolean;
 var
   cleanStr, numStr: string;
   list: TStringList;
-  i: Integer;
+  i, val: Integer;
 begin
+  SetLength(Bytes, 0);
+
   if encoded = '' then
-    raise EArgumentException.Create('encoded');
+    Exit(False);
 
   cleanStr := Trim(encoded);
   if (Length(cleanStr) < 2) or (cleanStr[1] <> '[') or (cleanStr[High(cleanStr)] <> ']') then
-    raise EArgumentException.Create('Invalid format for encoded string');
+    Exit(False);
 
   cleanStr := Copy(cleanStr, 2, Length(cleanStr) - 2); // remove [ and ]
 
@@ -634,17 +696,35 @@ begin
     list.DelimitedText := cleanStr;
 
     if list.Count <> 64 then
-      raise EArgumentException.Create('Invalid string for conversion, expected 64 bytes');
+      Exit(False);
 
-    SetLength(Result, list.Count);
+    SetLength(Bytes, list.Count);
     for i := 0 to list.Count - 1 do
     begin
       numStr := Trim(list[i]);
-      Result[i] := StrToInt(numStr);
+      if not TryStrToInt(numStr, val) then
+        Exit(False);
+      if (val < 0) or (val > 255) then
+        Exit(False);
+      Bytes[i] := Byte(val);
     end;
+    Result := True;
   finally
     list.Free;
   end;
+end;
+
+function TSolanaEncoder.DecodeData(const encoded: string): TBytes;
+begin
+  if not TryParse(encoded, Result) then
+    raise EArgumentException.Create('Invalid Solana encoded string');
+end;
+
+function TSolanaEncoder.IsValid(const encoded: string): Boolean;
+var
+  Bytes: TBytes;
+begin
+  Result := TryParse(encoded, Bytes);
 end;
 
 { TEncoders }

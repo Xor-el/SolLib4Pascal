@@ -328,7 +328,7 @@ end;
 
 class function TPublicKey.FastCheck(const Value: string): Boolean;
 begin
-  Result := TBase58Encoder.IsValidWithoutWhitespace(Value);
+  Result := TEncoders.Base58.IsValid(Value);
 end;
 
 class function TPublicKey.TryCreateProgramAddress(const Seeds: TArray<TBytes>;
