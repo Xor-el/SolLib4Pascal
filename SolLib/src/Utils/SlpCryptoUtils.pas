@@ -158,7 +158,11 @@ type
     /// <summary>Verify a 64-byte signature using a 32-byte public key.</summary>
     class function Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean; static;
 
-    /// <summary>Check if a 32-byte public key is on the Ed25519 curve.</summary>
+    /// <summary>
+    /// Checks whether the PublicKey bytes are 'On The Curve'
+    /// </summary>
+    /// <param name="Key">PublicKey as byte array (32 bytes, little-endian y with x-sign bit in MSB).</param>
+    /// <returns>True if point lies on the ed25519 curve.</returns>
     class function IsOnCurve(const PublicKey32: TBytes): Boolean; static;
   end;
 

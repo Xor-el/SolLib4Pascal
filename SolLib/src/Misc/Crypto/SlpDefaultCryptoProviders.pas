@@ -115,6 +115,9 @@ type
     class var FQ, FQm2, FQp3, FD, FI, FUn, FTwo, FEight: TBigInteger;
     class constructor Create;
     class function GetEd25519Instance: IEd25519; static;
+    // SHA-512(seed) with RFC8032 clamping
+    // - First 32 bytes = clamped scalar
+    // - Next 32 bytes  = prefix
     class function GetExpandedPrivateKeyFromSeed(const Seed32: TBytes): TBytes; static;
     // IsOnCurve helpers
     class function ExpMod(const number, exponent, modulo: TBigInteger): TBigInteger; static;

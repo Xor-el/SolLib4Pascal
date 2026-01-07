@@ -22,18 +22,30 @@ unit SlpBinaryPrimitives;
 interface
 
 uses
-  System.SysUtils,
-  ClpConverters;
+  System.SysUtils;
 
 type
   TBinaryPrimitives = class
   private
     class procedure CheckBounds(const AData: TBytes; AOffset, ANeeded: Integer); static; inline;
 
-    class procedure ReadUInt16AsBytesLEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer); static; inline;
-    class procedure ReadUInt16AsBytesBEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer); static; inline;
-    class function ReadBytesAsUInt16LEInternal(const AData: TBytes; AOffset: Integer): UInt16; static; inline;
-    class function ReadBytesAsUInt16BEInternal(const AData: TBytes; AOffset: Integer): UInt16; static; inline;
+    // UInt16 helpers
+    class procedure WriteUInt16LEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer); static; inline;
+    class procedure WriteUInt16BEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer); static; inline;
+    class function ReadUInt16LEInternal(const AData: TBytes; AOffset: Integer): UInt16; static; inline;
+    class function ReadUInt16BEInternal(const AData: TBytes; AOffset: Integer): UInt16; static; inline;
+
+    // UInt32 helpers
+    class procedure WriteUInt32LEInternal(AValue: UInt32; const AData: TBytes; AOffset: Integer); static; inline;
+    class procedure WriteUInt32BEInternal(AValue: UInt32; const AData: TBytes; AOffset: Integer); static; inline;
+    class function ReadUInt32LEInternal(const AData: TBytes; AOffset: Integer): UInt32; static; inline;
+    class function ReadUInt32BEInternal(const AData: TBytes; AOffset: Integer): UInt32; static; inline;
+
+    // UInt64 helpers
+    class procedure WriteUInt64LEInternal(AValue: UInt64; const AData: TBytes; AOffset: Integer); static; inline;
+    class procedure WriteUInt64BEInternal(AValue: UInt64; const AData: TBytes; AOffset: Integer); static; inline;
+    class function ReadUInt64LEInternal(const AData: TBytes; AOffset: Integer): UInt64; static; inline;
+    class function ReadUInt64BEInternal(const AData: TBytes; AOffset: Integer): UInt64; static; inline;
 
   public
     class procedure WriteUInt16LittleEndian(const AData: TBytes; AOffset: Integer; AValue: UInt16); static;
@@ -91,66 +103,158 @@ begin
     raise EArgumentOutOfRangeException.Create('AOffset');
 end;
 
-class procedure TBinaryPrimitives.ReadUInt16AsBytesLEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer);
+// ============================================================================
+// UInt16 Internal Helpers
+// ============================================================================
+
+class procedure TBinaryPrimitives.WriteUInt16LEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer);
 begin
-  // Little endian: least significant byte first
-  AData[AOffset]     := Byte(AValue and $FF);
-  AData[AOffset + 1] := Byte((AValue shr 8) and $FF);
+  AData[AOffset]     := Byte(AValue);
+  AData[AOffset + 1] := Byte(AValue shr 8);
 end;
 
-class procedure TBinaryPrimitives.ReadUInt16AsBytesBEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer);
+class procedure TBinaryPrimitives.WriteUInt16BEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer);
 begin
-  // Big endian: most significant byte first
-  AData[AOffset]     := Byte((AValue shr 8) and $FF);
-  AData[AOffset + 1] := Byte(AValue and $FF);
+  AData[AOffset]     := Byte(AValue shr 8);
+  AData[AOffset + 1] := Byte(AValue);
 end;
 
-class function TBinaryPrimitives.ReadBytesAsUInt16LEInternal(const AData: TBytes; AOffset: Integer): UInt16;
+class function TBinaryPrimitives.ReadUInt16LEInternal(const AData: TBytes; AOffset: Integer): UInt16;
 begin
-  // Little endian: LSB first
   Result := UInt16(AData[AOffset]) or (UInt16(AData[AOffset + 1]) shl 8);
 end;
 
-class function TBinaryPrimitives.ReadBytesAsUInt16BEInternal(const AData: TBytes; AOffset: Integer): UInt16;
+class function TBinaryPrimitives.ReadUInt16BEInternal(const AData: TBytes; AOffset: Integer): UInt16;
 begin
-  // Big endian: MSB first
   Result := (UInt16(AData[AOffset]) shl 8) or UInt16(AData[AOffset + 1]);
 end;
+
+// ============================================================================
+// UInt32 Internal Helpers
+// ============================================================================
+
+class procedure TBinaryPrimitives.WriteUInt32LEInternal(AValue: UInt32; const AData: TBytes; AOffset: Integer);
+begin
+  AData[AOffset]     := Byte(AValue);
+  AData[AOffset + 1] := Byte(AValue shr 8);
+  AData[AOffset + 2] := Byte(AValue shr 16);
+  AData[AOffset + 3] := Byte(AValue shr 24);
+end;
+
+class procedure TBinaryPrimitives.WriteUInt32BEInternal(AValue: UInt32; const AData: TBytes; AOffset: Integer);
+begin
+  AData[AOffset]     := Byte(AValue shr 24);
+  AData[AOffset + 1] := Byte(AValue shr 16);
+  AData[AOffset + 2] := Byte(AValue shr 8);
+  AData[AOffset + 3] := Byte(AValue);
+end;
+
+class function TBinaryPrimitives.ReadUInt32LEInternal(const AData: TBytes; AOffset: Integer): UInt32;
+begin
+  Result := UInt32(AData[AOffset]) or
+            (UInt32(AData[AOffset + 1]) shl 8) or
+            (UInt32(AData[AOffset + 2]) shl 16) or
+            (UInt32(AData[AOffset + 3]) shl 24);
+end;
+
+class function TBinaryPrimitives.ReadUInt32BEInternal(const AData: TBytes; AOffset: Integer): UInt32;
+begin
+  Result := (UInt32(AData[AOffset]) shl 24) or
+            (UInt32(AData[AOffset + 1]) shl 16) or
+            (UInt32(AData[AOffset + 2]) shl 8) or
+            UInt32(AData[AOffset + 3]);
+end;
+
+// ============================================================================
+// UInt64 Internal Helpers
+// ============================================================================
+
+class procedure TBinaryPrimitives.WriteUInt64LEInternal(AValue: UInt64; const AData: TBytes; AOffset: Integer);
+begin
+  AData[AOffset]     := Byte(AValue);
+  AData[AOffset + 1] := Byte(AValue shr 8);
+  AData[AOffset + 2] := Byte(AValue shr 16);
+  AData[AOffset + 3] := Byte(AValue shr 24);
+  AData[AOffset + 4] := Byte(AValue shr 32);
+  AData[AOffset + 5] := Byte(AValue shr 40);
+  AData[AOffset + 6] := Byte(AValue shr 48);
+  AData[AOffset + 7] := Byte(AValue shr 56);
+end;
+
+class procedure TBinaryPrimitives.WriteUInt64BEInternal(AValue: UInt64; const AData: TBytes; AOffset: Integer);
+begin
+  AData[AOffset]     := Byte(AValue shr 56);
+  AData[AOffset + 1] := Byte(AValue shr 48);
+  AData[AOffset + 2] := Byte(AValue shr 40);
+  AData[AOffset + 3] := Byte(AValue shr 32);
+  AData[AOffset + 4] := Byte(AValue shr 24);
+  AData[AOffset + 5] := Byte(AValue shr 16);
+  AData[AOffset + 6] := Byte(AValue shr 8);
+  AData[AOffset + 7] := Byte(AValue);
+end;
+
+class function TBinaryPrimitives.ReadUInt64LEInternal(const AData: TBytes; AOffset: Integer): UInt64;
+begin
+  Result := UInt64(AData[AOffset]) or
+            (UInt64(AData[AOffset + 1]) shl 8) or
+            (UInt64(AData[AOffset + 2]) shl 16) or
+            (UInt64(AData[AOffset + 3]) shl 24) or
+            (UInt64(AData[AOffset + 4]) shl 32) or
+            (UInt64(AData[AOffset + 5]) shl 40) or
+            (UInt64(AData[AOffset + 6]) shl 48) or
+            (UInt64(AData[AOffset + 7]) shl 56);
+end;
+
+class function TBinaryPrimitives.ReadUInt64BEInternal(const AData: TBytes; AOffset: Integer): UInt64;
+begin
+  Result := (UInt64(AData[AOffset]) shl 56) or
+            (UInt64(AData[AOffset + 1]) shl 48) or
+            (UInt64(AData[AOffset + 2]) shl 40) or
+            (UInt64(AData[AOffset + 3]) shl 32) or
+            (UInt64(AData[AOffset + 4]) shl 24) or
+            (UInt64(AData[AOffset + 5]) shl 16) or
+            (UInt64(AData[AOffset + 6]) shl 8) or
+            UInt64(AData[AOffset + 7]);
+end;
+
+// ============================================================================
+// Public Write Methods - Little Endian
+// ============================================================================
 
 class procedure TBinaryPrimitives.WriteUInt16LittleEndian(const AData: TBytes; AOffset: Integer; AValue: UInt16);
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt16));
-  ReadUInt16AsBytesLEInternal(AValue, AData, AOffset);
+  WriteUInt16LEInternal(AValue, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteUInt32LittleEndian(const AData: TBytes; AOffset: Integer; AValue: UInt32);
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt32));
-  TConverters.ReadUInt32AsBytesLE(AValue, AData, AOffset);
+  WriteUInt32LEInternal(AValue, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteUInt64LittleEndian(const AData: TBytes; AOffset: Integer; AValue: UInt64);
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt64));
-  TConverters.ReadUInt64AsBytesLE(AValue, AData, AOffset);
+  WriteUInt64LEInternal(AValue, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteInt16LittleEndian(const AData: TBytes; AOffset: Integer; AValue: Int16);
 begin
   CheckBounds(AData, AOffset, SizeOf(Int16));
-  ReadUInt16AsBytesLEInternal(UInt16(AValue), AData, AOffset);
+  WriteUInt16LEInternal(UInt16(AValue), AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteInt32LittleEndian(const AData: TBytes; AOffset: Integer; AValue: Int32);
 begin
   CheckBounds(AData, AOffset, SizeOf(Int32));
-  TConverters.ReadUInt32AsBytesLE(UInt32(AValue), AData, AOffset);
+  WriteUInt32LEInternal(UInt32(AValue), AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteInt64LittleEndian(const AData: TBytes; AOffset: Integer; AValue: Int64);
 begin
   CheckBounds(AData, AOffset, SizeOf(Int64));
-  TConverters.ReadUInt64AsBytesLE(UInt64(AValue), AData, AOffset);
+  WriteUInt64LEInternal(UInt64(AValue), AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteSingleLittleEndian(const AData: TBytes; AOffset: Integer; AValue: Single);
@@ -159,7 +263,7 @@ var
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
   Move(AValue, bits, SizeOf(Single));
-  TConverters.ReadUInt32AsBytesLE(bits, AData, AOffset);
+  WriteUInt32LEInternal(bits, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteDoubleLittleEndian(const AData: TBytes; AOffset: Integer; AValue: Double);
@@ -168,43 +272,47 @@ var
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
   Move(AValue, bits, SizeOf(Double));
-  TConverters.ReadUInt64AsBytesLE(bits, AData, AOffset);
+  WriteUInt64LEInternal(bits, AData, AOffset);
 end;
+
+// ============================================================================
+// Public Write Methods - Big Endian
+// ============================================================================
 
 class procedure TBinaryPrimitives.WriteUInt16BigEndian(const AData: TBytes; AOffset: Integer; AValue: UInt16);
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt16));
-  ReadUInt16AsBytesBEInternal(AValue, AData, AOffset);
+  WriteUInt16BEInternal(AValue, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteUInt32BigEndian(const AData: TBytes; AOffset: Integer; AValue: UInt32);
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt32));
-  TConverters.ReadUInt32AsBytesBE(AValue, AData, AOffset);
+  WriteUInt32BEInternal(AValue, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteUInt64BigEndian(const AData: TBytes; AOffset: Integer; AValue: UInt64);
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt64));
-  TConverters.ReadUInt64AsBytesBE(AValue, AData, AOffset);
+  WriteUInt64BEInternal(AValue, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteInt16BigEndian(const AData: TBytes; AOffset: Integer; AValue: Int16);
 begin
   CheckBounds(AData, AOffset, SizeOf(Int16));
-  ReadUInt16AsBytesBEInternal(UInt16(AValue), AData, AOffset);
+  WriteUInt16BEInternal(UInt16(AValue), AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteInt32BigEndian(const AData: TBytes; AOffset: Integer; AValue: Int32);
 begin
   CheckBounds(AData, AOffset, SizeOf(Int32));
-  TConverters.ReadUInt32AsBytesBE(UInt32(AValue), AData, AOffset);
+  WriteUInt32BEInternal(UInt32(AValue), AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteInt64BigEndian(const AData: TBytes; AOffset: Integer; AValue: Int64);
 begin
   CheckBounds(AData, AOffset, SizeOf(Int64));
-  TConverters.ReadUInt64AsBytesBE(UInt64(AValue), AData, AOffset);
+  WriteUInt64BEInternal(UInt64(AValue), AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteSingleBigEndian(const AData: TBytes; AOffset: Integer; AValue: Single);
@@ -213,7 +321,7 @@ var
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
   Move(AValue, bits, SizeOf(Single));
-  TConverters.ReadUInt32AsBytesBE(bits, AData, AOffset);
+  WriteUInt32BEInternal(bits, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteDoubleBigEndian(const AData: TBytes; AOffset: Integer; AValue: Double);
@@ -222,43 +330,47 @@ var
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
   Move(AValue, bits, SizeOf(Double));
-  TConverters.ReadUInt64AsBytesBE(bits, AData, AOffset);
+  WriteUInt64BEInternal(bits, AData, AOffset);
 end;
+
+// ============================================================================
+// Public Read Methods - Little Endian
+// ============================================================================
 
 class function TBinaryPrimitives.ReadUInt16LittleEndian(const AData: TBytes; AOffset: Integer): UInt16;
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt16));
-  Result := ReadBytesAsUInt16LEInternal(AData, AOffset);
+  Result := ReadUInt16LEInternal(AData, AOffset);
 end;
 
 class function TBinaryPrimitives.ReadUInt32LittleEndian(const AData: TBytes; AOffset: Integer): UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt32));
-  Result := TConverters.ReadBytesAsUInt32LE(PByte(AData), AOffset);
+  Result := ReadUInt32LEInternal(AData, AOffset);
 end;
 
 class function TBinaryPrimitives.ReadUInt64LittleEndian(const AData: TBytes; AOffset: Integer): UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt64));
-  Result := TConverters.ReadBytesAsUInt64LE(PByte(AData), AOffset);
+  Result := ReadUInt64LEInternal(AData, AOffset);
 end;
 
 class function TBinaryPrimitives.ReadInt16LittleEndian(const AData: TBytes; AOffset: Integer): Int16;
 begin
   CheckBounds(AData, AOffset, SizeOf(Int16));
-  Result := Int16(ReadBytesAsUInt16LEInternal(AData, AOffset));
+  Result := Int16(ReadUInt16LEInternal(AData, AOffset));
 end;
 
 class function TBinaryPrimitives.ReadInt32LittleEndian(const AData: TBytes; AOffset: Integer): Int32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Int32));
-  Result := Int32(TConverters.ReadBytesAsUInt32LE(PByte(AData), AOffset));
+  Result := Int32(ReadUInt32LEInternal(AData, AOffset));
 end;
 
 class function TBinaryPrimitives.ReadInt64LittleEndian(const AData: TBytes; AOffset: Integer): Int64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Int64));
-  Result := Int64(TConverters.ReadBytesAsUInt64LE(PByte(AData), AOffset));
+  Result := Int64(ReadUInt64LEInternal(AData, AOffset));
 end;
 
 class function TBinaryPrimitives.ReadSingleLittleEndian(const AData: TBytes; AOffset: Integer): Single;
@@ -266,7 +378,7 @@ var
   bits: UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
-  bits := TConverters.ReadBytesAsUInt32LE(PByte(AData), AOffset);
+  bits := ReadUInt32LEInternal(AData, AOffset);
   Move(bits, Result, SizeOf(Single));
 end;
 
@@ -275,44 +387,48 @@ var
   bits: UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
-  bits := TConverters.ReadBytesAsUInt64LE(PByte(AData), AOffset);
+  bits := ReadUInt64LEInternal(AData, AOffset);
   Move(bits, Result, SizeOf(Double));
 end;
+
+// ============================================================================
+// Public Read Methods - Big Endian
+// ============================================================================
 
 class function TBinaryPrimitives.ReadUInt16BigEndian(const AData: TBytes; AOffset: Integer): UInt16;
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt16));
-  Result := ReadBytesAsUInt16BEInternal(AData, AOffset);
+  Result := ReadUInt16BEInternal(AData, AOffset);
 end;
 
 class function TBinaryPrimitives.ReadUInt32BigEndian(const AData: TBytes; AOffset: Integer): UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt32));
-  Result := TConverters.ReadBytesAsUInt32BE(PByte(AData), AOffset);
+  Result := ReadUInt32BEInternal(AData, AOffset);
 end;
 
 class function TBinaryPrimitives.ReadUInt64BigEndian(const AData: TBytes; AOffset: Integer): UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(UInt64));
-  Result := TConverters.ReadBytesAsUInt64BE(PByte(AData), AOffset);
+  Result := ReadUInt64BEInternal(AData, AOffset);
 end;
 
 class function TBinaryPrimitives.ReadInt16BigEndian(const AData: TBytes; AOffset: Integer): Int16;
 begin
   CheckBounds(AData, AOffset, SizeOf(Int16));
-  Result := Int16(ReadBytesAsUInt16BEInternal(AData, AOffset));
+  Result := Int16(ReadUInt16BEInternal(AData, AOffset));
 end;
 
 class function TBinaryPrimitives.ReadInt32BigEndian(const AData: TBytes; AOffset: Integer): Int32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Int32));
-  Result := Int32(TConverters.ReadBytesAsUInt32BE(PByte(AData), AOffset));
+  Result := Int32(ReadUInt32BEInternal(AData, AOffset));
 end;
 
 class function TBinaryPrimitives.ReadInt64BigEndian(const AData: TBytes; AOffset: Integer): Int64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Int64));
-  Result := Int64(TConverters.ReadBytesAsUInt64BE(PByte(AData), AOffset));
+  Result := Int64(ReadUInt64BEInternal(AData, AOffset));
 end;
 
 class function TBinaryPrimitives.ReadSingleBigEndian(const AData: TBytes; AOffset: Integer): Single;
@@ -320,7 +436,7 @@ var
   bits: UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
-  bits := TConverters.ReadBytesAsUInt32BE(PByte(AData), AOffset);
+  bits := ReadUInt32BEInternal(AData, AOffset);
   Move(bits, Result, SizeOf(Single));
 end;
 
@@ -329,7 +445,7 @@ var
   bits: UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
-  bits := TConverters.ReadBytesAsUInt64BE(PByte(AData), AOffset);
+  bits := ReadUInt64BEInternal(AData, AOffset);
   Move(bits, Result, SizeOf(Double));
 end;
 
