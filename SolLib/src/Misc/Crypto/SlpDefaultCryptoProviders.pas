@@ -55,7 +55,7 @@ uses
 
 type
   /// <summary>
-  /// Default hash provider using CryptoLib4Pascal.
+  /// Default Hash provider using CryptoLib4Pascal.
   /// </summary>
   TDefaultHashProvider = class(TInterfacedObject, IHashProvider)
   public
@@ -84,7 +84,7 @@ type
   end;
 
   /// <summary>
-  /// Default cipher provider using CryptoLib4Pascal.
+  /// Default Cipher provider using CryptoLib4Pascal.
   /// </summary>
   TDefaultCipherProvider = class(TInterfacedObject, ICipherProvider)
   private
@@ -95,7 +95,7 @@ type
   end;
 
   /// <summary>
-  /// Default random provider using CryptoLib4Pascal.
+  /// Default Random provider using CryptoLib4Pascal.
   /// </summary>
   TDefaultRandomProvider = class(TInterfacedObject, IRandomProvider)
   strict private

@@ -311,7 +311,7 @@ end;
 
 function TBase58Encoder.EncodeData(const data: TBytes; offset, count: Integer): string;
 var
-  zeroes, length, size: Integer;
+  zeroes, workingLength, size: Integer;
   b58: TBytes;
   carry, i, it: Integer;
   it2, i2: Integer;
@@ -320,7 +320,7 @@ begin
   if data = nil then
     raise EArgumentNilException.Create('data');
 
-  if (offset < 0) or (count < 0) or (offset > count) or (count > System.Length(data)) then
+  if (offset < 0) or (count < 0) or (offset > count) or (count > Length(data)) then
     raise ERangeError.Create('Invalid offset/count');
 
   zeroes := 0;
@@ -335,7 +335,7 @@ begin
   size := (count - offset) * 138 div 100 + 1;
   SetLength(b58, size);
 
-  length := 0;
+  workingLength := 0;
   while offset <> count do
   begin
     carry := data[offset];
@@ -344,24 +344,24 @@ begin
     // Apply "b58 = b58 * 256 + ch".
     for it := size - 1 downto 0 do
     begin
-      if (carry <> 0) or (i < length) then
+      if (carry <> 0) or (i < workingLength) then
       begin
         carry := carry + 256 * b58[it];
         b58[it] := Byte(carry mod 58);
         carry := carry div 58;
         Inc(i);
       end;
-      if (carry = 0) and (i >= length) then
+      if (carry = 0) and (i >= workingLength) then
         if it < (size - 1) then
           Break;
     end;
 
-    length := i;
+    workingLength := i;
     Inc(offset);
   end;
 
   // Skip leading zeroes in
-  it2 := (size - length);
+  it2 := (size - workingLength);
   while (it2 <> size) and (b58[it2] = 0) do
     Inc(it2);
 

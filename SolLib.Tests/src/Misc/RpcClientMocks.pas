@@ -666,7 +666,7 @@ var
   CopyB: TBytes;
 begin
   // capture outbound binary (store a copy for safety)
-  CopyB := System.Copy(AData, 0, Length(AData));
+  CopyB := Copy(AData, 0, Length(AData));
   FSentBinary.Add(CopyB);
 end;
 
@@ -686,7 +686,7 @@ var
 begin
   F.Kind := Binary;
   F.Text := '';
-  F.Data := System.Copy(AData, 0, Length(AData));
+  F.Data := Copy(AData, 0, Length(AData));
   FInboundQ.Enqueue(F);
 end;
 
@@ -727,7 +727,7 @@ function TMockWebSocketApiClient.LastSentBinary: TBytes;
 begin
   if FSentBinary.Count = 0 then
     Exit(nil);
-  Result := System.Copy(FSentBinary[FSentBinary.Count - 1], 0,
+  Result := Copy(FSentBinary[FSentBinary.Count - 1], 0,
                         Length(FSentBinary[FSentBinary.Count - 1]));
 end;
 
@@ -738,7 +738,7 @@ end;
 
 function TMockWebSocketApiClient.SentBinaryAt(Index: Integer): TBytes;
 begin
-  Result := System.Copy(FSentBinary[Index], 0, Length(FSentBinary[Index]));
+  Result := Copy(FSentBinary[Index], 0, Length(FSentBinary[Index]));
 end;
 
 procedure TMockWebSocketApiClient.DoConnectCallback;

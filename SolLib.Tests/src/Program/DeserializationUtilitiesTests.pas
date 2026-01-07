@@ -26,7 +26,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  ClpBigInteger,
   SlpDeserialization,
   SlpSerialization,
   SlpPublicKey,
@@ -37,25 +36,9 @@ type
   TDeserializationUtilitiesTests = class(TSolLibProgramTestCase)
   private
     class function PublicKeyBytes: TBytes; static;
-    class function BigIntBytes: TBytes; static;
     class function DoubleBytes: TBytes; static;
     class function SingleBytes: TBytes; static;
     class function EncodedStringBytes: TBytes; static;
-
-    class function OneNegBytes: TBytes; static;
-    class function OneBytes: TBytes; static;
-    class function OneNegBEBytes: TBytes; static;
-    class function OneBEBytes: TBytes; static;
-
-    class function ZeroValueBytes: TBytes; static;
-    class function NegValueBytes: TBytes; static;
-    class function PosValueBytes: TBytes; static;
-
-    class function LowNegValueBytes: TBytes; static;
-    class function HighPosValueBytes: TBytes; static;
-
-    class function LowNegValueBEBytes: TBytes; static;
-    class function HighPosValueBEBytes: TBytes; static;
 
   published
     procedure TestReadU8Exception;
@@ -88,12 +71,6 @@ type
     procedure TestReadPublicKeyException;
     procedure TestReadPublicKey;
 
-    procedure TestReadBigIntegerException;
-    procedure TestReadBigInteger;
-
-    procedure TestReadArbitraryBigEndianBigIntegers;
-    procedure TestReadArbitraryLittleEndianBigIntegers;
-
     procedure TestReadDoubleException;
     procedure TestReadDouble;
 
@@ -102,8 +79,6 @@ type
 
     procedure TestReadRustStringException;
     procedure TestReadRustString;
-
-    procedure TestBigIntSerDes;
   end;
 
 implementation
@@ -116,14 +91,6 @@ begin
     6,221,246,225,215,101,161,147,217,203,
     225,70,206,235,121,172,28,180,133,237,
     95,91,55,145,58,140,245,133,126,255,0,169
-  );
-end;
-
-class function TDeserializationUtilitiesTests.BigIntBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    153,153,153,153,153,153,153,153,
-    153,153,153,153,153,153,153,25
   );
 end;
 
@@ -145,83 +112,6 @@ begin
   Result := TBytes.Create(
     21,0,0,0,0,0,0,0,
     116,104,105,115,32,105,115,32,97,32,116,101,115,116,32,115,116,114,105,110,103
-  );
-end;
-
-class function TDeserializationUtilitiesTests.OneNegBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
-  );
-end;
-
-class function TDeserializationUtilitiesTests.OneBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-  );
-end;
-
-class function TDeserializationUtilitiesTests.OneNegBEBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255
-  );
-end;
-
-class function TDeserializationUtilitiesTests.OneBEBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
-  );
-end;
-
-class function TDeserializationUtilitiesTests.ZeroValueBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-  );
-end;
-
-class function TDeserializationUtilitiesTests.NegValueBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    0,0,0,0,0,0,255,255,255,255,255,255,255,255,255,255
-  );
-end;
-
-class function TDeserializationUtilitiesTests.PosValueBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
-  );
-end;
-
-class function TDeserializationUtilitiesTests.LowNegValueBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    0,0,0,0,0,0,0,0,0,0,0,0,0,255,255,255
-  );
-end;
-
-class function TDeserializationUtilitiesTests.HighPosValueBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
-  );
-end;
-
-class function TDeserializationUtilitiesTests.LowNegValueBEBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-  );
-end;
-
-class function TDeserializationUtilitiesTests.HighPosValueBEBytes: TBytes;
-begin
-  Result := TBytes.Create(
-    0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0
   );
 end;
 
@@ -464,136 +354,6 @@ begin
   AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', Pub.Key, 'GetPubKey');
 end;
 
-procedure TDeserializationUtilitiesTests.TestReadBigIntegerException;
-var
-  B: TBytes;
-begin
-  B := BigIntBytes;
-  AssertException(
-    procedure
-    begin
-      TDeserialization.GetBigInt(B, 1, 16);
-    end,
-    EArgumentOutOfRangeException
-  );
-end;
-
-procedure TDeserializationUtilitiesTests.TestReadBigInteger;
-var
-  B, BE: TBytes;
-  Expected, Actual: TBigInteger;
-begin
-  B := BigIntBytes;
-    // NOTE: Our TBigInteger expects BIG-ENDIAN. The bytes are coming as as LITTLE-ENDIAN two's complement.
-   // we reverse the LE fixture to BE before constructing TBigInteger.
-  BE := TArrayUtils.Reverse<Byte>(B);
-  Expected := TBigInteger.Create(BE);
-  Actual := TDeserialization.GetBigInt(B, 0, 16); // default: little-endian
-  AssertTrue(Expected.Equals(Actual), 'GetBigInt basic (LE bytes) mismatch');
-end;
-
-procedure TDeserializationUtilitiesTests.TestReadArbitraryBigEndianBigIntegers;
-var
-  HighPosBE, LowNegBE, OneBE, OneNegBE: TBytes;
-  Actual, BI: TBigInteger;
-begin
-  HighPosBE := HighPosValueBEBytes;
-  LowNegBE  := LowNegValueBEBytes;
-  OneBE     := OneBEBytes;
-  OneNegBE  := OneNegBEBytes;
-
-  // signed big-endian
-  Actual := TBigInteger.Create(HighPosBE);
-  BI := TDeserialization.GetBigInt(HighPosBE, 0, 16, False, True);
-  AssertTrue(Actual.Equals(BI), 'BE high positive (signed)');
-  AssertTrue(BI.Equals(TBigInteger.Create('20282409603651670423947251286016')), 'BE high positive value');
-
-  // unsigned big-endian
-  Actual := TBigInteger.Create(1, HighPosBE); // signum=+1, magnitude (BE)
-  BI := TDeserialization.GetBigInt(HighPosBE, 0, 16, True, True);
-  AssertTrue(Actual.Equals(BI), 'BE high positive (unsigned)');
-  AssertTrue(BI.Equals(TBigInteger.Create('20282409603651670423947251286016')), 'BE high positive unsigned value');
-
-  // signed big-endian negative
-  BI := TDeserialization.GetBigInt(LowNegBE, 0, 16, False, True);
-  AssertTrue(BI.Equals(TBigInteger.Create('-20282409603651670423947251286016')), 'BE low negative value');
-
-  // +1 (signed BE)
-  Actual := TBigInteger.Create(OneBE);
-  BI := TDeserialization.GetBigInt(OneBE, 0, 16, False, True);
-  AssertTrue(Actual.Equals(BI), 'BE +1 (signed)');
-  AssertTrue(BI.Equals(TBigInteger.One), 'BE +1 value');
-
-  // -1 (all 0xFF, signed BE)
-  Actual := TBigInteger.Create(OneNegBE);
-  BI := TDeserialization.GetBigInt(OneNegBE, 0, 16, False, True);
-  AssertTrue(Actual.Equals(BI), 'BE -1 (signed)');
-  AssertTrue(BI.Equals(TBigInteger.ValueOf(-1)), 'BE -1 value');
-end;
-
-procedure TDeserializationUtilitiesTests.TestReadArbitraryLittleEndianBigIntegers;
-var
-  ZeroLE, PosLE, NegLE, LowNegLE, HighPosLE, OneLE, OneNegLE: TBytes;
-  Actual, BI: TBigInteger;
-begin
-  ZeroLE    := ZeroValueBytes;
-  PosLE     := PosValueBytes;
-  NegLE     := NegValueBytes;
-  LowNegLE  := LowNegValueBytes;
-  HighPosLE := HighPosValueBytes;
-  OneLE     := OneBytes;
-  OneNegLE  := OneNegBytes;
-
-  // NOTE: Our TBigInteger expects BIG-ENDIAN. The bytes are coming as as LITTLE-ENDIAN two's complement.
-  // we reverse the LE fixture to BE before constructing TBigInteger.
-
-  // 0
-  Actual := TBigInteger.Create(TArrayUtils.Reverse<Byte>(ZeroLE));
-  BI := TDeserialization.GetBigInt(ZeroLE, 0, 16); // default: LE signed
-  AssertTrue(Actual.Equals(BI), 'LE zero equality');
-  AssertTrue(BI.Equals(TBigInteger.Zero), 'LE zero value');
-
-  // +2^48 = 281474976710656
-  Actual := TBigInteger.Create(TArrayUtils.Reverse<Byte>(PosLE));
-  BI := TDeserialization.GetBigInt(PosLE, 0, 16);
-  AssertTrue(Actual.Equals(BI), 'LE +2^48 equality');
-  AssertTrue(BI.Equals(TBigInteger.Create('281474976710656')), 'LE +2^48 value');
-
-  // -2^48 = -281474976710656
-  BI := TDeserialization.GetBigInt(NegLE, 0, 16);
-  AssertTrue(BI.Equals(TBigInteger.Create('-281474976710656')), 'LE -2^48 value');
-
-  // large positive (signed LE)
-  Actual := TBigInteger.Create(TArrayUtils.Reverse<Byte>(HighPosLE));
-  BI := TDeserialization.GetBigInt(HighPosLE, 0, 16);
-  AssertTrue(Actual.Equals(BI), 'LE large + (signed) equality');
-  AssertTrue(BI.Equals(TBigInteger.Create('20282409603651670423947251286016')), 'LE large + (signed) value');
-
-  // large positive (unsigned LE)
-  Actual := TBigInteger.Create(1, TArrayUtils.Reverse<Byte>(HighPosLE)); // signum=+1, magnitude (BE)
-  BI := TDeserialization.GetBigInt(HighPosLE, 0, 16, True);
-  AssertTrue(Actual.Equals(BI), 'LE large + (unsigned) equality');
-  AssertTrue(BI.Equals(TBigInteger.Create('20282409603651670423947251286016')), 'LE large + (unsigned) value');
-
-  // large negative (signed LE)
-  BI := TDeserialization.GetBigInt(LowNegLE, 0, 16);
-  AssertTrue(BI.Equals(TBigInteger.Create('-20282409603651670423947251286016')), 'LE large - (signed) value');
-
-  // +1
-  Actual := TBigInteger.Create(TArrayUtils.Reverse<Byte>(OneLE));
-  BI := TDeserialization.GetBigInt(OneLE, 0, 16);
-  AssertTrue(Actual.Equals(BI), 'LE +1 equality');
-  AssertTrue(BI.Equals(TBigInteger.One), 'LE +1 value');
-
-  // -1
-  Actual := TBigInteger.Create(TArrayUtils.Reverse<Byte>(OneNegLE));
-  BI := TDeserialization.GetBigInt(OneNegLE, 0, 16);
-  AssertTrue(Actual.Equals(BI), 'LE -1 equality');
-  AssertTrue(BI.Equals(TBigInteger.ValueOf(-1)), 'LE -1 value');
-end;
-
-
-
 procedure TDeserializationUtilitiesTests.TestReadDoubleException;
 var
   B: TBytes;
@@ -669,18 +429,6 @@ begin
   Dec := TDeserialization.DecodeBincodeString(Enc, 0);
   AssertEquals(Expected, Dec.EncodedString, 'DecodeBincodeString text');
   AssertEquals(ExpectedLen, Dec.Length, 'DecodeBincodeString length');
-end;
-
-procedure TDeserializationUtilitiesTests.TestBigIntSerDes;
-var
-  BI, BI2: TBigInteger;
-  Buf: TBytes;
-begin
-  BI := TBigInteger.ValueOf(Low(Int64));
-  SetLength(Buf, 16);
-  TSerialization.WriteBigInt(Buf, BI, 0, 16);
-  BI2 := TDeserialization.GetBigInt(Buf, 0, 16);
-  AssertTrue(BI.Equals(BI2), 'BigInt round-trip');
 end;
 
 initialization

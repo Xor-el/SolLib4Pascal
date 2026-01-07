@@ -26,7 +26,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  ClpBigInteger,
   SlpPublicKey,
   SlpSerialization,
   SolLibProgramTestCase;
@@ -72,10 +71,6 @@ type
 
     procedure TestWritePublicKeyException;
     procedure TestWritePublicKey;
-
-    procedure TestWriteBigIntegerException_OffsetRange;
-    procedure TestWriteBigIntegerException_TooBig;
-    procedure TestWriteBigInteger;
 
     procedure TestWriteDoubleException;
     procedure TestWriteDouble;
@@ -375,57 +370,6 @@ begin
   LPubKey := TPublicKey.Create(PublicKeyBytes);
   TSerialization.WritePubKey(SUT, LPubKey, 0);
   AssertEquals<Byte>(PublicKeyBytes, SUT, 'WritePubKey');
-end;
-
-procedure TSerializationUtilitiesTests.TestWriteBigIntegerException_OffsetRange;
-var
-  SUT: TBytes;
-  BI : TBigInteger;
-begin
-  SetLength(SUT, 16);
-  BI := TBigInteger.Create('15000000000000000000000000'); // 1.5e25
-  // offset=8, length=16 -> 8+16=24 > 16 => out-of-range
-  AssertException(
-    procedure
-    begin
-      TSerialization.WriteBigInt(SUT, BI, 8, 16, True, False);
-    end,
-    EArgumentOutOfRangeException
-  );
-end;
-
-procedure TSerializationUtilitiesTests.TestWriteBigIntegerException_TooBig;
-var
-  Buf: TBytes;
-  BI : TBigInteger;
-begin
-  SetLength(Buf, 10);
-  BI := TBigInteger.Create('34028236692093846346337460743176821145');
-  // 10 bytes too small for this magnitude
-  AssertException(
-    procedure
-    begin
-      TSerialization.WriteBigInt(Buf, BI, 0, 10, True, False);
-    end,
-    EArgumentOutOfRangeException
-  );
-end;
-
-procedure TSerializationUtilitiesTests.TestWriteBigInteger;
-var
-  SUT, Expected: TBytes;
-  Written: Integer;
-  BI : TBigInteger;
-begin
-  SetLength(SUT, 16);
-  BI := TBigInteger.Create('34028236692093846346337460743176821145');
-  Written := TSerialization.WriteBigInt(SUT, BI, 0, 16);
-  AssertEquals(16, Written, 'bytes written');
-
-  Expected := TBytes.Create(
-    153,153,153,153,153,153,153,153,153,153,153,153,153,153,153,25
-  );
-  AssertEquals<Byte>(Expected, SUT, 'WriteBigInt');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteDoubleException;

@@ -142,7 +142,7 @@ begin
     var
       LData: TBytes;
     begin
-      LData := System.Copy(AData, 0, Length(AData));
+      LData := Copy(AData, 0, Length(AData));
       try
         FConnectionStats.AddReceived(Length(LData));
         HandleNewMessage(LData);

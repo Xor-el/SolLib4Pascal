@@ -23,7 +23,6 @@ interface
 
 uses
   System.SysUtils,
-  ClpBigInteger,
   SlpArrayUtils,
   SlpPublicKey,
   SlpBinaryPrimitives;
@@ -141,21 +140,6 @@ type
     /// <param name="AOffset">The offset at which to write the <see cref="PublicKey"/>.</param>
     /// <exception cref="EArgumentOutOfRangeException">Thrown when the offset is too big for the data array.</exception>
     class procedure WritePubKey(var AData: TBytes; const APubKey: IPublicKey; AOffset: Integer); static;
-    /// <summary>
-    /// Write an arbitrarily long number to the byte array at the given offset, specifying it's length in bytes.
-    /// Optionally specify if it's signed and the endianness.
-    /// </summary>
-    /// <param name="AData">The byte array to write data to.</param>
-    /// <param name="AValue">The <see cref="BigInteger"/> to write.</param>
-    /// <param name="AOffset">The offset at which to write the <see cref="BigInteger"/>.</param>
-    /// <param name="ALength">The length in bytes.</param>
-    /// <param name="AIsUnsigned">Whether the value does not use signed encoding.</param>
-    /// <param name="AIsBigEndian">Whether the value is in big-endian byte order.</param>
-    /// <returns>An integer representing the number of bytes written to the byte array.</returns>
-    /// <exception cref="EArgumentOutOfRangeException">Thrown when the offset is too big for the data array.</exception>
-    class function WriteBigInt(var AData: TBytes; const AValue: TBigInteger;
-      AOffset, ALength: Integer; AIsUnsigned: Boolean = False;
-      AIsBigEndian: Boolean = False): Integer; static;
 
     /// <summary>
     /// Write a UTF8 string value to the byte array at the given offset.
@@ -270,56 +254,6 @@ begin
   LPubKeyBytes := APubKey.KeyBytes;
   CheckBounds(AData, AOffset, Length(LPubKeyBytes));
   TArrayUtils.Copy<Byte>(LPubKeyBytes, 0, AData, AOffset, Length(LPubKeyBytes));
-end;
-
-class function TSerialization.WriteBigInt(var AData: TBytes; const AValue: TBigInteger;
-  AOffset, ALength: Integer; AIsUnsigned: Boolean; AIsBigEndian: Boolean): Integer;
-var
-  Src     : TBytes;
-  I, ByteCnt, Written : Integer;
-begin
-  if AIsUnsigned then
-    Src := AValue.ToByteArrayUnsigned
-  else
-    Src := AValue.ToByteArray;
-
-  ByteCnt := Length(Src);
-
-  if ByteCnt > ALength then
-    raise EArgumentOutOfRangeException.Create('BigInt too big.');
-  if (AOffset + ALength) > Length(AData) then
-    raise EArgumentOutOfRangeException.Create('offset');
-
-  // Copy minimal bytes starting at AOffset in the requested endianness
-  if ByteCnt > 0 then
-  begin
-    if AIsBigEndian then
-    begin
-      // keep big-endian order
-      TArrayUtils.Copy<Byte>(Src, 0, AData, AOffset, ByteCnt);
-    end
-    else
-    begin
-      // little-endian: reverse while copying
-      for I := 0 to ByteCnt - 1 do
-        AData[AOffset + I] := Src[ByteCnt - 1 - I];
-    end;
-  end;
-
-  Written := ByteCnt;
-
-  // If signed and negative, pad remaining up to ALength with 0xFF (two's-complement sign extension)
-  if (not AIsUnsigned) and (AValue.SignValue < 0) then
-  begin
-    I := Written;
-    while I < ALength do
-    begin
-      AData[AOffset + I] := $FF;
-      Inc(I);
-    end;
-  end;
-
-  Result := Written;
 end;
 
 class function TSerialization.WriteBorshString(var AData: TBytes; const AValue: String; AOffset: Integer): Integer;

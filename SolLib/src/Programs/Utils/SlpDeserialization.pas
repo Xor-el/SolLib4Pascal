@@ -23,7 +23,6 @@ interface
 
 uses
   System.SysUtils,
-  ClpBigInteger,
   SlpBinaryPrimitives,
   SlpArrayUtils,
   SlpPublicKey;
@@ -48,26 +47,7 @@ type
     /// with parameter name "AOffset".
     /// </summary>
     class procedure CheckBounds(const AData: TBytes; AOffset, ANeedLen: Integer); static;
-    /// <summary>
-    ///   Safely constructs a signed <see cref="TBigInteger" /> from a big-endian
-    ///   two's-complement byte array.
-    /// </summary>
-    /// <param name="ABytes">
-    ///   The big-endian byte array representing the integer in two's-complement form.
-    /// </param>
-    /// <returns>
-    ///   A correctly signed <see cref="TBigInteger" />.
-    /// </returns>
-    /// <remarks>
-    ///   When a byte array begins with <c>$FF</c> and contains certain bit patterns,
-    ///   naive signed conversion routines can misinterpret the sign or read past
-    ///   valid bounds. This implementation avoids those issues by computing the
-    ///   two's-complement negation manually:
-    ///   it inverts all bits, adds one to form the magnitude, and then negates
-    ///   the resulting value. This guarantees that all valid two's-complement
-    ///   sequences are interpreted correctly and safely.
-    /// </remarks>
-    class function CreateSignedBigIntegerSafe(const ABytes: TBytes): TBigInteger; static;
+
   public
     /// <summary>
     /// Get an 8-bit unsigned integer from the buffer at the given offset.
@@ -141,17 +121,6 @@ type
     class function GetPubKey(const AData: TBytes; AOffset: Integer): IPublicKey; static;
 
     /// <summary>
-    /// Get an arbitrarily long number from the buffer.
-    /// </summary>
-    /// <param name="AData">The buffer to read from.</param>
-    /// <param name="AOffset">The offset where the number begins.</param>
-    /// <param name="ALen">The byte length of the number.</param>
-    /// <param name="AIsUnsigned">Whether the number is unsigned.</param>
-    /// <param name="AIsBigEndian">Whether the number uses big-endian encoding.</param>
-    class function GetBigInt(const AData: TBytes; AOffset, ALen: Integer;
-      AIsUnsigned: Boolean = False; AIsBigEndian: Boolean = False): TBigInteger; static;
-
-    /// <summary>
     /// Get a double-precision floating-point number from the buffer (little-endian).
     /// </summary>
     /// <param name="AData">The buffer to read from.</param>
@@ -204,39 +173,6 @@ class procedure TDeserialization.CheckBounds(const AData: TBytes; AOffset, ANeed
 begin
   if (AOffset < 0) or (ANeedLen < 0) or (AOffset + ANeedLen > Length(AData)) then
     raise EArgumentOutOfRangeException.Create('AOffset');
-end;
-
-class function TDeserialization.CreateSignedBigIntegerSafe(
-  const ABytes: TBytes): TBigInteger;
-var
-  LCopy: TBytes;
-  J: Integer;
-  IsNegative: Boolean;
-  Magnitude: TBigInteger;
-begin
-  if Length(ABytes) = 0 then
-    Exit(TBigInteger.Zero);
-
-  LCopy := TArrayUtils.Copy<Byte>(ABytes);
-  IsNegative := (LCopy[0] and $80) <> 0;
-
-  // Positive: can be created directly
-  if not IsNegative then
-    Exit(TBigInteger.Create(1, LCopy));
-
-  // Negative: perform manual two's-complement conversion
-  for J := 0 to High(LCopy) do
-    LCopy[J] := not LCopy[J];
-
-  for J := High(LCopy) downto 0 do
-  begin
-    Inc(LCopy[J]);
-    if LCopy[J] <> 0 then
-      Break; // stop when carry is handled
-  end;
-
-  Magnitude := TBigInteger.Create(1, LCopy);
-  Result := Magnitude.Negate();
 end;
 
 class function TDeserialization.GetU8(const AData: TBytes; AOffset: Integer): Byte;
@@ -306,31 +242,6 @@ begin
   CheckBounds(AData, AOffset, TPublicKey.PublicKeyLength);
   LKeyBytes := TArrayUtils.Slice<Byte>(AData, AOffset, TPublicKey.PublicKeyLength);
   Result := TPublicKey.Create(LKeyBytes);
-end;
-
-class function TDeserialization.GetBigInt(
-  const AData: TBytes; AOffset, ALen: Integer;
-  AIsUnsigned, AIsBigEndian: Boolean): TBigInteger;
-var
-  LSlice, LBE: TBytes;
-  I: Integer;
-begin
-  CheckBounds(AData, AOffset, ALen);
-  LSlice := TArrayUtils.Slice<Byte>(AData, AOffset, ALen);
-
-  if AIsBigEndian then
-    LBE := LSlice
-  else
-  begin
-    SetLength(LBE, Length(LSlice));
-    for I := 0 to High(LSlice) do
-      LBE[I] := LSlice[High(LSlice) - I];
-  end;
-
-  if AIsUnsigned then
-    Result := TBigInteger.Create(1, LBE)
-  else
-    Result := CreateSignedBigIntegerSafe(LBE);
 end;
 
 class function TDeserialization.GetDouble(const AData: TBytes; AOffset: Integer): Double;
