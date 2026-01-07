@@ -137,7 +137,8 @@ type
 //
 // The default CryptoLib4Pascal implementations from SlpDefaultCryptoProviders
 // are loaded when USE_DEFAULT_CRYPTO_PROVIDERS is defined.
-// Define USE_CUSTOM_CRYPTO_PROVIDERS to supply your own implementations.
+// Define USE_CUSTOM_CRYPTO_PROVIDERS to supply your own implementations
+// (especially if you want to avoid CryptoLib4Pascal as a compile-time dependency).
 //
 // =============================================================================
 
