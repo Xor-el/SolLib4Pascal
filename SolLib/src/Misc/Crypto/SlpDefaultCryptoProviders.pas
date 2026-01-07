@@ -128,8 +128,8 @@ type
     class function BigIntFromLEUnsigned(const Key: TBytes): TBigInteger; static;
   public
     function GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair;
-    function Sign(const SecretKey64, Message: TBytes): TBytes;
-    function Verify(const PublicKey32, Message, Signature64: TBytes): Boolean;
+    function Sign(const SecretKey64, &Message: TBytes): TBytes;
+    function Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean;
     function IsOnCurve(const PublicKey32: TBytes): Boolean;
   end;
 
@@ -357,7 +357,7 @@ begin
   Result.PublicKey := Pk;
 end;
 
-function TDefaultEd25519Provider.Sign(const SecretKey64, Message: TBytes): TBytes;
+function TDefaultEd25519Provider.Sign(const SecretKey64, &Message: TBytes): TBytes;
 var
   Seed: TBytes;
   Priv: IEd25519PrivateKeyParameters;
@@ -376,13 +376,13 @@ begin
   // Sign
   Signer := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
   Signer.Init(True, Priv);
-  if Length(Message) > 0 then
-    Signer.BlockUpdate(Message, 0, Length(Message));
+  if Length(&Message) > 0 then
+    Signer.BlockUpdate(&Message, 0, Length(&Message));
 
   Result := Signer.GenerateSignature; // 64 bytes
 end;
 
-function TDefaultEd25519Provider.Verify(const PublicKey32, Message, Signature64: TBytes): Boolean;
+function TDefaultEd25519Provider.Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean;
 var
   Pub: IEd25519PublicKeyParameters;
   Verifier: ISigner;
@@ -396,8 +396,8 @@ begin
 
   Verifier := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
   Verifier.Init(False, Pub);
-  if Length(Message) > 0 then
-    Verifier.BlockUpdate(Message, 0, Length(Message));
+  if Length(&Message) > 0 then
+    Verifier.BlockUpdate(&Message, 0, Length(&Message));
 
   Result := Verifier.VerifySignature(Signature64);
 end;

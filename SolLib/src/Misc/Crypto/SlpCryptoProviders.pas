@@ -88,8 +88,8 @@ type
   IEd25519Provider = interface
     ['{3EBF4388-1CA6-48A1-ACE5-E4BC27B024B8}']
     function GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair;
-    function Sign(const SecretKey64, Message: TBytes): TBytes;
-    function Verify(const PublicKey32, Message, Signature64: TBytes): Boolean;
+    function Sign(const SecretKey64, &Message: TBytes): TBytes;
+    function Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean;
     /// <summary>
     /// Checks whether the PublicKey bytes are on the Ed25519 curve.
     /// </summary>

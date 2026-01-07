@@ -68,6 +68,8 @@
   {$DEFINE USE_DEFAULT_CRYPTO_PROVIDERS}
 {$IFEND}
 
+{=========================== Crypto Provider Validation ========================}
+
 // Ensure one crypto provider strategy is defined
 {$IF NOT DEFINED(USE_DEFAULT_CRYPTO_PROVIDERS) AND NOT DEFINED(USE_CUSTOM_CRYPTO_PROVIDERS)}
   {$MESSAGE ERROR 'Either USE_DEFAULT_CRYPTO_PROVIDERS or USE_CUSTOM_CRYPTO_PROVIDERS must be defined'}
