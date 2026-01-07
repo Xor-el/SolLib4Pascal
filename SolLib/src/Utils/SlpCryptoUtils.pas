@@ -23,26 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  ClpIDigest,
-  ClpDigestUtilities,
-  ClpIMac,
-  ClpHMac,
-  ClpIKeyParameter,
-  ClpKeyParameter,
-  ClpIParametersWithIV,
-  ClpParametersWithIV,
-  ClpIPbeParametersGenerator,
-  ClpPkcs5S2ParametersGenerator,
-  ClpIPkcs5S2ParametersGenerator,
-  ClpICipherParameters,
-  ClpIBufferedCipher,
-  ClpCipherUtilities,
-  ClpParameterUtilities,
-  ClpISecureRandom,
-  ClpSecureRandom,
-  SlpEd25519Utils,
-  SlpArrayUtils,
-  SlpScryptImpl;
+  SlpCryptoProviders;
 
 type
   {-------------------- HASH --------------------}
@@ -150,22 +131,13 @@ type
   {-------------------- RANDOM --------------------}
   /// <summary>Crypto-secure random bytes.</summary>
   TRandom = class
-  private
-    class var FInstance: ISecureRandom;
-
-    class function GetInstance: ISecureRandom; static;
-
-    class constructor Create();
   public
-
-    class property Instance: ISecureRandom read GetInstance;
     /// <summary>Allocate and return <c>Size</c> random bytes.</summary>
     class function RandomBytes(Size: Integer): TBytes; static;
     /// <summary>Populates <c>Output</c> with random bytes.</summary>
     class procedure FillRandom(const Output: TBytes); static;
   end;
 
-  type
   {-------------------- SIGNATURES: Ed25519 (libsodium format) --------------------}
   /// <summary>
   /// Ed25519 (libsodium-style) convenience wrappers:
@@ -175,167 +147,72 @@ type
   TEd25519Crypto = class sealed
   public
     /// <summary>
-    /// Generate keypair from a random 32-byte seed (libsodium-style).
-    /// Outputs SecretKey64 (Seed||PublicKey) and PublicKey32.
-    /// </summary>
-    class function GenerateKeyPair(const Random: ISecureRandom): TEd25519KeyPair; overload; static;
-
-    /// <summary>
     /// Generate keypair from a provided 32-byte seed (libsodium-style).
     /// Outputs SecretKey64 (Seed||PublicKey) and PublicKey32.
     /// </summary>
-    class function GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair; overload; static;
+    class function GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair; static;
 
     /// <summary>Sign a message using SecretKey64 (Seed||PublicKey). Returns a 64-byte signature.</summary>
     class function Sign(const SecretKey64, &Message: TBytes): TBytes; static;
 
     /// <summary>Verify a 64-byte signature using a 32-byte public key.</summary>
     class function Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean; static;
-  end;
 
-  TMisc = class
-  public
-    class function ConstantTimeEquals(const A, B: TBytes): Boolean; static;
-    class procedure Zeroize(var Arr: TBytes); static;
+    /// <summary>Check if a 32-byte public key is on the Ed25519 curve.</summary>
+    class function IsOnCurve(const PublicKey32: TBytes): Boolean; static;
   end;
-
 
 implementation
-
-{ Helpers }
-
-procedure ValidateAesKeyIv(const Key, IV: TBytes);
-begin
-  case Length(Key) of
-    16, 24, 32: ; // ok
-  else
-    raise EArgumentException.Create('AES key must be 16, 24, or 32 bytes.');
-  end;
-
-  if Length(IV) <> 16 then
-    raise EArgumentException.Create('AES-CTR IV/nonce must be 16 bytes.');
-end;
 
 { TSHA256 }
 
 class function TSHA256.HashData(const AData: TBytes): TBytes;
-var
-  D: IDigest;
 begin
-  D := TDigestUtilities.GetDigest('SHA-256');
-
-  if Length(AData) > 0 then
-    D.BlockUpdate(AData, 0, Length(AData));
-
-  SetLength(Result, D.GetDigestSize());
-  D.DoFinal(Result, 0);
+  Result := TCryptoProviders.Hash.SHA256(AData);
 end;
 
 { TSHA512 }
 
 class function TSHA512.HashData(const AData: TBytes): TBytes;
-var
-  D: IDigest;
 begin
-  D := TDigestUtilities.GetDigest('SHA-512');
-
-  if Length(AData) > 0 then
-    D.BlockUpdate(AData, 0, Length(AData));
-
-  SetLength(Result, D.GetDigestSize());
-  D.DoFinal(Result, 0);
+  Result := TCryptoProviders.Hash.SHA512(AData);
 end;
 
 { TKECCAK256 }
 
 class function TKECCAK256.HashData(const AData: TBytes): TBytes;
-var
-  D: IDigest;
 begin
-  D := TDigestUtilities.GetDigest('KECCAK-256');
-
-  if Length(AData) > 0 then
-    D.BlockUpdate(AData, 0, Length(AData));
-
-  SetLength(Result, D.GetDigestSize());
-  D.DoFinal(Result, 0);
+  Result := TCryptoProviders.Hash.Keccak256(AData);
 end;
 
 { THmacSHA256 }
 
 class function THmacSHA256.Compute(const AKey, AData: TBytes): TBytes;
-var
-  D: IDigest;
-  H: IMac;
-  KP: IKeyParameter;
 begin
-  D  := TDigestUtilities.GetDigest('SHA-256');
-  H  := THMac.Create(D);
-  KP := TKeyParameter.Create(AKey);
-  H.Init(KP);
-
-  if Length(AData) > 0 then
-    H.BlockUpdate(AData, 0, Length(AData));
-
-  SetLength(Result, H.GetMacSize());
-  H.DoFinal(Result, 0);
+  Result := TCryptoProviders.Hmac.HmacSHA256(AKey, AData);
 end;
 
 { THmacSHA512 }
 
 class function THmacSHA512.Compute(const AKey, AData: TBytes): TBytes;
-var
-  D: IDigest;
-  H: IMac;
-  KP: IKeyParameter;
 begin
-  D  := TDigestUtilities.GetDigest('SHA-512');
-  H  := THMac.Create(D);
-  KP := TKeyParameter.Create(AKey);
-  H.Init(KP);
-
-  if Length(AData) > 0 then
-    H.BlockUpdate(AData, 0, Length(AData));
-
-  SetLength(Result, H.GetMacSize());
-  H.DoFinal(Result, 0);
+  Result := TCryptoProviders.Hmac.HmacSHA512(AKey, AData);
 end;
-
 
 { TPbkdf2SHA256 }
 
 class function TPbkdf2SHA256.DeriveKey(const Password, Salt: TBytes;
   Iterations, DKLen: Integer): TBytes;
-var
-  Gen: IPkcs5S2ParametersGenerator;
-  Params: ICipherParameters;
-  KeyParam: IKeyParameter;
 begin
-  Gen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-256'));
-  Gen.Init(Password, Salt, Iterations);
-
-  Params := Gen.GenerateDerivedMacParameters(DKLen * 8); // bits
-  KeyParam := Params as IKeyParameter;
-
-  Result := KeyParam.GetKey();
+  Result := TCryptoProviders.Kdf.Pbkdf2SHA256(Password, Salt, Iterations, DKLen);
 end;
 
 { TPbkdf2SHA512 }
 
-class function TPbkdf2SHA512.DeriveKey(const Password, Salt: TBytes; Iterations,
-  DKLen: Integer): TBytes;
-var
-  Gen: IPkcs5S2ParametersGenerator;
-  Params: ICipherParameters;
-  KeyParam: IKeyParameter;
+class function TPbkdf2SHA512.DeriveKey(const Password, Salt: TBytes;
+  Iterations, DKLen: Integer): TBytes;
 begin
-  Gen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-512'));
-  Gen.Init(Password, Salt, Iterations);
-
-  Params := Gen.GenerateDerivedMacParameters(DKLen * 8); // bits
-  KeyParam := Params as IKeyParameter;
-
-  Result := KeyParam.GetKey();
+  Result := TCryptoProviders.Kdf.Pbkdf2SHA512(Password, Salt, Iterations, DKLen);
 end;
 
 { TScrypt }
@@ -343,120 +220,53 @@ end;
 class function TScrypt.DeriveKey(const Password, Salt: TBytes;
   N, R, P, DKLen: Integer): TBytes;
 begin
-  Result := TScryptImpl.DeriveKey(Password, Salt, N, R, P, DKLen);
+  Result := TCryptoProviders.Kdf.Scrypt(Password, Salt, N, R, P, DKLen);
 end;
 
 { TAesCtr }
 
 class function TAesCtr.Encrypt(const Key, IV, Data: TBytes): TBytes;
-var
-  Cipher: IBufferedCipher;
-  KeyParams: IKeyParameter;
-  KeyParamsWithIV: IParametersWithIV;
 begin
-  ValidateAesKeyIv(Key, IV);
-
-  KeyParams := TParameterUtilities.CreateKeyParameter('AES', Key);
-  KeyParamsWithIV := TParametersWithIV.Create(KeyParams, IV);
-
-  Cipher := TCipherUtilities.GetCipher('AES/CTR/NoPadding');
-  Cipher.Init(True, KeyParamsWithIV);
-  Result := Cipher.DoFinal(Data);
+  Result := TCryptoProviders.Cipher.AesCtrEncrypt(Key, IV, Data);
 end;
 
 class function TAesCtr.Decrypt(const Key, IV, Data: TBytes): TBytes;
-var
-  Cipher: IBufferedCipher;
-  KeyParams: IKeyParameter;
-  KeyParamsWithIV: IParametersWithIV;
 begin
-  ValidateAesKeyIv(Key, IV);
-
-  KeyParams := TParameterUtilities.CreateKeyParameter('AES', Key);
-  KeyParamsWithIV := TParametersWithIV.Create(KeyParams, IV);
-
-  Cipher := TCipherUtilities.GetCipher('AES/CTR/NoPadding');
-  Cipher.Init(False, KeyParamsWithIV);
-  Result := Cipher.DoFinal(Data);
+  Result := TCryptoProviders.Cipher.AesCtrDecrypt(Key, IV, Data);
 end;
 
 { TRandom }
 
-class constructor TRandom.Create;
-begin
-   FInstance := TSecureRandom.Create();
-end;
-
-class function TRandom.GetInstance: ISecureRandom;
-begin
-  if FInstance = nil then
-    FInstance := TSecureRandom.Create();
-  Result := FInstance;
-end;
-
 class function TRandom.RandomBytes(Size: Integer): TBytes;
 begin
-  if Size < 0 then
-    raise EArgumentException.Create('Size must be >= 0');
-
-  SetLength(Result, Size);
-  if Size = 0 then
-    Exit;
-
-  FillRandom(Result);
+  Result := TCryptoProviders.Random.RandomBytes(Size);
 end;
 
 class procedure TRandom.FillRandom(const Output: TBytes);
 begin
-  if Length(Output) = 0 then
-    Exit;
-
-  FInstance.NextBytes(Output);
+  TCryptoProviders.Random.FillRandom(Output);
 end;
 
 { TEd25519Crypto }
 
-class function TEd25519Crypto.GenerateKeyPair(const Random: ISecureRandom): TEd25519KeyPair;
-begin
-  Result := TEd25519Libsodium.GenerateKeyPair(Random);
-end;
-
 class function TEd25519Crypto.GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair;
 begin
-  Result := TEd25519Libsodium.GenerateKeyPair(Seed32);
+  Result := TCryptoProviders.Ed25519.GenerateKeyPair(Seed32);
 end;
 
 class function TEd25519Crypto.Sign(const SecretKey64, &Message: TBytes): TBytes;
 begin
-  Result := TEd25519Libsodium.Sign(SecretKey64, &Message);
+  Result := TCryptoProviders.Ed25519.Sign(SecretKey64, &Message);
 end;
 
 class function TEd25519Crypto.Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean;
 begin
-  Result := TEd25519Libsodium.Verify(PublicKey32, &Message, Signature64);
+  Result := TCryptoProviders.Ed25519.Verify(PublicKey32, &Message, Signature64);
 end;
 
-{ TMisc }
-
-class function TMisc.ConstantTimeEquals(const A, B: TBytes): Boolean;
-var
-  I: Integer;
-  Diff: Byte;
+class function TEd25519Crypto.IsOnCurve(const PublicKey32: TBytes): Boolean;
 begin
-  if Length(A) <> Length(B) then
-    Exit(False);
-  Diff := 0;
-  for I := 0 to High(A) do
-    Diff := Diff or (A[I] xor B[I]);
-  Result := (Diff = 0);
-end;
-
-class procedure TMisc.Zeroize(var Arr: TBytes);
-begin
-  if Length(Arr) = 0 then
-    Exit;
-  TArrayUtils.Fill<Byte>(Arr, 0, Length(Arr) * SizeOf(Byte), 0);
+  Result := TCryptoProviders.Ed25519.IsOnCurve(PublicKey32);
 end;
 
 end.
-

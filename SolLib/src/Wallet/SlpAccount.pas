@@ -29,7 +29,7 @@ uses
   SlpDataEncoders,
   SlpPrivateKey,
   SlpPublicKey,
-  SlpEd25519Utils;
+  SlpCryptoProviders;
 
 type
   IAccount = interface

@@ -176,12 +176,11 @@ begin
     raise EArgumentNilException.Create('ADerivedKey');
 
   GeneratedMac := GenerateMac(ADerivedKey, ACipherText);
-  if not TMisc.ConstantTimeEquals(GeneratedMac, AMac) then
+  if not TArrayUtils.ConstantTimeEquals(GeneratedMac, AMac) then
     raise EDecryptionException.Create(
       'Cannot derive the same MAC from cipher and derived key.'
     );
 end;
-
 
 end.
 

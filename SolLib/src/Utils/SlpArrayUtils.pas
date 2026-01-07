@@ -142,6 +142,16 @@ type
     class function Reverse<T>(const Source: TArray<T>): TArray<T>; static;
 
     class function Any<T>(const L: TArray<T>; const Pred: TPredicate<T>): Boolean; static;
+
+    /// <summary>
+    /// Constant-time comparison of two byte arrays (timing-attack resistant).
+    /// </summary>
+    class function ConstantTimeEquals(const A, B: TBytes): Boolean; static;
+
+    /// <summary>
+    /// Securely zero-out a byte array.
+    /// </summary>
+    class procedure Zeroize(var Arr: TBytes); static;
   end;
 
 implementation
@@ -545,6 +555,25 @@ begin
   Result := False;
 end;
 
+class function TArrayUtils.ConstantTimeEquals(const A, B: TBytes): Boolean;
+var
+  I: Integer;
+  Diff: Byte;
+begin
+  if Length(A) <> Length(B) then
+    Exit(False);
+  Diff := 0;
+  for I := 0 to High(A) do
+    Diff := Diff or (A[I] xor B[I]);
+  Result := (Diff = 0);
+end;
+
+class procedure TArrayUtils.Zeroize(var Arr: TBytes);
+begin
+  if Length(Arr) = 0 then
+    Exit;
+  Fill<Byte>(Arr, 0, Length(Arr), 0);
+end;
 
 end.
 

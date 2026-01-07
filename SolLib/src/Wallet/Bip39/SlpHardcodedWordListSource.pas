@@ -26,7 +26,6 @@ unit SlpHardcodedWordlistSource;
 interface
 
 uses
-  System.Classes,
   System.SysUtils,
   System.Types,
   System.Generics.Defaults,

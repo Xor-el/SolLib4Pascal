@@ -60,5 +60,17 @@
   {$MESSAGE ERROR 'Unsupported platform: Either USE_EMBEDDED_RESOURCES or USE_FILE_RESOURCES must be defined'}
 {$IFEND}
 
-(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
+{========================== Crypto Provider Strategy ===========================}
 
+// By default, use CryptoLib4Pascal implementations
+// To use custom crypto providers, define USE_CUSTOM_CRYPTO_PROVIDERS instead
+{$IF NOT DEFINED(USE_CUSTOM_CRYPTO_PROVIDERS)}
+  {$DEFINE USE_DEFAULT_CRYPTO_PROVIDERS}
+{$IFEND}
+
+// Ensure one crypto provider strategy is defined
+{$IF NOT DEFINED(USE_DEFAULT_CRYPTO_PROVIDERS) AND NOT DEFINED(USE_CUSTOM_CRYPTO_PROVIDERS)}
+  {$MESSAGE ERROR 'Either USE_DEFAULT_CRYPTO_PROVIDERS or USE_CUSTOM_CRYPTO_PROVIDERS must be defined'}
+{$IFEND}
+
+(* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)

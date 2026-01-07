@@ -30,8 +30,8 @@ uses
   SlpArrayUtils,
   SlpCryptoUtils,
   SlpEd25519Bip32,
-  SlpEd25519Utils,
-  SlpMnemonic;
+  SlpMnemonic,
+  SlpCryptoProviders;
 
 type
   IWallet = interface

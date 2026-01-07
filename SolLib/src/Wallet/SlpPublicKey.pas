@@ -27,7 +27,6 @@ uses
   System.Generics.Collections,
   SlpDataEncoders,
   SlpCryptoUtils,
-  SlpEd25519Utils,
   SlpArrayUtils;
 
 type
@@ -289,7 +288,7 @@ end;
 
 function TPublicKey.IsOnCurve: Boolean;
 begin
-  Result := TEd25519Utils.IsOnCurve(GetKeyBytes);
+  Result := TEd25519Crypto.IsOnCurve(GetKeyBytes);
 end;
 
 function TPublicKey.IsValid: Boolean;
@@ -323,7 +322,7 @@ class function TPublicKey.IsValid(const AKey: TBytes;
   AValidateCurve: Boolean): Boolean;
 begin
   Result := (Length(AKey) = PublicKeyLength) and
-    (not AValidateCurve or TEd25519Utils.IsOnCurve(AKey));
+    (not AValidateCurve or TEd25519Crypto.IsOnCurve(AKey));
 end;
 
 class function TPublicKey.FastCheck(const Value: string): Boolean;
@@ -373,7 +372,7 @@ begin
     MS.Free;
   end;
 
-  if TEd25519Utils.IsOnCurve(Hash) then
+  if TEd25519Crypto.IsOnCurve(Hash) then
   begin
     PublicKey := nil;
     Exit(False);

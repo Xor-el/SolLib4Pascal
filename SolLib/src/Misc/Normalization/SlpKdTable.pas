@@ -27,8 +27,6 @@ interface
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Types,
   SlpResourceLoader,
   SlpSolLibExceptions;
 
