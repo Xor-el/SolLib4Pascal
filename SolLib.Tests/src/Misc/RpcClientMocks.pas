@@ -24,7 +24,7 @@ uses
   System.Classes,
   System.Generics.Collections,
   System.SyncObjs,
-  System.Json.Serializers,
+  System.JSON.Serializers,
   SlpRequestResult,
   SlpTokenWalletRpcProxy,
   SlpNullable,

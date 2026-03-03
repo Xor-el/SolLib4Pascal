@@ -27,7 +27,7 @@ uses
   System.Rtti,
   System.TypInfo,
   System.Generics.Collections,
-  System.Json.Serializers,
+  System.JSON.Serializers,
 {$IFDEF FPC}
   URIParser,
 {$ELSE}

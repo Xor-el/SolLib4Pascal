@@ -28,7 +28,7 @@ uses
   System.TypInfo,
   System.Generics.Collections,
   System.JSON,
-  System.Json.Serializers,
+  System.JSON.Serializers,
 {$IFDEF FPC}
   URIParser,
 {$ELSE}
