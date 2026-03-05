@@ -336,12 +336,10 @@ begin
 
   if not TArrayUtils.IndexOf<Integer>(
     FMsArray,
-    TFunc<Integer, Boolean>(
-      function(const Value: Integer): Boolean
+      function(Value: Integer): Boolean
       begin
         Result := Value = Length(FIndices);
-      end
-    ),
+      end,
     I
   ) then Exit(False);
 

@@ -664,8 +664,35 @@ procedure TEnhancedJsonSerializer.InternalSerialize(
   begin
     Result := nil;
     if (ArrType <> nil) and (ArrType^.Kind = tkDynArray) then
+    begin
+      {$IFDEF FPC}
+      // FPC: elType2Ref is PPTypeInfo, ElType2 property does nil-safe deref
+      Result := GetTypeData(ArrType)^.ElType2;
+      {$ELSE}
+      // Delphi: DynArrElType is PPTypeInfo
       Result := GetTypeData(ArrType)^.DynArrElType^;
+      {$ENDIF}
+    end;
   end;
+ (*
+  function ElemTypeInfoOf(const ArrType: PTypeInfo): PTypeInfo;
+  var
+    Ctx: TRttiContext;
+    ArrT: TRttiType;
+  begin
+    Result := nil;
+    if (ArrType = nil) or (ArrType^.Kind <> tkDynArray) then
+      Exit;
+    Ctx := TRttiContext.Create;
+    try
+      ArrT := Ctx.GetType(ArrType);
+      if (ArrT is TRttiDynamicArrayType) and Assigned(TRttiDynamicArrayType(ArrT).ElementType) then
+        Result := TRttiDynamicArrayType(ArrT).ElementType.Handle;
+    finally
+      Ctx.Free;
+    end;
+  end;
+ *)
 
 var
   R: IJsonContractResolver;
