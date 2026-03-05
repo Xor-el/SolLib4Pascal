@@ -1,4 +1,4 @@
-﻿{ * ************************************************************************ * }
+{ * ************************************************************************ * }
 { *                              SolLib Library                              * }
 { *                       Author - Ugochukwu Mmaduekwe                       * }
 { *              Github Repository <https://github.com/Xor-el>               * }
@@ -22,9 +22,12 @@ unit SlpBaseJsonConverter;
 interface
 
 uses
+  System.SysUtils,
   System.TypInfo,
   System.Rtti,
   System.JSON,
+  System.JSON.Types,
+  System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
   SlpValueUtils,
@@ -38,9 +41,13 @@ type
     class function LooksLikeDictionaryWithStringKey(Obj: TObject): Boolean; static;
     class procedure WriteDictionaryWithStringKey(const W: TJsonWriter;
       const S: TJsonSerializer; Obj: TObject); static;
-      class procedure WriteListLike(
-  const W: TJsonWriter; const S: TJsonSerializer; Obj: TObject); static;
+    class procedure WriteListLike(
+      const W: TJsonWriter; const S: TJsonSerializer; Obj: TObject); static;
     class procedure WriteTValue(const W: TJsonWriter; const S: TJsonSerializer; const AValue: TValue); static;
+    class procedure SkipPropertyName(const AReader: TJsonReader); static;
+  public
+    procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
+      const ASerializer: TJsonSerializer); override;
   end;
 
 implementation
@@ -298,7 +305,7 @@ begin
     Exit;
   end;
 
-    case V.Kind of
+  case V.Kind of
 
     tkDynArray, tkArray:
       WriteArray(V);
@@ -337,6 +344,20 @@ begin
   else
      S.Serialize(W, V);
   end;
+end;
+
+{ TBaseJsonConverter - helpers }
+
+class procedure TBaseJsonConverter.SkipPropertyName(const AReader: TJsonReader);
+begin
+  if AReader.TokenType = TJsonToken.PropertyName then
+    AReader.Read;
+end;
+
+procedure TBaseJsonConverter.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
+  const ASerializer: TJsonSerializer);
+begin
+  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 end.

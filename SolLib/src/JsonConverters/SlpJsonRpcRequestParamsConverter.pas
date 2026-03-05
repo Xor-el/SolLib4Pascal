@@ -41,8 +41,6 @@ type
     class function ReadParamsListFromJsonValue(const JV: TJSONValue): TList<TValue>; static;
   public
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
-    procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
-      const ASerializer: TJsonSerializer); override;
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
@@ -79,12 +77,6 @@ function TJsonRpcRequestParamsConverter.CanConvert(ATypeInf: PTypeInfo): Boolean
 begin
   // We only want to attach to TList<TValue> (or subclasses)
   Result := TJsonTypeUtils.InheritsFrom(ATypeInf, TList<TValue>);
-end;
-
-procedure TJsonRpcRequestParamsConverter.WriteJson(
-  const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
-begin
-  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 function TJsonRpcRequestParamsConverter.ReadJson(

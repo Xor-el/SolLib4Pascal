@@ -1,4 +1,4 @@
-﻿{ * ************************************************************************ * }
+{ * ************************************************************************ * }
 { *                              SolLib Library                              * }
 { *                       Author - Ugochukwu Mmaduekwe                       * }
 { *              Github Repository <https://github.com/Xor-el>               * }
@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTokenListItemExtensionsConverter;
+unit SlpObjectOrStringArrayConverter;
 
 {$I ../Include/SolLib.inc}
 
@@ -23,22 +23,21 @@ interface
 
 uses
   System.SysUtils,
-  System.Generics.Collections,
   System.TypInfo,
   System.Rtti,
+  System.Generics.Collections,
   System.JSON,
   System.JSON.Types,
   System.JSON.Readers,
   System.JSON.Serializers,
   SlpBaseJsonConverter,
-  SlpValueHelpers,
   SlpJsonHelpers;
 
 type
-  /// Converts a JSON object <-> TDictionary<string, TValue>
-  /// Primitive JSON becomes native Delphi types.
-  /// Object/Array JSON becomes a cloned TJSONValue wrapped in a TValue (the owner frees it later).
-  TTokenListItemExtensionsConverter = class(TBaseJsonConverter)
+  /// Generic converter for JSON values that are either a JSON object (deserialized
+  /// to T) or a JSON array of strings (deserialized to TArray<string>).
+  /// Target Delphi type is TValue.
+  TObjectOrStringArrayConverter<T: class> = class(TBaseJsonConverter)
   public
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
@@ -47,49 +46,54 @@ type
 
 implementation
 
-function TTokenListItemExtensionsConverter.CanConvert(ATypeInfo: PTypeInfo): Boolean;
+{ TObjectOrStringArrayConverter<T> }
+
+function TObjectOrStringArrayConverter<T>.CanConvert(ATypeInfo: PTypeInfo): Boolean;
 begin
-  Result := ATypeInfo = TypeInfo(TDictionary<string, TValue>);
+  Result := (ATypeInfo = TypeInfo(TValue));
 end;
 
-function TTokenListItemExtensionsConverter.ReadJson(
+function TObjectOrStringArrayConverter<T>.ReadJson(
   const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  Dict: TDictionary<string, TValue>;
-  JV  : TJSONValue;
-  Obj : TJSONObject;
-  P   : TJSONPair;
+  Elem: TJSONValue;
+  Bag: TList<string>;
+  Obj: T;
 begin
-  if AReader.TokenType = TJsonToken.Null then
-    Exit(nil);
+  SkipPropertyName(AReader);
 
-  if AReader.TokenType <> TJsonToken.StartObject then
-  begin
-    AReader.Skip;
-    Exit(nil);
-  end;
+  case AReader.TokenType of
+    TJsonToken.StartObject:
+      begin
+        Obj := ASerializer.Deserialize<T>(AReader.ToJson);
+        Result := TValue.From<T>(Obj);
+      end;
 
-  JV := AReader.ReadJsonValue; // consumes entire object
-  try
-    if not (JV is TJSONObject) then
-      Exit(nil);
-
-    Obj := TJSONObject(JV);
-    Dict := TDictionary<string, TValue>.Create;
-    try
-      for P in Obj do
-        Dict.Add(P.JsonString.Value, P.JsonValue.ToTValue());
-
-      Result := TValue.From<TDictionary<string, TValue>>(Dict);
-    except
-      Dict.Free;
-      raise;
-    end;
-  finally
-    JV.Free;
+    TJsonToken.StartArray:
+      begin
+        Bag := TList<string>.Create;
+        try
+          while AReader.ReadNextArrayElement(Elem) do
+          begin
+            try
+              if not Elem.IsExactClass(TJSONString) then
+                raise EJsonSerializationException.CreateFmt(
+                  '%s: array must contain only strings', [Self.ClassName]);
+              Bag.Add(TJSONString(Elem).Value);
+            finally
+              Elem.Free;
+            end;
+          end;
+          Result := TValue.From<TArray<string>>(Bag.ToArray);
+        finally
+          Bag.Free;
+        end;
+      end;
+  else
+    raise EJsonSerializationException.CreateFmt(
+      'Unsupported JSON value type in %s', [Self.ClassName]);
   end;
 end;
 
 end.
-

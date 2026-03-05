@@ -62,9 +62,7 @@ var
   I64: Int64;
   S  : string;
 begin
-  // If we're currently at a PropertyName, advance to its value
-  if AReader.TokenType = TJsonToken.PropertyName then
-    AReader.Read;
+  SkipPropertyName(AReader);
 
   case AReader.TokenType of
     TJsonToken.String:

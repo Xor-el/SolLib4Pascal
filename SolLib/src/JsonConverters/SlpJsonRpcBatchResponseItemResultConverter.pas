@@ -27,7 +27,6 @@ uses
   System.Rtti,
   System.JSON,
   System.JSON.Readers,
-  System.JSON.Writers,
   System.JSON.Serializers,
   SlpBaseJsonConverter,
   SlpValueHelpers,
@@ -37,8 +36,6 @@ type
   TJsonRpcBatchResponseItemResultConverter = class(TBaseJsonConverter)
   public
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
-    procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
-      const ASerializer: TJsonSerializer); override;
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
@@ -50,12 +47,6 @@ implementation
 function TJsonRpcBatchResponseItemResultConverter.CanConvert(ATypeInf: PTypeInfo): Boolean;
 begin
   Result := (ATypeInf = TypeInfo(TValue));
-end;
-
-procedure TJsonRpcBatchResponseItemResultConverter.WriteJson(
-  const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
-begin
-  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 function TJsonRpcBatchResponseItemResultConverter.ReadJson(

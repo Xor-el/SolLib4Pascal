@@ -23,7 +23,6 @@ interface
 
 uses
   System.SysUtils,
-  System.Classes,
   System.Rtti,
   System.TypInfo,
   System.JSON,
@@ -65,38 +64,17 @@ function TNullableConverter<T>.ReadJson(const AReader: TJsonReader; ATypeInf: PT
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
   JV: TJSONValue;
-  S: string;
-  SR: TStringReader;
-  JR: TJsonTextReader;
   Underlying: T;
 begin
-  // ReadJsonValue raises on PropertyName, so advance to the value first.
   if AReader.TokenType = TJsonToken.PropertyName then
     AReader.Read;
 
-  // Materialize the current value into a DOM node
-  JV := AReader.ReadJsonValue; // consumes exactly one JSON value
+  JV := AReader.ReadJsonValue;
   try
-    // Map null/undefined -> None
     if (JV = nil) or JV.IsKindOfClass(TJSONNull) then
-    begin
       Exit(TValue.From<TNullable<T>>(TNullable<T>.None));
-    end;
 
-    // Refeed that DOM as text into a fresh reader, and let the serializer build T
-    S  := JV.ToJSON;
-    SR := TStringReader.Create(S);
-    try
-      JR := TJsonTextReader.Create(SR);
-      try
-        Underlying := ASerializer.Deserialize<T>(JR);
-      finally
-        JR.Free;
-      end;
-    finally
-      SR.Free;
-    end;
-
+    Underlying := ASerializer.Deserialize<T>(JV.ToJSON);
     Result := TValue.From<TNullable<T>>(TNullable<T>.Some(Underlying));
   finally
     JV.Free;

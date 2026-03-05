@@ -22,7 +22,6 @@ unit SlpRpcErrorResponseConverter;
 interface
 
 uses
-  System.Classes,
   System.SysUtils,
   System.TypInfo,
   System.Rtti,
@@ -68,8 +67,6 @@ var
   Err: TJsonRpcErrorResponse;
   Prop: string;
   JO: TJSONObject;
-  SR: TStringReader;
-  JR: TJsonTextReader;
   ErrorContent: TErrorContent;
 
 begin
@@ -105,24 +102,10 @@ begin
 
         TJsonToken.StartObject:
           begin
-            // Capture ONLY the error object here to avoid re-entrancy issues
             JO := TJSONObject(AReader.ReadJsonValue);
-            // reader now at EndObject of "error"
             try
-              ErrorContent := TErrorContent.Create;
+              ErrorContent := ASerializer.Deserialize<TErrorContent>(JO.ToJSON);
               Err.Error := ErrorContent;
-              // Populate Err.Error using a fresh reader over the captured JSON
-              SR := TStringReader.Create(JO.ToJSON);
-              try
-                JR := TJsonTextReader.Create(SR);
-                try
-                  ASerializer.Populate(JR, ErrorContent);
-                finally
-                  JR.Free;
-                end;
-              finally
-                SR.Free;
-              end;
             finally
               JO.Free;
             end;
@@ -147,16 +130,10 @@ procedure TRpcErrorResponseConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
 var
   Resp: TJsonRpcErrorResponse;
-  Ctx: TRttiContext;
-  T: TRttiType;
-  PId: TRttiProperty;
-  VId: TValue;
-  NId: TNullable<Integer>;
   V: TValue;
 begin
   V := AValue.Unwrap();
 
-  // null / empty input -> write null
   if V.IsEmpty or (V.AsObject = nil) then
   begin
     AWriter.WriteNull;
@@ -167,76 +144,22 @@ begin
 
   AWriter.WriteStartObject;
   try
-    // "jsonrpc"
     AWriter.WritePropertyName('jsonrpc');
     AWriter.WriteValue(Resp.Jsonrpc);
 
-    // "error": either a plain string (ErrorMessage) or an object (Error)
     AWriter.WritePropertyName('error');
     if Assigned(Resp.Error) then
-    begin
-      // object form
-      ASerializer.Serialize(AWriter, Resp.Error);
-    end
+      ASerializer.Serialize(AWriter, Resp.Error)
     else if Resp.ErrorMessage <> '' then
-    begin
-      // string form
-      AWriter.WriteValue(Resp.ErrorMessage);
-    end
+      AWriter.WriteValue(Resp.ErrorMessage)
     else
-    begin
-      // if neither provided, emit null (defensive)
       AWriter.WriteNull;
-    end;
 
-    // "id": prefer nullable integer semantics if present
     AWriter.WritePropertyName('id');
-
-    // Try to obtain the "Id" property via RTTI (to tolerate future type changes)
-    Ctx := TRttiContext.Create;
-    try
-      T := Ctx.GetType(Resp.ClassType);
-      PId := nil;
-      if T <> nil then
-        PId := T.GetProperty('Id');
-
-      if (PId <> nil) and PId.IsReadable then
-      begin
-        VId := PId.GetValue(Resp);
-
-        // If it's exactly TNullable<Integer>, honor HasValue/Value
-        if (VId.Kind = tkRecord) and (VId.TypeInfo = TypeInfo(TNullable<Integer>)) then
-        begin
-          NId := VId.AsType<TNullable<Integer>>;
-          if NId.HasValue then
-            AWriter.WriteValue(NId.Value)
-          else
-            AWriter.WriteNull;
-        end
-        else
-        begin
-          // Fallbacks: if a plain integer (or int64) was used, write it; allow null when empty
-          case VId.Kind of
-            tkInteger: AWriter.WriteValue(VId.AsInteger);
-            tkInt64:   AWriter.WriteValue(VId.AsInt64);
-          else
-            // If something else (string/null/empty), be conservative:
-            if VId.IsEmpty then
-              AWriter.WriteNull
-            else
-              ASerializer.Serialize(AWriter, VId); // last-resort delegate
-          end;
-        end;
-      end
-      else
-      begin
-        // No Id property readable -> write null to match typical JSON-RPC when absent
-        AWriter.WriteNull;
-      end;
-    finally
-      Ctx.Free;
-    end;
-
+    if Resp.Id.HasValue then
+      AWriter.WriteValue(Resp.Id.Value)
+    else
+      AWriter.WriteNull;
   finally
     AWriter.WriteEndObject;
   end;

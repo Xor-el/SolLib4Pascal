@@ -39,8 +39,6 @@ type
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
-    procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
-      const ASerializer: TJsonSerializer); override;
   end;
 
   TJsonUInt64ClampNumberConverter = class(TJsonClampNumberConverter<UInt64>)
@@ -186,12 +184,6 @@ begin
   end;
 
   Result := CreateValueFromDouble(ATypeInfo, LValue);
-end;
-
-procedure TJsonClampNumberConverter<T>.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
-  const ASerializer: TJsonSerializer);
-begin
-  WriteTValue(AWriter, ASerializer, AValue);
 end;
 
 end.

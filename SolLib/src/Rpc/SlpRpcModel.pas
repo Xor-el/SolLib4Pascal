@@ -35,9 +35,8 @@ uses
   SlpJsonListConverter,
   SlpTransactionErrorJsonConverter,
   SlpNullableConverter,
-  SlpTokenAccountDataConverter,
   SlpTransactionMetaInfoVersionConverter,
-  SlpTransactionMetaInfoTransactionConverter;
+  SlpObjectOrStringArrayConverter;
 
   type
     TTokenBalance = class;
@@ -49,6 +48,7 @@ uses
     TTokenMintData = class;
     TRewardInfo = class;
     TTransactionMetaInfo = class;
+    TTransactionInfo = class;
     TInstructionInfo = class;
     TTokenBalanceInfo = class;
     TInnerInstruction = class;
@@ -65,6 +65,9 @@ uses
     TTokenBalanceInfoCollectionConverter = class(TPreserveNullOnReadJsonObjectListConverter<TTokenBalanceInfo>);
     TAccountInfoCollectionConverter = class(TPreserveNullOnReadJsonObjectListConverter<TAccountInfo>);
     TVoteAccountCollectionConverter = class(TPreserveNullOnReadJsonObjectListConverter<TVoteAccount>);
+
+    TTokenAccountDataConverter = class(TObjectOrStringArrayConverter<TTokenAccountData>);
+    TTransactionMetaInfoTransactionConverter = class(TObjectOrStringArrayConverter<TTransactionInfo>);
 
     TBlockProductionInfoMapConverter = class(TJsonStringDictionaryConverter<TArray<Integer>>);
 
