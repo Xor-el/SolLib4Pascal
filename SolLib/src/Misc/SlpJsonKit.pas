@@ -118,32 +118,6 @@ type
 
 type
   /// <summary>
-  /// Local writer used to serialize objects and arrays of objects, allowing
-  /// conditional omission of properties before their names are written.
-  /// </summary>
-  /// <remarks>
-  /// Only object and array structures are intercepted. All other value types
-  /// are delegated to the base serializer.
-  /// </remarks>
-  TEnhancedJsonSerializerWriter = class(TObject)
-  private
-    FSerializer: TJsonSerializer;
-
-    function GetResolverAccess: IEnhancedContractResolverAccess;
-    function ShouldSkipByCondition(const AContainer: TValue; const AProp: TJsonProperty): Boolean;
-
-    procedure WriteObject(const AWriter: TJsonWriter; const Value: TValue; const AContract: TJsonObjectContract);
-    procedure WriteProperty(const AWriter: TJsonWriter; const AContainer: TValue; const AProperty: TJsonProperty);
-    procedure WriteArray(const AWriter: TJsonWriter; const Value: TValue);
-    procedure WriteValue(const AWriter: TJsonWriter; const AValue: TValue; const AContract: TJsonContract);
-
-  public
-    constructor Create(const ASerializer: TJsonSerializer);
-    procedure Serialize(const AWriter: TJsonWriter; const AValue: TValue);
-  end;
-
-type
-  /// <summary>
   /// Thin wrapper around the RTL JSON serializer that intercepts serialization
   /// only when the resolver identifies properties with conditional ignore rules.
   /// </summary>
@@ -151,14 +125,24 @@ type
   /// Interception occurs when a type includes <c>JsonIgnoreWithCondition</c>
   /// attributes such as <c>TJsonIgnoreCondition.WhenWritingNull</c>. All other
   /// cases are passed directly to the underlying RTL serializer.
+  /// Object and array structures are intercepted for conditional property
+  /// omission; all other value types are delegated to the base serializer.
   /// </remarks>
   TEnhancedJsonSerializer = class(TJsonSerializer)
+  private
+    FResolverAccess: IEnhancedContractResolverAccess;
+
+    function GetResolverAccess: IEnhancedContractResolverAccess;
+    function ShouldSkipByCondition(const AContainer: TValue; const AProp: TJsonProperty): Boolean;
+
+    procedure SerializeEnhanced(const AWriter: TJsonWriter; const AValue: TValue);
+    procedure WriteObject(const AWriter: TJsonWriter; const Value: TValue; const AContract: TJsonObjectContract);
+    procedure WriteProperty(const AWriter: TJsonWriter; const AContainer: TValue; const AProperty: TJsonProperty);
+    procedure WriteArray(const AWriter: TJsonWriter; const Value: TValue);
+    procedure WriteValue(const AWriter: TJsonWriter; const AValue: TValue; const AContract: TJsonContract);
+
   protected
     procedure InternalSerialize(const AWriter: TJsonWriter; const AValue: TValue); override;
-
-  public
-    // Call the base engine (avoids recursion)
-    procedure BaseInternalSerialize(const AWriter: TJsonWriter; const AValue: TValue);
   end;
 
 type
@@ -393,31 +377,22 @@ begin
   Result := (AType <> nil) and FTypesWithConditional.ContainsKey(AType);
 end;
 
-{ TEnhancedJsonSerializerWriter }
+{ TEnhancedJsonSerializer }
 
-constructor TEnhancedJsonSerializerWriter.Create(const ASerializer: TJsonSerializer);
+function TEnhancedJsonSerializer.GetResolverAccess: IEnhancedContractResolverAccess;
 begin
-  inherited Create;
-  FSerializer := ASerializer;
-end;
-
-function TEnhancedJsonSerializerWriter.GetResolverAccess: IEnhancedContractResolverAccess;
-var
-  R: IJsonContractResolver;
-begin
-  R := FSerializer.ContractResolver;
-  if Supports(R, IEnhancedContractResolverAccess, Result) then
-    Exit
+  if Assigned(FResolverAccess)
+    or Supports(ContractResolver, IEnhancedContractResolverAccess, FResolverAccess) then
+    Result := FResolverAccess
   else
     Result := nil;
 end;
 
-function TEnhancedJsonSerializerWriter.ShouldSkipByCondition(
+function TEnhancedJsonSerializer.ShouldSkipByCondition(
   const AContainer: TValue; const AProp: TJsonProperty): Boolean;
 
   function IsNullLike(const V: TValue): Boolean;
   begin
-    // Treat empty TValue / nil class/interface as null-like
     Result := V.IsEmpty
       or ((V.Kind = tkClass) and (V.AsObject = nil))
       or ((V.Kind = tkInterface) and (V.AsInterface = nil));
@@ -426,31 +401,24 @@ function TEnhancedJsonSerializerWriter.ShouldSkipByCondition(
   function IsDefaultOf(const V: TValue; AType: PTypeInfo): Boolean;
   begin
     case AType^.Kind of
-      // Ordinals: Int, UInt32, Int64, enums, Char/WChar, Boolean (AsOrdinal = 0 covers them)
       tkInteger, tkInt64, tkChar, tkWChar, tkEnumeration:
         Result := (not V.IsEmpty) and (V.AsOrdinal = 0);
 
-      // Floats: Single/Double/Extended/Currency
       tkFloat:
         Result := (not V.IsEmpty) and SameValue(V.AsExtended, 0.0);
 
-      // Delphi strings
       tkString, tkLString, tkWString, tkUString:
         Result := (not V.IsEmpty) and (V.AsString = '');
 
-      // Dyn arrays: treat empty as default
       tkDynArray:
         Result := V.IsEmpty or (V.GetArrayLength = 0);
 
-      // Sets: empty considered default
       tkSet:
         Result := V.IsEmpty;
 
-      // References
       tkClass, tkInterface:
         Result := IsNullLike(V);
 
-      // Records: conservative (zero-init)
       tkRecord:
         Result := V.IsEmpty;
     else
@@ -467,7 +435,7 @@ begin
   Result := False;
 
   Access := GetResolverAccess;
-  if (Access = nil) then
+  if not Assigned(Access) then
     Exit(False);
 
   if not Access.TryGetIgnoreCondition(AProp, Cond) then
@@ -490,10 +458,9 @@ begin
       begin
         PropVal := AProp.ValueProvider.GetValue(AContainer);
 
-        // Use property’s own contract/typeinfo for default comparison
         MemberContract := AProp.Contract;
         if MemberContract = nil then
-          MemberContract := FSerializer.ContractResolver.ResolveContract(AProp.TypeInf);
+          MemberContract := ContractResolver.ResolveContract(AProp.TypeInf);
         if (MemberContract = nil) then
           Exit(False);
 
@@ -502,7 +469,7 @@ begin
   end;
 end;
 
-procedure TEnhancedJsonSerializerWriter.WriteProperty(
+procedure TEnhancedJsonSerializer.WriteProperty(
   const AWriter: TJsonWriter; const AContainer: TValue; const AProperty: TJsonProperty);
 var
   MemberContract: TJsonContract;
@@ -513,38 +480,32 @@ begin
   if AProperty.Ignored or not AProperty.Readable then
     Exit;
 
-  // Our key hook: skip before writing the name or calling any converter
   if ShouldSkipByCondition(AContainer, AProperty) then
     Exit;
 
-  // RTL-compatible ordering from here:
-
-  // Property-level converter wins
   Conv := AProperty.Converter;
   if (Conv <> nil) then
   begin
     AWriter.WritePropertyName(AProperty.Name);
-    Conv.WriteJson(AWriter, AProperty.ValueProvider.GetValue(AContainer), FSerializer);
+    Conv.WriteJson(AWriter, AProperty.ValueProvider.GetValue(AContainer), Self);
     Exit;
   end;
 
-  // Ensure/resolve contract
   if AProperty.Contract = nil then
-    AProperty.Contract := FSerializer.ContractResolver.ResolveContract(AProperty.TypeInf);
+    AProperty.Contract := ContractResolver.ResolveContract(AProperty.TypeInf);
   MemberContract := AProperty.Contract;
   if (MemberContract = nil) then
     Exit;
 
   Gotten := False;
 
-  // If not sealed, re-resolve for runtime type variance
   if not MemberContract.Sealed then
   begin
     PropVal := AProperty.ValueProvider.GetValue(AContainer);
     Gotten  := True;
     if (not PropVal.IsEmpty) and (PropVal.TypeInfo <> MemberContract.TypeInf) then
     begin
-      MemberContract := FSerializer.ContractResolver.ResolveContract(PropVal.TypeInfo);
+      MemberContract := ContractResolver.ResolveContract(PropVal.TypeInfo);
       if (MemberContract = nil) or MemberContract.Ignored then
         Exit;
     end;
@@ -553,21 +514,19 @@ begin
   if MemberContract.Ignored then
     Exit;
 
-  // Type-converter contract?
   if MemberContract.ContractType = TJsonContractType.Converter then
   begin
-    Conv := FSerializer.MatchConverter(FSerializer.Converters, MemberContract.TypeInf);
+    Conv := MatchConverter(Converters, MemberContract.TypeInf);
     if (Conv <> nil) and (Conv.CanWrite) then
     begin
       if not Gotten then
         PropVal := AProperty.ValueProvider.GetValue(AContainer);
       AWriter.WritePropertyName(AProperty.Name);
-      Conv.WriteJson(AWriter, PropVal, FSerializer);
+      Conv.WriteJson(AWriter, PropVal, Self);
       Exit;
     end;
   end;
 
-  // Otherwise write value (objects/arrays handled specially, else fall through to base)
   if not Gotten then
     PropVal := AProperty.ValueProvider.GetValue(AContainer);
 
@@ -575,7 +534,7 @@ begin
   WriteValue(AWriter, PropVal, MemberContract);
 end;
 
-procedure TEnhancedJsonSerializerWriter.WriteObject(
+procedure TEnhancedJsonSerializer.WriteObject(
   const AWriter: TJsonWriter; const Value: TValue; const AContract: TJsonObjectContract);
 var
   P: TJsonProperty;
@@ -586,7 +545,7 @@ begin
   AWriter.WriteEndObject;
 end;
 
-procedure TEnhancedJsonSerializerWriter.WriteArray(
+procedure TEnhancedJsonSerializer.WriteArray(
   const AWriter: TJsonWriter; const Value: TValue);
 var
   Len, I: Integer;
@@ -598,19 +557,24 @@ begin
   for I := 0 to Len - 1 do
   begin
     Elem := Value.GetArrayElement(I);
-    ElemContract := FSerializer.ContractResolver.ResolveContract(Elem.TypeInfo);
+
+    if Elem.IsEmpty or (Elem.TypeInfo = nil) then
+    begin
+      AWriter.WriteNull;
+      Continue;
+    end;
+
+    ElemContract := ContractResolver.ResolveContract(Elem.TypeInfo);
 
     if (ElemContract is TJsonObjectContract) then
-      // Object elements go through our gating, so their properties can be skipped
-      TEnhancedJsonSerializer(FSerializer).InternalSerialize(AWriter, Elem)
+      InternalSerialize(AWriter, Elem)
     else
-      // Primitives/strings/enums/dates/**converter elements** -> base engine
-      TEnhancedJsonSerializer(FSerializer).BaseInternalSerialize(AWriter, Elem);
+      inherited InternalSerialize(AWriter, Elem);
   end;
   AWriter.WriteEndArray;
 end;
 
-procedure TEnhancedJsonSerializerWriter.WriteValue(
+procedure TEnhancedJsonSerializer.WriteValue(
   const AWriter: TJsonWriter; const AValue: TValue; const AContract: TJsonContract);
 begin
   if (AContract is TJsonObjectContract) then
@@ -625,16 +589,21 @@ begin
     Exit;
   end;
 
-  // Anything else -> base engine (avoids recursion; keeps converters working)
-  TEnhancedJsonSerializer(FSerializer).BaseInternalSerialize(AWriter, AValue);
+  inherited InternalSerialize(AWriter, AValue);
 end;
 
-procedure TEnhancedJsonSerializerWriter.Serialize(
+procedure TEnhancedJsonSerializer.SerializeEnhanced(
   const AWriter: TJsonWriter; const AValue: TValue);
 var
   Contract: TJsonContract;
 begin
-  Contract := FSerializer.ContractResolver.ResolveContract(AValue.TypeInfo);
+  if AValue.IsEmpty or (AValue.TypeInfo = nil) then
+  begin
+    AWriter.WriteNull;
+    Exit;
+  end;
+
+  Contract := ContractResolver.ResolveContract(AValue.TypeInfo);
   if (Contract = nil) or Contract.Ignored then
   begin
     AWriter.WriteNull;
@@ -646,15 +615,7 @@ begin
   else if (Contract is TJsonArrayContract) or (AValue.Kind = tkDynArray) then
     WriteArray(AWriter, AValue)
   else
-    TEnhancedJsonSerializer(FSerializer).BaseInternalSerialize(AWriter, AValue);
-end;
-
-{ TEnhancedJsonSerializer }
-
-procedure TEnhancedJsonSerializer.BaseInternalSerialize(
-  const AWriter: TJsonWriter; const AValue: TValue);
-begin
-  inherited InternalSerialize(AWriter, AValue);
+    inherited InternalSerialize(AWriter, AValue);
 end;
 
 procedure TEnhancedJsonSerializer.InternalSerialize(
@@ -666,33 +627,12 @@ procedure TEnhancedJsonSerializer.InternalSerialize(
     if (ArrType <> nil) and (ArrType^.Kind = tkDynArray) then
     begin
       {$IFDEF FPC}
-      // FPC: elType2Ref is PPTypeInfo, ElType2 property does nil-safe deref
       Result := GetTypeData(ArrType)^.ElType2;
       {$ELSE}
-      // Delphi: DynArrElType is PPTypeInfo
       Result := GetTypeData(ArrType)^.DynArrElType^;
       {$ENDIF}
     end;
   end;
- (*
-  function ElemTypeInfoOf(const ArrType: PTypeInfo): PTypeInfo;
-  var
-    Ctx: TRttiContext;
-    ArrT: TRttiType;
-  begin
-    Result := nil;
-    if (ArrType = nil) or (ArrType^.Kind <> tkDynArray) then
-      Exit;
-    Ctx := TRttiContext.Create;
-    try
-      ArrT := Ctx.GetType(ArrType);
-      if (ArrT is TRttiDynamicArrayType) and Assigned(TRttiDynamicArrayType(ArrT).ElementType) then
-        Result := TRttiDynamicArrayType(ArrT).ElementType.Handle;
-    finally
-      Ctx.Free;
-    end;
-  end;
- *)
 
 var
   R: IJsonContractResolver;
@@ -700,7 +640,6 @@ var
   C, ElemC: TJsonContract;
   NeedConditional: Boolean;
   ElemTI: PTypeInfo;
-  W: TEnhancedJsonSerializerWriter;
 begin
   R := ContractResolver;
   NeedConditional := False;
@@ -709,35 +648,30 @@ begin
 
   if C is TJsonObjectContract then
   begin
-    // Object root: only intercept if resolver already knows about conditional props
-    if Supports(R, IEnhancedContractResolverAccess, Access) then
+    Access := GetResolverAccess;
+    if Assigned(Access) then
       NeedConditional := Access.HasConditionalProps(C.TypeInf);
   end
   else if C is TJsonArrayContract then
   begin
-    // Array root: intercept if element is an object (properties may be lazily built)
     ElemTI := ElemTypeInfoOf(C.TypeInf);
     if ElemTI <> nil then
     begin
       ElemC := R.ResolveContract(ElemTI);
+      Access := GetResolverAccess;
       NeedConditional :=
         (ElemC is TJsonObjectContract) or
-        (Supports(R, IEnhancedContractResolverAccess, Access) and Access.HasConditionalProps(ElemTI));
+        (Assigned(Access) and Access.HasConditionalProps(ElemTI));
     end;
   end;
 
   if not NeedConditional then
   begin
-    BaseInternalSerialize(AWriter, AValue);
+    inherited InternalSerialize(AWriter, AValue);
     Exit;
   end;
 
-  W := TEnhancedJsonSerializerWriter.Create(Self);
-  try
-    W.Serialize(AWriter, AValue);
-  finally
-    W.Free;
-  end;
+  SerializeEnhanced(AWriter, AValue);
 end;
 
 { TJsonSerializerFactory }
