@@ -36,11 +36,12 @@ uses
 type
   TWalletTests = class(TSolLibTestCase)
   private
-    type
-      TKeyPair = record
-        PublicKey: string;
-        PrivateKey: string;
-      end;
+type
+  TKeyPair = record
+    PublicKey: string;
+    PrivateKey: string;
+    class function Create(const APublicKey, APrivateKey: string): TKeyPair; static;
+  end;
    const
     MnemonicWords = 'lens scheme misery search address destroy shallow police picture gown ' +
           'apart rural cotton vivid cage disagree enrich govern history kit early near cloth alarm';
@@ -87,19 +88,29 @@ type
 
 implementation
 
+{ TWalletTests.TKeyPair }
+
+class function TWalletTests.TKeyPair.Create(const APublicKey, APrivateKey: string): TKeyPair;
+begin
+  Result.PublicKey := APublicKey;
+  Result.PrivateKey := APrivateKey;
+end;
+
 { TWalletTests }
 
 class function TWalletTests.ExpectedSolletKeys: TArray<TKeyPair>;
 begin
-  SetLength(Result, 3);
-  Result[0].PublicKey := 'ALSzrjtGi8MZGmAZa6ZhtUZq3rwurWuJqWFdgcj9MMFL';
-  Result[0].PrivateKey := '5ZD7ntKtyHrnqMhfSuKBLdqHzT5N3a2aYnCGBcz4N78b84TKpjwQ4QBsapEnpnZFchM7F1BpqDkSuLdwMZwM8hLi';
-
-  Result[1].PublicKey := 'CgFKZ1VLJvip93rh7qKqiGwZjxXb4XXC4GhBGBizuWUb';
-  Result[1].PrivateKey := '5hTHMuq5vKJachfenfKeAoDhMttXFfN77G51L8KiVRsZqRmzFvNLUdMFDRYgTfuX6yy9g6gCpatzray4XFX5B8xb';
-
-  Result[2].PublicKey := 'C6jL32xjsGr9fmMdd56TF9oQURN19EfemFxkdpzRoyxm';
-  Result[2].PrivateKey := 'UYhpZrPoRGvHur6ZunZT6VraiTC85NjGsFDrm8LLx3kZkThHEUGSkAuJhn2KUAt2o2Nf3EeFhEW52REzmD3iPgV';
+  Result := TArray<TKeyPair>.Create(
+    TKeyPair.Create(
+      'ALSzrjtGi8MZGmAZa6ZhtUZq3rwurWuJqWFdgcj9MMFL',
+      '5ZD7ntKtyHrnqMhfSuKBLdqHzT5N3a2aYnCGBcz4N78b84TKpjwQ4QBsapEnpnZFchM7F1BpqDkSuLdwMZwM8hLi'),
+    TKeyPair.Create(
+      'CgFKZ1VLJvip93rh7qKqiGwZjxXb4XXC4GhBGBizuWUb',
+      '5hTHMuq5vKJachfenfKeAoDhMttXFfN77G51L8KiVRsZqRmzFvNLUdMFDRYgTfuX6yy9g6gCpatzray4XFX5B8xb'),
+    TKeyPair.Create(
+      'C6jL32xjsGr9fmMdd56TF9oQURN19EfemFxkdpzRoyxm',
+      'UYhpZrPoRGvHur6ZunZT6VraiTC85NjGsFDrm8LLx3kZkThHEUGSkAuJhn2KUAt2o2Nf3EeFhEW52REzmD3iPgV')
+  );
 end;
 
 class function TWalletTests.SeedWithoutPassphrase: TBytes;
