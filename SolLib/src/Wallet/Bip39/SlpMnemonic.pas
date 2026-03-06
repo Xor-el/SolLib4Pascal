@@ -306,9 +306,11 @@ begin
 end;
 
 class function TMnemonic.CorrectWordCount(MS: Integer): Boolean;
+var
+ V: Integer;
 begin
   Result := False;
-  for var V in FMsArray do
+  for V in FMsArray do
     if V = MS then
       Exit(True);
 end;

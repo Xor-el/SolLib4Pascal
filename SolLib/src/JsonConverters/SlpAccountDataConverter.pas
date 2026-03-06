@@ -88,6 +88,7 @@ var
   SArr: TArray<string>;
   JV: TJSONValue;
   V: TValue;
+  S: string;
 begin
   V := AValue.Unwrap();
   // Expecting a TArray<string> in all cases
@@ -129,7 +130,7 @@ begin
 
   // Default: write as a plain array of strings (e.g., ["", "base64"])
   AWriter.WriteStartArray;
-  for var S in SArr do
+  for S in SArr do
     AWriter.WriteValue(S);
   AWriter.WriteEndArray;
 end;

@@ -692,6 +692,7 @@ end;
 function TTokenWallet.Balances: TList<ITokenWalletBalance>;
 var
   LMintBalances: TDictionary<string, ITokenWalletBalance>;
+  Pair: TPair<string, ITokenWalletBalance>;
   LToken: TTokenAccount;
   LMint: string;
   LBal: ITokenWalletBalance;
@@ -736,7 +737,7 @@ begin
 
     Result := TList<ITokenWalletBalance>.Create();
     try
-      for var Pair in LMintBalances do
+      for Pair in LMintBalances do
         Result.Add(Pair.Value);
 
       Result.Sort(
