@@ -97,7 +97,7 @@ begin
     else if Prop = 'error' then
     begin
       case AReader.TokenType of
-        TJsonToken.String:
+        TJsonToken.&String:
           Err.ErrorMessage := AReader.Value.AsString;
 
         TJsonToken.StartObject:

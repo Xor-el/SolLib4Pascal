@@ -80,7 +80,7 @@ begin
 
   Err := TTransactionError.Create;
 
-  if AReader.TokenType = TJsonToken.String then
+  if AReader.TokenType = TJsonToken.&String then
   begin
     EnumStr := AReader.Value.AsString;
     if TryParseEnum(TypeInfo(TTransactionErrorType), EnumStr, EnumOrd) then
@@ -112,14 +112,14 @@ begin
 
     AReader.Read;
 
-    if AReader.TokenType <> TJsonToken.Integer then
+    if AReader.TokenType <> TJsonToken.&Integer then
       raise EJsonException.Create('Unexpected error value.');
 
     Err.InstructionError.InstructionIndex := AReader.Value.AsInteger;
 
     AReader.Read;
 
-    if AReader.TokenType = TJsonToken.String then
+    if AReader.TokenType = TJsonToken.&String then
     begin
       EnumStr := AReader.Value.AsString;
       if TryParseEnum(TypeInfo(TInstructionErrorType), EnumStr, EnumOrd) then
@@ -143,11 +143,11 @@ begin
 
     AReader.Read;
 
-    if (AReader.TokenType = TJsonToken.Integer) or
+    if (AReader.TokenType = TJsonToken.&Integer) or
       (AReader.TokenType = TJsonToken.Null) then
     begin
       case AReader.TokenType of
-        TJsonToken.Integer:
+        TJsonToken.&Integer:
           Err.InstructionError.CustomError := UInt32(AReader.Value.AsUInt64);
 
         TJsonToken.Null:
@@ -159,7 +159,7 @@ begin
       Exit(Err);
     end;
 
-    if AReader.TokenType <> TJsonToken.String then
+    if AReader.TokenType <> TJsonToken.&String then
       raise EJsonException.Create('Unexpected error value.');
 
     Err.InstructionError.BorshIoError := AReader.Value.AsString;

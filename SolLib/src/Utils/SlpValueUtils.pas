@@ -43,6 +43,7 @@ type
 
   TValueUtils = class sealed
   private
+    class function FindParameterlessCtor(const InstT: TRttiInstanceType): TRttiMethod; static;
     class function CreateCollectionInstance(const AType: TRttiType): TObject; static;
 
     { enumeration & helpers }
@@ -223,12 +224,23 @@ begin
     Seen.Add(Ptr, 0);
 end;
 
+class function TValueUtils.FindParameterlessCtor(const InstT: TRttiInstanceType): TRttiMethod;
+var
+  M: TRttiMethod;
+begin
+  Result := nil;
+  for M in InstT.GetMethods do
+    if (M.MethodKind = mkConstructor) and SameText(M.Name, SCreate) and
+       (Length(M.GetParameters) = 0) then
+      Exit(M);
+end;
+
 class function TValueUtils.MakeInstanceForPopulate(ANativeType: PTypeInfo): TValue;
 var
   Ctx: TRttiContext;
   RType: TRttiType;
   InstT: TRttiInstanceType;
-  M, Ctor: TRttiMethod;
+  Ctor: TRttiMethod;
   Obj: TObject;
 begin
   Result := TValue.Empty;
@@ -243,22 +255,12 @@ begin
       Exit;
 
     InstT := TRttiInstanceType(RType);
-
-    // 1) Prefer a parameterless "Create" constructor
-    Ctor := nil;
-    for M in InstT.GetMethods do
-      if (M.MethodKind = mkConstructor) and SameText(M.Name, SCreate) and
-         (Length(M.GetParameters) = 0) then
-      begin
-        Ctor := M;
-        Break;
-      end;
+    Ctor := FindParameterlessCtor(InstT);
 
     if Assigned(Ctor) then
       Result := Ctor.Invoke(InstT.MetaclassType, [])
     else
     begin
-      // 2) Fallback allocation without running constructors
       Obj := InstT.MetaclassType.NewInstance;
       TValue.Make(@Obj, ANativeType, Result);
     end;
@@ -270,20 +272,13 @@ end;
 class function TValueUtils.CreateCollectionInstance(const AType: TRttiType): TObject;
 var
   InstT: TRttiInstanceType;
-  M, Ctor: TRttiMethod;
+  Ctor: TRttiMethod;
 begin
   Result := nil;
   if not (AType is TRttiInstanceType) then Exit;
 
   InstT := TRttiInstanceType(AType);
-  Ctor := nil;
-  for M in InstT.GetMethods do
-    if (M.MethodKind = mkConstructor) and SameText(M.Name, SCreate) and
-       (Length(M.GetParameters) = 0) then
-    begin
-      Ctor := M;
-      Break;
-    end;
+  Ctor := FindParameterlessCtor(InstT);
 
   if not Assigned(Ctor) then
     raise EInvalidOp.CreateFmt('Type %s requires a parameterless Create constructor.',

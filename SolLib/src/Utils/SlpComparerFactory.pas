@@ -31,21 +31,23 @@ type
   /// Factory for string equality comparers and dictionaries.
   /// </summary>
   TStringComparerFactory = class sealed
+  strict private
+    class var FOrdinalIgnoreCase: IEqualityComparer<string>;
+    class constructor Create;
   public
     /// <summary>
     /// Case-insensitive comparer for strings.
     /// </summary>
-    class function OrdinalIgnoreCase: IEqualityComparer<string>; static;
+    class function OrdinalIgnoreCase: IEqualityComparer<string>; static; inline;
   end;
 
 implementation
 
 { TStringComparerFactory }
 
-class function TStringComparerFactory.OrdinalIgnoreCase: IEqualityComparer<string>;
+class constructor TStringComparerFactory.Create;
 begin
-  // Build a comparer that treats strings case-insensitively
-  Result := TEqualityComparer<string>.Construct(
+  FOrdinalIgnoreCase := TEqualityComparer<string>.Construct(
     function(const Left, Right: string): Boolean
     begin
       Result := SameText(Left, Right);
@@ -55,6 +57,11 @@ begin
       Result := THashBobJenkins.GetHashValue(UpperCase(Value));
     end
   );
+end;
+
+class function TStringComparerFactory.OrdinalIgnoreCase: IEqualityComparer<string>;
+begin
+  Result := FOrdinalIgnoreCase;
 end;
 
 end.

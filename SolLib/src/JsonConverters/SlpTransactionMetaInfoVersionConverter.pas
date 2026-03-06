@@ -65,13 +65,13 @@ begin
   SkipPropertyName(AReader);
 
   case AReader.TokenType of
-    TJsonToken.String:
+    TJsonToken.&String:
       begin
         S := AReader.Value.AsString;
         Exit(TValue.From<string>(S));
       end;
 
-    TJsonToken.Integer:
+    TJsonToken.&Integer:
       begin
         I64 := AReader.Value.AsInt64;
         // Must fit in 32-bit Integer

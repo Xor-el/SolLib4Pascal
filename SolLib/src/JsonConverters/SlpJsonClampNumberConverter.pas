@@ -52,7 +52,7 @@ implementation
 
 function IsNumericToken(const AToken: TJsonToken): Boolean;
 begin
-  Result := AToken in [TJsonToken.Float, TJsonToken.Integer];
+  Result := AToken in [TJsonToken.Float, TJsonToken.&Integer];
 end;
 
 function GetTypeBounds(const ATypeInfo: PTypeInfo; out AMin, AMax: Double): Boolean;

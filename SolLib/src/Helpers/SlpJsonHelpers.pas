@@ -82,8 +82,6 @@ type
 
     /// Convenience: write "Name": <value> where <value> is a TJSONValue.
     procedure WriteJsonProperty(const Name: string; const JV: TJSONValue);
-
-    //function TryWriteTValue(const V: TValue): Boolean;
   end;
 
   TJsonNamingPolicyHelper = record helper for TJsonNamingPolicy
@@ -241,11 +239,11 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
           end;
         end;
 
-      TJsonToken.String:
+      TJsonToken.&String:
         Exit(TJSONString.Create(R.Value.AsString));
 
       // Use typed accessors for numerics (avoid invalid casts)
-      TJsonToken.Integer:
+      TJsonToken.&Integer:
         Exit(TJSONNumber.Create(R.Value.AsInt64));
 
       TJsonToken.Float:
