@@ -99,7 +99,7 @@ begin
               AuthorityKey, PayerKey, LookupTableKey, Bump, RecentSlot);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
   AssertEquals(4, LInstr.Keys.Count, 'Keys.Count mismatch');
 end;
 
@@ -110,7 +110,7 @@ begin
   LInstr := TAddressLookupTableProgram.FreezeLookupTable(LookupTableKey, AuthorityKey);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
   AssertEquals(2, LInstr.Keys.Count, 'Keys.Count mismatch');
 end;
 
@@ -126,7 +126,7 @@ begin
               LookupTableKey, AuthorityKey, PayerKey, LKeys);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
   AssertEquals(4, LInstr.Keys.Count, 'Keys.Count mismatch');
 end;
 
@@ -137,7 +137,7 @@ begin
   LInstr := TAddressLookupTableProgram.DeactivateLookupTable(LookupTableKey, AuthorityKey);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
   AssertEquals(2, LInstr.Keys.Count, 'Keys.Count mismatch');
 end;
 
@@ -148,7 +148,7 @@ begin
   LInstr := TAddressLookupTableProgram.CloseLookupTable(LookupTableKey, AuthorityKey, RentSysvarKey);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
   AssertEquals(3, LInstr.Keys.Count, 'Keys.Count mismatch');
 end;
 

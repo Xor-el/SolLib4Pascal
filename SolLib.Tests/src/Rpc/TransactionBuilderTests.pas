@@ -348,7 +348,7 @@ begin
     )
     .CompileMessage;
 
-  AssertEquals<Byte>(CompiledMessageBytes, TxBytes, 'compiled message mismatch');
+  AssertEquals(CompiledMessageBytes, TxBytes, 'compiled message mismatch');
 end;
 
 procedure TTransactionBuilderTests.TestTransactionInstructionTest;

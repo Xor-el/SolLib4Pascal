@@ -61,8 +61,8 @@ type
     procedure AssertEquals(Expected, Actual: Double; Delta: Double = 0; const Msg: string = ''); overload;
     procedure AssertNotEquals(Expected, Actual: Double; Delta: Double = 0; const Msg: string = ''); overload;
 
-    procedure AssertEquals<T>(const Expected, Actual: TArray<T>; const Msg: string = ''); overload;
-    procedure AssertNotEquals<T>(const Expected, Actual: TArray<T>; const Msg: string = ''); overload;
+    procedure AssertEquals(const Expected, Actual: TBytes; const Msg: string = ''); overload;
+    procedure AssertNotEquals(const Expected, Actual: TBytes; const Msg: string = ''); overload;
 
     procedure AssertTrue(Condition: Boolean; Msg: string = '');
     procedure AssertFalse(Condition: Boolean; Msg: string = '');
@@ -163,16 +163,16 @@ begin
 end;
 
 
-procedure TSolLibTestCase.AssertEquals<T>(const Expected, Actual: TArray<T>;
+procedure TSolLibTestCase.AssertEquals(const Expected, Actual: TBytes;
   const Msg: string);
 begin
-  CheckTrue(TArrayUtils.AreArraysEqual<T>(Expected, Actual), Msg);
+  CheckTrue(TArrayUtils.AreArraysEqual(Expected, Actual), Msg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals<T>(const Expected, Actual: TArray<T>;
+procedure TSolLibTestCase.AssertNotEquals(const Expected, Actual: TBytes;
   const Msg: string);
 begin
-  CheckFalse(TArrayUtils.AreArraysEqual<T>(Expected, Actual), Msg);
+  CheckFalse(TArrayUtils.AreArraysEqual(Expected, Actual), Msg);
 end;
 
 procedure TSolLibTestCase.AssertTrue(Condition: Boolean; Msg: string);

@@ -220,8 +220,8 @@ var
 begin
   A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals<Byte>(A.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
-  AssertEquals<Byte>(A.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
+  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
+  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
   AssertEquals(ExpectedEncodedPublicKey, A.PublicKey.Key, 'Encoded public key mismatch');
 end;
 
@@ -231,8 +231,8 @@ var
 begin
   A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals<Byte>(A.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
-  AssertEquals<Byte>(A.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
+  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
+  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
   AssertEquals(ExpectedEncodedPrivateKey, A.PrivateKey.Key, 'Encoded private key mismatch');
 end;
 
@@ -243,10 +243,10 @@ var
 begin
   A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals<Byte>(A.PrivateKey.KeyBytes, PrivateKeyBytes);
-  AssertEquals<Byte>(A.PublicKey.KeyBytes,  PublicKeyBytes);
+  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes);
+  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes);
   Sig := A.Sign(SerializedMessageBytes);
-  AssertEquals<Byte>(Sig, SerializedMessageSignatureBytes, 'Signature mismatch');
+  AssertEquals(Sig, SerializedMessageSignatureBytes, 'Signature mismatch');
 end;
 
 procedure TAccountTests.TestAccountVerify;
@@ -256,8 +256,8 @@ var
 begin
   A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals<Byte>(A.PrivateKey.KeyBytes, PrivateKeyBytes);
-  AssertEquals<Byte>(A.PublicKey.KeyBytes,  PublicKeyBytes);
+  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes);
+  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes);
   Ok := A.Verify(SerializedMessageBytes, SerializedMessageSignatureBytes);
   AssertTrue(Ok, 'Verify should return True');
 end;
@@ -268,8 +268,8 @@ var
 begin
   A := TAccount.Create(PrivateKeyString, PublicKeyString);
 
-  AssertEquals<Byte>(A.PrivateKey.KeyBytes, ExpectedPrivateKeyBytes, 'Derived PrivateKey bytes mismatch');
-  AssertEquals<Byte>(A.PublicKey.KeyBytes,  ExpectedPublicKeyBytes,  'Derived PublicKey bytes mismatch');
+  AssertEquals(A.PrivateKey.KeyBytes, ExpectedPrivateKeyBytes, 'Derived PrivateKey bytes mismatch');
+  AssertEquals(A.PublicKey.KeyBytes,  ExpectedPublicKeyBytes,  'Derived PublicKey bytes mismatch');
 end;
 
 procedure TAccountTests.TestAccountToString;

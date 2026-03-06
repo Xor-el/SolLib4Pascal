@@ -234,7 +234,7 @@ var
 begin
   W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertEquals<Byte>(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
 
   Pairs := ExpectedSolletKeys;
   for I := 0 to High(Pairs) do
@@ -251,7 +251,7 @@ var
 begin
   W := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
 
-  AssertEquals<Byte>(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
   AssertEquals(ExpectedSolanaKeygenPublicKey,  W.Account.PublicKey.Key);
   AssertEquals(ExpectedSolanaKeygenPrivateKey, W.Account.PrivateKey.Key);
 end;
@@ -266,7 +266,7 @@ var
 begin
   W := SetupWalletFromSeed(TSeedMode.Ed25519Bip32);
 
-  AssertEquals<Byte>(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
 
   Pairs := ExpectedSolletKeys;
   for I := 0 to High(Pairs) do
@@ -283,7 +283,7 @@ var
 begin
   W := SetupWalletFromSeed(TSeedMode.Bip39);
 
-  AssertEquals<Byte>(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
   AssertEquals(ExpectedSolanaKeygenPublicKey,  W.Account.PublicKey.Key);
   AssertEquals(ExpectedSolanaKeygenPrivateKey, W.Account.PrivateKey.Key);
 end;
@@ -297,7 +297,7 @@ var
 begin
   W := SetupWalletFromMnemonic(TSeedMode.Ed25519Bip32);
 
-  AssertEquals<Byte>(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
 
   Pairs := ExpectedSolletKeys;
   for I := 0 to High(Pairs) do
@@ -314,7 +314,7 @@ var
 begin
   W := SetupWalletFromMnemonic(TSeedMode.Bip39);
 
-  AssertEquals<Byte>(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
   AssertEquals(ExpectedSolanaKeygenPublicKey,  W.Account.PublicKey.Key);
   AssertEquals(ExpectedSolanaKeygenPrivateKey, W.Account.PrivateKey.Key);
 end;
@@ -326,10 +326,10 @@ var
 begin
   W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertEquals<Byte>(SerializedMessageSignature, W.Account.Sign(SerializedMessage), 'acct sig mismatch');
+  AssertEquals(SerializedMessageSignature, W.Account.Sign(SerializedMessage), 'acct sig mismatch');
 
   Acc := W.GetAccountByIndex(0);
-  AssertEquals<Byte>(SerializedMessageSignature, Acc.Sign(SerializedMessage), 'acct[0] sig mismatch');
+  AssertEquals(SerializedMessageSignature, Acc.Sign(SerializedMessage), 'acct[0] sig mismatch');
 end;
 
 procedure TWalletTests.TestWalletSignEd25519Bip32;
@@ -338,8 +338,8 @@ var
 begin
   W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertEquals<Byte>(SerializedMessageSignature, W.Account.Sign(SerializedMessage), 'acct sig mismatch');
-  AssertEquals<Byte>(SerializedMessageSignature, W.Sign(SerializedMessage), 'wallet sig mismatch');
+  AssertEquals(SerializedMessageSignature, W.Account.Sign(SerializedMessage), 'acct sig mismatch');
+  AssertEquals(SerializedMessageSignature, W.Sign(SerializedMessage), 'wallet sig mismatch');
 end;
 
 procedure TWalletTests.TestAccountVerifyEd25519Bip32;
@@ -394,7 +394,7 @@ begin
   );
 
   // Default wallet sign (index 0 under Bip39) should match expected signature
-  AssertEquals<Byte>(SerializedMessageSignatureBip39, W.Sign(SerializedMessage), 'bip39 wallet sig mismatch');
+  AssertEquals(SerializedMessageSignatureBip39, W.Sign(SerializedMessage), 'bip39 wallet sig mismatch');
 end;
 
 procedure TWalletTests.TestAccountSignBip39;
@@ -422,7 +422,7 @@ begin
     Exception
   );
 
-  AssertEquals<Byte>(SerializedMessageSignatureBip39, W.Account.Sign(SerializedMessage), 'bip39 acct sig mismatch');
+  AssertEquals(SerializedMessageSignatureBip39, W.Account.Sign(SerializedMessage), 'bip39 acct sig mismatch');
 end;
 
 procedure TWalletTests.TestWalletVerifyBip39;

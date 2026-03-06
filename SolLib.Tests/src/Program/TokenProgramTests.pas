@@ -429,8 +429,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedTransferData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedTransferData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestTransferChecked;
@@ -455,8 +455,8 @@ begin
             );
 
   AssertEquals(4, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedTransferCheckedData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedTransferCheckedData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestTransferCheckedMultiSignature;
@@ -483,8 +483,8 @@ begin
               );
 
     AssertEquals(9, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedTransferCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedTransferCheckedData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -506,8 +506,8 @@ begin
             );
 
   AssertEquals(4, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedInitializeAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedInitializeAccountData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestInitializeMint;
@@ -525,8 +525,8 @@ begin
             );
 
   AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedInitializeMintData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedInitializeMintData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestInitializeMultisig;
@@ -548,8 +548,8 @@ begin
     TxInstruction := TTokenProgram.InitializeMultiSignature(MultiSig.PublicKey, Signers.ToArray, 3);
 
     AssertEquals(7, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedInitializeMultiSignatureData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedInitializeMultiSignatureData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -571,8 +571,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedMintToData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedMintToData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestMintToChecked;
@@ -591,8 +591,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedMintToCheckedData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedMintToCheckedData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestMintToCheckedMultiSignature;
@@ -618,8 +618,8 @@ begin
               );
 
     AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedMintToCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedMintToCheckedData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -641,8 +641,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedBurnData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedBurnData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestBurnChecked;
@@ -661,8 +661,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedBurnCheckedData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedBurnCheckedData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestBurnMultiSignature;
@@ -688,8 +688,8 @@ begin
               );
 
     AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedBurnData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedBurnData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -718,8 +718,8 @@ begin
               );
 
     AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedBurnCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedBurnCheckedData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -741,8 +741,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedApproveData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedApproveData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestApproveMultiSignature;
@@ -768,8 +768,8 @@ begin
               );
 
     AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedApproveData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedApproveData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -800,8 +800,8 @@ begin
               );
 
     AssertEquals(9, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedApproveCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedApproveCheckedData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -831,8 +831,8 @@ begin
               );
 
     AssertEquals(9, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedApproveCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedApproveCheckedData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -853,8 +853,8 @@ begin
             );
 
   AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedRevokeData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedRevokeData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestRevokeMultiSignature;
@@ -879,8 +879,8 @@ begin
               );
 
     AssertEquals(7, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedRevokeData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedRevokeData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -902,8 +902,8 @@ begin
             );
 
   AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedSetAuthorityOwnerData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityOwnerData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityOwnerMultiSignature;
@@ -929,8 +929,8 @@ begin
             );
 
   AssertEquals(7, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedSetAuthorityOwnerData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityOwnerData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -952,8 +952,8 @@ begin
             );
 
   AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedSetAuthorityCloseData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityCloseData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityFreeze;
@@ -972,8 +972,8 @@ begin
             );
 
   AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedSetAuthorityFreezeData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityFreezeData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityMint;
@@ -992,8 +992,8 @@ begin
             );
 
   AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedSetAuthorityMintData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityMintData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestCloseAccount;
@@ -1011,8 +1011,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedCloseAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedCloseAccountData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestCloseAccountMultiSignature;
@@ -1037,8 +1037,8 @@ begin
             );
 
   AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedCloseAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedCloseAccountData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -1060,8 +1060,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedFreezeAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedFreezeAccountData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestFreezeAccountMultiSignature;
@@ -1087,8 +1087,8 @@ begin
               );
 
     AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedFreezeAccountData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedFreezeAccountData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -1110,8 +1110,8 @@ begin
             );
 
   AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedThawAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedThawAccountData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestThawAccountMultiSignature;
@@ -1137,8 +1137,8 @@ begin
               );
 
     AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals<Byte>(ExpectedThawAccountData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedThawAccountData, TxInstruction.Data, 'Data mismatch');
   finally
     Signers.Free;
   end;
@@ -1156,8 +1156,8 @@ begin
   TxInstruction := TTokenProgram.SyncNative(Account.PublicKey);
 
   AssertEquals(1, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(ExpectedSyncNativeData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSyncNativeData, TxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestInitializeMultisigDecode;

@@ -95,7 +95,7 @@ begin
   begin
     Decoded := TEncoders.Base58.DecodeData(DataSet[I].B58);
     Expected := FromHexString(DataSet[I].Hex);
-    AssertEquals<Byte>(Decoded, Expected);
+    AssertEquals(Decoded, Expected);
   end;
 end;
 
@@ -124,7 +124,7 @@ begin
   // only ignorable whitespace around the word "skip"
   ResultBytes := TEncoders.Base58.DecodeData(' '#9#10#11#12#13' skip '#13#12#11#10#9' ');
   Expected2 := FromHexString('971a55');
-  AssertEquals<Byte>(ResultBytes, Expected2);
+  AssertEquals(ResultBytes, Expected2);
 end;
 
 procedure TBase58Tests.ShouldThrowExceptionOnEncodingNilOrEmptyArray;

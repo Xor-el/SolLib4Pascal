@@ -324,8 +324,8 @@ begin
   );
 
   AssertEquals(8, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals<Byte>(ExpectedInitializeData, Tx.Data, 'Data');
+  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedInitializeData, Tx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestSwap;
@@ -361,8 +361,8 @@ begin
   );
 
   AssertEquals(11, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals<Byte>(ExpectedSwapData, Tx.Data, 'Data');
+  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedSwapData, Tx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestDepositAllTokenTypes;
@@ -397,8 +397,8 @@ begin
   );
 
   AssertEquals(10, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals<Byte>(ExpectedDepositAllTokenTypesData, Tx.Data, 'Data');
+  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedDepositAllTokenTypesData, Tx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestWithdrawAllTokenTypes;
@@ -435,8 +435,8 @@ begin
   );
 
   AssertEquals(11, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals<Byte>(ExpectedWithdrawAllTokenTypesData, Tx.Data, 'Data');
+  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedWithdrawAllTokenTypesData, Tx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestDepositSingleTokenTypeExactAmountInTypes;
@@ -468,8 +468,8 @@ begin
   );
 
   AssertEquals(9, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals<Byte>(ExpectedDepositSingleTokenTypeExactAmountInData, Tx.Data, 'Data');
+  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedDepositSingleTokenTypeExactAmountInData, Tx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestWithdrawSingleTokenTypeExactAmountOutTypes;
@@ -503,8 +503,8 @@ begin
   );
 
   AssertEquals(10, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals<Byte>(ExpectedWithdrawSingleTokenTypeExactAmountOutData,  Tx.Data, 'Data');
+  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedWithdrawSingleTokenTypeExactAmountOutData,  Tx.Data, 'Data');
 end;
 
 { === Decode Tests (value-by-value + Free the list) ========================= }

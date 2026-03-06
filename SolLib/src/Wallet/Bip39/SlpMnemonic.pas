@@ -364,7 +364,7 @@ begin
     Writer.Free;
   end;
 
-  FIsValidChecksum := TArrayUtils.AreArraysEqual<Integer>(ExpectedIndices, FIndices);
+  FIsValidChecksum := TArrayUtils.AreArraysEqual(ExpectedIndices, FIndices);
   Result := FIsValidChecksum.Value;
 end;
 

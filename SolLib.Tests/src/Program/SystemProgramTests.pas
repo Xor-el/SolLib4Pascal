@@ -229,8 +229,8 @@ begin
   Tx := TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 10000000);
 
   AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TransferInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,    Tx.ProgramId, 'ProgramId');
+  AssertEquals(TransferInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,    Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramCreateAccount;
@@ -252,8 +252,8 @@ begin
        );
 
   AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(CreateAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,         Tx.ProgramId, 'ProgramId');
+  AssertEquals(CreateAccountInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,         Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAssign;
@@ -269,8 +269,8 @@ begin
   Tx := TSystemProgram.Assign(Account.PublicKey, NewOwner.PublicKey);
 
   AssertEquals(1, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(AssignInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,   Tx.ProgramId, 'ProgramId');
+  AssertEquals(AssignInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,   Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramCreateAccountWithSeed;
@@ -296,8 +296,8 @@ begin
        );
 
   AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(CreateAccountWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,                  Tx.ProgramId, 'ProgramId');
+  AssertEquals(CreateAccountWithSeedInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                  Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAdvanceNonceAccount;
@@ -313,8 +313,8 @@ begin
   Tx := TSystemProgram.AdvanceNonceAccount(NonceAcc.PublicKey, Owner.PublicKey);
 
   AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(AdvanceNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,                Tx.ProgramId, 'ProgramId');
+  AssertEquals(AdvanceNonceAccountInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramWithdrawNonceAccount;
@@ -336,8 +336,8 @@ begin
        );
 
   AssertEquals(5, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(WithdrawNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,                 Tx.ProgramId, 'ProgramId');
+  AssertEquals(WithdrawNonceAccountInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                 Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramInitializeNonceAccount;
@@ -353,8 +353,8 @@ begin
   Tx := TSystemProgram.InitializeNonceAccount(NonceAcc.PublicKey, Owner.PublicKey);
 
   AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(InitializeNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,                   Tx.ProgramId, 'ProgramId');
+  AssertEquals(InitializeNonceAccountInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                   Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAuthorizeNonceAccount;
@@ -375,8 +375,8 @@ begin
        );
 
   AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(AuthorizeNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,                  Tx.ProgramId, 'ProgramId');
+  AssertEquals(AuthorizeNonceAccountInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                  Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAllocate;
@@ -391,8 +391,8 @@ begin
   Tx := TSystemProgram.Allocate(NonceAcc.PublicKey, 1000000);
 
   AssertEquals(1, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(AllocateInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,     Tx.ProgramId, 'ProgramId');
+  AssertEquals(AllocateInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,     Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAllocateWithSeed;
@@ -415,8 +415,8 @@ begin
        );
 
   AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(AllocateWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,             Tx.ProgramId, 'ProgramId');
+  AssertEquals(AllocateWithSeedInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,             Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAssignWithSeed;
@@ -438,8 +438,8 @@ begin
        );
 
   AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(AssignWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,           Tx.ProgramId, 'ProgramId');
+  AssertEquals(AssignWithSeedInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,           Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramTransferWithSeed;
@@ -464,8 +464,8 @@ begin
        );
 
   AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(TransferWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(SystemProgramIdBytes,             Tx.ProgramId, 'ProgramId');
+  AssertEquals(TransferWithSeedInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,             Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestNonceAccountDeserializationException;

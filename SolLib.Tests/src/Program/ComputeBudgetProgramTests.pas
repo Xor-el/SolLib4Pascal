@@ -92,8 +92,8 @@ var
 begin
   Tx := TComputeBudgetProgram.RequestHeapFrame(32768);
   AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(RequestHeapFrameInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(ComputeBudgetProgramIdBytes,      Tx.ProgramId, 'ProgramId');
+  AssertEquals(RequestHeapFrameInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,      Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TComputeBudgetProgramTests.TestComputeBudgetProgramSetComputeUnitLimit;
@@ -102,8 +102,8 @@ var
 begin
   Tx := TComputeBudgetProgram.SetComputeUnitLimit(200000);
   AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(SetComputeUnitLimitInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(ComputeBudgetProgramIdBytes,         Tx.ProgramId, 'ProgramId');
+  AssertEquals(SetComputeUnitLimitInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,         Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TComputeBudgetProgramTests.TestComputeBudgetProgramSetComputeUnitPrice;
@@ -112,8 +112,8 @@ var
 begin
   Tx := TComputeBudgetProgram.SetComputeUnitPrice(100000);
   AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(SetComputeUnitPriceInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(ComputeBudgetProgramIdBytes,         Tx.ProgramId, 'ProgramId');
+  AssertEquals(SetComputeUnitPriceInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,         Tx.ProgramId, 'ProgramId');
 end;
 
 procedure TComputeBudgetProgramTests.TestComputeBudgetProgramSetLoadedAccountsDataSizeLimit;
@@ -122,8 +122,8 @@ var
 begin
   Tx := TComputeBudgetProgram.SetLoadedAccountsDataSizeLimit(350000);
   AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals<Byte>(SetLoadedAccountsDataSizeLimitInstructionBytes, Tx.Data, 'Data');
-  AssertEquals<Byte>(ComputeBudgetProgramIdBytes,                    Tx.ProgramId, 'ProgramId');
+  AssertEquals(SetLoadedAccountsDataSizeLimitInstructionBytes, Tx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,                    Tx.ProgramId, 'ProgramId');
 end;
 
 initialization

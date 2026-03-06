@@ -149,7 +149,7 @@ var
   PK: IPrivateKey;
 begin
   PK := TPrivateKey.Create(PrivateKeyString);
-  AssertEquals<Byte>(ExpectedPrivateKeyBytes, PK.KeyBytes, 'PrivateKey bytes mismatch');
+  AssertEquals(ExpectedPrivateKeyBytes, PK.KeyBytes, 'PrivateKey bytes mismatch');
 end;
 
 procedure TKeysTests.TestPrivateKeyToString;
@@ -300,6 +300,8 @@ begin
 end;
 
 procedure TKeysTests.TestCreateProgramAddress;
+const
+  SunSymbol = Char($2609);
 var
   Loader, PubKey: IPublicKey;
   Ok: Boolean;
@@ -326,7 +328,7 @@ begin
   PubKey := nil;
 
   // 3) "☉"
-  Ok := TPublicKey.TryCreateProgramAddress([TEncoding.UTF8.GetBytes('☉')], Loader, PubKey);
+  Ok := TPublicKey.TryCreateProgramAddress([TEncoding.UTF8.GetBytes(SunSymbol)], Loader, PubKey);
   AssertTrue(Ok, 'TryCreateProgramAddress #3 failed');
   AssertEquals('7ytmC1nT1xY4RfxCV2ZgyA7UakC93do5ZdyhdF3EtPj7', PubKey.Key);
 end;

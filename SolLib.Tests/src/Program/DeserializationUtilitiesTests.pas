@@ -327,7 +327,7 @@ var
 begin
   PK := PublicKeyBytes;
   Span := TDeserialization.GetSpan(PK, 0, 32);
-  AssertEquals<Byte>(PK, Span, 'GetSpan');
+  AssertEquals(PK, Span, 'GetSpan');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadPublicKeyException;

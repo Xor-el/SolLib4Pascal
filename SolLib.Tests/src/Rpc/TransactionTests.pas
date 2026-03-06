@@ -254,7 +254,7 @@ begin
 
     Tx := TTransaction.Populate(Base64Message, SigList.ToArray());
     TxBytes := Tx.Serialize;
-    AssertEquals<Byte>(TxBytes, GetCraftTransactionBytes, 'Populate() serialized bytes mismatch');
+    AssertEquals(TxBytes, GetCraftTransactionBytes, 'Populate() serialized bytes mismatch');
   finally
     SigList.Free;
   end;
@@ -270,7 +270,7 @@ begin
   Tx := TTransaction.Populate(Msg);
 
   OutBytes := Tx.CompileMessage;
-  AssertEquals<Byte>(OutBytes, GetCompiledMessageBytes, 'CompileMessage mismatch');
+  AssertEquals(OutBytes, GetCompiledMessageBytes, 'CompileMessage mismatch');
 end;
 
 procedure TTransactionTests.SignTest;
@@ -288,7 +288,7 @@ begin
   Tx := TTransaction.Populate(Msg);
   AssertTrue(Tx.Sign(Owner), 'Sign should succeed');
   TxBytes := Tx.Serialize;
-  AssertEquals<Byte>(TxBytes, GetCompiledAndSignedBytes, 'Signed bytes mismatch');
+  AssertEquals(TxBytes, GetCompiledAndSignedBytes, 'Signed bytes mismatch');
 end;
 
 procedure TTransactionTests.BuildTest;
@@ -305,7 +305,7 @@ begin
 
   Tx := TTransaction.Populate(Msg);
   TxBytes := Tx.Build(Owner);
-  AssertEquals<Byte>(TxBytes, GetCompiledAndSignedBytes, 'Build bytes mismatch');
+  AssertEquals(TxBytes, GetCompiledAndSignedBytes, 'Build bytes mismatch');
 end;
 
 procedure TTransactionTests.AddSignatureTest;
@@ -325,7 +325,7 @@ begin
   Sig := Owner.Sign(Tx.CompileMessage);
   Tx.AddSignature(Owner.PublicKey, Sig);
   TxBytes := Tx.Serialize;
-  AssertEquals<Byte>(TxBytes, GetCompiledAndSignedBytes, 'AddSignature bytes mismatch');
+  AssertEquals(TxBytes, GetCompiledAndSignedBytes, 'AddSignature bytes mismatch');
 end;
 
 
@@ -361,7 +361,7 @@ begin
     .CompileMessage;
 
   ExpectedTail := GetCraftTransactionTail;
-  AssertEquals<Byte>(TxBytes, ExpectedTail, 'Compiled message tail mismatch');
+  AssertEquals(TxBytes, ExpectedTail, 'Compiled message tail mismatch');
 end;
 
 
@@ -412,7 +412,7 @@ begin
   Tx.AddSignature(Initial.PublicKey, Initial.Sign(MsgBytes));
 
   Serialized := Tx.Serialize;
-  AssertEquals<Byte>(Serialized, GetCraftTransactionBytes, 'PartialSign serialized bytes mismatch');
+  AssertEquals(Serialized, GetCraftTransactionBytes, 'PartialSign serialized bytes mismatch');
 end;
 
 initialization

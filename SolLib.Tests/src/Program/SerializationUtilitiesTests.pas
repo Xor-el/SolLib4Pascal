@@ -135,7 +135,7 @@ var
 begin
   SetLength(SUT, 1);
   TSerialization.WriteU8(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1), SUT, 'WriteU8');
+  AssertEquals(TBytes.Create(1), SUT, 'WriteU8');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteU16Exception;
@@ -158,7 +158,7 @@ var
 begin
   SetLength(SUT, 2);
   TSerialization.WriteU16(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1,0), SUT, 'WriteU16 (LE)');
+  AssertEquals(TBytes.Create(1,0), SUT, 'WriteU16 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteBoolException;
@@ -181,7 +181,7 @@ var
 begin
   SetLength(SUT, 2);
   TSerialization.WriteBool(SUT, True, 0);
-  AssertEquals<Byte>(TBytes.Create(1,0), SUT, 'WriteBool');
+  AssertEquals(TBytes.Create(1,0), SUT, 'WriteBool');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteU32Exception;
@@ -204,7 +204,7 @@ var
 begin
   SetLength(SUT, 4);
   TSerialization.WriteU32(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1,0,0,0), SUT, 'WriteU32 (LE)');
+  AssertEquals(TBytes.Create(1,0,0,0), SUT, 'WriteU32 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteU64Exception;
@@ -227,7 +227,7 @@ var
 begin
   SetLength(SUT, 8);
   TSerialization.WriteU64(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1,0,0,0,0,0,0,0), SUT, 'WriteU64 (LE)');
+  AssertEquals(TBytes.Create(1,0,0,0,0,0,0,0), SUT, 'WriteU64 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS8Exception;
@@ -250,7 +250,7 @@ var
 begin
   SetLength(SUT, 1);
   TSerialization.WriteS8(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1), SUT, 'WriteS8');
+  AssertEquals(TBytes.Create(1), SUT, 'WriteS8');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS16Exception;
@@ -273,7 +273,7 @@ var
 begin
   SetLength(SUT, 2);
   TSerialization.WriteS16(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1,0), SUT, 'WriteS16 (LE)');
+  AssertEquals(TBytes.Create(1,0), SUT, 'WriteS16 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS32Exception;
@@ -296,7 +296,7 @@ var
 begin
   SetLength(SUT, 4);
   TSerialization.WriteS32(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1,0,0,0), SUT, 'WriteS32 (LE)');
+  AssertEquals(TBytes.Create(1,0,0,0), SUT, 'WriteS32 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS64Exception;
@@ -319,7 +319,7 @@ var
 begin
   SetLength(SUT, 8);
   TSerialization.WriteS64(SUT, 1, 0);
-  AssertEquals<Byte>(TBytes.Create(1,0,0,0,0,0,0,0), SUT, 'WriteS64 (LE)');
+  AssertEquals(TBytes.Create(1,0,0,0,0,0,0,0), SUT, 'WriteS64 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteSpanException;
@@ -342,7 +342,7 @@ var
 begin
   SetLength(SUT, 32);
   TSerialization.WriteSpan(SUT, PublicKeyBytes, 0);
-  AssertEquals<Byte>(PublicKeyBytes, SUT, 'WriteSpan');
+  AssertEquals(PublicKeyBytes, SUT, 'WriteSpan');
 end;
 
 procedure TSerializationUtilitiesTests.TestWritePublicKeyException;
@@ -369,7 +369,7 @@ begin
   SetLength(SUT, 32);
   LPubKey := TPublicKey.Create(PublicKeyBytes);
   TSerialization.WritePubKey(SUT, LPubKey, 0);
-  AssertEquals<Byte>(PublicKeyBytes, SUT, 'WritePubKey');
+  AssertEquals(PublicKeyBytes, SUT, 'WritePubKey');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteDoubleException;
@@ -392,7 +392,7 @@ var
 begin
   SetLength(BytesArr, 8);
   TSerialization.WriteDouble(BytesArr, 1.34534534564565, 0);
-  AssertEquals<Byte>(DoubleBytes, BytesArr, 'WriteDouble (LE)');
+  AssertEquals(DoubleBytes, BytesArr, 'WriteDouble (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteSingleException;
@@ -415,7 +415,7 @@ var
 begin
   SetLength(BytesArr, 4);
   TSerialization.WriteSingle(BytesArr, 1.34534534, 0);
-  AssertEquals<Byte>(SingleBytes, BytesArr, 'WriteSingle (LE)');
+  AssertEquals(SingleBytes, BytesArr, 'WriteSingle (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteRustString;
@@ -423,7 +423,7 @@ var
   Encoded: TBytes;
 begin
   Encoded := TSerialization.EncodeBincodeString('this is a test string');
-  AssertEquals<Byte>(EncodedStringBytes, Encoded, 'EncodeBincodeString');
+  AssertEquals(EncodedStringBytes, Encoded, 'EncodeBincodeString');
 end;
 
 initialization

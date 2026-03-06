@@ -487,7 +487,7 @@ begin
     AssertTrue(LDecoded[2].Values.TryGetValue('Data', LVal),  'I2 missing "Data"');
     LDataAct := LVal.AsType<TBytes>;
     LDataExp := TBytes.Create(1, 0, 15, 25, 77);
-    AssertEquals<Byte>(LDataExp, LDataAct, 'I2 Data');
+    AssertEquals(LDataExp, LDataAct, 'I2 Data');
   finally
     LDecoded.Free;
   end;

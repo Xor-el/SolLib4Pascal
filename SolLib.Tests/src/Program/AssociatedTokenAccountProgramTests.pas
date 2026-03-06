@@ -85,8 +85,8 @@ begin
             );
 
   AssertEquals(7, LInstr.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
-  AssertEquals<Byte>(EmptyBytes, LInstr.Data, 'Data should be empty array');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(EmptyBytes, LInstr.Data, 'Data should be empty array');
 end;
 
 

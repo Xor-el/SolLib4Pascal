@@ -69,7 +69,7 @@ begin
 
   Move(Payload[0], ExpectedData[8], Length(Payload));
 
-  AssertEquals<Byte>(ExpectedData, Tx.Data, 'Data');
+  AssertEquals(ExpectedData, Tx.Data, 'Data');
   AssertEquals(1, Tx.Keys.Count, 'Keys.Count');
 end;
 

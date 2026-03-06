@@ -131,7 +131,7 @@ begin
   sut := TSecretKeyStoreService.Create;
   try
     seed := sut.DecryptKeyStoreFromJson('randomPassword', json);
-    AssertEquals<Byte>(SeedWithPassphrase, seed, 'Seed mismatch');
+    AssertEquals(SeedWithPassphrase, seed, 'Seed mismatch');
   finally
     sut.Free;
   end;
@@ -230,7 +230,7 @@ begin
   ks := TKeyStorePbkdf2Service.Create;
   try
     seed := ks.DecryptKeyStoreFromJson('randomPassword', fileJson);
-    AssertEquals<Byte>(SeedWithPassphrase, seed, 'Seed mismatch (pbkdf2, with passphrase)');
+    AssertEquals(SeedWithPassphrase, seed, 'Seed mismatch (pbkdf2, with passphrase)');
   finally
     ks.Free;
   end;
@@ -283,7 +283,7 @@ begin
   sut := TKeyStoreScryptService.Create;
   try
     seed := sut.DecryptKeyStoreFromJson('testpassword', fileJson);
-    AssertEquals<Byte>(TEncoders.Hex.DecodeData(EthTestVectorSecret), seed, 'Seed mismatch (scrypt, with passphrase)');
+    AssertEquals(TEncoders.Hex.DecodeData(EthTestVectorSecret), seed, 'Seed mismatch (scrypt, with passphrase)');
   finally
     sut.Free;
   end;
@@ -301,7 +301,7 @@ begin
   ks := TKeyStorePbkdf2Service.Create;
   try
     seed := ks.DecryptKeyStoreFromJson('testpassword', fileJson);
-    AssertEquals<Byte>(TEncoders.Hex.DecodeData(EthTestVectorSecret), seed, 'Seed mismatch (pbkdf2, with passphrase)');
+    AssertEquals(TEncoders.Hex.DecodeData(EthTestVectorSecret), seed, 'Seed mismatch (pbkdf2, with passphrase)');
   finally
     ks.Free;
   end;

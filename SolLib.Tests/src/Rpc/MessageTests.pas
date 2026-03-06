@@ -77,10 +77,10 @@ begin
 
   // Instruction 0
   AssertEquals(4, Msg.Instructions[0].ProgramIdIndex);
-  AssertEquals<Byte>(Msg.Instructions[0].KeyIndices,      TBytes.Create(0, 1));
-  AssertEquals<Byte>(Msg.Instructions[0].KeyIndicesCount, TBytes.Create(2));
-  AssertEquals<Byte>(Msg.Instructions[0].DataLength,      TBytes.Create(52));
-  AssertEquals<Byte>(
+  AssertEquals(Msg.Instructions[0].KeyIndices,      TBytes.Create(0, 1));
+  AssertEquals(Msg.Instructions[0].KeyIndicesCount, TBytes.Create(2));
+  AssertEquals(Msg.Instructions[0].DataLength,      TBytes.Create(52));
+  AssertEquals(
     Msg.Instructions[0].Data,
     TBytes.Create(
       0,0,0,0,240,29,31,0,0,0,0,0,165,0,0,0,0,0,0,0,
@@ -91,10 +91,10 @@ begin
 
   // Instruction 1
   AssertEquals(5, Msg.Instructions[1].ProgramIdIndex);
-  AssertEquals<Byte>(Msg.Instructions[1].KeyIndices,      TBytes.Create(1, 2, 0, 3));
-  AssertEquals<Byte>(Msg.Instructions[1].KeyIndicesCount, TBytes.Create(4));
-  AssertEquals<Byte>(Msg.Instructions[1].DataLength,      TBytes.Create(1));
-  AssertEquals<Byte>(Msg.Instructions[1].Data,            TBytes.Create(1));
+  AssertEquals(Msg.Instructions[1].KeyIndices,      TBytes.Create(1, 2, 0, 3));
+  AssertEquals(Msg.Instructions[1].KeyIndicesCount, TBytes.Create(4));
+  AssertEquals(Msg.Instructions[1].DataLength,      TBytes.Create(1));
+  AssertEquals(Msg.Instructions[1].Data,            TBytes.Create(1));
 end;
 
 procedure TMessageTests.MessageSerializeTest;
@@ -166,7 +166,7 @@ begin
 
   // Serialize and verify
   Ser := Msg.Serialize;
-  AssertEquals<Byte>(Ser, MessageBytes, 'Serialized message bytes mismatch');
+  AssertEquals(Ser, MessageBytes, 'Serialized message bytes mismatch');
 end;
 
 initialization

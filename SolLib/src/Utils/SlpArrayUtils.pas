@@ -24,7 +24,6 @@ interface
 uses
   System.SysUtils,
   System.Math,
-  System.Generics.Defaults,
   SlpSolLibTypes;
 
 type
@@ -33,22 +32,14 @@ type
     class procedure RequireRange(Cond: Boolean; const Msg: string); static;
   public
 
-    /// <summary>
-    /// Element-wise equality for arrays of any type T using a comparer.
-    /// If <c>Comparer</c> is nil, uses <c>TEqualityComparer&lt;T&gt;.Default</c>.
-    /// </summary>
-    class function AreArraysEqual<T>(
-      const A, B: TArray<T>;
-      const Comparer: IEqualityComparer<T> = nil
-    ): Boolean; overload; static;
+    class function AreArraysEqual(const A, B: TBytes): Boolean; overload; static;
+    class function AreArraysEqual(const A, B: TArray<Integer>): Boolean; overload; static;
 
     /// <summary>Concatenate two arrays of any type T.</summary>
     class function Concat<T>(const A, B: TArray<T>): TArray<T>; static;
     class function Slice<T>(const A: TArray<T>; Offset: Integer): TArray<T>; overload;
     /// <summary>
     /// Generic slice: returns A[Offset .. Offset+Count-1], clamped to bounds.
-    /// - Managed T: element-wise copy (refcount-safe)
-    /// - Unmanaged T: bulk Move
     /// </summary>
     class function Slice<T>(const A: TArray<T>; Offset, Count: Integer): TArray<T>; overload;
 
@@ -62,8 +53,7 @@ type
 
     /// <summary>
     /// Copy Count items from Source[SrcIndex] into Dest[DestIndex].
-    /// No resizing: raises if the copy will not fit.
-    /// Overlap-safe. Managed types copied with assignments.
+    /// No resizing: raises if the copy will not fit. Overlap-safe.
     /// </summary>
     class procedure Copy<T>(
       const Source: TArray<T>; SrcIndex: Integer;
@@ -164,75 +154,45 @@ begin
     raise ERangeError.Create(Msg);
 end;
 
-class function TArrayUtils.AreArraysEqual<T>(
-  const A, B: TArray<T>;
-  const Comparer: IEqualityComparer<T>
-): Boolean;
+class function TArrayUtils.AreArraysEqual(const A, B: TBytes): Boolean;
 var
   LA: Integer;
-  Cmp: IEqualityComparer<T>;
 begin
-  // Same backing pointer? Equal (covers same dynamic array instance).
   if Pointer(A) = Pointer(B) then
     Exit(True);
-
   LA := Length(A);
   if LA <> Length(B) then
     Exit(False);
   if LA = 0 then
     Exit(True);
+  Result := CompareMem(@A[0], @B[0], LA);
+end;
 
-  // If caller gave a comparer, we must honor it.
-  if Assigned(Comparer) then
-    Cmp := Comparer
-  else
-    Cmp := TEqualityComparer<T>.Default;
-
-  // Fast path: unmanaged element type AND no custom comparer
-  // (Default comparer for unmanaged types would use = anyway; this avoids per-item loop.)
-  if (not Assigned(Comparer)) and (not IsManagedType(TypeInfo(T))) then
-  begin
-    // Bitwise compare (NOTE: for floats, this is *bitwise* equality:
-    // NaN vs NaN may compare False unless payloads match exactly.)
-    Exit(CompareMem(@A[0], @B[0], LA * SizeOf(T)));
-  end;
-
-  // Fallback: per-element equality
-  for var i := 0 to LA - 1 do
-    if not Cmp.Equals(A[i], B[i]) then
-      Exit(False);
-
-  Result := True;
+class function TArrayUtils.AreArraysEqual(const A, B: TArray<Integer>): Boolean;
+var
+  LA: Integer;
+begin
+  if Pointer(A) = Pointer(B) then
+    Exit(True);
+  LA := Length(A);
+  if LA <> Length(B) then
+    Exit(False);
+  if LA = 0 then
+    Exit(True);
+  Result := CompareMem(@A[0], @B[0], LA * SizeOf(Integer));
 end;
 
 class function TArrayUtils.Concat<T>(const A, B: TArray<T>): TArray<T>;
 var
-  LA, LB, i: Integer;
-  Managed: Boolean;
+  LA, LB: Integer;
 begin
   LA := Length(A);
   LB := Length(B);
   SetLength(Result, LA + LB);
-
-  Managed := IsManagedType(TypeInfo(T));
-
-  if Managed then
-  begin
-    // Managed types (string, interface, dynamic array, variant, or records containing them):
-    // copy via assignment to keep ref-counts correct
-    for i := 0 to LA - 1 do
-      Result[i] := A[i];
-    for i := 0 to LB - 1 do
-      Result[LA + i] := B[i];
-  end
-  else
-  begin
-    // Unmanaged (Integer, Double, pointers, class refs, records without managed fields): raw copy is fine
-    if LA > 0 then
-      Move(A[0], Result[0], LA * SizeOf(T));
-    if LB > 0 then
-      Move(B[0], Result[LA], LB * SizeOf(T));
-  end;
+  if LA > 0 then
+    Copy<T>(A, 0, Result, 0, LA);
+  if LB > 0 then
+    Copy<T>(B, 0, Result, LA, LB);
 end;
 
 class function TArrayUtils.Slice<T>(const A: TArray<T>; Offset: Integer): TArray<T>;
@@ -281,9 +241,7 @@ class procedure TArrayUtils.Copy<T>(
   var Dest: TArray<T>; DestIndex: Integer;
   Count: Integer);
 var
-  SrcLen, DestLen: Integer;
-  Managed, SameArray, OverlapBackward: Boolean;
-  i: Integer;
+  SrcLen, DestLen, i: Integer;
 begin
   RequireRange(SrcIndex >= 0, 'SrcIndex must be >= 0.');
   RequireRange(DestIndex >= 0, 'DestIndex must be >= 0.');
@@ -299,32 +257,16 @@ begin
 
   if Count = 0 then Exit;
 
-  Managed := IsManagedType(TypeInfo(T));
-  SameArray := Pointer(Source) = Pointer(Dest);
-
-  if Managed then
+  if (Pointer(Source) = Pointer(Dest)) and (DestIndex > SrcIndex)
+     and (DestIndex < SrcIndex + Count) then
   begin
-    // If both slices overlap in the same array and destination region starts
-    // inside the source region but AFTER it, we need backward copy.
-    OverlapBackward := SameArray
-      and (DestIndex > SrcIndex)
-      and (DestIndex < SrcIndex + Count);
-
-    if OverlapBackward then
-    begin
-      for i := Count - 1 downto 0 do
-        Dest[DestIndex + i] := Source[SrcIndex + i];
-    end
-    else
-    begin
-      for i := 0 to Count - 1 do
-        Dest[DestIndex + i] := Source[SrcIndex + i];
-    end;
+    for i := Count - 1 downto 0 do
+      Dest[DestIndex + i] := Source[SrcIndex + i];
   end
   else
   begin
-    // Unmanaged: Move is memmove-like (overlap safe)
-    Move(Source[SrcIndex], Dest[DestIndex], Count * SizeOf(T));
+    for i := 0 to Count - 1 do
+      Dest[DestIndex + i] := Source[SrcIndex + i];
   end;
 end;
 
@@ -362,73 +304,30 @@ end;
 
 class function TArrayUtils.Copy<T>(
   const Source: TArray<T>; Index, Count: Integer): TArray<T>;
-var
-  L, i: Integer;
-  Managed: Boolean;
 begin
-  L := Length(Source);
   RequireRange(Index >= 0, 'Index must be >= 0.');
   RequireRange(Count >= 0, 'Count must be >= 0.');
-  RequireRange(Index <= L, 'Index out of range.');
-  RequireRange(Count <= (L - Index), 'Index+Count exceeds Source length.');
+  RequireRange(Index <= Length(Source), 'Index out of range.');
+  RequireRange(Count <= (Length(Source) - Index), 'Index+Count exceeds Source length.');
 
   SetLength(Result, Count);
-  if Count = 0 then Exit;
-
-  Managed := IsManagedType(TypeInfo(T));
-  if Managed then
-  begin
-    for i := 0 to Count - 1 do
-      Result[i] := Source[Index + i];
-  end
-  else
-  begin
-    Move(Source[Index], Result[0], Count * SizeOf(T));
-  end;
+  if Count > 0 then
+    Copy<T>(Source, Index, Result, 0, Count);
 end;
 
 class function TArrayUtils.Copy<T>(
   const Source: TArray<T>;
   const Cloner: TFunc<T, T>): TArray<T>;
 var
-  I, L, Done: Integer;
-  IsClassT: Boolean;
-  Obj: TObject;
+  I, L: Integer;
 begin
   if not Assigned(Cloner) then
     raise EArgumentNilException.Create('Cloner must be assigned');
 
   L := Length(Source);
   SetLength(Result, L);
-
-  // Detect at runtime whether T is a class type
-  IsClassT := GetTypeKind(TypeInfo(T)) = tkClass;
-
-  Done := 0;
-  try
-    for I := 0 to L - 1 do
-    begin
-      Result[I] := Cloner(Source[I]); // may raise
-      Inc(Done);
-    end;
-  except
-    if IsClassT then
-    begin
-      // Free only successfully cloned objects
-      for I := 0 to Done - 1 do
-      begin
-        Obj := TObject(PPointer(@Result[I])^);
-        if Assigned(Obj) then
-          Obj.Free;
-      end;
-
-    // Reset only freed entries (the rest are still default)
-     if Done > 0 then
-      Fill<T>(Result, 0, Done, Default(T));
-    end;
-
-    raise;
-  end;
+  for I := 0 to L - 1 do
+    Result[I] := Cloner(Source[I]);
 end;
 
 class function TArrayUtils.IndexOf<T>(
@@ -494,44 +393,13 @@ class procedure TArrayUtils.Fill<T>(
   const Offset, Count: Integer;
   const Value: T);
 var
-  I, ElemSize: Integer;
-  Managed: Boolean;
-  P: Pointer;
-  NeedsLoop: Boolean;
+  I: Integer;
 begin
   if (Offset < 0) or (Count < 0) or (Offset + Count > Length(Arr)) then
     raise EArgumentOutOfRangeException.Create('Invalid offset/count range.');
 
-  if Count = 0 then
-    Exit;
-
-  Managed := IsManagedType(TypeInfo(T));
-  ElemSize := SizeOf(T);
-  P := @Arr[Offset];
-
-  // quick exit
-  if (ElemSize = 0) or (P = nil) then
-    Exit;
-
-  // Determine if we must use loop
-  NeedsLoop :=
-    Managed or              // managed types (strings, interfaces, etc.)
-    ((ElemSize > 1) and     // multi-byte types
-     (PByte(@Value)^ <> 0)); // non-zero fill value
-
-  if NeedsLoop then
-  begin
-    // Safe per-element assignment
-    for I := Offset to Offset + Count - 1 do
-      Arr[I] := Value;
-  end
-  else
-  begin
-    // Fast FillChar path:
-    //   - All unmanaged, 1-byte types (Byte, ShortInt, AnsiChar)
-    //   - Any type filled with zero
-    FillChar(P^, ElemSize * Count, PByte(@Value)^);
-  end;
+  for I := Offset to Offset + Count - 1 do
+    Arr[I] := Value;
 end;
 
 class function TArrayUtils.Reverse<T>(const Source: TArray<T>): TArray<T>;

@@ -68,7 +68,7 @@ begin
   LInstr := TBPFLoaderProgram.InitializeBuffer(LBuffer.PublicKey, LPayer.PublicKey);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
 
   AssertEquals(2, LInstr.Keys.Count, 'Keys.Count mismatch');
   // Our encoder uses u32 tag → 4 bytes; LE first byte = 0
@@ -92,7 +92,7 @@ begin
   LInstr := TBPFLoaderProgram.Write(LBuffer.PublicKey, LPayer.PublicKey, LData, LOffset);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
   AssertEquals(2, LInstr.Keys.Count, 'Keys.Count mismatch');
 
   // Data layout (our encoder):
@@ -127,7 +127,7 @@ begin
               LMaxLen);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
 
   // payer*, programData(w), program(w), buffer(w), rent, clock, system, authority*
   AssertEquals(8, LInstr.Keys.Count, 'Keys.Count mismatch');
@@ -156,7 +156,7 @@ begin
               LAuth.PublicKey);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
 
   // programData(w), program(w), buffer(w), spill(w), rent, clock, authority*
   AssertEquals(7, LInstr.Keys.Count, 'Keys.Count mismatch');
@@ -178,7 +178,7 @@ begin
   LInstr := TBPFLoaderProgram.SetAuthority(LAcct.PublicKey, LAuth.PublicKey, LNewAuth.PublicKey);
 
   AssertNotNull(LInstr, 'Instruction was nil');
-  AssertEquals<Byte>(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ProgramIdBytes, LInstr.ProgramId, 'ProgramId mismatch');
 
   AssertEquals(3, LInstr.Keys.Count, 'Keys.Count mismatch');
 
