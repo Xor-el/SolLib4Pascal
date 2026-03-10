@@ -601,7 +601,7 @@ end;
 
 class procedure TScryptImpl.Salsa208(AB: PCardinal);
 var
-  LX0,LX1,LX2,LX3,LX4,LX5,LX6,LX7,LX8,LX9,LX10,LX11,LX12,LX13,LX14,LX15: Cardinal;
+  LX0, LX1, LX2, LX3, LX4, LX5, LX6, LX7, LX8, LX9, LX10, LX11, LX12, LX13, LX14, LX15: Cardinal;
   LI: Integer;
 begin
   LX0 := AB[0];  LX1 := AB[1];  LX2 := AB[2];  LX3 := AB[3];
@@ -612,35 +612,59 @@ begin
   for LI := 0 to 3 do
   begin
     // Operate on columns
-    LX4  := LX4  xor RotateLeft32(LX0 + LX12, 7);   LX8  := LX8  xor RotateLeft32(LX4 + LX0, 9);
-    LX12 := LX12 xor RotateLeft32(LX8 + LX4, 13);   LX0  := LX0  xor RotateLeft32(LX12 + LX8, 18);
+    LX4 := LX4  xor RotateLeft32(LX0 + LX12, 7);
+    LX8 := LX8  xor RotateLeft32(LX4 + LX0, 9);
 
-    LX9  := LX9  xor RotateLeft32(LX5 + LX1, 7);    LX13 := LX13 xor RotateLeft32(LX9 + LX5, 9);
-    LX1  := LX1  xor RotateLeft32(LX13 + LX9, 13);  LX5  := LX5  xor RotateLeft32(LX1 + LX13, 18);
+    LX12 := LX12 xor RotateLeft32(LX8 + LX4, 13);
+    LX0 := LX0  xor RotateLeft32(LX12 + LX8, 18);
 
-    LX14 := LX14 xor RotateLeft32(LX10 + LX6, 7);   LX2  := LX2  xor RotateLeft32(LX14 + LX10, 9);
-    LX6  := LX6  xor RotateLeft32(LX2 + LX14, 13);  LX10 := LX10 xor RotateLeft32(LX6 + LX2, 18);
+    LX9 := LX9  xor RotateLeft32(LX5 + LX1, 7);
+    LX13 := LX13 xor RotateLeft32(LX9 + LX5, 9);
 
-    LX3  := LX3  xor RotateLeft32(LX15 + LX11, 7);  LX7  := LX7  xor RotateLeft32(LX3 + LX15, 9);
-    LX11 := LX11 xor RotateLeft32(LX7 + LX3, 13);   LX15 := LX15 xor RotateLeft32(LX11 + LX7, 18);
+    LX1 := LX1  xor RotateLeft32(LX13 + LX9, 13);
+    LX5 := LX5  xor RotateLeft32(LX1 + LX13, 18);
+
+    LX14 := LX14 xor RotateLeft32(LX10 + LX6, 7);
+    LX2 := LX2  xor RotateLeft32(LX14 + LX10, 9);
+
+    LX6 := LX6  xor RotateLeft32(LX2 + LX14, 13);
+    LX10 := LX10 xor RotateLeft32(LX6 + LX2, 18);
+
+    LX3 := LX3  xor RotateLeft32(LX15 + LX11, 7);
+    LX7 := LX7  xor RotateLeft32(LX3 + LX15, 9);
+
+    LX11 := LX11 xor RotateLeft32(LX7 + LX3, 13);
+    LX15 := LX15 xor RotateLeft32(LX11 + LX7, 18);
 
     // Operate on rows
-    LX1  := LX1  xor RotateLeft32(LX0 + LX3, 7);    LX2  := LX2  xor RotateLeft32(LX1 + LX0, 9);
-    LX3  := LX3  xor RotateLeft32(LX2 + LX1, 13);   LX0  := LX0  xor RotateLeft32(LX3 + LX2, 18);
+    LX1 := LX1  xor RotateLeft32(LX0 + LX3, 7);
+    LX2 := LX2  xor RotateLeft32(LX1 + LX0, 9);
 
-    LX6  := LX6  xor RotateLeft32(LX5 + LX4, 7);    LX7  := LX7  xor RotateLeft32(LX6 + LX5, 9);
-    LX4  := LX4  xor RotateLeft32(LX7 + LX6, 13);   LX5  := LX5  xor RotateLeft32(LX4 + LX7, 18);
+    LX3 := LX3  xor RotateLeft32(LX2 + LX1, 13);
+    LX0 := LX0  xor RotateLeft32(LX3 + LX2, 18);
 
-    LX11 := LX11 xor RotateLeft32(LX10 + LX9, 7);   LX8  := LX8  xor RotateLeft32(LX11 + LX10, 9);
-    LX9  := LX9  xor RotateLeft32(LX8 + LX11, 13);  LX10 := LX10 xor RotateLeft32(LX9 + LX8, 18);
+    LX6 := LX6  xor RotateLeft32(LX5 + LX4, 7);
+    LX7 := LX7  xor RotateLeft32(LX6 + LX5, 9);
 
-    LX12 := LX12 xor RotateLeft32(LX15 + LX14, 7);  LX13 := LX13 xor RotateLeft32(LX12 + LX15, 9);
-    LX14 := LX14 xor RotateLeft32(LX13 + LX12, 13); LX15 := LX15 xor RotateLeft32(LX14 + LX13, 18);
+    LX4 := LX4  xor RotateLeft32(LX7 + LX6, 13);
+    LX5 := LX5  xor RotateLeft32(LX4 + LX7, 18);
+
+    LX11 := LX11 xor RotateLeft32(LX10 + LX9, 7);
+    LX8 := LX8  xor RotateLeft32(LX11 + LX10, 9);
+
+    LX9 := LX9  xor RotateLeft32(LX8 + LX11, 13);
+    LX10 := LX10 xor RotateLeft32(LX9 + LX8, 18);
+
+    LX12 := LX12 xor RotateLeft32(LX15 + LX14, 7);
+    LX13 := LX13 xor RotateLeft32(LX12 + LX15, 9);
+
+    LX14 := LX14 xor RotateLeft32(LX13 + LX12, 13);
+    LX15 := LX15 xor RotateLeft32(LX14 + LX13, 18);
   end;
 
-  AB[0]  := AB[0]  + LX0;   AB[1]  := AB[1]  + LX1;   AB[2]  := AB[2]  + LX2;   AB[3]  := AB[3]  + LX3;
-  AB[4]  := AB[4]  + LX4;   AB[5]  := AB[5]  + LX5;   AB[6]  := AB[6]  + LX6;   AB[7]  := AB[7]  + LX7;
-  AB[8]  := AB[8]  + LX8;   AB[9]  := AB[9]  + LX9;   AB[10] := AB[10] + LX10;  AB[11] := AB[11] + LX11;
+  AB[0] := AB[0]  + LX0;   AB[1] := AB[1]  + LX1;   AB[2] := AB[2]  + LX2;   AB[3] := AB[3]  + LX3;
+  AB[4] := AB[4]  + LX4;   AB[5] := AB[5]  + LX5;   AB[6] := AB[6]  + LX6;   AB[7] := AB[7]  + LX7;
+  AB[8] := AB[8]  + LX8;   AB[9] := AB[9]  + LX9;   AB[10] := AB[10] + LX10;  AB[11] := AB[11] + LX11;
   AB[12] := AB[12] + LX12;  AB[13] := AB[13] + LX13;  AB[14] := AB[14] + LX14;  AB[15] := AB[15] + LX15;
 end;
 

@@ -92,12 +92,12 @@ begin
     FClient.EventsCallMode := ecDirectly;
 
     // HeartBeat: keepalive pings
-    FClient.HeartBeatOptions.Enabled  := True;   // keepalive on
+    FClient.HeartBeatOptions.Enabled := True;   // keepalive on
     FClient.HeartBeatOptions.Interval := 15;     // seconds between pings
-    FClient.HeartBeatOptions.Timeout  := 90;     // seconds to wait for pong before error/close
+    FClient.HeartBeatOptions.Timeout := 90;     // seconds to wait for pong before error/close
 
     // WatchDog: auto-reconnect on unexpected disconnects
-    FClient.WatchDogOptions.Enabled  := True;    // auto reconnect
+    FClient.WatchDogOptions.Enabled := True;    // auto reconnect
     FClient.WatchDogOptions.Interval := 5;       // seconds between attempts
     FClient.WatchDogOptions.Attempts := -1;      // unlimited attempts
   end;
@@ -258,8 +258,8 @@ begin
   begin
     // Start a new message
     FFragActive := True;
-    FFragType   := AMessageType;
-    FFragBuf    := nil;
+    FFragType := AMessageType;
+    FFragBuf := nil;
   end;
 
   // If message type changes mid-stream, flush previous (defensive)
@@ -313,9 +313,9 @@ end;
 
 procedure TSecureBridgeWebSocketClientImpl.ResetFragment;
 begin
-  FFragBuf    := nil;
+  FFragBuf := nil;
   FFragActive := False;
-  FFragType   := mtBinary;
+  FFragType := mtBinary;
 end;
 
 end.

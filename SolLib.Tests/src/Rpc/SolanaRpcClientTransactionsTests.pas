@@ -70,7 +70,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
-  LRequestData  := LoadTestData('Transaction/GetTransactionCountRequest.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionCountRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -95,7 +95,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
-  LRequestData  := LoadTestData('Transaction/GetTransactionCountProcessedRequest.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionCountProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -121,7 +121,7 @@ var
   LTxData: string;
 begin
   LResponseData := LoadTestData('Transaction/SendTransactionResponse.json');
-  LRequestData  := LoadTestData('Transaction/SendTransactionRequest.json');
+  LRequestData := LoadTestData('Transaction/SendTransactionRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -155,7 +155,7 @@ var
   LBytes: TBytes;
 begin
   LResponseData := LoadTestData('Transaction/SendTransactionResponse.json');
-  LRequestData  := LoadTestData('Transaction/SendTransactionWithParamsRequest.json');
+  LRequestData := LoadTestData('Transaction/SendTransactionWithParamsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -190,7 +190,7 @@ var
   LTxData: string;
 begin
   LResponseData := LoadTestData('Transaction/SendTransactionExtraParamsResponse.json');
-  LRequestData  := LoadTestData('Transaction/SendTransactionExtraParamsRequest.json');
+  LRequestData := LoadTestData('Transaction/SendTransactionExtraParamsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -234,7 +234,7 @@ var
   LTxData: string;
 begin
   LResponseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
-  LRequestData  := LoadTestData('Transaction/SimulateTransactionRequest.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -270,7 +270,7 @@ var
   LTxData: string;
 begin
   LResponseData := LoadTestData('Transaction/SimulateTransactionResponse2.json');
-  LRequestData  := LoadTestData('Transaction/SimulateTransactionRequest.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -308,7 +308,7 @@ var
   LAcctList: TList<string>;
 begin
   LResponseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
-  LRequestData  := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -354,7 +354,7 @@ var
   LAcctList: TList<string>;
 begin
   LResponseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
-  LRequestData  := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -423,7 +423,7 @@ var
   LTxData: string;
 begin
   LResponseData := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsResponse.json');
-  LRequestData  := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsRequest.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;

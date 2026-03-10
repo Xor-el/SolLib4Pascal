@@ -57,7 +57,7 @@ type
   private
     FWordList: IWordList;
     FIndices: TArray<Integer>;
-    FWords  : TArray<string>;
+    FWords: TArray<string>;
     FMnemonic: string;
     FIsValidChecksum: TNullable<Boolean>;
 
@@ -345,7 +345,7 @@ begin
     LI
   ) then Exit(False);
 
-  LCS  := FCsArray[LI];
+  LCS := FCsArray[LI];
   LENT := FEntArray[LI];
 
   LWriter := TBitWriter.Create;
@@ -379,8 +379,8 @@ var
 begin
   // salt = "mnemonic" || Normalize(passphrase)
   LSaltPrefix := TEncoding.UTF8.GetBytes('mnemonic');
-  LSaltTail   := NormalizeUTF8(APassphrase);
-  LSalt       := TArrayUtils.Concat<Byte>(LSaltPrefix, LSaltTail);
+  LSaltTail := NormalizeUTF8(APassphrase);
+  LSalt := TArrayUtils.Concat<Byte>(LSaltPrefix, LSaltTail);
 
   LPW := NormalizeUTF8(FMnemonic);
 

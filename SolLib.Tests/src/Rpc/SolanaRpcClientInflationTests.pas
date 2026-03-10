@@ -60,7 +60,7 @@ var
   LResult: IRequestResult<TInflationGovernor>;
 begin
   LResponseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
-  LRequestData  := LoadTestData('Inflation/GetInflationGovernorRequest.json');
+  LRequestData := LoadTestData('Inflation/GetInflationGovernorRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -90,7 +90,7 @@ var
   LResult: IRequestResult<TInflationGovernor>;
 begin
   LResponseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
-  LRequestData  := LoadTestData('Inflation/GetInflationGovernorConfirmedRequest.json');
+  LRequestData := LoadTestData('Inflation/GetInflationGovernorConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -120,7 +120,7 @@ var
   LResult: IRequestResult<TInflationRate>;
 begin
   LResponseData := LoadTestData('Inflation/GetInflationRateResponse.json');
-  LRequestData  := LoadTestData('Inflation/GetInflationRateRequest.json');
+  LRequestData := LoadTestData('Inflation/GetInflationRateRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -150,7 +150,7 @@ var
   LResult: IRequestResult<TObjectList<TInflationReward>>;
 begin
   LResponseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
-  LRequestData  := LoadTestData('Inflation/GetInflationRewardRequest.json');
+  LRequestData := LoadTestData('Inflation/GetInflationRewardRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -187,7 +187,7 @@ var
   LResult: IRequestResult<TObjectList<TInflationReward>>;
 begin
   LResponseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
-  LRequestData  := LoadTestData('Inflation/GetInflationRewardProcessedRequest.json');
+  LRequestData := LoadTestData('Inflation/GetInflationRewardProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -224,7 +224,7 @@ var
   LResult: IRequestResult<TObjectList<TInflationReward>>;
 begin
   LResponseData := LoadTestData('Inflation/GetInflationRewardNoEpochResponse.json');
-  LRequestData  := LoadTestData('Inflation/GetInflationRewardNoEpochRequest.json');
+  LRequestData := LoadTestData('Inflation/GetInflationRewardNoEpochRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;

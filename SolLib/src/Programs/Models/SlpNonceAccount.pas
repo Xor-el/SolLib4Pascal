@@ -30,19 +30,19 @@ uses
 type
   INonceAccount = interface
     ['{6E7A4A9B-AE4F-4A2B-BF7F-0C2A36E1F1F2}']
-    function  GetVersion: Cardinal;
+    function GetVersion: Cardinal;
     procedure SetVersion(const AValue: Cardinal);
 
-    function  GetState: Cardinal;
+    function GetState: Cardinal;
     procedure SetState(const AValue: Cardinal);
 
-    function  GetAuthorized: IPublicKey;
+    function GetAuthorized: IPublicKey;
     procedure SetAuthorized(const AValue: IPublicKey);
 
-    function  GetNonce: IPublicKey;
+    function GetNonce: IPublicKey;
     procedure SetNonce(const AValue: IPublicKey);
 
-    function  GetFeeCalculator: TFeeCalculator;
+    function GetFeeCalculator: TFeeCalculator;
     procedure SetFeeCalculator(const AValue: TFeeCalculator);
 
     /// <summary>
@@ -108,15 +108,15 @@ type
     FAuthorized, FNonce: IPublicKey;
     FFeeCalculator: TFeeCalculator;
 
-    function  GetVersion: Cardinal;
+    function GetVersion: Cardinal;
     procedure SetVersion(const AValue: Cardinal);
-    function  GetState: Cardinal;
+    function GetState: Cardinal;
     procedure SetState(const AValue: Cardinal);
-    function  GetAuthorized: IPublicKey;
+    function GetAuthorized: IPublicKey;
     procedure SetAuthorized(const AValue: IPublicKey);
-    function  GetNonce: IPublicKey;
+    function GetNonce: IPublicKey;
     procedure SetNonce(const AValue: IPublicKey);
-    function  GetFeeCalculator: TFeeCalculator;
+    function GetFeeCalculator: TFeeCalculator;
     procedure SetFeeCalculator(const AValue: TFeeCalculator);
   public
     destructor Destroy; override;
@@ -201,10 +201,10 @@ begin
   Result := TNonceAccount.Create;
   // version/state
   Result.Version := TDeserialization.GetU32(AData, TLayout.VersionOffset);
-  Result.State   := TDeserialization.GetU32(AData, TLayout.StateOffset);
+  Result.State := TDeserialization.GetU32(AData, TLayout.StateOffset);
   // keys
   Result.Authorized := TDeserialization.GetPubKey(AData, TLayout.AuthorizedKeyOffset);
-  Result.Nonce      := TDeserialization.GetPubKey(AData, TLayout.NonceKeyOffset);
+  Result.Nonce := TDeserialization.GetPubKey(AData, TLayout.NonceKeyOffset);
   // fee calculator
   FC := TFeeCalculator.Create();
   FC.LamportsPerSignature := TDeserialization.GetU64(AData, TLayout.FeeCalculatorOffset);

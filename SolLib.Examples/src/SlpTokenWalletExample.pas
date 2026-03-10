@@ -41,7 +41,7 @@ type
    // TestNet token minted by examples (symbol STT, 2 decimals)
     Mint = 'AHRNasvVB8UDkU9knqPcn4aVfRbnbVC9HJgSTBwbx8re';
     Name = 'Solnet Test Token';
-    Symbol  = 'STT';
+    Symbol = 'STT';
     DecimalPlaces = 2;
     MnemonicWords = TBaseExample.MNEMONIC_WORDS;
   public
@@ -88,7 +88,7 @@ var
 begin
   // Wallet from mnemonic (Sollet-style: no passphrase for this example)
   LWallet := TWallet.Create(MnemonicWords);
-  LOwner  := LWallet.GetAccountByIndex(0);
+  LOwner := LWallet.GetAccountByIndex(0);
 
   // Token mint resolver with the STT mint
   LTokenResolver := TTokenMintResolver.Create;
@@ -103,11 +103,11 @@ begin
 
   try
     // Compute max widths for pretty columns
-    LMaxSym  := 0;
+    LMaxSym := 0;
     LMaxName := 0;
     for LBalance in LBalances do
     begin
-      if Length(LBalance.Symbol)    > LMaxSym  then LMaxSym  := Length(LBalance.Symbol);
+      if Length(LBalance.Symbol)    > LMaxSym  then LMaxSym := Length(LBalance.Symbol);
       if Length(LBalance.TokenName) > LMaxName then LMaxName := Length(LBalance.TokenName);
     end;
 

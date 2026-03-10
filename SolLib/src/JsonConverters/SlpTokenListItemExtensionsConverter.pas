@@ -57,8 +57,8 @@ function TTokenListItemExtensionsConverter.ReadJson(
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
   LDict: TDictionary<string, TValue>;
-  LJV  : TJSONValue;
-  LObj : TJSONObject;
+  LJV: TJSONValue;
+  LObj: TJSONObject;
   LPair: TJSONPair;
 begin
   if AReader.TokenType = TJsonToken.Null then

@@ -61,7 +61,7 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotArgsRequest.json');
+  LRequestData := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotArgsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -93,7 +93,7 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleIdentityArgsRequest.json');
+  LRequestData := LoadTestData('LeaderSchedule/GetLeaderScheduleIdentityArgsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -125,7 +125,7 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotIdentityArgsRequest.json');
+  LRequestData := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotIdentityArgsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -157,7 +157,7 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
+  LRequestData := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -189,7 +189,7 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
+  LRequestData := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -221,7 +221,7 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleProcessedRequest.json');
+  LRequestData := LoadTestData('LeaderSchedule/GetLeaderScheduleProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;

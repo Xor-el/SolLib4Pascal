@@ -135,20 +135,20 @@ implementation
 
 procedure TTransactionBuilderExample.Run;
 var
-  LRpc      : IRpcClient;
-  LWallet   : IWallet;
-  LFrom     : IAccount;
-  LTo       : IAccount;
-  LTx       : TBytes;
-  LBlock    : IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LFrom: IAccount;
+  LTo: IAccount;
+  LTx: TBytes;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
   LSignature: string;
   LTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LFrom := LWallet.GetAccountByIndex(0);
-  LTo   := LWallet.GetAccountByIndex(8);
+  LTo := LWallet.GetAccountByIndex(8);
 
   LBlock := LRpc.GetLatestBlockHash;
   if (LBlock <> nil) and LBlock.WasSuccessful and (LBlock.Result <> nil) then
@@ -173,18 +173,18 @@ const
   SenderPrivateKey = TBaseExample.ACCOUNT_PRIVATE_KEY;
   ReceiverPublicKey = '9KmfMX4Ne5ocb8C7PwjmJTWTpQTQcPhkeD2zY35mawhq';
 var
-  LRpc      : IRpcClient;
-  LFrom     : IAccount;
-  LTo       : IPublicKey;
-  LTx       : TBytes;
-  LBlock    : IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LRpc: IRpcClient;
+  LFrom: IAccount;
+  LTo: IPublicKey;
+  LTx: TBytes;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
   LSignature: string;
   LTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
 
   LFrom := TAccount.FromSecretKey(SenderPrivateKey);
-  LTo   := TPublicKey.FromString(ReceiverPublicKey);
+  LTo := TPublicKey.FromString(ReceiverPublicKey);
 
   LBlock := LRpc.GetLatestBlockHash;
   if (LBlock <> nil) and LBlock.WasSuccessful and (LBlock.Result <> nil) then
@@ -206,20 +206,20 @@ end;
 
 procedure TTransferWithDurableNonceExample.Run;
 var
-  LRpc         : IRpcClient;
-  LWallet      : IWallet;
-  LOwner       : IAccount;
-  LNonceAcc    : IAccount;
-  LTo          : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LNonceAcc: IAccount;
+  LTo: IAccount;
   LNonceAccInfo: IRequestResult<TResponseValue<TAccountInfo>>;
   LAcctDataBytes: TBytes;
-  LNonceData   : INonceAccount;
-  LNonceInfo   : INonceInformation;
-  LSignature   : string;
-  LTxBuilder   : ITransactionBuilder;
-  LTx          : TBytes;
+  LNonceData: INonceAccount;
+  LNonceInfo: INonceInformation;
+  LSignature: string;
+  LTxBuilder: ITransactionBuilder;
+  LTx: TBytes;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LOwner := LWallet.GetAccountByIndex(0);
@@ -266,17 +266,17 @@ end;
 
 procedure TTransferWithPriorityFeesExample.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LOwner      : IAccount;
-  LTo         : IAccount;
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LPrioFees   : IPriorityFeesInformation;
-  LTx         : TBytes;
-  LSignature   : string;
-  LTxBuilder   : ITransactionBuilder;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LTo: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LPrioFees: IPriorityFeesInformation;
+  LTx: TBytes;
+  LSignature: string;
+  LTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LOwner := LWallet.GetAccountByIndex(0);
@@ -316,17 +316,17 @@ end;
 
 procedure TTransferWithEstimatedPriorityFeesExample.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LOwner      : IAccount;
-  LTo         : IAccount;
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LSimPrioFees, LActualPrioFees   : IPriorityFeesInformation;
-  LSimTx, LActualTx         : TBytes;
-  LSignature   : string;
-  LSimTxBuilder, LActualTxBuilder   : ITransactionBuilder;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LTo: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LSimPrioFees, LActualPrioFees: IPriorityFeesInformation;
+  LSimTx, LActualTx: TBytes;
+  LSignature: string;
+  LSimTxBuilder, LActualTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LOwner := LWallet.GetAccountByIndex(0);
@@ -387,17 +387,17 @@ end;
 
 procedure TTransferWithEstimatedPriorityFeesExampleV2.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LOwner      : IAccount;
-  LTo         : IAccount;
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LActualPrioFees   : IPriorityFeesInformation;
-  LSimTx, LActualTx         : TBytes;
-  LSignature   : string;
-  LSimTxBuilder, LActualTxBuilder   : ITransactionBuilder;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LTo: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LActualPrioFees: IPriorityFeesInformation;
+  LSimTx, LActualTx: TBytes;
+  LSignature: string;
+  LSimTxBuilder, LActualTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LOwner := LWallet.GetAccountByIndex(0);
@@ -453,25 +453,25 @@ procedure TTxBuilderComputeBudgetBalanceAndDecodeExample.Run;
 const
   Memo = 'SolLib TxBuilder+ComputeBudget+Decode';
 var
-  LRpc                      : IRpcClient;
-  LWallet                   : IWallet;
-  LFrom, LTo                : IAccount;
-  LBlock                    : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LBeforeBal, LAfterBal     : IRequestResult<TResponseValue<UInt64>>;
-  LSimTx, LActualTx         : TBytes;
-  LSignature                : string;
-  LSimTxBuilder             : ITransactionBuilder;
-  LActualTxBuilder          : ITransactionBuilder;
-  LSimPrioFees              : IPriorityFeesInformation;
-  LActualPrioFees           : IPriorityFeesInformation;
-  LTxResp                   : IRequestResult<TTransactionMetaSlotInfo>;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LFrom, LTo: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LBeforeBal, LAfterBal: IRequestResult<TResponseValue<UInt64>>;
+  LSimTx, LActualTx: TBytes;
+  LSignature: string;
+  LSimTxBuilder: ITransactionBuilder;
+  LActualTxBuilder: ITransactionBuilder;
+  LSimPrioFees: IPriorityFeesInformation;
+  LActualPrioFees: IPriorityFeesInformation;
+  LTxResp: IRequestResult<TTransactionMetaSlotInfo>;
 begin
   // 1) Setup
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(TBaseExample.MNEMONIC_WORDS);
 
   LFrom := LWallet.GetAccountByIndex(0);
-  LTo   := LWallet.GetAccountByIndex(1);
+  LTo := LWallet.GetAccountByIndex(1);
 
   // 2) Fetch recent blockhash
   LBlock := LRpc.GetLatestBlockHash;
@@ -572,27 +572,27 @@ end;
 
 procedure TBurnExample.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LOwner      : IAccount;
-  LMint       : IAccount;
-  LInitialAcc : IAccount;
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMsgBytes   : TBytes;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
+  LInitialAcc: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMsgBytes: TBytes;
   LMsgSignature: TBytes;
-  LTxBytes    : TBytes;
-  LMsg        : IMessage;
-  LTx         : ITransaction;
-  LSignature  : string;
-  LTxBuilder  : ITransactionBuilder;
+  LTxBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LSignature: string;
+  LTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LBlock := LRpc.GetLatestBlockHash;
 
-  LOwner      := LWallet.GetAccountByIndex(0);
-  LMint       := LWallet.GetAccountByIndex(31);
+  LOwner := LWallet.GetAccountByIndex(0);
+  LMint := LWallet.GetAccountByIndex(31);
   LInitialAcc := LWallet.GetAccountByIndex(59);
 
   LTxBuilder := TTransactionBuilder.Create;
@@ -633,22 +633,22 @@ end;
 
 procedure TAddSignatureExample.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LFrom       : IAccount;
-  LTo         : IAccount;
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LTxBuilder  : ITransactionBuilder;
-  LMsgBytes   : TBytes;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LFrom: IAccount;
+  LTo: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LTxBuilder: ITransactionBuilder;
+  LMsgBytes: TBytes;
   LMsgSignature: TBytes;
-  LTxBytes    : TBytes;
-  LSignature  : string;
+  LTxBytes: TBytes;
+  LSignature: string;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LFrom := LWallet.GetAccountByIndex(0);
-  LTo   := LWallet.GetAccountByIndex(8);
+  LTo := LWallet.GetAccountByIndex(8);
 
   LBlock := LRpc.GetLatestBlockHash;
   Writeln('BlockHash >> ' + LBlock.Result.Value.Blockhash);

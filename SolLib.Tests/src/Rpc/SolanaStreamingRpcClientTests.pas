@@ -70,14 +70,14 @@ implementation
 
 procedure TSolanaStreamingRpcClientTests.TestCallbacksAreSetup;
 var
-  LWs           : TMockWebSocketApiClient;
-  LWsIntf       : IWebSocketApiClient;
-  LSut          : IStreamingRpcClient;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   AssertTrue(Assigned(LWsIntf.OnConnect),    'OnConnect not wired');
   AssertTrue(Assigned(LWsIntf.OnDisconnect),    'OnDisconnect not wired');
@@ -106,9 +106,9 @@ var
   LCallbackExecutable: Boolean;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Prepare frames
   LExpectedSend := LoadTestData('Account/AccountSubscribe.json');
@@ -134,9 +134,9 @@ begin
 
       if (AResponse <> nil) and (AResponse.Value <> nil) then
       begin
-        LCallbackOwner      := AResponse.Value.Owner;
-        LCallbackLamports   := AResponse.Value.Lamports;
-        LCallbackRentEpoch  := AResponse.Value.RentEpoch;
+        LCallbackOwner := AResponse.Value.Owner;
+        LCallbackLamports := AResponse.Value.Lamports;
+        LCallbackRentEpoch := AResponse.Value.RentEpoch;
         LCallbackExecutable := AResponse.Value.Executable;
       end;
 
@@ -166,29 +166,29 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeTokenAccount;
 var
-  LWs                 : TMockWebSocketApiClient;
-  LWsIntf             : IWebSocketApiClient;
-  LSut                : IStreamingRpcClient;
-  LPubKey             : string;
-  LExpectedSend       : string;
-  LSubConfirm         : string;
-  LNotification       : string;
-  LSubscriptionState  : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LPubKey: string;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LSubscriptionState: ISubscriptionState;
   // captured values from the callback
-  LCallbackNotified   : Boolean;
-  LCallbackSlot       : UInt64;
-  LCallbackOwner      : string;
-  LCallbackLamports   : UInt64;
-  LCallbackTokenOwner : string;
-  LCallbackAmount     : string;
-  LCallbackUiAmount   : string;
-  LCallbackDecimals   : Integer;
+  LCallbackNotified: Boolean;
+  LCallbackSlot: UInt64;
+  LCallbackOwner: string;
+  LCallbackLamports: UInt64;
+  LCallbackTokenOwner: string;
+  LCallbackAmount: string;
+  LCallbackUiAmount: string;
+  LCallbackDecimals: Integer;
   LTokenAccountData: TTokenAccountData;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Prepare frames
   LExpectedSend := LoadTestData('Account/TokenAccountSubscribe.json');
@@ -212,7 +212,7 @@ begin
 
       if (AResponse <> nil) and (AResponse.Value <> nil) then
       begin
-        LCallbackOwner    := AResponse.Value.Owner;
+        LCallbackOwner := AResponse.Value.Owner;
         LCallbackLamports := AResponse.Value.Lamports;
 
         LTokenAccountData := AResponse.Value.Data.AsType<TTokenAccountData>;
@@ -223,9 +223,9 @@ begin
            (LTokenAccountData.Parsed.Info.TokenAmount <> nil) then
         begin
           LCallbackTokenOwner := LTokenAccountData.Parsed.Info.Owner;
-          LCallbackAmount     := LTokenAccountData.Parsed.Info.TokenAmount.Amount;
-          LCallbackUiAmount   := LTokenAccountData.Parsed.Info.TokenAmount.UiAmountString;
-          LCallbackDecimals   := LTokenAccountData.Parsed.Info.TokenAmount.Decimals;
+          LCallbackAmount := LTokenAccountData.Parsed.Info.TokenAmount.Amount;
+          LCallbackUiAmount := LTokenAccountData.Parsed.Info.TokenAmount.UiAmountString;
+          LCallbackDecimals := LTokenAccountData.Parsed.Info.TokenAmount.Decimals;
         end;
       end;
 
@@ -258,26 +258,26 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeAccountInfoProcessed;
 var
-  LWs                 : TMockWebSocketApiClient;
-  LWsIntf             : IWebSocketApiClient;
-  LSut                : IStreamingRpcClient;
-  LPubKey             : string;
-  LExpectedSend       : string;
-  LSubConfirm         : string;
-  LNotification       : string;
-  LSubscriptionState  : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LPubKey: string;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LSubscriptionState: ISubscriptionState;
   // captured values from the callback
-  LCallbackNotified   : Boolean;
-  LCallbackSlot       : UInt64;
-  LCallbackOwner      : string;
-  LCallbackLamports   : UInt64;
-  LCallbackRentEpoch  : UInt64;
-  LCallbackExecutable : Boolean;
+  LCallbackNotified: Boolean;
+  LCallbackSlot: UInt64;
+  LCallbackOwner: string;
+  LCallbackLamports: UInt64;
+  LCallbackRentEpoch: UInt64;
+  LCallbackExecutable: Boolean;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Prepare frames: subscription confirm, then notification
   LExpectedSend := LoadTestData('Account/AccountSubscribeProcessed.json');
@@ -301,9 +301,9 @@ begin
 
       if (AResponse <> nil) and (AResponse.Value <> nil) then
       begin
-        LCallbackOwner      := AResponse.Value.Owner;
-        LCallbackLamports   := AResponse.Value.Lamports;
-        LCallbackRentEpoch  := AResponse.Value.RentEpoch;
+        LCallbackOwner := AResponse.Value.Owner;
+        LCallbackLamports := AResponse.Value.Lamports;
+        LCallbackRentEpoch := AResponse.Value.RentEpoch;
         LCallbackExecutable := AResponse.Value.Executable;
       end;
 
@@ -335,23 +335,23 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestUnsubscribe;
 var
-  LWs                : TMockWebSocketApiClient;
-  LWsIntf            : IWebSocketApiClient;
-  LSut               : IStreamingRpcClient;
-  LPubKey            : string;
-  LSubConfirm        : string;
-  LUnsubResponse     : string;
-  LSub               : ISubscriptionState;
-  LUnsubscribed      : Boolean;
-  LWaitUnsubscribed  : TEvent;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LPubKey: string;
+  LSubConfirm: string;
+  LUnsubResponse: string;
+  LSub: ISubscriptionState;
+  LUnsubscribed: Boolean;
+  LWaitUnsubscribed: TEvent;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Frames (deliver in two phases)
-  LSubConfirm    := LoadTestData('SubscribeConfirm.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
   LUnsubResponse := LoadTestData('Account/AccountSubUnsubscription.json');
 
   // Phase 1: only the subscription confirmation
@@ -407,18 +407,18 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeLogsMention;
 var
-  LWs                : TMockWebSocketApiClient;
-  LWsIntf            : IWebSocketApiClient;
-  LSut               : IStreamingRpcClient;
-  LPubKey            : string;
-  LExpectedSend      : string;
-  LSubConfirm        : string;
-  LSubscriptionState : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LPubKey: string;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LSubscriptionState: ISubscriptionState;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Expected subscribe payload and confirm frame
   LExpectedSend := LoadTestData('Logs/LogsSubscribeMention.json');
@@ -453,18 +453,18 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeLogsMentionConfirmed;
 var
-  LWs                : TMockWebSocketApiClient;
-  LWsIntf            : IWebSocketApiClient;
-  LSut               : IStreamingRpcClient;
-  LPubKey            : string;
-  LExpectedSend      : string;
-  LSubConfirm        : string;
-  LSubscriptionState : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LPubKey: string;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LSubscriptionState: ISubscriptionState;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Expected subscribe payload (with commitment=confirmed) and confirm frame
   LExpectedSend := LoadTestData('Logs/LogsSubscribeMentionConfirmed.json');
@@ -500,25 +500,25 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeLogsAll;
 var
-  LWs                 : TMockWebSocketApiClient;
-  LWsIntf             : IWebSocketApiClient;
-  LSut                : IStreamingRpcClient;
-  LExpectedSend       : string;
-  LSubConfirm         : string;
-  LNotification       : string;
-  LSubscriptionState  : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LSubscriptionState: ISubscriptionState;
 
   // captured from callback
-  LCallbackNotified   : Boolean;
-  LCallbackSlot       : UInt64;
-  LCallbackSignature  : string;
-  LCallbackHasError   : Boolean;
-  LCallbackFirstLog   : string;
+  LCallbackNotified: Boolean;
+  LCallbackSlot: UInt64;
+  LCallbackSignature: string;
+  LCallbackHasError: Boolean;
+  LCallbackFirstLog: string;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Expected outgoing subscribe payload and incoming frames
   LExpectedSend := LoadTestData('Logs/LogsSubscribeAll.json');
@@ -529,7 +529,7 @@ begin
   LWs.EnqueueText(LSubConfirm);
   LWs.EnqueueText(LNotification);
 
-  LCallbackHasError  := True; // default true, will flip to false if nil
+  LCallbackHasError := True; // default true, will flip to false if nil
 
   // Act
   LSut.Connect;
@@ -544,7 +544,7 @@ begin
       if (AResponse <> nil) and (AResponse.Value <> nil) then
       begin
         LCallbackSignature := AResponse.Value.Signature;
-        LCallbackHasError  := (AResponse.Value.Error <> nil);
+        LCallbackHasError := (AResponse.Value.Error <> nil);
         if (Length(AResponse.Value.Logs) > 0) then
           LCallbackFirstLog := AResponse.Value.Logs[0];
       end;
@@ -583,25 +583,25 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeLogsAllProcessed;
 var
-  LWs                 : TMockWebSocketApiClient;
-  LWsIntf             : IWebSocketApiClient;
-  LSut                : IStreamingRpcClient;
-  LExpectedSend       : string;
-  LSubConfirm         : string;
-  LNotification       : string;
-  LSubscriptionState  : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LSubscriptionState: ISubscriptionState;
 
   // captured from callback
-  LCallbackNotified   : Boolean;
-  LCallbackSlot       : UInt64;
-  LCallbackSignature  : string;
-  LCallbackHasError   : Boolean;
-  LCallbackFirstLog   : string;
+  LCallbackNotified: Boolean;
+  LCallbackSlot: UInt64;
+  LCallbackSignature: string;
+  LCallbackHasError: Boolean;
+  LCallbackFirstLog: string;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Expected outgoing subscribe payload (commitment=processed) and incoming frames
   LExpectedSend := LoadTestData('Logs/LogsSubscribeAllProcessed.json');
@@ -612,7 +612,7 @@ begin
   LWs.EnqueueText(LSubConfirm);
   LWs.EnqueueText(LNotification);
 
-  LCallbackHasError  := True; // will flip to False when Error = nil
+  LCallbackHasError := True; // will flip to False when Error = nil
 
   // Act
   LSut.Connect;
@@ -627,7 +627,7 @@ begin
       if (AResponse <> nil) and (AResponse.Value <> nil) then
       begin
         LCallbackSignature := AResponse.Value.Signature;
-        LCallbackHasError  := (AResponse.Value.Error <> nil);
+        LCallbackHasError := (AResponse.Value.Error <> nil);
         if Length(AResponse.Value.Logs) > 0 then
           LCallbackFirstLog := AResponse.Value.Logs[0];
       end;
@@ -669,25 +669,25 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeLogsWithErrors;
 var
-  LWs                 : TMockWebSocketApiClient;
-  LWsIntf             : IWebSocketApiClient;
-  LSut                : IStreamingRpcClient;
-  LExpectedSend       : string;
-  LSubConfirm         : string;
-  LNotification       : string;
-  LSubscriptionState  : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LSubscriptionState: ISubscriptionState;
 
   // captured from callback
-  LCallbackNotified   : Boolean;
-  LCallbackErrorType  : TTransactionErrorType;
-  LCallbackInstrType  : TInstructionErrorType;
-  LCallbackCustomErr  : TNullable<UInt32>;
-  LCallbackSignature  : string;
+  LCallbackNotified: Boolean;
+  LCallbackErrorType: TTransactionErrorType;
+  LCallbackInstrType: TInstructionErrorType;
+  LCallbackCustomErr: TNullable<UInt32>;
+  LCallbackSignature: string;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Expected outgoing subscribe payload (commitment=processed) and incoming frames (with error)
   LExpectedSend := LoadTestData('Logs/LogsSubscribeAllProcessed.json');
@@ -760,27 +760,27 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeProgram;
 var
-  LWs                : TMockWebSocketApiClient;
-  LWsIntf            : IWebSocketApiClient;
-  LSut               : IStreamingRpcClient;
-  LExpectedSend      : string;
-  LSubConfirm        : string;
-  LNotification      : string;
-  LSubscriptionState : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LSubscriptionState: ISubscriptionState;
 
   // captured from callback
-  LCallbackNotified  : Boolean;
-  LCallbackSlot      : UInt64;
-  LCallbackPubKey    : string;
-  LCallbackOwner     : string;
+  LCallbackNotified: Boolean;
+  LCallbackSlot: UInt64;
+  LCallbackPubKey: string;
+  LCallbackOwner: string;
   LCallbackExecutable: Boolean;
-  LCallbackRentEpoch : UInt64;
-  LCallbackLamports  : UInt64;
+  LCallbackRentEpoch: UInt64;
+  LCallbackLamports: UInt64;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Expected outgoing subscribe payload and incoming frames
   LExpectedSend := LoadTestData('Program/ProgramSubscribe.json');
@@ -805,13 +805,13 @@ begin
 
       if (AResponse <> nil) and (AResponse.Value <> nil) then
       begin
-        LCallbackPubKey     := AResponse.Value.PublicKey;
+        LCallbackPubKey := AResponse.Value.PublicKey;
         if AResponse.Value.Account <> nil then
         begin
-          LCallbackOwner      := AResponse.Value.Account.Owner;
+          LCallbackOwner := AResponse.Value.Account.Owner;
           LCallbackExecutable := AResponse.Value.Account.Executable;
-          LCallbackRentEpoch  := AResponse.Value.Account.RentEpoch;
-          LCallbackLamports   := AResponse.Value.Account.Lamports;
+          LCallbackRentEpoch := AResponse.Value.Account.RentEpoch;
+          LCallbackLamports := AResponse.Value.Account.Lamports;
         end;
       end;
 
@@ -845,21 +845,21 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeProgramFilters;
 var
-  LWs        : TMockWebSocketApiClient;
-  LWsIntf    : IWebSocketApiClient;
-  LSut       : IStreamingRpcClient;
-  LExpected  : string;
-  LProgramId : string;
-  LDataSize  : TNullable<Integer>;
-  LMemCmpArr : TArray<TMemCmp>;
-  LI        : Integer;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpected: string;
+  LProgramId: string;
+  LDataSize: TNullable<Integer>;
+  LMemCmpArr: TArray<TMemCmp>;
+  LI: Integer;
 begin
   // Arrange
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
-  LExpected  := LoadTestData('Program/ProgramSubscribeFilters.json');
+  LExpected := LoadTestData('Program/ProgramSubscribeFilters.json');
   LProgramId := '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin';
 
   LDataSize := TNullable<Integer>.Some(3228);
@@ -867,7 +867,7 @@ begin
   SetLength(LMemCmpArr, 1);
   LMemCmpArr[0] := TMemCmp.Create;
   LMemCmpArr[0].Offset := 45;
-  LMemCmpArr[0].Bytes  := 'CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq';
+  LMemCmpArr[0].Bytes := 'CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq';
 
   // Act
   LSut.Connect;
@@ -895,21 +895,21 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeProgramMemcmpFilters;
 var
-  LWs        : TMockWebSocketApiClient;
-  LWsIntf    : IWebSocketApiClient;
-  LSut       : IStreamingRpcClient;
-  LExpected  : string;
-  LProgramId : string;
-  LNoSize    : TNullable<Integer>;
-  LMemCmpArr : TArray<TMemCmp>;
-  LI        : Integer;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpected: string;
+  LProgramId: string;
+  LNoSize: TNullable<Integer>;
+  LMemCmpArr: TArray<TMemCmp>;
+  LI: Integer;
 begin
   // Arrange
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
-  LExpected  := LoadTestData('Program/ProgramSubscribeMemcmpFilter.json');
+  LExpected := LoadTestData('Program/ProgramSubscribeMemcmpFilter.json');
   LProgramId := '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin';
 
   // No dataSize; only memcmp filter
@@ -918,7 +918,7 @@ begin
   SetLength(LMemCmpArr, 1);
   LMemCmpArr[0] := TMemCmp.Create;
   LMemCmpArr[0].Offset := 45;
-  LMemCmpArr[0].Bytes  := 'CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq';
+  LMemCmpArr[0].Bytes := 'CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq';
 
   // Act
   LSut.Connect;
@@ -948,19 +948,19 @@ end;
 
  procedure TSolanaStreamingRpcClientTests.TestSubscribeProgramDataFilter;
 var
-  LWs        : TMockWebSocketApiClient;
-  LWsIntf    : IWebSocketApiClient;
-  LSut       : IStreamingRpcClient;
-  LExpected  : string;
-  LProgramId : string;
-  LDataSize  : TNullable<Integer>;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpected: string;
+  LProgramId: string;
+  LDataSize: TNullable<Integer>;
 begin
   // Arrange
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
-  LExpected  := LoadTestData('Program/ProgramSubscribeDataSizeFilter.json');
+  LExpected := LoadTestData('Program/ProgramSubscribeDataSizeFilter.json');
   LProgramId := '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin';
 
   LDataSize := TNullable<Integer>.Some(3228);
@@ -986,30 +986,30 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeProgramConfirmed;
 var
-  LWs               : TMockWebSocketApiClient;
-  LWsIntf           : IWebSocketApiClient;
-  LSut              : IStreamingRpcClient;
-  LExpectedSend     : string;
-  LSubConfirm       : string;
-  LNotification     : string;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
   LSubscriptionState: ISubscriptionState;
 
   // captured values from the callback
-  LCallbackNotified : Boolean;
-  LCallbackSlot     : UInt64;
-  LCallbackPubKey   : string;
-  LCallbackOwner    : string;
-  LCallbackExec     : Boolean;
-  LCallbackRentEp   : UInt64;
-  LCallbackLamports : UInt64;
+  LCallbackNotified: Boolean;
+  LCallbackSlot: UInt64;
+  LCallbackPubKey: string;
+  LCallbackOwner: string;
+  LCallbackExec: Boolean;
+  LCallbackRentEp: UInt64;
+  LCallbackLamports: UInt64;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   LExpectedSend := LoadTestData('Program/ProgramSubscribeConfirmed.json');
-  LSubConfirm   := LoadTestData('SubscribeConfirm.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
   LNotification := LoadTestData('Program/ProgramSubscribeNotification.json');
 
   // Queue server frames
@@ -1031,12 +1031,12 @@ begin
 
           if (AResponse <> nil) and (AResponse.Value <> nil) then
           begin
-            LCallbackPubKey  := AResponse.Value.PublicKey;
+            LCallbackPubKey := AResponse.Value.PublicKey;
             if AResponse.Value.Account <> nil then
             begin
-              LCallbackOwner    := AResponse.Value.Account.Owner;
-              LCallbackExec     := AResponse.Value.Account.Executable;
-              LCallbackRentEp   := AResponse.Value.Account.RentEpoch;
+              LCallbackOwner := AResponse.Value.Account.Owner;
+              LCallbackExec := AResponse.Value.Account.Executable;
+              LCallbackRentEp := AResponse.Value.Account.RentEpoch;
               LCallbackLamports := AResponse.Value.Account.Lamports;
             end;
           end;
@@ -1071,27 +1071,27 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeSlotInfo;
 var
-  LWs               : TMockWebSocketApiClient;
-  LWsIntf           : IWebSocketApiClient;
-  LSut              : IStreamingRpcClient;
-  LExpectedSend     : string;
-  LSubConfirm       : string;
-  LNotification     : string;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
   LSubscriptionState: ISubscriptionState;
 
   // captured values from the callback
-  LCallbackNotified : Boolean;
-  LCallbackParent   : Integer;
-  LCallbackRoot     : Integer;
-  LCallbackSlot     : Integer;
+  LCallbackNotified: Boolean;
+  LCallbackParent: Integer;
+  LCallbackRoot: Integer;
+  LCallbackSlot: Integer;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   LExpectedSend := LoadTestData('SlotSubscribe.json');
-  LSubConfirm   := LoadTestData('SubscribeConfirm.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
   LNotification := LoadTestData('SlotSubscribeNotification.json');
 
   // Queue server frames
@@ -1108,8 +1108,8 @@ begin
         procedure(ASubscriptionState: ISubscriptionState; AInfo: TSlotInfo)
         begin
           LCallbackParent := AInfo.Parent;
-          LCallbackRoot   := AInfo.Root;
-          LCallbackSlot   := AInfo.Slot;
+          LCallbackRoot := AInfo.Root;
+          LCallbackSlot := AInfo.Slot;
 
           LCallbackNotified := True;
           if ASubscriptionState <> nil then
@@ -1136,25 +1136,25 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeRoot;
 var
-  LWs               : TMockWebSocketApiClient;
-  LWsIntf           : IWebSocketApiClient;
-  LSut              : IStreamingRpcClient;
-  LExpectedSend     : string;
-  LSubConfirm       : string;
-  LNotification     : string;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
   LSubscriptionState: ISubscriptionState;
 
   // captured value from the callback
-  LCallbackNotified : Boolean;
-  LCallbackRoot     : Integer;
+  LCallbackNotified: Boolean;
+  LCallbackRoot: Integer;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   LExpectedSend := LoadTestData('RootSubscribe.json');
-  LSubConfirm   := LoadTestData('SubscribeConfirm.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
   LNotification := LoadTestData('RootSubscribeNotification.json');
 
   // Queue server frames
@@ -1170,7 +1170,7 @@ begin
       LSut.SubscribeRoot(
         procedure(ASubscriptionState: ISubscriptionState; AValue: Integer)
         begin
-          LCallbackRoot     := AValue;
+          LCallbackRoot := AValue;
           LCallbackNotified := True;
           if ASubscriptionState <> nil then
             ASubscriptionState.Unsubscribe;
@@ -1194,30 +1194,30 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeSignature;
 var
-  LWs                : TMockWebSocketApiClient;
-  LWsIntf            : IWebSocketApiClient;
-  LSut               : IStreamingRpcClient;
-  LExpectedSend      : string;
-  LSubConfirm        : string;
-  LNotification      : string;
-  LSub               : ISubscriptionState;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LSub: ISubscriptionState;
 
   // callback flags
-  LCallbackFired     : Boolean;
-  LHasValue          : Boolean;
-  LHasError          : Boolean;
+  LCallbackFired: Boolean;
+  LHasValue: Boolean;
+  LHasError: Boolean;
 
   // subscription-changed capture
-  LChangedSignal     : TEvent;
-  LLastChange        : ISubscriptionEvent;
+  LChangedSignal: TEvent;
+  LLastChange: ISubscriptionEvent;
 begin
   // Arrange
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   LExpectedSend := LoadTestData('Signature/SignatureSubscribe.json');
-  LSubConfirm   := LoadTestData('SubscribeConfirm.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
   LNotification := LoadTestData('Signature/SignatureSubscribeNotification.json');
 
   // server frames: confirm -> notification
@@ -1225,8 +1225,8 @@ begin
   LWs.EnqueueText(LNotification);
 
   LCallbackFired := False;
-  LHasValue      := False;
-  LHasError      := False;
+  LHasValue := False;
+  LHasError := False;
 
   LChangedSignal := TEvent.Create(nil, True, False, '');
   try
@@ -1283,37 +1283,37 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeSignature_ErrorNotification;
 var
-  LWs                : TMockWebSocketApiClient;
-  LWsIntf            : IWebSocketApiClient;
-  LSut               : IStreamingRpcClient;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
 
-  LExpectedSend      : string;
-  LSubConfirm        : string;
-  LNotification      : string;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
 
-  LSub               : ISubscriptionState;
+  LSub: ISubscriptionState;
 
   // callback flags
-  LCallbackFired     : Boolean;
-  LHasValue          : Boolean;
-  LHasError          : Boolean;
+  LCallbackFired: Boolean;
+  LHasValue: Boolean;
+  LHasError: Boolean;
 
   // captured error details
-  LCapErrType        : TTransactionErrorType;
-  LCapInstrErrType   : TInstructionErrorType;
-  LCapCustomErr      : TNullable<UInt32>;
+  LCapErrType: TTransactionErrorType;
+  LCapInstrErrType: TInstructionErrorType;
+  LCapCustomErr: TNullable<UInt32>;
 
   // subscription change signaling
-  LChangedSignal     : TEvent;
-  LLastChange        : ISubscriptionEvent;
+  LChangedSignal: TEvent;
+  LLastChange: ISubscriptionEvent;
 begin
   // Arrange
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   LExpectedSend := LoadTestData('Signature/SignatureSubscribe.json');
-  LSubConfirm   := LoadTestData('SubscribeConfirm.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
   LNotification := LoadTestData('Signature/SignatureSubscribeErrorNotification.json');
 
   // server frames: confirm -> error notification
@@ -1336,11 +1336,11 @@ begin
 
             if LHasError then
             begin
-              LCapErrType      := AResponse.Value.Error.&Type;
+              LCapErrType := AResponse.Value.Error.&Type;
               if AResponse.Value.Error.InstructionError <> nil then
               begin
                 LCapInstrErrType := AResponse.Value.Error.InstructionError.&Type;
-                LCapCustomErr    := AResponse.Value.Error.InstructionError.CustomError;
+                LCapCustomErr := AResponse.Value.Error.InstructionError.CustomError;
               end;
             end;
             // client auto-unsubscribes on signature notifications
@@ -1389,32 +1389,32 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeSignature_Processed;
 var
-  LWs                : TMockWebSocketApiClient;
-  LWsIntf            : IWebSocketApiClient;
-  LSut               : IStreamingRpcClient;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
 
-  LExpectedSend      : string;
-  LSubConfirm        : string;
-  LNotification      : string;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
 
-  LSub               : ISubscriptionState;
+  LSub: ISubscriptionState;
 
   // callback flags
-  LCallbackFired     : Boolean;
-  LHasValue          : Boolean;
-  LHasError          : Boolean;
+  LCallbackFired: Boolean;
+  LHasValue: Boolean;
+  LHasError: Boolean;
 
   // subscription change signaling
-  LChangedSignal     : TEvent;
-  LLastChange        : ISubscriptionEvent;
+  LChangedSignal: TEvent;
+  LLastChange: ISubscriptionEvent;
 begin
   // Arrange
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   LExpectedSend := LoadTestData('Signature/SignatureSubscribeProcessed.json');
-  LSubConfirm   := LoadTestData('SubscribeConfirm.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
   LNotification := LoadTestData('Signature/SignatureSubscribeNotification.json');
 
   // server frames: confirm -> success notification (no error)
@@ -1422,8 +1422,8 @@ begin
   LWs.EnqueueText(LNotification);
 
   LCallbackFired := False;
-  LHasValue      := False;
-  LHasError      := False;
+  LHasValue := False;
+  LHasError := False;
 
   LChangedSignal := TEvent.Create(nil, True, False, '');
   try
@@ -1480,31 +1480,31 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeBadAccount;
 var
-  LWs            : TMockWebSocketApiClient;
-  LWsIntf        : IWebSocketApiClient;
-  LSut           : IStreamingRpcClient;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
 
-  LExpectedSend  : string;
-  LSubConfirm    : string;
+  LExpectedSend: string;
+  LSubConfirm: string;
 
-  LPubKey        : string;
-  LSub           : ISubscriptionState;
+  LPubKey: string;
+  LSub: ISubscriptionState;
 
   // subscription change capture
-  LGotChange     : TEvent;
-  LLastEvent     : ISubscriptionEvent;
+  LGotChange: TEvent;
+  LLastEvent: ISubscriptionEvent;
 begin
   // Arrange
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   LExpectedSend := LoadTestData('Account/BadAccountSubscribe.json');
-  LSubConfirm   := LoadTestData('Account/BadAccountSubscribeResult.json');
+  LSubConfirm := LoadTestData('Account/BadAccountSubscribeResult.json');
 
   LWs.EnqueueText(LSubConfirm);
 
-  LPubKey    := 'invalidkey1';
+  LPubKey := 'invalidkey1';
   LGotChange := TEvent.Create(nil, True, False, '');
   try
     // Act
@@ -1555,38 +1555,38 @@ end;
 
 procedure TSolanaStreamingRpcClientTests.TestSubscribeAccountBigPayload;
 var
-  LWs                 : TMockWebSocketApiClient;
-  LWsIntf             : IWebSocketApiClient;
-  LSut                : IStreamingRpcClient;
+  LWs: TMockWebSocketApiClient;
+  LWsIntf: IWebSocketApiClient;
+  LSut: IStreamingRpcClient;
 
-  LExpectedSend       : string;
-  LSubConfirm         : string;
-  LNotification       : string;
-  LExpectedDataBody   : string;
+  LExpectedSend: string;
+  LSubConfirm: string;
+  LNotification: string;
+  LExpectedDataBody: string;
 
-  LPubKey             : string;
-  LSub                : ISubscriptionState;
+  LPubKey: string;
+  LSub: ISubscriptionState;
 
   // subscription change capture
-  LGotSubscribedEvt   : Boolean;
-  LLastEvent         : ISubscriptionEvent;
+  LGotSubscribedEvt: Boolean;
+  LLastEvent: ISubscriptionEvent;
 
   // notification capture
-  LCallbackNotified   : Boolean;
-  LEnvWasSet        : Boolean;
-  LValueWasSet      : Boolean;
-  LEnvBase64     : string;
+  LCallbackNotified: Boolean;
+  LEnvWasSet: Boolean;
+  LValueWasSet: Boolean;
+  LEnvBase64: string;
   LEnvEncodingTag: string;
 begin
   // Arrange: mock WS + real LSut
-  LWs     := TMockWebSocketApiClient.Create;
+  LWs := TMockWebSocketApiClient.Create;
   LWsIntf := LWs;
-  LSut    := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
+  LSut := TSolanaStreamingRpcClient.Create(TestnetStreamingUrl, LWsIntf);
 
   // Files
-  LExpectedSend     := LoadTestData('Account/BigAccountSubscribe.json');
-  LSubConfirm       := LoadTestData('SubscribeConfirm.json');
-  LNotification     := LoadTestData('Account/BigAccountNotificationPayload.json');
+  LExpectedSend := LoadTestData('Account/BigAccountSubscribe.json');
+  LSubConfirm := LoadTestData('SubscribeConfirm.json');
+  LNotification := LoadTestData('Account/BigAccountNotificationPayload.json');
   LExpectedDataBody := LoadTestData('Account/BigAccountNotificationPayloadData.txt');
 
   // Queue frames: subscription confirmation then BIG notification payload
@@ -1605,7 +1605,7 @@ begin
         procedure(ASubscriptionState: ISubscriptionState; AResponse: TResponseValue<TAccountInfo>)
         begin
           // Capture notification
-          LEnvWasSet   := (AResponse <> nil);
+          LEnvWasSet := (AResponse <> nil);
           LValueWasSet := (AResponse <> nil) and (AResponse.Value <> nil);
           LEnvBase64 := AResponse.Value.Data[0];
           LEnvEncodingTag := AResponse.Value.Data[1];

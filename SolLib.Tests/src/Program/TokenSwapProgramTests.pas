@@ -295,22 +295,22 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
 
   LTokenSwapAccount := LWallet.GetAccountByIndex(1);
-  LTokenA           := LWallet.GetAccountByIndex(3);
-  LTokenB           := LWallet.GetAccountByIndex(4);
-  LPoolMint         := LWallet.GetAccountByIndex(5);
-  LPoolFee          := LWallet.GetAccountByIndex(6);
-  LPoolToken        := LWallet.GetAccountByIndex(7);
+  LTokenA := LWallet.GetAccountByIndex(3);
+  LTokenB := LWallet.GetAccountByIndex(4);
+  LPoolMint := LWallet.GetAccountByIndex(5);
+  LPoolFee := LWallet.GetAccountByIndex(6);
+  LPoolToken := LWallet.GetAccountByIndex(7);
 
   LFees := TFees.Create;
-  LFees.TradeFeeNumerator              := 1;
-  LFees.TradeFeeDenominator            := 100;
-  LFees.OwnerWithdrawFeeNumerator       := 0;
-  LFees.OwnerWithdrawFeeDenominator       := 1;
-  LFees.OwnerTradeFeeDenominator     := 1;
-  LFees.OwnerTradeFeeNumerator         := 1;
-  LFees.OwnerTradeFeeDenominator       := 100;
-  LFees.HostFeeNumerator               := 1;
-  LFees.HostFeeDenominator             := 1000;
+  LFees.TradeFeeNumerator := 1;
+  LFees.TradeFeeDenominator := 100;
+  LFees.OwnerWithdrawFeeNumerator := 0;
+  LFees.OwnerWithdrawFeeDenominator := 1;
+  LFees.OwnerTradeFeeDenominator := 1;
+  LFees.OwnerTradeFeeNumerator := 1;
+  LFees.OwnerTradeFeeDenominator := 100;
+  LFees.HostFeeNumerator := 1;
+  LFees.HostFeeDenominator := 1000;
 
   LTx := TTokenSwapProgram.Initialize(
     LTokenSwapAccount.PublicKey,
@@ -337,14 +337,14 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
 
   LTokenSwapAccount := LWallet.GetAccountByIndex(1);
-  LUserXfer         := LWallet.GetAccountByIndex(3);
-  LSource           := LWallet.GetAccountByIndex(4);
-  LInto_            := LWallet.GetAccountByIndex(5);
-  LFrom_            := LWallet.GetAccountByIndex(6);
-  LDestination      := LWallet.GetAccountByIndex(7);
-  LPoolTokenMint    := LWallet.GetAccountByIndex(7);
-  LFee              := LWallet.GetAccountByIndex(7);
-  LHostFee          := LWallet.GetAccountByIndex(7);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LSource := LWallet.GetAccountByIndex(4);
+  LInto_ := LWallet.GetAccountByIndex(5);
+  LFrom_ := LWallet.GetAccountByIndex(6);
+  LDestination := LWallet.GetAccountByIndex(7);
+  LPoolTokenMint := LWallet.GetAccountByIndex(7);
+  LFee := LWallet.GetAccountByIndex(7);
+  LHostFee := LWallet.GetAccountByIndex(7);
 
   LTx := TTokenSwapProgram.Swap(
     LTokenSwapAccount.PublicKey,
@@ -374,13 +374,13 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
 
   LTokenSwapAccount := LWallet.GetAccountByIndex(1);
-  LUserXfer         := LWallet.GetAccountByIndex(3);
-  LAuthA            := LWallet.GetAccountByIndex(4);
-  LAuthB            := LWallet.GetAccountByIndex(5);
-  LBaseA            := LWallet.GetAccountByIndex(6);
-  LBaseB            := LWallet.GetAccountByIndex(7);
-  LPoolTokenMint    := LWallet.GetAccountByIndex(7);
-  LPoolAccount      := LWallet.GetAccountByIndex(7);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LAuthA := LWallet.GetAccountByIndex(4);
+  LAuthB := LWallet.GetAccountByIndex(5);
+  LBaseA := LWallet.GetAccountByIndex(6);
+  LBaseB := LWallet.GetAccountByIndex(7);
+  LPoolTokenMint := LWallet.GetAccountByIndex(7);
+  LPoolAccount := LWallet.GetAccountByIndex(7);
 
   LTx := TTokenSwapProgram.DepositAllTokenTypes(
     LTokenSwapAccount.PublicKey,
@@ -410,14 +410,14 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
 
   LTokenSwapAccount := LWallet.GetAccountByIndex(1);
-  LUserXfer         := LWallet.GetAccountByIndex(3);
-  LPoolTokenMint    := LWallet.GetAccountByIndex(4);
-  LSourcePool       := LWallet.GetAccountByIndex(4);
-  LTokenAFrom       := LWallet.GetAccountByIndex(5);
-  LTokenBFrom       := LWallet.GetAccountByIndex(6);
-  LTokenATo         := LWallet.GetAccountByIndex(7);
-  LTokenBTo         := LWallet.GetAccountByIndex(7);
-  LFeeAccount       := LWallet.GetAccountByIndex(7);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LPoolTokenMint := LWallet.GetAccountByIndex(4);
+  LSourcePool := LWallet.GetAccountByIndex(4);
+  LTokenAFrom := LWallet.GetAccountByIndex(5);
+  LTokenBFrom := LWallet.GetAccountByIndex(6);
+  LTokenATo := LWallet.GetAccountByIndex(7);
+  LTokenBTo := LWallet.GetAccountByIndex(7);
+  LFeeAccount := LWallet.GetAccountByIndex(7);
 
   LTx := TTokenSwapProgram.WithdrawAllTokenTypes(
     LTokenSwapAccount.PublicKey,
@@ -448,12 +448,12 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
 
   LTokenSwapAccount := LWallet.GetAccountByIndex(1);
-  LUserXfer         := LWallet.GetAccountByIndex(3);
-  LTokenSource      := LWallet.GetAccountByIndex(4);
-  LTokenA           := LWallet.GetAccountByIndex(5);
-  LTokenB           := LWallet.GetAccountByIndex(6);
-  LPoolMint         := LWallet.GetAccountByIndex(7);
-  LPool             := LWallet.GetAccountByIndex(7);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LTokenSource := LWallet.GetAccountByIndex(4);
+  LTokenA := LWallet.GetAccountByIndex(5);
+  LTokenB := LWallet.GetAccountByIndex(6);
+  LPoolMint := LWallet.GetAccountByIndex(7);
+  LPool := LWallet.GetAccountByIndex(7);
 
   LTx := TTokenSwapProgram.DepositSingleTokenTypeExactAmountIn(
     LTokenSwapAccount.PublicKey,
@@ -481,13 +481,13 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
 
   LTokenSwapAccount := LWallet.GetAccountByIndex(1);
-  LUserXfer         := LWallet.GetAccountByIndex(3);
-  LPoolMint         := LWallet.GetAccountByIndex(4);
-  LSourcePool       := LWallet.GetAccountByIndex(5);
-  LTokenASource     := LWallet.GetAccountByIndex(6);
-  LTokenBSource     := LWallet.GetAccountByIndex(6);
-  LUserToken        := LWallet.GetAccountByIndex(7);
-  LFeeAccount       := LWallet.GetAccountByIndex(7);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LPoolMint := LWallet.GetAccountByIndex(4);
+  LSourcePool := LWallet.GetAccountByIndex(5);
+  LTokenASource := LWallet.GetAccountByIndex(6);
+  LTokenBSource := LWallet.GetAccountByIndex(6);
+  LUserToken := LWallet.GetAccountByIndex(7);
+  LFeeAccount := LWallet.GetAccountByIndex(7);
 
   LTx := TTokenSwapProgram.WithdrawSingleTokenTypeExactAmountOut(
     LTokenSwapAccount.PublicKey,
@@ -515,7 +515,7 @@ var
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  LMsg      := TMessage.Deserialize(InitializeMessage);
+  LMsg := TMessage.Deserialize(InitializeMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
@@ -562,7 +562,7 @@ var
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  LMsg      := TMessage.Deserialize(SwapMessage);
+  LMsg := TMessage.Deserialize(SwapMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
@@ -592,7 +592,7 @@ var
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  LMsg      := TMessage.Deserialize(DepositAllTokenTypesMessage);
+  LMsg := TMessage.Deserialize(DepositAllTokenTypesMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
@@ -623,7 +623,7 @@ var
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  LMsg      := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
+  LMsg := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
@@ -655,7 +655,7 @@ var
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  LMsg      := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
+  LMsg := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
@@ -684,7 +684,7 @@ var
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  LMsg      := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
+  LMsg := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');

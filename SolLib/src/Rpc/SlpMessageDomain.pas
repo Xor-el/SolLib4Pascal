@@ -404,7 +404,7 @@ var
   LProgramIdIndex: Byte;
 begin
   LAccountAddressesLength := TShortVectorEncoding.EncodeLength(FAccountKeys.Count);
-  LInstructionsLength     := TShortVectorEncoding.EncodeLength(FInstructions.Count);
+  LInstructionsLength := TShortVectorEncoding.EncodeLength(FInstructions.Count);
 
   LEstAccountKeysSize := FAccountKeys.Count * 32;
 
@@ -487,8 +487,8 @@ end;
 
 class function TMessage.DoDeserialize(const AData: TBytes): IMessage;
 const
-  PKLen   = TPublicKey.PublicKeyLength;
-  HLen    = TMessageHeader.TLayout.HeaderLength;
+  PKLen = TPublicKey.PublicKeyLength;
+  HLen = TMessageHeader.TLayout.HeaderLength;
   SvesLen = TShortVectorEncoding.SpanLength;
 var
   LPrefix, LMaskedPrefix: Byte;
@@ -522,8 +522,8 @@ begin
     );
 
   // Read message header
-  LNumRequiredSignatures       := AData[TMessageHeader.TLayout.RequiredSignaturesOffset];
-  LNumReadOnlySignedAccounts   := AData[TMessageHeader.TLayout.ReadOnlySignedAccountsOffset];
+  LNumRequiredSignatures := AData[TMessageHeader.TLayout.RequiredSignaturesOffset];
+  LNumReadOnlySignedAccounts := AData[TMessageHeader.TLayout.ReadOnlySignedAccountsOffset];
   LNumReadOnlyUnsignedAccounts := AData[TMessageHeader.TLayout.ReadOnlyUnsignedAccountsOffset];
 
   // Read account keys
@@ -664,8 +664,8 @@ end;
 
 class function TVersionedMessage.DoDeserialize(const AData: TBytes): IMessage;
 const
-  PKLen   = TPublicKey.PublicKeyLength;
-  HLen    = TMessageHeader.TLayout.HeaderLength;
+  PKLen = TPublicKey.PublicKeyLength;
+  HLen = TMessageHeader.TLayout.HeaderLength;
   SvesLen = TShortVectorEncoding.SpanLength;
 var
   LPrefix, LMaskedPrefix, LVersion: Byte;
@@ -720,8 +720,8 @@ begin
   LBody := TArrayUtils.Slice<Byte>(AData, 1, Length(AData) - 1);
 
   // Read message header
-  LNumRequiredSignatures       := LBody[TMessageHeader.TLayout.RequiredSignaturesOffset];
-  LNumReadOnlySignedAccounts   := LBody[TMessageHeader.TLayout.ReadOnlySignedAccountsOffset];
+  LNumRequiredSignatures := LBody[TMessageHeader.TLayout.RequiredSignaturesOffset];
+  LNumReadOnlySignedAccounts := LBody[TMessageHeader.TLayout.ReadOnlySignedAccountsOffset];
   LNumReadOnlyUnsignedAccounts := LBody[TMessageHeader.TLayout.ReadOnlyUnsignedAccountsOffset];
 
   // Decode account keys

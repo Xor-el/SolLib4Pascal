@@ -32,15 +32,15 @@ uses
 type
   IDecodedInstruction = interface
     ['{2A8C4084-8B5E-4A75-8C42-2E6D7B34D7C5}']
-    function  GetPublicKey: IPublicKey;
+    function GetPublicKey: IPublicKey;
     procedure SetPublicKey(const AValue: IPublicKey);
-    function  GetProgramName: string;
+    function GetProgramName: string;
     procedure SetProgramName(const AValue: string);
-    function  GetInstructionName: string;
+    function GetInstructionName: string;
     procedure SetInstructionName(const AValue: string);
-    function  GetValues: TDictionary<string, TValue>;
+    function GetValues: TDictionary<string, TValue>;
     procedure SetValues(const AValue: TDictionary<string, TValue>);
-    function  GetInnerInstructions: TList<IDecodedInstruction>;
+    function GetInnerInstructions: TList<IDecodedInstruction>;
     procedure SetInnerInstructions(const AValue: TList<IDecodedInstruction>);
 
     /// <summary>
@@ -68,12 +68,12 @@ type
     /// Converts the decoded instructions to a string
     /// </summary>
     /// <returns>A string representation of the decoded instructions</returns>
-    function  ToString: string;
+    function ToString: string;
     /// <summary>
     /// Converts the decoded instructions to a string, indented a certain amount
     /// </summary>
     /// <returns>A string representation of the decoded instructions, indented a certain amount</returns>
-    function  ToStringIdented(AIndent: Integer): string;
+    function ToStringIdented(AIndent: Integer): string;
   end;
 
   /// <summary>
@@ -81,27 +81,27 @@ type
   /// </summary>
   TDecodedInstruction = class(TInterfacedObject, IDecodedInstruction)
   private
-    FPublicKey        : IPublicKey;
-    FProgramName      : string;
-    FInstructionName  : string;
-    FValues           : TDictionary<string, TValue>;
+    FPublicKey: IPublicKey;
+    FProgramName: string;
+    FInstructionName: string;
+    FValues: TDictionary<string, TValue>;
     FInnerInstructions: TList<IDecodedInstruction>;
 
-    function  GetPublicKey: IPublicKey;
+    function GetPublicKey: IPublicKey;
     procedure SetPublicKey(const AValue: IPublicKey);
-    function  GetProgramName: string;
+    function GetProgramName: string;
     procedure SetProgramName(const AValue: string);
-    function  GetInstructionName: string;
+    function GetInstructionName: string;
     procedure SetInstructionName(const AValue: string);
-    function  GetValues: TDictionary<string, TValue>;
+    function GetValues: TDictionary<string, TValue>;
     procedure SetValues(const AValue: TDictionary<string, TValue>);
-    function  GetInnerInstructions: TList<IDecodedInstruction>;
+    function GetInnerInstructions: TList<IDecodedInstruction>;
     procedure SetInnerInstructions(const AValue: TList<IDecodedInstruction>);
   public
     destructor Destroy; override;
 
-    function  ToString: string; override;
-    function  ToStringIdented(AIndent: Integer): string; reintroduce;
+    function ToString: string; override;
+    function ToStringIdented(AIndent: Integer): string; reintroduce;
 
   end;
 

@@ -69,7 +69,7 @@ begin
   // TestNet: list token accounts for a deterministic owner (from mnemonic)
   //
   LWallet := TWallet.Create(MnemonicWords);
-  LOwner  := LWallet.GetAccountByIndex(0);
+  LOwner := LWallet.GetAccountByIndex(0);
 
   LResOwnerTestNet := TestNetRpcClient.GetTokenAccountsByOwner(
                  LOwner.PublicKey.Key,

@@ -62,35 +62,35 @@ implementation
 
 procedure THelloWorldExample.Run;
 var
-  LRpc      : IRpcClient;
-  LStreamingRpc   : IStreamingRpcClient;
+  LRpc: IRpcClient;
+  LStreamingRpc: IStreamingRpcClient;
   LWebSocketClient: IWebSocketApiClient;
-  LWallet   : IWallet;
-  LFrom       : IAccount;
-  LTo         : IAccount;
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LBalance  : IRequestResult<TResponseValue<UInt64>>;
-  LTxBuilder  : ITransactionBuilder;
-  LMsgBytes   : TBytes;
+  LWallet: IWallet;
+  LFrom: IAccount;
+  LTo: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LBalance: IRequestResult<TResponseValue<UInt64>>;
+  LTxBuilder: ITransactionBuilder;
+  LMsgBytes: TBytes;
   LMsgSignature: TBytes;
-  LTxBytes    : TBytes;
-  LSignature  : string;
+  LTxBytes: TBytes;
+  LSignature: string;
   LSubscription: ISubscriptionState;
 begin
   //LWebSocketClient := TWebSocketApiClient.Create(TSecureBridgeWebSocketClientImpl.Create(nil, Logger));
   LWebSocketClient := TWebSocketApiClient.Create(TSgcWebSocketClientImpl.Create(nil, Logger));
   // RPC + Streaming + Wallet
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LStreamingRpc := TClientFactory.GetStreamingClient(TCluster.TestNet, LWebSocketClient, Logger);
   LWallet := TWallet.Create(MnemonicWords);
-  LFrom   := LWallet.GetAccountByIndex(0);
-  LTo   := LWallet.GetAccountByIndex(1);
+  LFrom := LWallet.GetAccountByIndex(0);
+  LTo := LWallet.GetAccountByIndex(1);
 
   Writeln('Hello World!');
   Writeln('Mnemonic: ' + LWallet.Mnemonic.ToString);
-  Writeln('From PubKey  : ' + LFrom.PublicKey.Key);
-  Writeln('From PrivKey : ' + LFrom.PrivateKey.Key);
-  Writeln('To PubKey  : ' + LTo.PublicKey.Key);
+  Writeln('From PubKey: ' + LFrom.PublicKey.Key);
+  Writeln('From PrivKey: ' + LFrom.PrivateKey.Key);
+  Writeln('To PubKey: ' + LTo.PublicKey.Key);
 
   // Receiver Initial balance
   LBalance := LRpc.GetBalance(LTo.PublicKey.Key);
@@ -140,7 +140,7 @@ begin
     LSignature,
     procedure(ASub: ISubscriptionState; AData: TResponseValue<TErrorResult>)
     var
-      LBal   : IRequestResult<TResponseValue<UInt64>>;
+      LBal: IRequestResult<TResponseValue<UInt64>>;
     begin
       // Success path: Value present AND no error
       if (AData <> nil) and (AData.Value <> nil) and (AData.Value.Error = nil) then

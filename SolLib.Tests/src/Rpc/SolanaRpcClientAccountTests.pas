@@ -75,7 +75,7 @@ var
   LResult: IRequestResult<TResponseValue<TAccountInfo>>;
 begin
   LResponseData := LoadTestData('Accounts/GetAccountInfoResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetAccountInfoRequest.json');
+  LRequestData := LoadTestData('Accounts/GetAccountInfoRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -108,7 +108,7 @@ var
   LTokenAccountData: TTokenAccountData;
 begin
   LResponseData := LoadTestData('Accounts/GetTokenAccountInfoResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetTokenAccountInfoRequest.json');
+  LRequestData := LoadTestData('Accounts/GetTokenAccountInfoRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -153,7 +153,7 @@ var
   LResult: IRequestResult<TResponseValue<TTokenMintInfo>>;
 begin
   LResponseData := LoadTestData('Accounts/GetTokenMintInfoResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetTokenMintInfoRequest.json');
+  LRequestData := LoadTestData('Accounts/GetTokenMintInfoRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -192,9 +192,9 @@ var
   LRpcClient: IRpcClient;
   LResult: IRequestResult<TResponseValue<TAccountInfo>>;
 begin
-  LResponseData       := LoadTestData('Accounts/GetAccountInfoParsedResponse.json');
+  LResponseData := LoadTestData('Accounts/GetAccountInfoParsedResponse.json');
   LParsedJsonDataOnly := LoadTestData('Accounts/GetAccountInfoParsedResponseDataOnly.json');
-  LRequestData        := LoadTestData('Accounts/GetAccountInfoParsedRequest.json');
+  LRequestData := LoadTestData('Accounts/GetAccountInfoParsedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -226,7 +226,7 @@ var
   LResult: IRequestResult<TResponseValue<TAccountInfo>>;
 begin
   LResponseData := LoadTestData('Accounts/GetAccountInfoResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetAccountInfoConfirmedRequest.json');
+  LRequestData := LoadTestData('Accounts/GetAccountInfoConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -258,7 +258,7 @@ var
   LResult: IRequestResult<TObjectList<TAccountKeyPair>>;
 begin
   LResponseData := LoadTestData('Accounts/GetProgramAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetProgramAccountsRequest.json');
+  LRequestData := LoadTestData('Accounts/GetProgramAccountsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -300,7 +300,7 @@ var
   LResult: IRequestResult<TObjectList<TAccountKeyPair>>;
 begin
   LResponseData := LoadTestData('Accounts/GetProgramAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetProgramAccountsDataSizeRequest.json');
+  LRequestData := LoadTestData('Accounts/GetProgramAccountsDataSizeRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -344,7 +344,7 @@ var
   LResult: IRequestResult<TObjectList<TAccountKeyPair>>;
 begin
   LResponseData := LoadTestData('Accounts/GetProgramAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetProgramAccountsMemoryCompareRequest.json');
+  LRequestData := LoadTestData('Accounts/GetProgramAccountsMemoryCompareRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -352,7 +352,7 @@ begin
   LFilter := TMemCmp.Create;
   try
     LFilter.Offset := 25;
-    LFilter.Bytes  := '3Mc6vR';
+    LFilter.Bytes := '3Mc6vR';
 
     SetLength(LFilters, 1);
     LFilters[0] := LFilter;
@@ -401,7 +401,7 @@ var
   LResult: IRequestResult<TObjectList<TAccountKeyPair>>;
 begin
   LResponseData := LoadTestData('Accounts/GetProgramAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetProgramAccountsProcessedRequest.json');
+  LRequestData := LoadTestData('Accounts/GetProgramAccountsProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -445,7 +445,7 @@ var
   LPubKeys: TArray<string>;
 begin
   LResponseData := LoadTestData('Accounts/GetMultipleAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetMultipleAccountsRequest.json');
+  LRequestData := LoadTestData('Accounts/GetMultipleAccountsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -483,7 +483,7 @@ var
   LPubkeys: TArray<string>;
 begin
   LResponseData := LoadTestData('Accounts/GetMultipleAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetMultipleAccountsConfirmedRequest.json');
+  LRequestData := LoadTestData('Accounts/GetMultipleAccountsConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -520,7 +520,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TLargeAccount>>>;
 begin
   LResponseData := LoadTestData('Accounts/GetLargestAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetLargestAccountsRequest.json');
+  LRequestData := LoadTestData('Accounts/GetLargestAccountsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -550,7 +550,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TLargeAccount>>>;
 begin
   LResponseData := LoadTestData('Accounts/GetLargestAccountsResponse.json');
-  LRequestData  := LoadTestData('Accounts/GetLargestAccountsNonCirculatingProcessedRequest.json');
+  LRequestData := LoadTestData('Accounts/GetLargestAccountsNonCirculatingProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -580,7 +580,7 @@ var
   LResult: IRequestResult<TVoteAccounts>;
 begin
   LResponseData := LoadTestData('GetVoteAccountsResponse.json');
-  LRequestData  := LoadTestData('GetVoteAccountsRequest.json');
+  LRequestData := LoadTestData('GetVoteAccountsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -625,7 +625,7 @@ var
   LResult: IRequestResult<TVoteAccounts>;
 begin
   LResponseData := LoadTestData('GetVoteAccountsResponse.json');
-  LRequestData  := LoadTestData('GetVoteAccountsWithParamsRequest.json');
+  LRequestData := LoadTestData('GetVoteAccountsWithParamsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;

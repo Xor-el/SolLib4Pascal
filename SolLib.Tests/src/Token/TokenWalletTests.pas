@@ -94,7 +94,7 @@ var
 begin
   LRes := TRequestResult<T>.Create;
   LRes.HttpStatusCode := AHttpStatusCode;
-  LRes.RawRpcRequest  := AReqJson;
+  LRes.RawRpcRequest := AReqJson;
   LRes.RawRpcResponse := ARespJson;
 
   if AHttpStatusCode = 200 then
@@ -106,15 +106,15 @@ end;
 procedure TTokenWalletTests.TestLoadKnownMint;
 var
   LOwnerWallet: IWallet;
-  LSigner     : IAccount;
+  LSigner: IAccount;
   LMockRpcClient: TMockTokenWalletRpcProxy;
-  LRpcProxy   : ITokenWalletRpcProxy;
-  LTokens     : ITokenMintResolver;
-  LTestToken  : ITokenDef;
-  LWallet     : ITokenWallet;
+  LRpcProxy: ITokenWalletRpcProxy;
+  LTokens: ITokenMintResolver;
+  LTestToken: ITokenDef;
+  LWallet: ITokenWallet;
   LAccounts,
-  LTestList   : ITokenWalletFilterList;
-  LPubKey     : string;
+  LTestList: ITokenWalletFilterList;
+  LPubKey: string;
 begin
   LOwnerWallet := TWallet.Create(MnemonicWords);
   LSigner := LOwnerWallet.GetAccountByIndex(1);
@@ -182,13 +182,13 @@ end;
 
 procedure TTokenWalletTests.TestLoadUnknownMint;
 var
-  LOwnerWallet : IWallet;
-  LSigner      : IAccount;
-  LMockRpcClient : TMockTokenWalletRpcProxy;
-  LRpcProxy    : ITokenWalletRpcProxy;
-  LTokens      : ITokenMintResolver;
-  LWallet      : ITokenWallet;
-  LUnknown     : ITokenWalletFilterList;
+  LOwnerWallet: IWallet;
+  LSigner: IAccount;
+  LMockRpcClient: TMockTokenWalletRpcProxy;
+  LRpcProxy: ITokenWalletRpcProxy;
+  LTokens: ITokenMintResolver;
+  LWallet: ITokenWallet;
+  LUnknown: ITokenWalletFilterList;
 begin
   LOwnerWallet := TWallet.Create(MnemonicWords);
   LSigner := LOwnerWallet.GetAccountByIndex(1);
@@ -225,17 +225,17 @@ end;
 
 procedure TTokenWalletTests.TestProvisionAtaInjectBuilder;
 var
-  LOwnerWallet : IWallet;
-  LSigner      : IAccount;
-  LMockRpcClient : TMockTokenWalletRpcProxy;
-  LRpcProxy    : ITokenWalletRpcProxy;
-  LTokens      : ITokenMintResolver;
-  LTestToken   : ITokenDef;
-  LWallet      : ITokenWallet;
-  LAccounts, LTestList : ITokenWalletFilterList;
-  LBuilder     : ITransactionBuilder;
-  LBeforeTx, LAfterTx : TBytes;
-  LTestAta, LPubKey : IPublicKey;
+  LOwnerWallet: IWallet;
+  LSigner: IAccount;
+  LMockRpcClient: TMockTokenWalletRpcProxy;
+  LRpcProxy: ITokenWalletRpcProxy;
+  LTokens: ITokenMintResolver;
+  LTestToken: ITokenDef;
+  LWallet: ITokenWallet;
+  LAccounts, LTestList: ITokenWalletFilterList;
+  LBuilder: ITransactionBuilder;
+  LBeforeTx, LAfterTx: TBytes;
+  LTestAta, LPubKey: IPublicKey;
 begin
   LOwnerWallet := TWallet.Create(MnemonicWords);
   LSigner := LOwnerWallet.GetAccountByIndex(1);
@@ -297,13 +297,13 @@ end;
 
 procedure TTokenWalletTests.TestLoadRefresh;
 var
-  LOwnerWallet : IWallet;
-  LSigner      : IAccount;
-  LMockRpcClient : TMockTokenWalletRpcProxy;
-  LRpcProxy    : ITokenWalletRpcProxy;
-  LTokens      : ITokenMintResolver;
-  LTestToken   : ITokenDef;
-  LWallet      : ITokenWallet;
+  LOwnerWallet: IWallet;
+  LSigner: IAccount;
+  LMockRpcClient: TMockTokenWalletRpcProxy;
+  LRpcProxy: ITokenWalletRpcProxy;
+  LTokens: ITokenMintResolver;
+  LTestToken: ITokenDef;
+  LWallet: ITokenWallet;
 begin
   LOwnerWallet := TWallet.Create(MnemonicWords);
   LSigner := LOwnerWallet.GetAccountByIndex(1);
@@ -334,16 +334,16 @@ end;
 
 procedure TTokenWalletTests.TestSendTokenProvisionAta;
 var
-  LOwnerWallet       : IWallet;
+  LOwnerWallet: IWallet;
   LSigner, LTargetOwner: IAccount;
   LMintPubkey, LDeterministicPda: IPublicKey;
-  LMockRpcClient     : TMockTokenWalletRpcProxy;
-  LRpcProxy          : ITokenWalletRpcProxy;
-  LTokens            : ITokenMintResolver;
-  LTestToken         : ITokenDef;
-  LWallet            : ITokenWallet;
-  LTestTokenAccount  : ITokenWalletAccount;
-  LSendResponse      : IRequestResult<string>;
+  LMockRpcClient: TMockTokenWalletRpcProxy;
+  LRpcProxy: ITokenWalletRpcProxy;
+  LTokens: ITokenMintResolver;
+  LTestToken: ITokenDef;
+  LWallet: ITokenWallet;
+  LTestTokenAccount: ITokenWalletAccount;
+  LSendResponse: IRequestResult<string>;
 begin
   // get owner
   LOwnerWallet := TWallet.Create(MnemonicWords);
@@ -482,15 +482,15 @@ end;
 
 procedure TTokenWalletTests.TestSendTokenDefendAgainstAccountMismatch;
 var
-  LMockRpcClient : TMockTokenWalletRpcProxy;
-  LRpcProxy      : ITokenWalletRpcProxy;
-  LMintPubkey    : IPublicKey;
-  LTokens        : ITokenMintResolver;
-  LTestToken     : ITokenDef;
-  LOwnerWallet   : IWallet;
+  LMockRpcClient: TMockTokenWalletRpcProxy;
+  LRpcProxy: ITokenWalletRpcProxy;
+  LMintPubkey: IPublicKey;
+  LTokens: ITokenMintResolver;
+  LTestToken: ITokenDef;
+  LOwnerWallet: IWallet;
   LAccountA, LAccountB, LDestination: IAccount;
   LWalletA, LWalletB: ITokenWallet;
-  LAccountInA    : ITokenWalletAccount;
+  LAccountInA: ITokenWalletAccount;
 begin
   // create mock RPC proxy (interface will manage lifetime)
   LMockRpcClient := TMockTokenWalletRpcProxy.Create;
@@ -580,8 +580,8 @@ end;
 procedure TTokenWalletTests.TestOnCurveSanityChecks;
 var
   LOwnerWallet: IWallet;
-  LOwner      : IAccount;
-  LMintPubkey, LAta, LFake : IPublicKey;
+  LOwner: IAccount;
+  LMintPubkey, LAta, LFake: IPublicKey;
 begin
   // check real wallet address
   LOwnerWallet := TWallet.Create(MnemonicWords);
@@ -603,22 +603,22 @@ end;
 procedure TTokenWalletTests.TestTokenWalletViaBatch;
 var
   LExpectedReq, LExpectedResp: string;
-  LTokens     : ITokenMintResolver;
-  LTestToken  : ITokenDef;
-  LUnusedRpc  : IRpcClient;
-  LBatch      : TSolanaRpcBatchWithCallbacks;
+  LTokens: ITokenMintResolver;
+  LTestToken: ITokenDef;
+  LUnusedRpc: IRpcClient;
+  LBatch: TSolanaRpcBatchWithCallbacks;
   LOwnerWallet: IWallet;
-  LSigner     : IAccount;
+  LSigner: IAccount;
   LPubKey, LJson: string;
   LWalletPromise: TFunc<ITokenWallet>;
-  LReqs       : TJsonRpcBatchRequest;
-  LResp       : IRequestResult<TJsonRpcBatchResponse>;
-  LBatchResp  : TJsonRpcBatchResponse;
-  LWallet     : ITokenWallet;
+  LReqs: TJsonRpcBatchRequest;
+  LResp: IRequestResult<TJsonRpcBatchResponse>;
+  LBatchResp: TJsonRpcBatchResponse;
+  LWallet: ITokenWallet;
   LMockRpcHttpClient: TMockRpcHttpClient;
   LRpcHttpClient: IHttpApiClient;
 begin
-  LExpectedReq  := LoadTestData('TokenWallet/SampleBatchRequest.json');
+  LExpectedReq := LoadTestData('TokenWallet/SampleBatchRequest.json');
   LExpectedResp := LoadTestData('TokenWallet/SampleBatchResponse.json');
 
   // Token resolver setup
@@ -687,10 +687,10 @@ end;
 procedure TTokenWalletTests.TestTokenWalletFilterList;
 var
   LEmptyAccounts: TList<ITokenWalletAccount>;
-  LList         : ITokenWalletFilterList;
-  LPass         : Boolean;
-  LCount        : Integer;
-  LIt           : ITokenWalletAccount;
+  LList: ITokenWalletFilterList;
+  LPass: Boolean;
+  LCount: Integer;
+  LIt: ITokenWalletAccount;
 begin
   LEmptyAccounts := TList<ITokenWalletAccount>.Create;
   try

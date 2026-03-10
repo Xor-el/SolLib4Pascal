@@ -305,10 +305,10 @@ end;
 class procedure TBaseExample.DecodeInstructionsFromMessageAndLog(
   const AMessage: IMessage);
 var
-  LDecoded : TList<IDecodedInstruction>;
-  LInst    : IDecodedInstruction;
-  LPair    : TPair<string, TValue>;
-  LStr     : string;
+  LDecoded: TList<IDecodedInstruction>;
+  LInst: IDecodedInstruction;
+  LPair: TPair<string, TValue>;
+  LStr: string;
 
 begin
   LDecoded := TInstructionDecoder.DecodeInstructions(AMessage);
@@ -339,11 +339,11 @@ end;
 class procedure TBaseExample.DecodeInstructionsFromTransactionMetaInfoAndLog(
   const ATxMeta: TTransactionMetaInfo);
 var
-  LDecoded : TList<IDecodedInstruction>;
-  LInst    : IDecodedInstruction;
-  LInner   : IDecodedInstruction;
-  LPair    : TPair<string, TValue>;
-  LStr     : string;
+  LDecoded: TList<IDecodedInstruction>;
+  LInst: IDecodedInstruction;
+  LInner: IDecodedInstruction;
+  LPair: TPair<string, TValue>;
+  LStr: string;
 begin
   LDecoded := TInstructionDecoder.DecodeInstructions(ATxMeta);
   try

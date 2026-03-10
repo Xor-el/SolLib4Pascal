@@ -43,8 +43,8 @@ type
   /// Result of EnsureMintInitialized operation.
   /// </summary>
   TMintEnsureResult = record
-    Status    : TMintStatus;
-    Signature : string;
+    Status: TMintStatus;
+    Signature: string;
   end;
 
   /// <summary>
@@ -58,30 +58,30 @@ type
     /// Returns a record describing the outcome.
     /// </summary>
     class function EnsureMintInitialized(
-      const ARpc      : IRpcClient;
+      const ARpc: IRpcClient;
       const AAuthority: IAccount;
-      const AMint     : IAccount;
-      const ADecimals : Byte = 2
+      const AMint: IAccount;
+      const ADecimals: Byte = 2
     ): TMintEnsureResult; static;
   end;
 
 implementation
 
 class function TTokenMintHelper.EnsureMintInitialized(
-  const ARpc      : IRpcClient;
+  const ARpc: IRpcClient;
   const AAuthority: IAccount;
-  const AMint     : IAccount;
-  const ADecimals : Byte
+  const AMint: IAccount;
+  const ADecimals: Byte
 ): TMintEnsureResult;
 var
-  LInfo      : IRequestResult<TResponseValue<TAccountInfo>>;
-  LBlock     : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinRent   : IRequestResult<UInt64>;
-  LTxBuilder : ITransactionBuilder;
-  LSigners   : TList<IAccount>;
-  LTx        : TBytes;
+  LInfo: IRequestResult<TResponseValue<TAccountInfo>>;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinRent: IRequestResult<UInt64>;
+  LTxBuilder: ITransactionBuilder;
+  LSigners: TList<IAccount>;
+  LTx: TBytes;
 begin
-  Result.Status    := TMintStatus.Unknown;
+  Result.Status := TMintStatus.Unknown;
   Result.Signature := '';
 
   try
@@ -98,7 +98,7 @@ begin
 
     // 2. Create & initialize mint
     LMinRent := ARpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
-    LBlock   := ARpc.GetLatestBlockHash;
+    LBlock := ARpc.GetLatestBlockHash;
 
     Writeln('Creating mint at: ' + AMint.PublicKey.Key);
 

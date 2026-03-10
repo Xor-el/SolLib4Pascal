@@ -255,9 +255,9 @@ begin
     LInstructionName := InstructionName;
 
   Result := TDecodedInstruction.Create;
-  Result.PublicKey       := ProgramIdKey;
+  Result.PublicKey := ProgramIdKey;
   Result.InstructionName := LInstructionName;
-  Result.ProgramName     := ProgramName;
+  Result.ProgramName := ProgramName;
 
   Result.Values := TDictionary<string, TValue>.Create;
 

@@ -109,13 +109,13 @@ end;
 
 class procedure TBinaryPrimitives.WriteUInt16LEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer);
 begin
-  AData[AOffset]     := Byte(AValue);
+  AData[AOffset] := Byte(AValue);
   AData[AOffset + 1] := Byte(AValue shr 8);
 end;
 
 class procedure TBinaryPrimitives.WriteUInt16BEInternal(AValue: UInt16; const AData: TBytes; AOffset: Integer);
 begin
-  AData[AOffset]     := Byte(AValue shr 8);
+  AData[AOffset] := Byte(AValue shr 8);
   AData[AOffset + 1] := Byte(AValue);
 end;
 
@@ -135,7 +135,7 @@ end;
 
 class procedure TBinaryPrimitives.WriteUInt32LEInternal(AValue: UInt32; const AData: TBytes; AOffset: Integer);
 begin
-  AData[AOffset]     := Byte(AValue);
+  AData[AOffset] := Byte(AValue);
   AData[AOffset + 1] := Byte(AValue shr 8);
   AData[AOffset + 2] := Byte(AValue shr 16);
   AData[AOffset + 3] := Byte(AValue shr 24);
@@ -143,7 +143,7 @@ end;
 
 class procedure TBinaryPrimitives.WriteUInt32BEInternal(AValue: UInt32; const AData: TBytes; AOffset: Integer);
 begin
-  AData[AOffset]     := Byte(AValue shr 24);
+  AData[AOffset] := Byte(AValue shr 24);
   AData[AOffset + 1] := Byte(AValue shr 16);
   AData[AOffset + 2] := Byte(AValue shr 8);
   AData[AOffset + 3] := Byte(AValue);
@@ -171,7 +171,7 @@ end;
 
 class procedure TBinaryPrimitives.WriteUInt64LEInternal(AValue: UInt64; const AData: TBytes; AOffset: Integer);
 begin
-  AData[AOffset]     := Byte(AValue);
+  AData[AOffset] := Byte(AValue);
   AData[AOffset + 1] := Byte(AValue shr 8);
   AData[AOffset + 2] := Byte(AValue shr 16);
   AData[AOffset + 3] := Byte(AValue shr 24);
@@ -183,7 +183,7 @@ end;
 
 class procedure TBinaryPrimitives.WriteUInt64BEInternal(AValue: UInt64; const AData: TBytes; AOffset: Integer);
 begin
-  AData[AOffset]     := Byte(AValue shr 56);
+  AData[AOffset] := Byte(AValue shr 56);
   AData[AOffset + 1] := Byte(AValue shr 48);
   AData[AOffset + 2] := Byte(AValue shr 40);
   AData[AOffset + 3] := Byte(AValue shr 32);

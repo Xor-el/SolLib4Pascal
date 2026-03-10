@@ -51,12 +51,12 @@ type
   TWordList = class(TInterfacedObject, IWordList)
   private
     FWords: TArray<string>;
-    FName : string;
+    FName: string;
     FSpace: Char;
 
     class var FWordlistSource: IWordlistSource;
     class var FLoadedLists: TDictionary<string, IWordList>;
-    class var FLoadedLock, FSingletonLock : TCriticalSection;
+    class var FLoadedLock, FSingletonLock: TCriticalSection;
 
     class var FJapanese, FChineseSimplified, FChineseTraditional, FSpanish, FEnglish, FFrench, FPortugueseBrazil, FCzech: IWordList;
 
@@ -118,20 +118,20 @@ uses
 class constructor TWordList.Create;
 begin
   // Initialize locks and caches
-  FLoadedLock    := TCriticalSection.Create;
+  FLoadedLock := TCriticalSection.Create;
   FSingletonLock := TCriticalSection.Create;
   FLoadedLists := TDictionary<string, IWordList>.Create;
 
   FWordlistSource := THardcodedWordListSource.Create;
 
-  FJapanese          := nil;
+  FJapanese := nil;
   FChineseSimplified := nil;
   FChineseTraditional:= nil;
-  FSpanish           := nil;
-  FEnglish           := nil;
-  FFrench            := nil;
-  FPortugueseBrazil  := nil;
-  FCzech             := nil;
+  FSpanish := nil;
+  FEnglish := nil;
+  FFrench := nil;
+  FPortugueseBrazil := nil;
+  FCzech := nil;
 end;
 
 class destructor TWordList.Destroy;
@@ -154,7 +154,7 @@ begin
   SetLength(FWords, Length(AWords));
   for LI := 0 to High(AWords) do
     FWords[LI] := NormalizeString(AWords[LI]);
-  FName  := AName;
+  FName := AName;
   FSpace := ASpace;
 end;
 
@@ -167,14 +167,14 @@ class function TWordList.GetLanguageFileName(ALanguage: TLanguage): string;
 begin
   case ALanguage of
     TLanguage.ChineseTraditional: Result := 'chinese_traditional';
-    TLanguage.ChineseSimplified : Result := 'chinese_simplified';
-    TLanguage.English           : Result := 'english';
-    TLanguage.Japanese          : Result := 'japanese';
-    TLanguage.Spanish           : Result := 'spanish';
-    TLanguage.French            : Result := 'french';
-    TLanguage.PortugueseBrazil  : Result := 'portuguese_brazil';
-    TLanguage.Czech             : Result := 'czech';
-    TLanguage.Unknown           : raise ENotSupportedException.Create('Unknown language');
+    TLanguage.ChineseSimplified: Result := 'chinese_simplified';
+    TLanguage.English: Result := 'english';
+    TLanguage.Japanese: Result := 'japanese';
+    TLanguage.Spanish: Result := 'spanish';
+    TLanguage.French: Result := 'french';
+    TLanguage.PortugueseBrazil: Result := 'portuguese_brazil';
+    TLanguage.Czech: Result := 'czech';
+    TLanguage.Unknown: raise ENotSupportedException.Create('Unknown language');
   else
     raise ENotSupportedException.Create('Unsupported language');
   end;

@@ -257,23 +257,23 @@ type
   ISubscriptionState = interface
     ['{4E1F4F5E-7D2E-4A63-9E3E-5C2F4C6B7C88}']
     /// <summary>The subscription ID as confirmed by the node.</summary>
-    function  GetSubscriptionId: Integer;
+    function GetSubscriptionId: Integer;
     procedure SetSubscriptionId(const AValue: Integer);
 
     /// <summary>The channel subscribed.</summary>
-    function  GetChannel: string;
+    function GetChannel: string;
 
     /// <summary>The current state of the subscription.</summary>
-    function  GetState: TSubscriptionStatus;
+    function GetState: TSubscriptionStatus;
 
     /// <summary>The last error message.</summary>
-    function  GetLastError: string;
+    function GetLastError: string;
 
     /// <summary>The last error code.</summary>
-    function  GetLastCode: string;
+    function GetLastCode: string;
 
     /// <summary>The collection of parameters submitted for this subscription.</summary>
-    function  GetAdditionalParameters: TList<TValue>;
+    function GetAdditionalParameters: TList<TValue>;
 
     /// <summary>Changes the state of the subscription and notifies subscribers.</summary>
     procedure ChangeState(const ANewState: TSubscriptionStatus; const AError: string = ''; const ACode: string = '');
@@ -332,13 +332,13 @@ type
 
   protected
     // ISubscriptionState getters/setters
-    function  GetSubscriptionId: Integer;
+    function GetSubscriptionId: Integer;
     procedure SetSubscriptionId(const AValue: Integer);
-    function  GetChannel: string;
-    function  GetState: TSubscriptionStatus;
-    function  GetLastError: string;
-    function  GetLastCode: string;
-    function  GetAdditionalParameters: TList<TValue>;
+    function GetChannel: string;
+    function GetState: TSubscriptionStatus;
+    function GetLastError: string;
+    function GetLastCode: string;
+    function GetAdditionalParameters: TList<TValue>;
 
     procedure AddSubscriptionChanged(const AHandler: TProc<ISubscriptionState, ISubscriptionEvent>);
     procedure RemoveSubscriptionChanged(const AHandler: TProc<ISubscriptionState, ISubscriptionEvent>);
@@ -552,8 +552,8 @@ type
     /// <typeparam name="T">The type of the subscription callback result.</typeparam>
     /// <returns>A subscription state.</returns>
     function Subscribe<T>(
-      const AChannel : string;
-      const AMethod  : string;
+      const AChannel: string;
+      const AMethod: string;
       const ACallback: TProc<ISubscriptionState, T>
     ): ISubscriptionState; overload;
 
@@ -567,10 +567,10 @@ type
     /// <typeparam name="T">The type of the subscription callback result.</typeparam>
     /// <returns>A subscription state.</returns>
     function Subscribe<T>(
-      const AChannel : string;
-      const AMethod  : string;
+      const AChannel: string;
+      const AMethod: string;
       const ACallback: TProc<ISubscriptionState, T>;
-      const AParams  : TList<TValue>
+      const AParams: TList<TValue>
     ): ISubscriptionState; overload;
 
   public
@@ -736,7 +736,7 @@ begin
   FIdGenerator := TIdGenerator.Create();
   FSerializer := BuildSerializer();
   FUnconfirmed := TDictionary<Integer, ISubscriptionState>.Create;
-  FConfirmed   := TDictionary<Integer, ISubscriptionState>.Create;
+  FConfirmed := TDictionary<Integer, ISubscriptionState>.Create;
   FLock := TCriticalSection.Create;
 end;
 
@@ -896,7 +896,7 @@ begin
   if ARoot = nil then Exit;
 
   LErrObj := ARoot.GetValue('error') as TJSONObject;
-  LIdVal  := ARoot.GetValue('id');
+  LIdVal := ARoot.GetValue('id');
 
   LErrObjInst := nil;
   if LErrObj <> nil then
@@ -941,19 +941,19 @@ begin
   if LRoot = nil then
     Exit;
 
-  LMethod        := '';
-  LId            := 0;
-  LIntResult     := 0;
-  LSubId         := 0;
-  LHandled       := False;
-  LHasBoolResult  := False;
-  LBoolResult    := False;
+  LMethod := '';
+  LId := 0;
+  LIntResult := 0;
+  LSubId := 0;
+  LHandled := False;
+  LHasBoolResult := False;
+  LBoolResult := False;
 
   try
     // Common fields
     LMethodVal := LRoot.GetValue('method');
-    LErrorVal  := LRoot.GetValue('error');
-    LIdVal     := LRoot.GetValue('id');
+    LErrorVal := LRoot.GetValue('error');
+    LIdVal := LRoot.GetValue('id');
     LResultVal := LRoot.GetValue('result');
 
     if (LMethodVal is TJSONString) then
@@ -1002,12 +1002,12 @@ begin
     begin
       if LResultVal is TJSONTrue then
       begin
-        LBoolResult  := True;
+        LBoolResult := True;
         LHasBoolResult := True;
       end
       else if LResultVal is TJSONFalse then
       begin
-        LBoolResult  := False;
+        LBoolResult := False;
         LHasBoolResult := True;
       end;
     end;
@@ -1025,19 +1025,19 @@ procedure TSolanaStreamingRpcClient.HandleDataMessage(
   const AMethod: string;
   const ASubscriptionId: Integer);
 var
-  LSub     : ISubscriptionState;
-  LResVal  : TJSONValue;
-  LSubVal  : TJSONValue;
-  LJson    : string;
-  LSubId   : Integer;
-  LHaveSub : Boolean;
+  LSub: ISubscriptionState;
+  LResVal: TJSONValue;
+  LSubVal: TJSONValue;
+  LJson: string;
+  LSubId: Integer;
+  LHaveSub: Boolean;
 begin
   if AJsonObject = nil then Exit;
 
   LSub := RetrieveSubscription(ASubscriptionId);
   if not Assigned(LSub) then Exit;
 
-  LSubVal  := AJsonObject.GetValue('subscription');
+  LSubVal := AJsonObject.GetValue('subscription');
   LHaveSub := Assigned(LSubVal) and TryStrToInt(LSubVal.Value, LSubId);
 
   LResVal := AJsonObject.GetValue('result');
@@ -1082,8 +1082,8 @@ begin
 end;
 
 function TSolanaStreamingRpcClient.Subscribe<T>(
-  const AChannel : string;
-  const AMethod  : string;
+  const AChannel: string;
+  const AMethod: string;
   const ACallback: TProc<ISubscriptionState, T>
 ): ISubscriptionState;
 begin
@@ -1091,10 +1091,10 @@ begin
 end;
 
 function TSolanaStreamingRpcClient.Subscribe<T>(
-  const AChannel : string;
-  const AMethod  : string;
+  const AChannel: string;
+  const AMethod: string;
   const ACallback: TProc<ISubscriptionState, T>;
-  const AParams  : TList<TValue>
+  const AParams: TList<TValue>
 ): ISubscriptionState;
 var
   LSub: ISubscriptionState;
@@ -1179,7 +1179,7 @@ function TSolanaStreamingRpcClient.SubscribeLogInfo(
   const ACommitment: TCommitment = TCommitment.Finalized
 ): ISubscriptionState;
 var
-  LParams : TList<TValue>;
+  LParams: TList<TValue>;
 begin
   // parameters =
   // [
@@ -1352,7 +1352,7 @@ procedure TSolanaStreamingRpcClient.Unsubscribe(const ASubscription: ISubscripti
 var
   LMethod: string;
   LParams: TList<TValue>;
-  LReq   : TJsonRpcRequest;
+  LReq: TJsonRpcRequest;
 begin
   if ASubscription = nil then
     Exit;
@@ -1377,7 +1377,7 @@ function TSolanaStreamingRpcClient.Subscribe(
   const AMsg: TJsonRpcRequest
 ): ISubscriptionState;
 var
-  LPayload : string;
+  LPayload: string;
 begin
   LPayload := FSerializer.Serialize(AMsg);
 

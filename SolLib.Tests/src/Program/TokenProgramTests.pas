@@ -416,10 +416,10 @@ var
   LOwner, LInitial, LNew: IAccount;
   LTxInstruction: ITransactionInstruction;
 begin
-  LWallet  := TWallet.Create(MnemonicWords);
-  LOwner   := LWallet.GetAccountByIndex(10);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwner := LWallet.GetAccountByIndex(10);
   LInitial := LWallet.GetAccountByIndex(24);
-  LNew     := LWallet.GetAccountByIndex(26);
+  LNew := LWallet.GetAccountByIndex(26);
 
   LTxInstruction := TTokenProgram.Transfer(
               LInitial.PublicKey,
@@ -440,10 +440,10 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial    := LWallet.GetAccountByIndex(26);
-  LNew    := LWallet.GetAccountByIndex(27);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(26);
+  LNew := LWallet.GetAccountByIndex(27);
 
   LTxInstruction := TTokenProgram.TransferChecked(
               LInitial.PublicKey,
@@ -461,17 +461,17 @@ end;
 
 procedure TTokenProgramTests.TestTransferCheckedMultiSignature;
 var
-  LWallet  : IWallet;
+  LWallet: IWallet;
   LMint, LOwner, LInitial, LNew: IAccount;
   LSigners: TList<IPublicKey>;
   LTxInstruction: ITransactionInstruction;
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial    := LWallet.GetAccountByIndex(26);
-  LNew    := LWallet.GetAccountByIndex(27);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(26);
+  LNew := LWallet.GetAccountByIndex(27);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -497,9 +497,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.InitializeAccount(
               LInitial.PublicKey, LMint.PublicKey, LOwner.PublicKey
@@ -517,8 +517,8 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
 
   LTxInstruction := TTokenProgram.InitializeMint(
               LMint.PublicKey, 2, LOwner.PublicKey, LOwner.PublicKey
@@ -538,7 +538,7 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMultiSig  := LWallet.GetAccountByIndex(420);
+  LMultiSig := LWallet.GetAccountByIndex(420);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -562,9 +562,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.MintTo(
               LMint.PublicKey, LInitial.PublicKey, 25000, LOwner.PublicKey
@@ -582,9 +582,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.MintToChecked(
               LMint.PublicKey, LInitial.PublicKey, LOwner.PublicKey, 25000, 2
@@ -599,14 +599,14 @@ procedure TTokenProgramTests.TestMintToCheckedMultiSignature;
 var
   LWallet: IWallet;
   LMint, LOwner, LInitial: IAccount;
-  LSigners : TList<IPublicKey>;
+  LSigners: TList<IPublicKey>;
   LTxInstruction: ITransactionInstruction;
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -632,9 +632,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.Burn(
               LInitial.PublicKey, LMint.PublicKey, 25000, LOwner.PublicKey
@@ -652,9 +652,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.BurnChecked(
               LMint.PublicKey, LInitial.PublicKey, LOwner.PublicKey, 25000, 2
@@ -669,14 +669,14 @@ procedure TTokenProgramTests.TestBurnMultiSignature;
 var
   LWallet: IWallet;
   LMint, LOwner, LInitial: IAccount;
-  LSigners : TList<IPublicKey>;
+  LSigners: TList<IPublicKey>;
   LTxInstruction: ITransactionInstruction;
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -699,14 +699,14 @@ procedure TTokenProgramTests.TestBurnCheckedMultiSignature;
 var
   LWallet: IWallet;
   LMint, LOwner, LInitial: IAccount;
-  LSigners : TList<IPublicKey>;
+  LSigners: TList<IPublicKey>;
   LTxInstruction: ITransactionInstruction;
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LInitial   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(22);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -731,10 +731,10 @@ var
   LSource, LDelegate, LOwner: IAccount;
   LTxInstruction: ITransactionInstruction;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
-  LSource   := LWallet.GetAccountByIndex(69);
+  LWallet := TWallet.Create(MnemonicWords);
+  LSource := LWallet.GetAccountByIndex(69);
   LDelegate := LWallet.GetAccountByIndex(420);
-  LOwner    := LWallet.GetAccountByIndex(1);
+  LOwner := LWallet.GetAccountByIndex(1);
 
   LTxInstruction := TTokenProgram.Approve(
               LSource.PublicKey, LDelegate.PublicKey, LOwner.PublicKey, 25000
@@ -754,9 +754,9 @@ var
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LSource   := LWallet.GetAccountByIndex(69);
-  LDelegate  := LWallet.GetAccountByIndex(420);
-  LOwner   := LWallet.GetAccountByIndex(1);
+  LSource := LWallet.GetAccountByIndex(69);
+  LDelegate := LWallet.GetAccountByIndex(420);
+  LOwner := LWallet.GetAccountByIndex(1);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -784,11 +784,11 @@ var
   LTxInstruction: ITransactionInstruction;
   LI: Integer;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
-  LMint     := LWallet.GetAccountByIndex(21);
-  LSource   := LWallet.GetAccountByIndex(69);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint := LWallet.GetAccountByIndex(21);
+  LSource := LWallet.GetAccountByIndex(69);
   LDelegate := LWallet.GetAccountByIndex(420);
-  LOwner    := LWallet.GetAccountByIndex(1);
+  LOwner := LWallet.GetAccountByIndex(1);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -816,10 +816,10 @@ var
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint     := LWallet.GetAccountByIndex(21);
-  LSource   := LWallet.GetAccountByIndex(69);
-  LDelegate  := LWallet.GetAccountByIndex(420);
-  LOwner   := LWallet.GetAccountByIndex(1);
+  LMint := LWallet.GetAccountByIndex(21);
+  LSource := LWallet.GetAccountByIndex(69);
+  LDelegate := LWallet.GetAccountByIndex(420);
+  LOwner := LWallet.GetAccountByIndex(1);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -844,9 +844,9 @@ var
   LDelegate, LOwner: IAccount;
   LTxInstruction: ITransactionInstruction;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LDelegate := LWallet.GetAccountByIndex(420);
-  LOwner    := LWallet.GetAccountByIndex(1);
+  LOwner := LWallet.GetAccountByIndex(1);
 
   LTxInstruction := TTokenProgram.Revoke(
               LDelegate.PublicKey, LOwner.PublicKey
@@ -866,8 +866,8 @@ var
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LDelegate  := LWallet.GetAccountByIndex(420);
-  LOwner   := LWallet.GetAccountByIndex(1);
+  LDelegate := LWallet.GetAccountByIndex(420);
+  LOwner := LWallet.GetAccountByIndex(1);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -893,9 +893,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LAccount   := LWallet.GetAccountByIndex(1000);
-  LCurrentOwner  := LWallet.GetAccountByIndex(1);
-  LNewOwner    := LWallet.GetAccountByIndex(2);
+  LAccount := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner := LWallet.GetAccountByIndex(1);
+  LNewOwner := LWallet.GetAccountByIndex(2);
 
   LTxInstruction := TTokenProgram.SetAuthority(
               LAccount.PublicKey, TAuthorityType.AccountOwner, LCurrentOwner.PublicKey, LNewOwner.PublicKey
@@ -915,9 +915,9 @@ var
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LAccount   := LWallet.GetAccountByIndex(1000);
-  LCurrentOwner  := LWallet.GetAccountByIndex(1);
-  LNewOwner    := LWallet.GetAccountByIndex(2);
+  LAccount := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner := LWallet.GetAccountByIndex(1);
+  LNewOwner := LWallet.GetAccountByIndex(2);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -943,9 +943,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LAccount   := LWallet.GetAccountByIndex(1000);
-  LCurrentOwner  := LWallet.GetAccountByIndex(1);
-  LNewOwner    := LWallet.GetAccountByIndex(2);
+  LAccount := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner := LWallet.GetAccountByIndex(1);
+  LNewOwner := LWallet.GetAccountByIndex(2);
 
   LTxInstruction := TTokenProgram.SetAuthority(
               LAccount.PublicKey, TAuthorityType.CloseAccount, LCurrentOwner.PublicKey, LNewOwner.PublicKey
@@ -960,12 +960,12 @@ procedure TTokenProgramTests.TestSetAuthorityFreeze;
 var
   LWallet: IWallet;
   LAccount, LCurrentOwner, LNewOwner: IAccount;
-  LTxInstruction  : ITransactionInstruction;
+  LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LAccount   := LWallet.GetAccountByIndex(1000);
-  LCurrentOwner  := LWallet.GetAccountByIndex(1);
-  LNewOwner    := LWallet.GetAccountByIndex(2);
+  LAccount := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner := LWallet.GetAccountByIndex(1);
+  LNewOwner := LWallet.GetAccountByIndex(2);
 
   LTxInstruction := TTokenProgram.SetAuthority(
               LAccount.PublicKey, TAuthorityType.FreezeAccount, LCurrentOwner.PublicKey, LNewOwner.PublicKey
@@ -980,12 +980,12 @@ procedure TTokenProgramTests.TestSetAuthorityMint;
 var
   LWallet: IWallet;
   LAccount, LCurrentOwner, LNewOwner: IAccount;
-  LTxInstruction  : ITransactionInstruction;
+  LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LAccount   := LWallet.GetAccountByIndex(1000);
-  LCurrentOwner  := LWallet.GetAccountByIndex(1);
-  LNewOwner    := LWallet.GetAccountByIndex(2);
+  LAccount := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner := LWallet.GetAccountByIndex(1);
+  LNewOwner := LWallet.GetAccountByIndex(2);
 
   LTxInstruction := TTokenProgram.SetAuthority(
               LAccount.PublicKey, TAuthorityType.MintTokens, LCurrentOwner.PublicKey, LNewOwner.PublicKey
@@ -1003,8 +1003,8 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LAccount   := LWallet.GetAccountByIndex(22);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LAccount := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.CloseAccount(
               LAccount.PublicKey, LOwner.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey
@@ -1024,8 +1024,8 @@ var
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LAccount   := LWallet.GetAccountByIndex(22);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LAccount := LWallet.GetAccountByIndex(22);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -1051,9 +1051,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LAccount   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LAccount := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.FreezeAccount(
               LAccount.PublicKey, LMint.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey
@@ -1073,9 +1073,9 @@ var
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LAccount   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LAccount := LWallet.GetAccountByIndex(22);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -1101,9 +1101,9 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LAccount   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LAccount := LWallet.GetAccountByIndex(22);
 
   LTxInstruction := TTokenProgram.ThawAccount(
               LAccount.PublicKey, LMint.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey
@@ -1123,9 +1123,9 @@ var
   LI: Integer;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LMint   := LWallet.GetAccountByIndex(21);
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LAccount   := LWallet.GetAccountByIndex(22);
+  LMint := LWallet.GetAccountByIndex(21);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LAccount := LWallet.GetAccountByIndex(22);
 
   LSigners := TList<IPublicKey>.Create;
   try
@@ -1151,7 +1151,7 @@ var
   LTxInstruction: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
-  LAccount   := LWallet.GetAccountByIndex(212);
+  LAccount := LWallet.GetAccountByIndex(212);
 
   LTxInstruction := TTokenProgram.SyncNative(LAccount.PublicKey);
 
@@ -1162,9 +1162,9 @@ end;
 
 procedure TTokenProgramTests.TestInitializeMultisigDecode;
 var
-  LMsg      : IMessage;
-  LDecoded  : TList<IDecodedInstruction>;
-  LVal      : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(InitializeMultisigMessage);
@@ -1255,9 +1255,9 @@ end;
 
 procedure TTokenProgramTests.TestMintToMultisigDecode;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(MintToMultisigMessage);
@@ -1340,9 +1340,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeMintToCheckedMessage;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(MintToCheckedMultisigMessage);
@@ -1391,9 +1391,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeTransferChecked;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(TransferCheckedMultisigMessage);
@@ -1445,9 +1445,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeBurnChecked;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(BurnCheckedMessage);
@@ -1487,9 +1487,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeFreezeAccount;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(FreezeAccountMessage);
@@ -1532,9 +1532,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeThawAccountAndSetAuthority;
 var
-  LMsg        : IMessage;
-  LDecoded    : TList<IDecodedInstruction>;
-  LVal        : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(ThawAccountSetAuthorityMessage);
@@ -1609,9 +1609,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeApproveCheckedMultisig;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(ApproveCheckedMessage);
@@ -1663,9 +1663,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeApproveMultisig;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(ApproveMessage);
@@ -1711,9 +1711,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeTransferMultisig;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(TransferMultisigMessage);
@@ -1759,9 +1759,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeBurn;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(BurnMessage);
@@ -1798,9 +1798,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeBurnMultisig;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(BurnMultisigMessage);
@@ -1843,9 +1843,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeBurnCheckedMultisig;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(BurnCheckedMultisigMessage);
@@ -1891,9 +1891,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeRevokeMultisig;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(RevokeMessage);
@@ -1931,9 +1931,9 @@ end;
 
 procedure TTokenProgramTests.TestDecodeBurnCheckedAndCloseMultisig;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
   LMsg := TMessage.Deserialize(CloseAccountMultisigMessage);
@@ -2005,7 +2005,7 @@ end;
 
 procedure TTokenProgramTests.TestMultiSignatureAccountDeserialization;
 var
-  LAccount : IMultiSignatureAccount;
+  LAccount: IMultiSignatureAccount;
 begin
   // arrange
   LAccount := TMultiSignatureAccount.Deserialize(TEncoders.Base64.DecodeData(MultiSignatureAccountBase64Data));
@@ -2024,7 +2024,7 @@ end;
 
 procedure TTokenProgramTests.TestTokenAccountDeserialization;
 var
-  LAcc : ITokenAccount;
+  LAcc: ITokenAccount;
 begin
   // arrange
   LAcc := TTokenAccount.Deserialize(TEncoders.Base64.DecodeData(TokenAccountBase64Data));
@@ -2042,7 +2042,7 @@ end;
 
 procedure TTokenProgramTests.TestTokenMintAccountDeserialization;
 var
-  LMint : ITokenMint;
+  LMint: ITokenMint;
 begin
   // arrange
   LMint := TTokenMint.Deserialize(TEncoders.Base64.DecodeData(TokenMintAccountBase64Data));
@@ -2057,11 +2057,11 @@ end;
 
 procedure TTokenProgramTests.TestDecodeInitAccount3;
 var
-  LJson : string;
-  LTxMeta       : TTransactionMetaInfo;
-  LDecoded      : TList<IDecodedInstruction>;
-  LInner        : IDecodedInstruction;
-  LVal          : TValue;
+  LJson: string;
+  LTxMeta: TTransactionMetaInfo;
+  LDecoded: TList<IDecodedInstruction>;
+  LInner: IDecodedInstruction;
+  LVal: TValue;
 begin
   // arrange
   LJson := LoadTestData('Token/DecodeInitAccount3.json');

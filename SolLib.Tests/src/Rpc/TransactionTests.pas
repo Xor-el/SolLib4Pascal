@@ -338,12 +338,12 @@ var
 begin
   LWallet := TWallet.Create(MnemonicWords);
 
-  LOwner   := LWallet.GetAccountByIndex(10);
-  LMint    := LWallet.GetAccountByIndex(1002);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(1002);
   LInitial := LWallet.GetAccountByIndex(1102);
-  LTx      := TTransaction.Create;
+  LTx := TTransaction.Create;
 
-  LTx.FeePayer        := LOwner.PublicKey;
+  LTx.FeePayer := LOwner.PublicKey;
   LTx.RecentBlockHash := 'EtLZEUfN1sSsaHRzTtrGW6N62hagTXjc5jokiWqZ9qQ3';
 
   LTxBytes := LTx
@@ -375,12 +375,12 @@ var
 begin
   LWallet := TWallet.Create(MnemonicWords);
 
-  LOwner   := LWallet.GetAccountByIndex(10);
-  LMint    := LWallet.GetAccountByIndex(1002);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(1002);
   LInitial := LWallet.GetAccountByIndex(1102);
-  LTx      := TTransaction.Create;
+  LTx := TTransaction.Create;
 
-  LTx.FeePayer        := LOwner.PublicKey;
+  LTx.FeePayer := LOwner.PublicKey;
   LTx.RecentBlockHash := 'EtLZEUfN1sSsaHRzTtrGW6N62hagTXjc5jokiWqZ9qQ3';
 
   LMsgBytes := LTx

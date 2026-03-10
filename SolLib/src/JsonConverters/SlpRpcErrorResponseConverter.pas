@@ -42,8 +42,7 @@ type
   public
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;

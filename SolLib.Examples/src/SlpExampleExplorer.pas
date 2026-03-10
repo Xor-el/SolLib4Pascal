@@ -36,17 +36,17 @@ implementation
 
 class procedure TExampleExplorer.Execute;
 var
-  LCtx        : TRttiContext;
-  LTypes      : TArray<TRttiType>;
-  LCandidates : TList<TRttiInstanceType>;
-  LT          : TRttiType;
-  LCls        : TRttiInstanceType;
-  LCtor       : TRttiMethod;
-  LOption     : string;
-  LIndex, LI  : Integer;
-  LInstValue  : TValue;
-  LObj        : TObject;
-  LExample    : IExample;
+  LCtx: TRttiContext;
+  LTypes: TArray<TRttiType>;
+  LCandidates: TList<TRttiInstanceType>;
+  LT: TRttiType;
+  LCls: TRttiInstanceType;
+  LCtor: TRttiMethod;
+  LOption: string;
+  LIndex, LI: Integer;
+  LInstValue: TValue;
+  LObj: TObject;
+  LExample: IExample;
 
 function GetParameterlessConstructor(const AType: TRttiInstanceType): TRttiMethod;
 var
@@ -75,7 +75,7 @@ end;
 function ImplementsIExample(const AType: TRttiInstanceType): Boolean;
 var
   LIID: TGUID;
-  LC  : TClass;
+  LC: TClass;
 begin
   Result := False;
   if (AType = nil) or (AType.MetaclassType = nil) then Exit;

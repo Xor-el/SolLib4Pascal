@@ -33,10 +33,10 @@ type
   /// </summary>
   TBitWriter = class
   private
-    FValues  : TList<Boolean>;  // bit buffer
+    FValues: TList<Boolean>;  // bit buffer
     FPosition: Integer;         // insertion cursor (0..Count)
 
-    function  GetCount: Integer; inline;
+    function GetCount: Integer; inline;
     class function SwapEndianBytes(const ABytes: TBytes): TBytes; static;
   public
     constructor Create;
@@ -83,7 +83,7 @@ implementation
 constructor TBitWriter.Create;
 begin
   inherited Create;
-  FValues   := TList<Boolean>.Create;
+  FValues := TList<Boolean>.Create;
   FPosition := 0;
 end;
 
@@ -173,7 +173,7 @@ begin
 
   for LI := 0 to FValues.Count - 1 do
   begin
-    LB    := LI div 8;
+    LB := LI div 8;
     LOffs := LI mod 8; // bit 0 = LSB
     if FValues[LI] then
       LRaw[LB] := LRaw[LB] or (1 shl LOffs);

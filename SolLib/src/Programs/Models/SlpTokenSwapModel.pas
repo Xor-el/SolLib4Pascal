@@ -37,11 +37,11 @@ type
     /// <summary>Uniswap-style constant product curve, invariant = token_a_amount * token_b_amount</summary>
     ConstantProduct = 0,
     /// <summary>Flat line, always providing 1:1 from one token to another</summary>
-    ConstantPrice   = 1,
+    ConstantPrice = 1,
     /// <summary>Stable, like uniswap, but with wide zone of 1:1 instead of one point</summary>
-    Stable          = 2,
+    Stable = 2,
     /// <summary>Offset curve, like Uniswap, but the token B side has a faked offset</summary>
-    Offset          = 3
+    Offset = 3
   );
 
   /// <summary>Versions of this state account</summary>
@@ -409,14 +409,14 @@ begin
     raise EArgumentException.Create('Fees payload must be 64 bytes');
 
   LFees := TFees.Create;
-  LFees.FTradeFeeNumerator           := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 0);
-  LFees.FTradeFeeDenominator         := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 8);
-  LFees.FOwnerTradeFeeNumerator      := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 16);
-  LFees.FOwnerTradeFeeDenominator    := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 24);
-  LFees.FOwnerWithdrawFeeNumerator   := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 32);
+  LFees.FTradeFeeNumerator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 0);
+  LFees.FTradeFeeDenominator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 8);
+  LFees.FOwnerTradeFeeNumerator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 16);
+  LFees.FOwnerTradeFeeDenominator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 24);
+  LFees.FOwnerWithdrawFeeNumerator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 32);
   LFees.FOwnerWithdrawFeeDenominator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 40);
-  LFees.FHostFeeNumerator            := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 48);
-  LFees.FHostFeeDenominator          := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 56);
+  LFees.FHostFeeNumerator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 48);
+  LFees.FHostFeeDenominator := TBinaryPrimitives.ReadUInt64LittleEndian(ABytes, 56);
   Result := LFees;
 end;
 
@@ -547,11 +547,11 @@ begin
   LAcc.FNonce := AData[2];
 
   LAcc.FTokenProgramId := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 3, 32));
-  LAcc.FTokenAAccount  := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 35, 32));
-  LAcc.FTokenBAccount  := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 67, 32));
-  LAcc.FPoolMint       := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 99, 32));
-  LAcc.FTokenAMint     := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 131, 32));
-  LAcc.FTokenBMint     := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 163, 32));
+  LAcc.FTokenAAccount := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 35, 32));
+  LAcc.FTokenBAccount := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 67, 32));
+  LAcc.FPoolMint := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 99, 32));
+  LAcc.FTokenAMint := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 131, 32));
+  LAcc.FTokenBMint := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 163, 32));
   LAcc.FPoolFeeAccount := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 195, 32));
   LAcc.FFees := TFees.Deserialize(TArrayUtils.Slice<Byte>(AData, 227, 64));
   LAcc.FSwapCurve := TSwapCurve.Deserialize(TArrayUtils.Slice<Byte>(AData, 291, Length(AData) - 291));

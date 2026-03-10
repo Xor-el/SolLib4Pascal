@@ -73,7 +73,7 @@ var
 begin
   LRes := TRequestResult<T>.Create;
   LRes.HttpStatusCode := AStatusCode;
-  LRes.RawRpcRequest  := AReq;
+  LRes.RawRpcRequest := AReq;
   LRes.RawRpcResponse := AResp;
 
   if AStatusCode = 200 then

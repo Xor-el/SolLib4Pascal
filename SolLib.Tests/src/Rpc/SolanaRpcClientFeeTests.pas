@@ -57,7 +57,7 @@ var
   LMsg: string;
 begin
   LResponseData := LoadTestData('Fees/GetFeeForMessageResponse.json');
-  LRequestData  := LoadTestData('Fees/GetFeeForMessageRequest.json');
+  LRequestData := LoadTestData('Fees/GetFeeForMessageRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;

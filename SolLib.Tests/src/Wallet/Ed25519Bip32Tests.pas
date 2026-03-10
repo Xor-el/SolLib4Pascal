@@ -40,7 +40,7 @@ type
 implementation
 
 const
-  DerivationPath        = 'm/44''/501''/0''/0''';
+  DerivationPath = 'm/44''/501''/0''/0''';
   InvalidDerivationPath = 'm44/''501''''//0''/0''';
 
 { TEd25519Bip32Tests }

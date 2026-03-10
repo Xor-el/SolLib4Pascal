@@ -60,8 +60,8 @@ type
     /// <summary>
     /// Decodes the instruction data for the Shared Memory "Write" method.
     /// Adds:
-    ///   'Offset' : UInt64
-    ///   'Data'   : TBytes
+    ///   'Offset': UInt64
+    ///   'Data': TBytes
     /// </summary>
     class procedure DecodeWriteData(const ADecodedInstruction: IDecodedInstruction; const AData: TBytes); static;
   end;
@@ -97,7 +97,7 @@ type
     /// Decodes an instruction created for the Shared Memory Program.
     /// Values:
     ///  - 'Offset': UInt64
-    ///  - 'Data'  : TBytes
+    ///  - 'Data': TBytes
     /// </summary>
     /// <param name="AData">The raw instruction data.</param>
     /// <param name="AKeys">The account keys (if any) referenced by the instruction.</param>
@@ -183,10 +183,10 @@ class function TSharedMemoryProgram.Decode(
 begin
   // Only one instruction ("Write") for this program.
   Result := TDecodedInstruction.Create;
-  Result.PublicKey         := ProgramIdKey;
-  Result.InstructionName   := InstructionName;  // 'Write'
-  Result.ProgramName       := ProgramName;      // 'Shared Memory Program'
-  Result.Values            := TDictionary<string, TValue>.Create;
+  Result.PublicKey := ProgramIdKey;
+  Result.InstructionName := InstructionName;  // 'Write'
+  Result.ProgramName := ProgramName;      // 'Shared Memory Program'
+  Result.Values := TDictionary<string, TValue>.Create;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create;
 
   TSharedMemoryProgramData.DecodeWriteData(Result, AData);

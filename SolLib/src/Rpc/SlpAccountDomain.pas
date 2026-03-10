@@ -49,8 +49,8 @@ type
   /// </summary>
   TAccountMeta = class(TInterfacedObject, IAccountMeta)
   private
-    FPublicKey : IPublicKey;
-    FIsSigner  : Boolean;
+    FPublicKey: IPublicKey;
+    FIsSigner: Boolean;
     FIsWritable: Boolean;
 
     function GetPublicKey: IPublicKey;
@@ -130,9 +130,9 @@ begin
   inherited Create;
   if not Assigned(APublicKey) then
     raise EArgumentNilException.Create('PublicKey');
-  FPublicKey  := APublicKey;
+  FPublicKey := APublicKey;
   FIsWritable := AIsWritable;
-  FIsSigner   := AIsSigner;
+  FIsSigner := AIsSigner;
 end;
 
 function TAccountMeta.GetPublicKey: IPublicKey;
@@ -214,8 +214,8 @@ end;
 function TAccountKeysList.GetAccountList: TList<IAccountMeta>;
 type
   TMetaIdx = record
-    Item  : IAccountMeta;
-    Index : Integer;
+    Item: IAccountMeta;
+    Index: Integer;
   end;
 var
   LI: Integer;
@@ -228,7 +228,7 @@ begin
     for LI := 0 to FAccounts.Count - 1 do
     begin
       LPair := Default(TMetaIdx);
-      LPair.Item  := FAccounts[LI];
+      LPair.Item := FAccounts[LI];
       LPair.Index := LI;
       LPairs.Add(LPair);
     end;

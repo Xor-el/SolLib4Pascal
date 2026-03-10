@@ -252,9 +252,9 @@ begin
   else
     FNamingFunc := TStringTransformer.Identity();
 
-  FPropertyConverters    := TObjectList<TJsonConverter>.Create(True);
-  FIgnoreConds           := TDictionary<TJsonProperty, TJsonIgnoreCondition>.Create;
-  FTypesWithConditional  := TDictionary<PTypeInfo, Boolean>.Create;
+  FPropertyConverters := TObjectList<TJsonConverter>.Create(True);
+  FIgnoreConds := TDictionary<TJsonProperty, TJsonIgnoreCondition>.Create;
+  FTypesWithConditional := TDictionary<PTypeInfo, Boolean>.Create;
 end;
 
 destructor TEnhancedContractResolver.Destroy;
@@ -301,9 +301,9 @@ end;
 procedure TEnhancedContractResolver.ApplyEnumStringConverter(
   const AProperty: TJsonProperty);
 var
-  LEnumType  : PTypeInfo;
-  LNaming    : JsonStringEnumAttribute;
-  LConverter : TJsonStringEnumConverter;
+  LEnumType: PTypeInfo;
+  LNaming: JsonStringEnumAttribute;
+  LConverter: TJsonStringEnumConverter;
 begin
   // Respect any existing converter
   if AProperty.Converter <> nil then
@@ -335,16 +335,16 @@ end;
 procedure TEnhancedContractResolver.ApplyJsonIgnoreConditionAttribute(
   const AProperty: TJsonProperty; const ARttiMember: TRttiMember);
 var
-  LAttr    : TCustomAttribute;
+  LAttr: TCustomAttribute;
   LCondAttr: JsonIgnoreWithConditionAttribute;
-  LCond    : TJsonIgnoreCondition;
+  LCond: TJsonIgnoreCondition;
 begin
   LAttr := AProperty.AttributeProvider.GetAttribute(JsonIgnoreWithConditionAttribute);
   if LAttr = nil then
     Exit;
 
   LCondAttr := JsonIgnoreWithConditionAttribute(LAttr);
-  LCond     := LCondAttr.Condition;
+  LCond := LCondAttr.Condition;
 
   if LCond = TJsonIgnoreCondition.Always then
   begin
@@ -502,7 +502,7 @@ begin
   if not LMemberContract.Sealed then
   begin
     LPropVal := AProperty.ValueProvider.GetValue(AContainer);
-    LGotten  := True;
+    LGotten := True;
     if (not LPropVal.IsEmpty) and (LPropVal.TypeInfo <> LMemberContract.TypeInf) then
     begin
       LMemberContract := ContractResolver.ResolveContract(LPropVal.TypeInfo);

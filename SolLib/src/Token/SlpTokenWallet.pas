@@ -49,22 +49,22 @@ type
   ITokenWalletLoadCtx = interface
   ['{C08C7B9A-A5C3-4E64-9F2E-0D3B2C05F5F7}']
 
-    function  Lock: TCriticalSection;
-    function  Gate: TEvent;
+    function Lock: TCriticalSection;
+    function Gate: TEvent;
 
     procedure IncSuccess;
     procedure IncFail;
-    function  Success: Integer;
-    function  Fail: Integer;
+    function Success: Integer;
+    function Fail: Integer;
 
     procedure SetLamports(const AValue: UInt64);
-    function  Lamports: UInt64;
+    function Lamports: UInt64;
 
     procedure AdoptAccounts(const AAccounts: TObjectList<TTokenAccount>);
-    function  Accounts: TObjectList<TTokenAccount>;
+    function Accounts: TObjectList<TTokenAccount>;
 
-    function  PublicKey: string;
-    function  MintResolver: ITokenMintResolver;
+    function PublicKey: string;
+    function MintResolver: ITokenMintResolver;
 
     procedure WrapUp;          // call after each callback finishes
     procedure MarkInvoked;     // mark when thunk starts
@@ -74,34 +74,34 @@ type
 type
   TTokenWalletLoadCtx = class sealed(TInterfacedObject, ITokenWalletLoadCtx)
   private
-    FLock        : TCriticalSection;
-    FGate        : TEvent;
-    FSuccess     : Integer;
-    FFail        : Integer;
-    FLamports    : UInt64;
-    FAccounts    : TObjectList<TTokenAccount>;
+    FLock: TCriticalSection;
+    FGate: TEvent;
+    FSuccess: Integer;
+    FFail: Integer;
+    FLamports: UInt64;
+    FAccounts: TObjectList<TTokenAccount>;
     FMintResolver: ITokenMintResolver;
-    FPublicKey   : string;
-    FCompleted   : Boolean;
-    FInvoked     : Boolean;
+    FPublicKey: string;
+    FCompleted: Boolean;
+    FInvoked: Boolean;
   private
 
-    function  Lock: TCriticalSection;
-    function  Gate: TEvent;
+    function Lock: TCriticalSection;
+    function Gate: TEvent;
 
     procedure IncSuccess;
     procedure IncFail;
-    function  Success: Integer;
-    function  Fail: Integer;
+    function Success: Integer;
+    function Fail: Integer;
 
     procedure SetLamports(const AValue: UInt64);
-    function  Lamports: UInt64;
+    function Lamports: UInt64;
 
     procedure AdoptAccounts(const AAccounts: TObjectList<TTokenAccount>);
-    function  Accounts: TObjectList<TTokenAccount>;
+    function Accounts: TObjectList<TTokenAccount>;
 
-    function  PublicKey: string;
-    function  MintResolver: ITokenMintResolver;
+    function PublicKey: string;
+    function MintResolver: ITokenMintResolver;
 
     procedure WrapUp;
     procedure MarkInvoked;
@@ -350,8 +350,8 @@ implementation
 constructor TTokenWalletLoadCtx.Create(const APublicKey: string; const AMintResolver: ITokenMintResolver);
 begin
   inherited Create;
-  FLock  := TCriticalSection.Create;
-  FGate  := TEvent.Create(nil, True, False, '');
+  FLock := TCriticalSection.Create;
+  FGate := TEvent.Create(nil, True, False, '');
   FAccounts := nil;
   FMintResolver := AMintResolver;
   FPublicKey := APublicKey;
@@ -387,12 +387,12 @@ begin
  Inc(FFail);
 end;
 
-function  TTokenWalletLoadCtx.Success: Integer;
+function TTokenWalletLoadCtx.Success: Integer;
 begin
  Result := FSuccess;
 end;
 
-function  TTokenWalletLoadCtx.Fail: Integer;
+function TTokenWalletLoadCtx.Fail: Integer;
 begin
  Result := FFail;
 end;
@@ -402,7 +402,7 @@ begin
  FLamports := AValue;
 end;
 
-function  TTokenWalletLoadCtx.Lamports: UInt64;
+function TTokenWalletLoadCtx.Lamports: UInt64;
 begin
  Result := FLamports;
 end;
@@ -412,17 +412,17 @@ begin
   FAccounts := AAccounts; // may be nil
 end;
 
-function  TTokenWalletLoadCtx.Accounts: TObjectList<TTokenAccount>;
+function TTokenWalletLoadCtx.Accounts: TObjectList<TTokenAccount>;
 begin
   Result := FAccounts;
 end;
 
-function  TTokenWalletLoadCtx.PublicKey: string;
+function TTokenWalletLoadCtx.PublicKey: string;
 begin
  Result := FPublicKey;
 end;
 
-function  TTokenWalletLoadCtx.MintResolver: ITokenMintResolver;
+function TTokenWalletLoadCtx.MintResolver: ITokenMintResolver;
 begin
  Result := FMintResolver;
 end;
@@ -630,8 +630,8 @@ begin
     function: ITokenWallet
     var
       LWallet: TTokenWallet;
-      LPkObj : IPublicKey;
-      LDone  : Boolean;
+      LPkObj: IPublicKey;
+      LDone: Boolean;
     begin
       LCtx.MarkInvoked;
 
@@ -649,9 +649,9 @@ begin
         if Assigned(LCtx.Lock) then LCtx.Lock.Release;
       end;
 
-      LPkObj  := TPublicKey.Create(LCtx.PublicKey);
+      LPkObj := TPublicKey.Create(LCtx.PublicKey);
       LWallet := TTokenWallet.Create(LCtx.MintResolver, LPkObj);
-      LWallet.FLamports      := LCtx.Lamports;
+      LWallet.FLamports := LCtx.Lamports;
       LWallet.FTokenAccounts.Free;
       LWallet.FTokenAccounts := LCtx.Accounts;
       LCtx.AdoptAccounts(nil);

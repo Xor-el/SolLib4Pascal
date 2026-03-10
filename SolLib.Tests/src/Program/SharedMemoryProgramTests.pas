@@ -58,7 +58,7 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
   LPayload := TEncoding.UTF8.GetBytes('Hello World!');
   LFromAccount := LWallet.GetAccountByIndex(0);
-  LToAccount   := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   // Act
   LTx := TSharedMemoryProgram.Write(LToAccount.PublicKey, LPayload, 0);

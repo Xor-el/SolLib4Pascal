@@ -966,11 +966,11 @@ begin
   if GetEnumName(TypeInfo(TSystemProgramInstructions.TValues), LInstruction) = '' then
   begin
     Result := TDecodedInstruction.Create;
-    Result.PublicKey        := ProgramIdKey;
-    Result.InstructionName  := 'Unknown Instruction';
-    Result.ProgramName      := ProgramName;
-    Result.Values             := TDictionary<string, TValue>.Create;
-    Result.InnerInstructions  := TList<IDecodedInstruction>.Create();
+    Result.PublicKey := ProgramIdKey;
+    Result.InstructionName := 'Unknown Instruction';
+    Result.ProgramName := ProgramName;
+    Result.Values := TDictionary<string, TValue>.Create;
+    Result.InnerInstructions := TList<IDecodedInstruction>.Create();
     Exit;
   end;
 

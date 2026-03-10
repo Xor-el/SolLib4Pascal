@@ -37,7 +37,7 @@ type
   TSolanaKeygenWalletExample = class(TBaseExample)
   private
   const
-  ExpectedSolKeygenPublicKey  = 'AZzmpdbZWARkPzL8GKRHjjwY74st4URgk9v7QBubeWba';
+  ExpectedSolKeygenPublicKey = 'AZzmpdbZWARkPzL8GKRHjjwY74st4URgk9v7QBubeWba';
   ExpectedSolKeygenPrivateKey =
     '2RitwnKZwoigHk9S3ftvFQhoTy5QQKAipNjZHDgCet8hyciUbJSuhMWDKRL8JKE784pK8jJPFaNerFsS6KXhY9K6';
   // Mnemonic and passphrase used to derive the wallet (BIP-39)
@@ -62,7 +62,7 @@ begin
   LMnemonic := TMnemonic.Create(MnemonicWords, TWordList.English);
   LWallet := TWallet.Create(LMnemonic, PassPhrase, TSeedMode.Bip39);
 
-  LPubKeyB58  := LWallet.Account.PublicKey.Key;
+  LPubKeyB58 := LWallet.Account.PublicKey.Key;
   LPrivKeyB58 := LWallet.Account.PrivateKey.Key;
 
   Writeln('SOLLET publicKey>b58  ', LPubKeyB58);

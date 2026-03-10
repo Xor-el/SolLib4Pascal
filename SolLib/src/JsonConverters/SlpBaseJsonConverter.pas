@@ -56,10 +56,10 @@ implementation
 
 class function TBaseJsonConverter.LooksLikeList(AObj: TObject): Boolean;
 var
-  LCtx      : TRttiContext;
-  LRT       : TRttiType;
+  LCtx: TRttiContext;
+  LRT: TRttiType;
   LAddMethod: TRttiMethod;
-  LElemType : PTypeInfo;
+  LElemType: PTypeInfo;
 begin
   Result := False;
   if AObj = nil then
@@ -83,12 +83,12 @@ end;
 class function TBaseJsonConverter.LooksLikeDictionaryWithStringKey(
   AObj: TObject): Boolean;
 var
-  LCtx      : TRttiContext;
-  LRT       : TRttiType;
+  LCtx: TRttiContext;
+  LRT: TRttiType;
   LAddMethod: TRttiMethod;
-  LGetEnum  : TRttiMethod;
-  LKeyType  : PTypeInfo;
-  LValType  : PTypeInfo;
+  LGetEnum: TRttiMethod;
+  LKeyType: PTypeInfo;
+  LValType: PTypeInfo;
 begin
   Result := False;
   if AObj = nil then
@@ -117,26 +117,23 @@ end;
 class procedure TBaseJsonConverter.WriteDictionaryWithStringKey(
   const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; AObj: TObject);
 var
-  LCtx      : TRttiContext;
-  LRT       : TRttiType;
+  LCtx: TRttiContext;
+  LRT: TRttiType;
   LAddMethod: TRttiMethod;
-  LGetEnum  : TRttiMethod;
-  LKeyType  : PTypeInfo;
-  LValType  : PTypeInfo;
-
-  LEnumVal    : TValue;
-  LEnumObj    : TObject;
-  LEnumType   : TRttiType;
-  LMoveNext   : TRttiMethod;
+  LGetEnum: TRttiMethod;
+  LKeyType: PTypeInfo;
+  LValType: PTypeInfo;
+  LEnumVal: TValue;
+  LEnumObj: TObject;
+  LEnumType: TRttiType;
+  LMoveNext: TRttiMethod;
   LCurrentProp: TRttiProperty;
-
-  LCurr      : TValue;
-  LCurrType  : TRttiType;
-  LKeyField  : TRttiField;
-  LValField  : TRttiField;
-
-  LKeyCell   : TValue;
-  LValCell   : TValue;
+  LCurr: TValue;
+  LCurrType: TRttiType;
+  LKeyField: TRttiField;
+  LValField: TRttiField;
+  LKeyCell: TValue;
+  LValCell: TValue;
 begin
   // If the dictionary object itself is nil, write JSON null
   if AObj = nil then
@@ -173,7 +170,7 @@ begin
       if LEnumType = nil then
         Exit;
 
-      LMoveNext    := LEnumType.GetMethod('MoveNext');
+      LMoveNext := LEnumType.GetMethod('MoveNext');
       LCurrentProp := LEnumType.GetProperty('Current');
       if (LMoveNext = nil) or (LCurrentProp = nil) then
         Exit;
@@ -190,7 +187,7 @@ begin
       // Iterate dictionary entries
       while LMoveNext.Invoke(LEnumObj, []).AsBoolean do
       begin
-        LCurr    := LCurrentProp.GetValue(LEnumObj);
+        LCurr := LCurrentProp.GetValue(LEnumObj);
         LKeyCell := LKeyField.GetValue(LCurr.GetReferenceToRawData);
         LValCell := LValField.GetValue(LCurr.GetReferenceToRawData);
 
@@ -209,20 +206,19 @@ end;
 class procedure TBaseJsonConverter.WriteListLike(
   const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; AObj: TObject);
 var
-  LCtx      : TRttiContext;
-  LRT       : TRttiType;
+  LCtx: TRttiContext;
+  LRT: TRttiType;
   LAddMethod: TRttiMethod;
-  LElemType : PTypeInfo;
-
-  LInst      : TRttiInstanceType;
-  LGetEnum   : TRttiMethod;
-  LEnumVal   : TValue;
-  LEnumObj   : TObject;
-  LEnumType  : TRttiType;
-  LMoveNext  : TRttiMethod;
+  LElemType: PTypeInfo;
+  LInst: TRttiInstanceType;
+  LGetEnum: TRttiMethod;
+  LEnumVal: TValue;
+  LEnumObj: TObject;
+  LEnumType: TRttiType;
+  LMoveNext: TRttiMethod;
   LCurrentProp: TRttiProperty;
 
-  LCurr      : TValue;
+  LCurr: TValue;
 begin
   if AObj = nil then
   begin

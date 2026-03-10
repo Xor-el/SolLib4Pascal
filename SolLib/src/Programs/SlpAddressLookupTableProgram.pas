@@ -41,11 +41,11 @@ type
   public
     type
       TValues = (
-        CreateLookupTable      = 0,
-        FreezeLookupTable      = 1,
-        ExtendLookupTable      = 2,
-        DeactivateLookupTable  = 3,
-        CloseLookupTable       = 4
+        CreateLookupTable = 0,
+        FreezeLookupTable = 1,
+        ExtendLookupTable = 2,
+        DeactivateLookupTable = 3,
+        CloseLookupTable = 4
       );
   private
     class var FNames: TDictionary<TValues, string>;
@@ -69,9 +69,9 @@ type
     /// <summary>
     /// Encode CreateLookupTable data.
     /// Layout:
-    ///   [0..3]   : u32 method = CreateLookupTable
-    ///   [4..11]  : u64 recentSlot
-    ///   [12]     : u8  bump
+    ///   [0..3]: u32 method = CreateLookupTable
+    ///   [4..11]: u64 recentSlot
+    ///   [12]: u8  bump
     /// </summary>
     class function EncodeCreateAddressLookupTableData(const ARecentSlot: UInt64; const ABump: Byte): TBytes; static;
 
@@ -84,9 +84,9 @@ type
     /// <summary>
     /// Encode ExtendLookupTable data.
     /// Layout:
-    ///   [0..3]   : u32 method = ExtendLookupTable
-    ///   [4..11]  : u64 keyCount
-    ///   [12..]   : keyCount * 32 bytes of pubkeys
+    ///   [0..3]: u32 method = ExtendLookupTable
+    ///   [4..11]: u64 keyCount
+    ///   [12..]: keyCount * 32 bytes of pubkeys
     /// </summary>
     class function EncodeExtendLookupTableData(const AKeys: TArray<IPublicKey>): TBytes; static;
 

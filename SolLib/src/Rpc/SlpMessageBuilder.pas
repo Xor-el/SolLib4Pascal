@@ -57,11 +57,11 @@ type
 
   TMessageBuilder = class(TInterfacedObject, IMessageBuilder)
   private
-    FInstructions      : TList<ITransactionInstruction>;
-    FRecentBlockHash   : string;
-    FNonceInformation  : INonceInformation;
-    FPriorityFeesInformation : IPriorityFeesInformation;
-    FFeePayer          : IPublicKey;
+    FInstructions: TList<ITransactionInstruction>;
+    FRecentBlockHash: string;
+    FNonceInformation: INonceInformation;
+    FPriorityFeesInformation: IPriorityFeesInformation;
+    FFeePayer: IPublicKey;
 
     function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilder;
     function Build: TBytes; virtual;
@@ -77,8 +77,8 @@ type
     function GetFeePayer: IPublicKey;
     procedure SetFeePayer(const AValue: IPublicKey);
   protected
-    FMessageHeader     : IMessageHeader;
-    FAccountKeysList   : TAccountKeysList;
+    FMessageHeader: IMessageHeader;
+    FAccountKeysList: TAccountKeysList;
   const
     BlockHashLength = 32;
     function GetAccountKeysMeta: TList<IAccountMeta>; virtual;
@@ -362,7 +362,7 @@ end;
 
 function TMessageBuilder.GetAccountKeysMeta: TList<IAccountMeta>;
 var
-  LKeysList     : TList<IAccountMeta>;
+  LKeysList: TList<IAccountMeta>;
   LFeePayerIndex: Integer;
 begin
   Result := TList<IAccountMeta>.Create;

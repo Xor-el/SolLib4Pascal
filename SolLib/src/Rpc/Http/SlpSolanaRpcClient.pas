@@ -977,9 +977,9 @@ end;
 
 function TSolanaRpcClient.GetBlockProduction(const AIdentity: string; const AFirstSlot, ALastSlot: TNullable<UInt64>; ACommitment: TCommitment): TRequestResult<TResponseValue<TBlockProductionInfo>>;
 var
-  LArgs   : TList<TValue>;
-  LConfig : TDictionary<string, TValue>;
-  LRange  : TDictionary<string, TValue>;
+  LArgs: TList<TValue>;
+  LConfig: TDictionary<string, TValue>;
+  LRange: TDictionary<string, TValue>;
   LRangeKV: TKeyValue;
   LIdentity: TKeyValue;
 begin
@@ -1150,7 +1150,7 @@ end;
 function TSolanaRpcClient.GetInflationReward(const AAddresses: TArray<string>; AEpoch: UInt64; ACommitment: TCommitment): TRequestResult<TObjectList<TInflationReward>>;
 var
   LParams: TList<TValue>;
-  LEpoch : TValue;
+  LEpoch: TValue;
 begin
   if AEpoch > 0 then
     LEpoch := TValue.From<UInt64>(AEpoch)

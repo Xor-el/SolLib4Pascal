@@ -66,16 +66,16 @@ implementation
 
 procedure TInstructionDecoderFromMessageExample.Run;
 var
-  LWallet     : IWallet;
-  LFrom, LTo  : IAccount;
-  LBlockHash  : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LBuilder    : ITransactionBuilder;
-  LMsgBytes   : TBytes;
+  LWallet: IWallet;
+  LFrom, LTo: IAccount;
+  LBlockHash: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LBuilder: ITransactionBuilder;
+  LMsgBytes: TBytes;
 begin
   // Initialize wallet and accounts
   LWallet := TWallet.Create(MnemonicWords);
-  LFrom   := LWallet.GetAccountByIndex(0);
-  LTo     := LWallet.GetAccountByIndex(8);
+  LFrom := LWallet.GetAccountByIndex(0);
+  LTo := LWallet.GetAccountByIndex(8);
 
   // Fetch recent blockhash
   LBlockHash := TestNetRpcClient.GetLatestBlockHash;
@@ -106,13 +106,13 @@ const
   SLOTS: array[0..1] of UInt64 = (366321180, 366321183);
   VOTE_PROGRAM = 'Vote111111111111111111111111111111111111111';
 var
-  LSlot    : UInt64;
-  LBlock   : IRequestResult<TBlockInfo>;
-  LTxMeta  : TTransactionMetaInfo;
-  LTxInfo  : TTransactionInfo;
-  LMsg     : TTransactionContentInfo;
-  LInsCount, LProgIdx : Integer;
-  LProgKey : string;
+  LSlot: UInt64;
+  LBlock: IRequestResult<TBlockInfo>;
+  LTxMeta: TTransactionMetaInfo;
+  LTxInfo: TTransactionInfo;
+  LMsg: TTransactionContentInfo;
+  LInsCount, LProgIdx: Integer;
+  LProgKey: string;
 begin
   for LSlot in SLOTS do
   begin

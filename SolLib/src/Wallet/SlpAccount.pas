@@ -50,7 +50,7 @@ type
   TAccount = class(TInterfacedObject, IAccount)
   private
     FPrivateKey: IPrivateKey;
-    FPublicKey : IPublicKey;
+    FPublicKey: IPublicKey;
 
     function GetPrivateKey: IPrivateKey;
     function GetPublicKey: IPublicKey;
@@ -112,21 +112,21 @@ begin
   LSeed := GenerateRandomSeed;
   LKP := TEd25519Crypto.GenerateKeyPair(LSeed);
   FPrivateKey := TPrivateKey.Create(LKP.SecretKey);  // 64 bytes
-  FPublicKey  := TPublicKey.Create(LKP.PublicKey);   // 32 bytes
+  FPublicKey := TPublicKey.Create(LKP.PublicKey);   // 32 bytes
 end;
 
 constructor TAccount.Create(const APrivateKeyB58, APublicKeyB58: string);
 begin
   inherited Create;
   FPrivateKey := TPrivateKey.Create(APrivateKeyB58);
-  FPublicKey  := TPublicKey.Create(APublicKeyB58);
+  FPublicKey := TPublicKey.Create(APublicKeyB58);
 end;
 
 constructor TAccount.Create(const APrivateKeyBytes, APublicKeyBytes: TBytes);
 begin
   inherited Create;
   FPrivateKey := TPrivateKey.Create(APrivateKeyBytes);
-  FPublicKey  := TPublicKey.Create(APublicKeyBytes);
+  FPublicKey := TPublicKey.Create(APublicKeyBytes);
 end;
 
 class function TAccount.FromSecretKey(const ASecretKeyB58: string): IAccount;

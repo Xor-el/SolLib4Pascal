@@ -136,9 +136,9 @@ implementation
 constructor TRateLimiter.Create(AHits, ADurationMs: Integer);
 begin
   inherited Create;
-  FHits       := AHits;
+  FHits := AHits;
   FDurationMs := ADurationMs;
-  FHitList    := TQueue<TDateTime>.Create;
+  FHitList := TQueue<TDateTime>.Create;
 end;
 
 destructor TRateLimiter.Destroy;
@@ -166,9 +166,9 @@ function TRateLimiter.CanFire: Boolean;
 var
   LNowUtc, LResumeUtc: TDateTime;
 begin
-  LNowUtc   := UtcNow;
+  LNowUtc := UtcNow;
   LResumeUtc := NextFireAllowed(LNowUtc);
-  Result   := LNowUtc >= LResumeUtc;
+  Result := LNowUtc >= LResumeUtc;
 end;
 
 function TRateLimiter.NextFireAllowed(const ACheckTimeUtc: TDateTime): TDateTime;
@@ -204,7 +204,7 @@ procedure TRateLimiter.WaitFire;
 var
   LCheckUtc, LResumeUtc: TDateTime;
 begin
-  LCheckUtc  := UtcNow;
+  LCheckUtc := UtcNow;
   LResumeUtc := NextFireAllowed(LCheckUtc);
 
   while UtcNow <= LResumeUtc do

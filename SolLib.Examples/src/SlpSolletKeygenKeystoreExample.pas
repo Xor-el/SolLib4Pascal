@@ -93,7 +93,7 @@ begin
 
   // Create wallet from mnemonic and derive the mnemonic seed
   LWallet := TWallet.Create(LMnemonic);
-  LSeed   := LWallet.DeriveMnemonicSeed;
+  LSeed := LWallet.DeriveMnemonicSeed;
 
   Writeln('Seed: ', TEncoders.Solana.EncodeData(LSeed));
   Writeln('Address: ', LWallet.Account.PublicKey.Key);
@@ -123,8 +123,8 @@ begin
 
   // 3) Restore wallet from the restored mnemonic string.
   LRestoredMnemonic := TMnemonic.Create(LRestoredMnemonicStr, TWordList.English);
-  LRestoredWallet   := TWallet.Create(LRestoredMnemonic);
-  LRestoredSeed     := LRestoredWallet.DeriveMnemonicSeed;
+  LRestoredWallet := TWallet.Create(LRestoredMnemonic);
+  LRestoredSeed := LRestoredWallet.DeriveMnemonicSeed;
 
   Writeln('Seed: ', TEncoders.Solana.EncodeData(LRestoredSeed));
 

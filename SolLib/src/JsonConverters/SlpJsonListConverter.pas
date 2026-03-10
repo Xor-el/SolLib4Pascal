@@ -39,8 +39,7 @@ type
   TPreserveNullOnReadJsonListConverter<V> = class(TJsonListConverter<V>)
   public
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
 
   TJsonObjectListConverter<V: class> = class(TJsonConverter)
@@ -48,17 +47,14 @@ type
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
   end;
 
-  TPreserveNullOnReadJsonObjectListConverter<V: class> = class
-    (TJsonObjectListConverter<V>)
+  TPreserveNullOnReadJsonObjectListConverter<V: class> = class(TJsonObjectListConverter<V>)
   public
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
 
 implementation

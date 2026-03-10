@@ -136,12 +136,12 @@ constructor TCryptoInfo<TKdfParamsType>.Create(const ACipher: string; const ACip
   AKdfParams: TKdfParamsType; const AKdfType: string);
 begin
   inherited Create;
-  FCipher       := ACipher;
-  FCipherText   := TEncoders.Hex.EncodeData(ACipherText).ToLower;
-  FMac          := TEncoders.Hex.EncodeData(AMac).ToLower;
+  FCipher := ACipher;
+  FCipherText := TEncoders.Hex.EncodeData(ACipherText).ToLower;
+  FMac := TEncoders.Hex.EncodeData(AMac).ToLower;
   FCipherParams := TCipherParams.Create(AIV);
-  FKdf          := AKdfType;
-  FKdfParams    := AKdfParams;
+  FKdf := AKdfType;
+  FKdfParams := AKdfParams;
   if Assigned(FKdfParams) then
     FKdfParams.Salt := TEncoders.Hex.EncodeData(ASalt).ToLower;
 end;

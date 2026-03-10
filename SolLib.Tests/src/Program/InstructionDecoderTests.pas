@@ -203,7 +203,7 @@ implementation
 
 procedure TInstructionDecoderTests.InstructionDecoderRegisterTest;
 var
-  LRes : IDecodedInstruction;
+  LRes: IDecodedInstruction;
   LPubKeyOne, LPubKeyTwo: IPublicKey;
 begin
   // register a dummy decoder for a dummy program id
@@ -228,7 +228,7 @@ end;
 
 procedure TInstructionDecoderTests.InstructionDecoderRegisterNullTest;
 var
-  LRes : IDecodedInstruction;
+  LRes: IDecodedInstruction;
   LPubKeyOne, LPubKeyTwo: IPublicKey;
 begin
   LPubKeyOne := TPublicKey.Create('11111111111111111111111111111122');
@@ -252,11 +252,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromMessageTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(Base64Message);
+  LMsg := TMessage.Deserialize(Base64Message);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
@@ -300,13 +300,13 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromTransactionMetaTest;
 var
-  LJson    : string;
-  LTxMeta  : TTransactionMetaInfo;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LJson: string;
+  LTxMeta: TTransactionMetaInfo;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
-  LJson   := LoadTestData('AssociatedTokenAccount/TestDecodeInstructionFromBlockTransactionMetaInfo.json');
+  LJson := LoadTestData('AssociatedTokenAccount/TestDecodeInstructionFromBlockTransactionMetaInfo.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaInfo>(LJson);
 
   // act
@@ -370,12 +370,12 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromTransactionUnknownInstructionTest;
 var
-  LJson    : string;
-  LTxMeta  : TTransactionMetaSlotInfo;
-  LDecoded : TList<IDecodedInstruction>;
+  LJson: string;
+  LTxMeta: TTransactionMetaSlotInfo;
+  LDecoded: TList<IDecodedInstruction>;
 begin
   // arrange
-  LJson   := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInstruction.json');
+  LJson := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInstruction.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act
@@ -396,12 +396,12 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromTransactionUnknownInnerInstructionTest;
 var
-  LJson    : string;
-  LTxMeta  : TTransactionMetaSlotInfo;
-  LDecoded : TList<IDecodedInstruction>;
+  LJson: string;
+  LTxMeta: TTransactionMetaSlotInfo;
+  LDecoded: TList<IDecodedInstruction>;
 begin
   // arrange
-  LJson   := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInnerInstruction.json');
+  LJson := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInnerInstruction.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act
@@ -441,10 +441,10 @@ end;
 
 procedure TInstructionDecoderTests.DecodeUnknownInstructionFromMessageTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
 begin
-  LMsg     := TMessage.Deserialize(UnknownInstructionMessage);
+  LMsg := TMessage.Deserialize(UnknownInstructionMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(4, LDecoded.Count, 'Count');
@@ -459,13 +459,13 @@ end;
 
 procedure TInstructionDecoderTests.DecodeSharedMemoryProgramTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
   LDataExp, LDataAct: TBytes;
 begin
   // arrange
-  LMsg     := TMessage.Deserialize(SharedMemoryWriteMessage);
+  LMsg := TMessage.Deserialize(SharedMemoryWriteMessage);
 
   // act
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
@@ -495,11 +495,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeDurableNonceMessageTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(DurableNonceMessage);
+  LMsg := TMessage.Deserialize(DurableNonceMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
@@ -520,11 +520,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeCreateAccountWithSeedTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(CreateWithSeedTransferCheckedMessage);
+  LMsg := TMessage.Deserialize(CreateWithSeedTransferCheckedMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(3, LDecoded.Count, 'Count');
@@ -585,11 +585,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeAllocateAndTransferWithSeedTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(AllocateAndTransferWithSeedMessage);
+  LMsg := TMessage.Deserialize(AllocateAndTransferWithSeedMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(6, LDecoded.Count, 'Count');
@@ -645,11 +645,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeAssignWithSeedAndWithdrawNonceTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(AssignWithSeedAndWithdrawNonceMessage);
+  LMsg := TMessage.Deserialize(AssignWithSeedAndWithdrawNonceMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(6, LDecoded.Count, 'Count');
@@ -696,11 +696,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeCreateNonceAccountTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(CreateNonceAccountMessage);
+  LMsg := TMessage.Deserialize(CreateNonceAccountMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
@@ -722,11 +722,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeAuthorizeNonceAccountTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(AuthorizeNonceAccountMessage);
+  LMsg := TMessage.Deserialize(AuthorizeNonceAccountMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
@@ -757,7 +757,7 @@ var
   LVal: TValue;
   LInstr: IDecodedInstruction;
 begin
-  LMsg     := TMessage.Deserialize(InitializeMessage);
+  LMsg := TMessage.Deserialize(InitializeMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     // [0] is System CreateAccount, [1] is TokenSwap Initialize.
@@ -825,12 +825,12 @@ end;
 
 procedure TInstructionDecoderTests.SwapDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LInstr: IDecodedInstruction;
-  LVal    : TValue;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(SwapMessage);
+  LMsg := TMessage.Deserialize(SwapMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     LInstr := LDecoded[0];
@@ -879,12 +879,12 @@ end;
 
 procedure TInstructionDecoderTests.DepositAllTokenTypesDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LInstr: IDecodedInstruction;
-  LVal    : TValue;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(DepositAllTokenTypesMessage);
+  LMsg := TMessage.Deserialize(DepositAllTokenTypesMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     LInstr := LDecoded[0];
@@ -936,12 +936,12 @@ end;
 
 procedure TInstructionDecoderTests.WithdrawAllTokenTypesDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LInstr: IDecodedInstruction;
-  LVal    : TValue;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
+  LMsg := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     LInstr := LDecoded[0];
@@ -996,12 +996,12 @@ end;
 
 procedure TInstructionDecoderTests.DepositSingleTokenTypeExactAmountInDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LInstr: IDecodedInstruction;
-  LVal    : TValue;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
+  LMsg := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     LInstr := LDecoded[0];
@@ -1047,12 +1047,12 @@ end;
 
 procedure TInstructionDecoderTests.WithdrawSingleTokenTypeExactAmountOutDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LInstr: IDecodedInstruction;
-  LVal    : TValue;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
+  LMsg := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     LInstr := LDecoded[0];

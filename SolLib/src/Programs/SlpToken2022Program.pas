@@ -1285,8 +1285,8 @@ end;
 class procedure TToken2022ProgramData.DecodeMintToCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
   const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
 var
-  LAmount : UInt64;
-  LDec    : Byte;
+  LAmount: UInt64;
+  LDec: Byte;
   LI: Integer;
 begin
   ADecoded.Values.Add('Mint',           TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
@@ -1294,7 +1294,7 @@ begin
   ADecoded.Values.Add('Mint Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
 
   LAmount := TDeserialization.GetU64(AData, 1);
-  LDec    := TDeserialization.GetU8(AData, 9);
+  LDec := TDeserialization.GetU8(AData, 9);
   ADecoded.Values.Add('Amount',   LAmount);
   ADecoded.Values.Add('Decimals', LDec);
 
@@ -1666,10 +1666,10 @@ begin
   if GetEnumName(TypeInfo(TToken2022ProgramInstructions.TValues), LInstruction) = '' then
   begin
     Result := TDecodedInstruction.Create;
-    Result.PublicKey       := ProgramIdKey;
+    Result.PublicKey := ProgramIdKey;
     Result.InstructionName := 'Unknown Instruction';
-    Result.ProgramName     := ProgramName;
-    Result.Values          := TDictionary<string, TValue>.Create;
+    Result.ProgramName := ProgramName;
+    Result.Values := TDictionary<string, TValue>.Create;
     Result.InnerInstructions := TList<IDecodedInstruction>.Create();
     Exit;
   end;
@@ -1677,10 +1677,10 @@ begin
   LInstructionValue := TToken2022ProgramInstructions.TValues(LInstruction);
 
   Result := TDecodedInstruction.Create;
-  Result.PublicKey       := ProgramIdKey;
+  Result.PublicKey := ProgramIdKey;
   Result.InstructionName := TToken2022ProgramInstructions.Names[LInstructionValue];
-  Result.ProgramName     := ProgramName;
-  Result.Values          := TDictionary<string, TValue>.Create;
+  Result.ProgramName := ProgramName;
+  Result.Values := TDictionary<string, TValue>.Create;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create();
 
   case LInstructionValue of

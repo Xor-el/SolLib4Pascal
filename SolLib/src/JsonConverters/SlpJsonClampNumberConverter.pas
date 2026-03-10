@@ -59,7 +59,7 @@ function GetTypeBounds(const ATypeInfo: PTypeInfo; out AMin, AMax: Double): Bool
 var
   LTypeData: PTypeData;
   LCtx: TRttiContext;
-  LRT : TRttiType;
+  LRT: TRttiType;
 begin
   Result := False;
   LCtx := TRttiContext.Create;

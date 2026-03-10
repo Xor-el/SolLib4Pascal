@@ -79,7 +79,7 @@ end;
 
 class function TTestUtils.BuildSerializer: TJsonSerializer;
 var
-  LConverters     : TList<TJsonConverter>;
+  LConverters: TList<TJsonConverter>;
 begin
   LConverters := TList<TJsonConverter>.Create;
   try

@@ -120,8 +120,8 @@ type
     // - JSON DOM (TJSONValue): free the root (children go with it)
     // - Generic containers (lists/dictionaries via GetEnumerator):
     //     * Recurse into yielded items (TPair<K,V> -> both Key & Value)
-    //     * TObjectList<T>  : only free container if OwnsObjects=True
-    //     * TObjectDictionary<K,V> : only free container if (OwnsKeys or OwnsValues)=True
+    //     * TObjectList<T>: only free container if OwnsObjects=True
+    //     * TObjectDictionary<K,V>: only free container if (OwnsKeys or OwnsValues)=True
     class procedure FreeParameter(var AParam: TValue); static;
     class procedure FreeParameters(var AParams: TList<TValue>); overload; static;
     class procedure FreeParameters(var AParams: TDictionary<string, TValue>); overload; static;
@@ -132,17 +132,17 @@ type
 implementation
 
 const
-  SKey           = 'Key';
-  SValue         = 'Value';
-  SAdd           = 'Add';
-  SCreate        = 'Create';
+  SKey = 'Key';
+  SValue = 'Value';
+  SAdd = 'Add';
+  SCreate = 'Create';
   SGetEnumerator = 'GetEnumerator';
-  SMoveNext      = 'MoveNext';
-  SCurrent       = 'Current';
-  SOwnsObjects   = 'OwnsObjects';
-  SOwnsKeys      = 'OwnsKeys';
-  SOwnsValues    = 'OwnsValues';
-  SOwnerships    = 'Ownerships';
+  SMoveNext = 'MoveNext';
+  SCurrent = 'Current';
+  SOwnsObjects = 'OwnsObjects';
+  SOwnsKeys = 'OwnsKeys';
+  SOwnsValues = 'OwnsValues';
+  SOwnerships = 'Ownerships';
 
 function TypedNil(ATypeInfo: PTypeInfo): TValue;
 begin
@@ -346,17 +346,17 @@ end;
 
 class function TValueUtils.GetEnumeratorInfo(const ARType: TRttiType; const AInstance: TObject): TEnumeratorInfo;
 var
-  LGetEnum     : TRttiMethod;
-  LLocalEnum   : TObject;
-  LCtx         : TRttiContext;
-  LEnumT       : TRttiType;
-  LMoveNext    : TRttiMethod;
-  LCurrentProp : TRttiProperty;
+  LGetEnum: TRttiMethod;
+  LLocalEnum: TObject;
+  LCtx: TRttiContext;
+  LEnumT: TRttiType;
+  LMoveNext: TRttiMethod;
+  LCurrentProp: TRttiProperty;
   LCurrentField: TRttiField;
 begin
-  Result.EnumObject   := nil;
-  Result.MoveNext     := nil;
-  Result.CurrentProp  := nil;
+  Result.EnumObject := nil;
+  Result.MoveNext := nil;
+  Result.CurrentProp := nil;
   Result.CurrentField := nil;
 
   if (ARType = nil) or (AInstance = nil) then
@@ -372,21 +372,21 @@ begin
 
   LCtx := TRttiContext.Create;
   try
-    LEnumT        := LCtx.GetType(LLocalEnum.ClassType);
+    LEnumT := LCtx.GetType(LLocalEnum.ClassType);
     LCurrentField := nil;
 
     if LEnumT <> nil then
     begin
-      LMoveNext    := LEnumT.GetMethod(SMoveNext);
+      LMoveNext := LEnumT.GetMethod(SMoveNext);
       LCurrentProp := LEnumT.GetProperty(SCurrent);
       if LCurrentProp = nil then
         LCurrentField := LEnumT.GetField(SCurrent);
 
       if Assigned(LMoveNext) and (Assigned(LCurrentProp) or Assigned(LCurrentField)) then
       begin
-        Result.EnumObject   := LLocalEnum;
-        Result.MoveNext     := LMoveNext;
-        Result.CurrentProp  := LCurrentProp;
+        Result.EnumObject := LLocalEnum;
+        Result.MoveNext := LMoveNext;
+        Result.CurrentProp := LCurrentProp;
         Result.CurrentField := LCurrentField;
         LLocalEnum := nil; // ownership transferred
       end;
@@ -533,7 +533,7 @@ begin
 
     for LI := 0 to LLen - 1 do
     begin
-      LElem   := ASrc.GetArrayElement(LI);
+      LElem := ASrc.GetArrayElement(LI);
       LCloned := CloneValue(LElem);
 
       // Ensure typed value compatible with LElemTI, including nils
@@ -570,7 +570,7 @@ begin
     LSrcT := LCtx.GetType(ASrcObj.ClassType);
     LDstT := LCtx.GetType(ADstObj.ClassType);
 
-    // TObjectList<T> : OwnsObjects: Boolean
+    // TObjectList<T>: OwnsObjects: Boolean
     LPSrc := LSrcT.GetProperty(SOwnsObjects);
     LPDst := LDstT.GetProperty(SOwnsObjects);
     if Assigned(LPSrc) and LPSrc.IsReadable and Assigned(LPDst) and LPDst.IsWritable then
@@ -579,7 +579,7 @@ begin
       LPDst.SetValue(ADstObj, LV);
     end;
 
-    // TObjectDictionary<TKey,TValue> : Ownerships: set; or OwnsKeys/OwnsValues
+    // TObjectDictionary<TKey,TValue>: Ownerships: set; or OwnsKeys/OwnsValues
     LPSrc := LSrcT.GetProperty(SOwnerships);
     LPDst := LDstT.GetProperty(SOwnerships);
     if Assigned(LPSrc) and LPSrc.IsReadable and Assigned(LPDst) and LPDst.IsWritable then

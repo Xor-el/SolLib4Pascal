@@ -40,8 +40,7 @@ type
   public
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
@@ -53,8 +52,7 @@ uses
 
 { TTransactionErrorJsonConverter }
 
-function TTransactionErrorJsonConverter.CanConvert(ATypeInf: PTypeInfo)
-  : Boolean;
+function TTransactionErrorJsonConverter.CanConvert(ATypeInf: PTypeInfo): Boolean;
 begin
   Result := ATypeInf = TypeInfo(TTransactionError);
 end;

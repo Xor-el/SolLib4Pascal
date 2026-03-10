@@ -115,44 +115,44 @@ implementation
 
 procedure TCreateInitializeAndMintToMultiSigExample.Run;
 var
-  LRpc         : IRpcClient;
-  LWallet      : IWallet;
-  LOwner       : IAccount;
-  LMint        : IAccount;
-  LInitial     : IAccount;
-  LMultiSig    : IAccount;
-  LSigner1     : IAccount;
-  LSigner2     : IAccount;
-  LSigner3     : IAccount;
-  LSigner4     : IAccount;
-  LSigner5     : IAccount;
-  LBlock       : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinMsRent   : IRequestResult<UInt64>;
-  LMinAccRent  : IRequestResult<UInt64>;
-  LMinMintRent : IRequestResult<UInt64>;
-  LTxBuilder   : ITransactionBuilder;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
+  LInitial: IAccount;
+  LMultiSig: IAccount;
+  LSigner1: IAccount;
+  LSigner2: IAccount;
+  LSigner3: IAccount;
+  LSigner4: IAccount;
+  LSigner5: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinMsRent: IRequestResult<UInt64>;
+  LMinAccRent: IRequestResult<UInt64>;
+  LMinMintRent: IRequestResult<UInt64>;
+  LTxBuilder: ITransactionBuilder;
 
-  LMsgBytes   : TBytes;
-  LMsg        : IMessage;
-  LTx         : ITransaction;
-  LTxBytes    : TBytes;
+  LMsgBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 
-  LSignature   : string;
+  LSignature: string;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   // rents
-  LMinMsRent   := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
+  LMinMsRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
   Writeln('MinBalanceForRentExemption MultiSig >> ' + LMinMsRent.Result.ToString);
-  LMinAccRent  := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
+  LMinAccRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
   Writeln('MinBalanceForRentExemption Account >> ' + LMinAccRent.Result.ToString);
   LMinMintRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
   Writeln('MinBalanceForRentExemption Mint Account >> ' + LMinMintRent.Result.ToString);
 
-  LOwner    := LWallet.GetAccountByIndex(10);
-  LMint     := LWallet.GetAccountByIndex(94224);
-  LInitial  := LWallet.GetAccountByIndex(84224);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(94224);
+  LInitial := LWallet.GetAccountByIndex(84224);
   LMultiSig := LWallet.GetAccountByIndex(2011);
 
   LSigner1 := LWallet.GetAccountByIndex(25100);
@@ -287,35 +287,35 @@ end;
 
 procedure TMintToCheckedMultisigExample.Run;
 var
-  LRpc       : IRpcClient;
-  LWallet    : IWallet;
-  LOwner     : IAccount;
-  LMint      : IAccount;
-  LDest      : IAccount;
-  LMultiSig  : IAccount;
-  LSigner1   : IAccount;
-  LSigner2   : IAccount;
-  LSigner4   : IAccount;
-  LBlock     : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LTxBuilder : ITransactionBuilder;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
+  LDest: IAccount;
+  LMultiSig: IAccount;
+  LSigner1: IAccount;
+  LSigner2: IAccount;
+  LSigner4: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LTxBuilder: ITransactionBuilder;
 
-  LMsgBytes  : TBytes;
-  LMsg       : IMessage;
-  LTx        : ITransaction;
-  LTxBytes   : TBytes;
+  LMsgBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 
-  LSignature : string;
+  LSignature: string;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
-  LOwner    := LWallet.GetAccountByIndex(10);
-  LMint     := LWallet.GetAccountByIndex(94224);
-  LDest     := LWallet.GetAccountByIndex(84224);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(94224);
+  LDest := LWallet.GetAccountByIndex(84224);
   LMultiSig := LWallet.GetAccountByIndex(2011);
-  LSigner1  := LWallet.GetAccountByIndex(25100);
-  LSigner2  := LWallet.GetAccountByIndex(25101);
-  LSigner4  := LWallet.GetAccountByIndex(25103);
+  LSigner1 := LWallet.GetAccountByIndex(25100);
+  LSigner2 := LWallet.GetAccountByIndex(25101);
+  LSigner4 := LWallet.GetAccountByIndex(25103);
 
   // Build + COMPILE message
   LBlock := LRpc.GetLatestBlockHash;
@@ -360,7 +360,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 end;
@@ -369,40 +369,40 @@ end;
 
 procedure TTransferCheckedMultiSigExample.Run;
 var
-  LRpc         : IRpcClient;
-  LWallet      : IWallet;
-  LOwner       : IAccount;
-  LMint        : IAccount;
-  LSource      : IAccount;
-  LTokenDest   : IAccount;
-  LTokenMs     : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
+  LSource: IAccount;
+  LTokenDest: IAccount;
+  LTokenMs: IAccount;
   LTokS1, LTokS2, LTokS3, LTokS4, LTokS5: IAccount;
-  LBlock       : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinMsRent   : IRequestResult<UInt64>;
-  LMinAccRent  : IRequestResult<UInt64>;
-  LTxBuilder   : ITransactionBuilder;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinMsRent: IRequestResult<UInt64>;
+  LMinAccRent: IRequestResult<UInt64>;
+  LTxBuilder: ITransactionBuilder;
 
-  LMsgBytes    : TBytes;
-  LMsg         : IMessage;
-  LTx          : ITransaction;
-  LTxBytes     : TBytes;
+  LMsgBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 
-  LSignature   : string;
+  LSignature: string;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
-  LMinMsRent  := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
+  LMinMsRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
   Writeln('MinBalanceForRentExemption MultiSig >> ' + LMinMsRent.Result.ToString);
   LMinAccRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
   Writeln('MinBalanceForRentExemption Account >> ' + LMinAccRent.Result.ToString);
 
-  LOwner     := LWallet.GetAccountByIndex(10);
-  LMint      := LWallet.GetAccountByIndex(94224);
-  LSource    := LWallet.GetAccountByIndex(84224);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(94224);
+  LSource := LWallet.GetAccountByIndex(84224);
 
   LTokenDest := LWallet.GetAccountByIndex(3042); // token account owned by multisig (to be created)
-  LTokenMs   := LWallet.GetAccountByIndex(3043);
+  LTokenMs := LWallet.GetAccountByIndex(3043);
 
   LTokS1 := LWallet.GetAccountByIndex(25280);
   LTokS2 := LWallet.GetAccountByIndex(25281);
@@ -484,7 +484,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -525,7 +525,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 end;
@@ -534,55 +534,55 @@ end;
 
 procedure TFreezeAuthorityExample.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LOwner      : IAccount;
-  LMint       : IAccount;
-  LInitial    : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
+  LInitial: IAccount;
 
   // Freeze authority multisig + signers
-  LFreezeMs   : IAccount;
+  LFreezeMs: IAccount;
   LFreezeS1, LFreezeS2, LFreezeS3, LFreezeS4, LFreezeS5: IAccount;
 
   // Mint authority multisig + signers
-  LMintMs     : IAccount;
+  LMintMs: IAccount;
   LMintS1, LMintS2, LMintS3, LMintS4, LMintS5: IAccount;
 
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinMsRent  : IRequestResult<UInt64>;
-  LMinAccRent : IRequestResult<UInt64>;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinMsRent: IRequestResult<UInt64>;
+  LMinAccRent: IRequestResult<UInt64>;
   LMinMintRent: IRequestResult<UInt64>;
-  LTxBuilder  : ITransactionBuilder;
+  LTxBuilder: ITransactionBuilder;
 
-  LMsgBytes   : TBytes;
-  LMsg        : IMessage;
-  LTx         : ITransaction;
-  LTxBytes    : TBytes;
+  LMsgBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 
-  LSignature  : string;
+  LSignature: string;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   // Rents
-  LMinMsRent   := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
+  LMinMsRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
   Writeln('MinBalanceForRentExemption MultiSig >> ' + LMinMsRent.Result.ToString);
-  LMinAccRent  := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
+  LMinAccRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
   Writeln('MinBalanceForRentExemption Account >> ' + LMinAccRent.Result.ToString);
   LMinMintRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
   Writeln('MinBalanceForRentExemption Mint Account >> ' + LMinMintRent.Result.ToString);
 
-  LOwner   := LWallet.GetAccountByIndex(10);
-  LMint    := LWallet.GetAccountByIndex(94330);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(94330);
   LInitial := LWallet.GetAccountByIndex(84330);
 
   // Mint multisig + signers
-  LMintMs  := LWallet.GetAccountByIndex(10116);
-  LMintS1  := LWallet.GetAccountByIndex(251280);
-  LMintS2  := LWallet.GetAccountByIndex(251281);
-  LMintS3  := LWallet.GetAccountByIndex(251282);
-  LMintS4  := LWallet.GetAccountByIndex(251283);
-  LMintS5  := LWallet.GetAccountByIndex(251284);
+  LMintMs := LWallet.GetAccountByIndex(10116);
+  LMintS1 := LWallet.GetAccountByIndex(251280);
+  LMintS2 := LWallet.GetAccountByIndex(251281);
+  LMintS3 := LWallet.GetAccountByIndex(251282);
+  LMintS4 := LWallet.GetAccountByIndex(251283);
+  LMintS5 := LWallet.GetAccountByIndex(251284);
 
   // Freeze multisig + signers
   LFreezeMs := LWallet.GetAccountByIndex(3057);
@@ -635,7 +635,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -700,7 +700,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -756,7 +756,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -796,7 +796,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -845,7 +845,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 end;
@@ -855,50 +855,50 @@ end;
 
 procedure TApproveCheckedMultisigExample.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LOwner      : IAccount;
-  LDelegate   : IAccount;
-  LMint       : IAccount;
-  LInitial    : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LDelegate: IAccount;
+  LMint: IAccount;
+  LInitial: IAccount;
 
   // Token account & its multisig + signers
-  LTokAcc     : IAccount;
-  LTokMs      : IAccount;
+  LTokAcc: IAccount;
+  LTokMs: IAccount;
   LTokS1, LTokS2, LTokS3, LTokS4, LTokS5: IAccount;
 
   // Mint multisig + signers (only 3 used for this flow)
-  LMintMs     : IAccount;
+  LMintMs: IAccount;
   LMintS1, LMintS2, LMintS4: IAccount;
 
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinMsRent  : IRequestResult<UInt64>;
-  LMinAccRent : IRequestResult<UInt64>;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinMsRent: IRequestResult<UInt64>;
+  LMinAccRent: IRequestResult<UInt64>;
   LMinMintRent: IRequestResult<UInt64>;
-  LTxBuilder  : ITransactionBuilder;
+  LTxBuilder: ITransactionBuilder;
 
-  LMsgBytes   : TBytes;
-  LMsg        : IMessage;
-  LTx         : ITransaction;
-  LTxBytes    : TBytes;
+  LMsgBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 
-  LSignature  : string;
+  LSignature: string;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   // Rents
-  LMinMsRent   := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
+  LMinMsRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MultisigAccountDataSize);
   Writeln('MinBalanceForRentExemption MultiSig >> ' + LMinMsRent.Result.ToString);
-  LMinAccRent  := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
+  LMinAccRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
   Writeln('MinBalanceForRentExemption Account >> ' + LMinAccRent.Result.ToString);
   LMinMintRent := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
   Writeln('MinBalanceForRentExemption Mint Account >> ' + LMinMintRent.Result.ToString);
 
-  LOwner    := LWallet.GetAccountByIndex(10);
+  LOwner := LWallet.GetAccountByIndex(10);
   LDelegate := LWallet.GetAccountByIndex(194330);
-  LMint     := LWallet.GetAccountByIndex(94330);
-  LInitial  := LWallet.GetAccountByIndex(84330);
+  LMint := LWallet.GetAccountByIndex(94330);
+  LInitial := LWallet.GetAccountByIndex(84330);
 
   LMintMs := LWallet.GetAccountByIndex(10116);
   LMintS1 := LWallet.GetAccountByIndex(251280);
@@ -906,7 +906,7 @@ begin
   LMintS4 := LWallet.GetAccountByIndex(251283); // three signers used here
 
   LTokAcc := LWallet.GetAccountByIndex(4044);
-  LTokMs  := LWallet.GetAccountByIndex(4045);
+  LTokMs := LWallet.GetAccountByIndex(4045);
 
   LTokS1 := LWallet.GetAccountByIndex(25490);
   LTokS2 := LWallet.GetAccountByIndex(25491);
@@ -957,7 +957,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -1016,7 +1016,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -1060,7 +1060,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 
@@ -1111,7 +1111,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 end;
@@ -1120,36 +1120,36 @@ end;
 
 procedure TSimpleMintToAndBurnCheckedMultisigExample.Run;
 var
-  LRpc       : IRpcClient;
-  LWallet    : IWallet;
-  LOwner     : IAccount;
-  LMint      : IAccount;
-  LTokAcc    : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
+  LTokAcc: IAccount;
 
   // Mint multisig + signers
-  LMintMs    : IAccount;
+  LMintMs: IAccount;
   LMintS1, LMintS2, LMintS3: IAccount;
 
   // Token-account multisig + signers
-  LTokMs     : IAccount;
+  LTokMs: IAccount;
   LTokS1, LTokS2, LTokS3: IAccount;
 
-  LBlock     : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LTxBuilder : ITransactionBuilder;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LTxBuilder: ITransactionBuilder;
 
   // Reused artifacts
-  LMsgBytes  : TBytes;
-  LMsg       : IMessage;
-  LTx        : ITransaction;
-  LTxBytes   : TBytes;
+  LMsgBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 
-  LSignature : string;
+  LSignature: string;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LMint   := LWallet.GetAccountByIndex(94330);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(94330);
   LTokAcc := LWallet.GetAccountByIndex(4044);
 
   LMintMs := LWallet.GetAccountByIndex(10116);
@@ -1157,10 +1157,10 @@ begin
   LMintS2 := LWallet.GetAccountByIndex(251281);
   LMintS3 := LWallet.GetAccountByIndex(251282);
 
-  LTokMs  := LWallet.GetAccountByIndex(4045);
-  LTokS1  := LWallet.GetAccountByIndex(25490);
-  LTokS2  := LWallet.GetAccountByIndex(25491);
-  LTokS3  := LWallet.GetAccountByIndex(25492);
+  LTokMs := LWallet.GetAccountByIndex(4045);
+  LTokS1 := LWallet.GetAccountByIndex(25490);
+  LTokS2 := LWallet.GetAccountByIndex(25491);
+  LTokS3 := LWallet.GetAccountByIndex(25492);
 
   // -------- Single Tx: MintToChecked (mint multisig) + BurnChecked (token multisig) + Memo --------
   LBlock := LRpc.GetLatestBlockHash;
@@ -1216,7 +1216,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 end;
@@ -1225,38 +1225,38 @@ end;
 
 procedure TBurnCheckedAndCloseAccountMultisigExample.Run;
 var
-  LRpc        : IRpcClient;
-  LWallet     : IWallet;
-  LOwner      : IAccount;
-  LMint       : IAccount;
-  LTokAcc     : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
+  LTokAcc: IAccount;
 
   // token-account multisig + signers
-  LTokMs      : IAccount;
+  LTokMs: IAccount;
   LTokS1, LTokS2, LTokS3: IAccount;
 
-  LBlock      : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LBalanceRes : IRequestResult<TResponseValue<TTokenBalance>>;
-  LTxBuilder  : ITransactionBuilder;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LBalanceRes: IRequestResult<TResponseValue<TTokenBalance>>;
+  LTxBuilder: ITransactionBuilder;
 
-  LMsgBytes   : TBytes;
-  LMsg        : IMessage;
-  LTx         : ITransaction;
-  LTxBytes    : TBytes;
+  LMsgBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 
-  LSignature  : string;
-  LAmountU64  : UInt64;
+  LSignature: string;
+  LAmountU64: UInt64;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
-  LOwner  := LWallet.GetAccountByIndex(10);
-  LMint   := LWallet.GetAccountByIndex(94330);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(94330);
   LTokAcc := LWallet.GetAccountByIndex(4044);
-  LTokMs  := LWallet.GetAccountByIndex(4045);
-  LTokS1  := LWallet.GetAccountByIndex(25490);
-  LTokS2  := LWallet.GetAccountByIndex(25491);
-  LTokS3  := LWallet.GetAccountByIndex(25492);
+  LTokMs := LWallet.GetAccountByIndex(4045);
+  LTokS1 := LWallet.GetAccountByIndex(25490);
+  LTokS2 := LWallet.GetAccountByIndex(25491);
+  LTokS3 := LWallet.GetAccountByIndex(25492);
 
   LBalanceRes := LRpc.GetTokenAccountBalance(LTokAcc.PublicKey.Key);
   Writeln('Account Balance >> ' + LBalanceRes.Result.Value.UiAmountString);
@@ -1312,7 +1312,7 @@ begin
     )
   );
 
-  LTxBytes   := LogTransactionAndSerialize(LTx);
+  LTxBytes := LogTransactionAndSerialize(LTx);
   LSignature := SubmitTxSendAndLog(LTxBytes);
   PollConfirmedTx(LSignature);
 end;
@@ -1322,14 +1322,14 @@ end;
 
 procedure TGetMultiSignatureAccountExample.Run;
 var
-  LRpc       : IRpcClient;
-  LWallet    : IWallet;
-  LMs        : IAccount;
-  LAccInfo   : IRequestResult<TResponseValue<TAccountInfo>>;
-  LBytes     : TBytes;
-  LMultiSig  : IMultiSignatureAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LMs: IAccount;
+  LAccInfo: IRequestResult<TResponseValue<TAccountInfo>>;
+  LBytes: TBytes;
+  LMultiSig: IMultiSignatureAccount;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   // The multisig which is the token account authority

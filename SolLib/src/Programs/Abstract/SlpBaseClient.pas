@@ -360,15 +360,15 @@ end;
 
 class function TBaseClient.DeserializeAccount<T>(const AData: TBytes): T;
 var
-  LCtx      : TRttiContext;
-  LTypeT    : TRttiType;
-  LInstType : TRttiInstanceType;
-  LMeta     : TClass;
-  LMetaType : TRttiType;
-  LMethod   : TRttiMethod;
-  LParams   : TArray<TRttiParameter>;
-  LRet      : TValue;
-  LArg      : TValue;
+  LCtx: TRttiContext;
+  LTypeT: TRttiType;
+  LInstType: TRttiInstanceType;
+  LMeta: TClass;
+  LMetaType: TRttiType;
+  LMethod: TRttiMethod;
+  LParams: TArray<TRttiParameter>;
+  LRet: TValue;
+  LArg: TValue;
 begin
   Result := Default(T);
 
@@ -379,7 +379,7 @@ begin
       raise EInvalidOp.Create('T must be a class type.');
 
     LInstType := TRttiInstanceType(LTypeT);
-    LMeta     := LInstType.MetaclassType;
+    LMeta := LInstType.MetaclassType;
     LMetaType := LCtx.GetType(LMeta);
 
     // Find a class function Deserialize(const Bytes: TBytes): <T or descendant>
@@ -412,11 +412,11 @@ function TBaseClient.GetProgramAccounts<T>(
   ACommitment: TCommitment
 ): IProgramAccountsResultWrapper<TObjectList<T>>;
 var
-  LRes   : IRequestResult<TObjectList<TAccountKeyPair>>;
+  LRes: IRequestResult<TObjectList<TAccountKeyPair>>;
   LParsed: TObjectList<T>;
-  LPair   : TAccountKeyPair;
-  LBytes  : TBytes;
-  LItem   : T;
+  LPair: TAccountKeyPair;
+  LBytes: TBytes;
+  LItem: T;
 begin
   LRes := FRpcClient.GetProgramAccounts(AProgramAddress, ADataSize, ADataSlice, AFilters, TBinaryEncoding.Base64, ACommitment);
 
@@ -446,11 +446,11 @@ function TBaseClient.GetMultipleAccounts<T>(
   ACommitment: TCommitment
 ): IMultipleAccountsResultWrapper<TObjectList<T>>;
 var
-  LRes   : IRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
+  LRes: IRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
   LParsed: TObjectList<T>;
-  LInfo   : TAccountInfo;
-  LBytes  : TBytes;
-  LItem   : T;
+  LInfo: TAccountInfo;
+  LBytes: TBytes;
+  LItem: T;
 begin
   LRes := FRpcClient.GetMultipleAccounts(AAccountAddresses, TBinaryEncoding.Base64, ACommitment);
 
@@ -481,9 +481,9 @@ function TBaseClient.GetAccount<T>(
   ACommitment: TCommitment
 ): IAccountResultWrapper<T>;
 var
-  LRes  : IRequestResult<TResponseValue<TAccountInfo>>;
-  LBytes : TBytes;
-  LItem  : T;
+  LRes: IRequestResult<TResponseValue<TAccountInfo>>;
+  LBytes: TBytes;
+  LItem: T;
 begin
   LRes := FRpcClient.GetAccountInfo(AAccountAddress, TBinaryEncoding.Base64, ACommitment);
 
@@ -499,8 +499,8 @@ begin
 end;
 
 function TBaseClient.SubscribeAccount<T>(
-  const APubKey    : string;
-  const ACallback  : TProc<ISubscriptionState, TResponseValue<TAccountInfo>, T>;
+  const APubKey: string;
+  const ACallback: TProc<ISubscriptionState, TResponseValue<TAccountInfo>, T>;
   const ACommitment: TCommitment
 ): ISubscriptionState;
 begin
@@ -510,7 +510,7 @@ begin
       procedure(ASub: ISubscriptionState; AEnv: TResponseValue<TAccountInfo>)
       var
         LParsed: T;
-        LBytes : TBytes;
+        LBytes: TBytes;
       begin
         LParsed := nil;
 
@@ -518,7 +518,7 @@ begin
         if (AEnv <> nil) and (AEnv.Value <> nil) and
            (Length(AEnv.Value.Data) > 0) and (AEnv.Value.Data[0] <> '') then
         begin
-          LBytes  := TEncoders.Base64.DecodeData(AEnv.Value.Data[0]);
+          LBytes := TEncoders.Base64.DecodeData(AEnv.Value.Data[0]);
           LParsed := DeserializeAccount<T>(LBytes);
         end;
 
@@ -533,9 +533,9 @@ end;
 
 constructor TProgramError<T>.Create(const AValue: T; const AMessage: string);
 var
-  LCtx : TRttiContext;
-  LTyp : TRttiType;
-  LVal : TValue;
+  LCtx: TRttiContext;
+  LTyp: TRttiType;
+  LVal: TValue;
 begin
   inherited Create;
 
@@ -547,7 +547,7 @@ begin
       raise EArgumentException.Create('TProgramError<T>: T must be an enum type.');
 
     FErrorKind := AValue;
-    FMessage   := AMessage;
+    FMessage := AMessage;
 
     LVal := TValue.From<T>(AValue);
     FErrorCode := Cardinal(LVal.AsOrdinal);
@@ -602,12 +602,12 @@ function TTransactionalBaseClient<TEnum>.SignAndSendTransaction(
   ACommitment: TCommitment
 ): IRequestResult<string>;
 var
-  LTB     : ITransactionBuilder;
-  LRecent : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LWire   : TBytes;
-  LMsg    : IMessage;
-  LI      : Integer;
-  LSig    : TBytes;
+  LTB: ITransactionBuilder;
+  LRecent: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LWire: TBytes;
+  LMsg: IMessage;
+  LI: Integer;
+  LSig: TBytes;
 begin
   // 1) Build transaction
   LTB := TTransactionBuilder.Create;
@@ -623,7 +623,7 @@ begin
 
   // 3) Compile and sign
   LWire := LTB.CompileMessage;          // message bytes for signing
-  LMsg  := TMessage.Deserialize(LWire); // to inspect header/account keys
+  LMsg := TMessage.Deserialize(LWire); // to inspect header/account keys
 
   for LI := 0 to LMsg.Header.RequiredSignatures - 1 do
   begin
@@ -638,7 +638,7 @@ end;
 function TTransactionalBaseClient<TEnum>.GetProgramError(
   const ALogs: TSimulationLogs): IProgramError<TEnum>;
 var
-  LId : Cardinal;
+  LId: Cardinal;
   LErr: IProgramError<TEnum>;
   LLast: string;
 begin
@@ -669,7 +669,7 @@ end;
 function TTransactionalBaseClient<TEnum>.GetProgramError(
   const AError: TTransactionError): IProgramError<TEnum>;
 var
-  LId : Cardinal;
+  LId: Cardinal;
 begin
   Result := nil;
   if (AError.InstructionError <> nil) and

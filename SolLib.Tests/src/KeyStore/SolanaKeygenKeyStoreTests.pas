@@ -47,7 +47,7 @@ type
 implementation
 
 const
-  ExpectedKeyStoreAddress       = '4n8BE7DHH4NudifUBrwPbvNPs2F86XcagT7C2JKdrWrR';
+  ExpectedKeyStoreAddress = '4n8BE7DHH4NudifUBrwPbvNPs2F86XcagT7C2JKdrWrR';
   ExpectedStringKeyStoreAddress = '8D6vFRiysWWBwuf3HY7RrPt8EiFoP9o94LzySZqD4HsV';
 
   StringKeyStoreSeedWithoutPassphrase =

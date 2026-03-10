@@ -82,7 +82,7 @@ var
   LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenSupplyResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenSupplyRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenSupplyRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -111,7 +111,7 @@ var
   LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenSupplyResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenSupplyProcessedRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenSupplyProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -162,7 +162,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenAccountsByOwnerRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByOwnerRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -191,7 +191,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenAccountsByOwnerConfirmedRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByOwnerConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -220,7 +220,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Response.json');
-  LRequestData  := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Request.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Request.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -252,7 +252,7 @@ var
   LTokenAccountData: TTokenAccountData;
 begin
   LResponseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenAccountsByDelegateRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByDelegateRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -295,7 +295,7 @@ var
   LTokenAccountData: TTokenAccountData;
 begin
   LResponseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenAccountsByDelegateProcessedRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByDelegateProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -359,7 +359,7 @@ var
   LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenAccountBalanceRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountBalanceRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -388,7 +388,7 @@ var
   LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenAccountBalanceConfirmedRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountBalanceConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -417,7 +417,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenLargestAccountsRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenLargestAccountsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -448,7 +448,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
 begin
   LResponseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
-  LRequestData  := LoadTestData('Token/GetTokenLargestAccountsProcessedRequest.json');
+  LRequestData := LoadTestData('Token/GetTokenLargestAccountsProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;

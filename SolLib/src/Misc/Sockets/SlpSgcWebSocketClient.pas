@@ -120,12 +120,12 @@ begin
     FClient.Options.CleanDisconnect := True;
 
     // HeartBeat: keepalive pings
-    FClient.HeartBeat.Enabled  := True;   // keepalive on
+    FClient.HeartBeat.Enabled := True;   // keepalive on
     FClient.HeartBeat.Interval := 15;     // seconds between pings
-    FClient.HeartBeat.Timeout  := 90;     // seconds to wait for pong before error/close
+    FClient.HeartBeat.Timeout := 90;     // seconds to wait for pong before error/close
 
     // WatchDog: auto-reconnect on unexpected disconnects
-    FClient.WatchDog.Enabled  := True;    // auto reconnect
+    FClient.WatchDog.Enabled := True;    // auto reconnect
     FClient.WatchDog.Interval := 5;       // seconds between attempts
     FClient.WatchDog.Attempts := 0;       // unlimited attempts
   end;

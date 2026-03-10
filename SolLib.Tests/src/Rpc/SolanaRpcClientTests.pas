@@ -87,7 +87,7 @@ var
   LResult: IRequestResult<TResponseValue<UInt64>>;
 begin
   LResponseData := LoadTestData('EmptyPayloadResponse.json');
-  LRequestData  := LoadTestData('EmptyPayloadRequest.json');
+  LRequestData := LoadTestData('EmptyPayloadRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200, 'OK');
   LRpcHttpClient := LMockRpcHttpClient;
@@ -120,7 +120,7 @@ var
   LResult: IRequestResult<TResponseValue<UInt64>>;
 begin
   LResponseData := LoadTestData('StringErrorResponse.json');
-  LRequestData  := LoadTestData('EmptyPayloadRequest.json');
+  LRequestData := LoadTestData('EmptyPayloadRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -154,7 +154,7 @@ var
   LResult: IRequestResult<TResponseValue<UInt64>>;
 begin
   LMsg := 'something bad happenned';
-  LRequestData  := LoadTestData('EmptyPayloadRequest.json');
+  LRequestData := LoadTestData('EmptyPayloadRequest.json');
 
   LMockRpcHttpClient := SetupTestForThrow(LMsg);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -180,7 +180,7 @@ var
   LResult: IRequestResult<TResponseValue<UInt64>>;
 begin
   LResponseData := LoadTestData('GetBalanceResponse.json');
-  LRequestData  := LoadTestData('GetBalanceRequest.json');
+  LRequestData := LoadTestData('GetBalanceRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -211,7 +211,7 @@ var
   LResult: IRequestResult<TResponseValue<UInt64>>;
 begin
   LResponseData := LoadTestData('GetBalanceResponse.json');
-  LRequestData  := LoadTestData('GetBalanceConfirmedRequest.json');
+  LRequestData := LoadTestData('GetBalanceConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -237,7 +237,7 @@ var
   LResult: IRequestResult<TObjectList<TClusterNode>>;
 begin
   LResponseData := LoadTestData('GetClusterNodesResponse.json');
-  LRequestData  := LoadTestData('GetClusterNodesRequest.json');
+  LRequestData := LoadTestData('GetClusterNodesRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -269,7 +269,7 @@ var
   LResult: IRequestResult<TEpochInfo>;
 begin
   LResponseData := LoadTestData('Epoch/GetEpochInfoResponse.json');
-  LRequestData  := LoadTestData('Epoch/GetEpochInfoRequest.json');
+  LRequestData := LoadTestData('Epoch/GetEpochInfoRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -298,7 +298,7 @@ var
   LResult: IRequestResult<TEpochInfo>;
 begin
   LResponseData := LoadTestData('Epoch/GetEpochInfoResponse.json');
-  LRequestData  := LoadTestData('Epoch/GetEpochInfoProcessedRequest.json');
+  LRequestData := LoadTestData('Epoch/GetEpochInfoProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -327,7 +327,7 @@ var
   LResult: IRequestResult<TEpochScheduleInfo>;
 begin
   LResponseData := LoadTestData('Epoch/GetEpochScheduleResponse.json');
-  LRequestData  := LoadTestData('Epoch/GetEpochScheduleRequest.json');
+  LRequestData := LoadTestData('Epoch/GetEpochScheduleRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -356,7 +356,7 @@ var
   LResult: IRequestResult<string>;
 begin
   LResponseData := LoadTestData('GetGenesisHashResponse.json');
-  LRequestData  := LoadTestData('GetGenesisHashRequest.json');
+  LRequestData := LoadTestData('GetGenesisHashRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -381,7 +381,7 @@ var
   LResult: IRequestResult<TNodeIdentity>;
 begin
   LResponseData := LoadTestData('GetIdentityResponse.json');
-  LRequestData  := LoadTestData('GetIdentityRequest.json');
+  LRequestData := LoadTestData('GetIdentityRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -406,7 +406,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('GetMaxRetransmitSlotResponse.json');
-  LRequestData  := LoadTestData('GetMaxRetransmitSlotRequest.json');
+  LRequestData := LoadTestData('GetMaxRetransmitSlotRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -430,7 +430,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('GetMaxShredInsertSlotResponse.json');
-  LRequestData  := LoadTestData('GetMaxShredInsertSlotRequest.json');
+  LRequestData := LoadTestData('GetMaxShredInsertSlotRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -454,7 +454,7 @@ var
   LResult: IRequestResult<TList<string>>;
 begin
   LResponseData := LoadTestData('Slot/GetSlotLeadersEmptyResponse.json');
-  LRequestData  := LoadTestData('Slot/GetSlotLeadersEmptyRequest.json');
+  LRequestData := LoadTestData('Slot/GetSlotLeadersEmptyRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -478,7 +478,7 @@ var
   LResult: IRequestResult<TList<string>>;
 begin
   LResponseData := LoadTestData('Slot/GetSlotLeadersResponse.json');
-  LRequestData  := LoadTestData('Slot/GetSlotLeadersRequest.json');
+  LRequestData := LoadTestData('Slot/GetSlotLeadersRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -506,7 +506,7 @@ var
   LResult: IRequestResult<string>;
 begin
   LResponseData := LoadTestData('Slot/GetSlotLeaderResponse.json');
-  LRequestData  := LoadTestData('Slot/GetSlotLeaderRequest.json');
+  LRequestData := LoadTestData('Slot/GetSlotLeaderRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -531,7 +531,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Slot/GetSlotResponse.json');
-  LRequestData  := LoadTestData('Slot/GetSlotRequest.json');
+  LRequestData := LoadTestData('Slot/GetSlotRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -555,7 +555,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Slot/GetSlotResponse.json');
-  LRequestData  := LoadTestData('Slot/GetSlotProcessedRequest.json');
+  LRequestData := LoadTestData('Slot/GetSlotProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -579,7 +579,7 @@ var
   LResult: IRequestResult<TObjectList<TPerformanceSample>>;
 begin
   LResponseData := LoadTestData('GetRecentPerformanceSamplesResponse.json');
-  LRequestData  := LoadTestData('GetRecentPerformanceSamplesRequest.json');
+  LRequestData := LoadTestData('GetRecentPerformanceSamplesRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -608,7 +608,7 @@ var
   LResult: IRequestResult<TSnapshotSlotInfo>;
 begin
   LResponseData := LoadTestData('GetHighestSnapshotSlotResponse.json');
-  LRequestData  := LoadTestData('GetHighestSnapshotSlotRequest.json');
+  LRequestData := LoadTestData('GetHighestSnapshotSlotRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -634,7 +634,7 @@ var
   LResult: IRequestResult<TResponseValue<TSupply>>;
 begin
   LResponseData := LoadTestData('GetSupplyResponse.json');
-  LRequestData  := LoadTestData('GetSupplyRequest.json');
+  LRequestData := LoadTestData('GetSupplyRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -662,7 +662,7 @@ var
   LResult: IRequestResult<TResponseValue<TSupply>>;
 begin
   LResponseData := LoadTestData('GetSupplyResponse.json');
-  LRequestData  := LoadTestData('GetSupplyProcessedRequest.json');
+  LRequestData := LoadTestData('GetSupplyProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -690,7 +690,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('GetMinimumLedgerSlotResponse.json');
-  LRequestData  := LoadTestData('GetMinimumLedgerSlotRequest.json');
+  LRequestData := LoadTestData('GetMinimumLedgerSlotRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -714,7 +714,7 @@ var
   LResult: IRequestResult<TNodeVersion>;
 begin
   LResponseData := LoadTestData('GetVersionResponse.json');
-  LRequestData  := LoadTestData('GetVersionRequest.json');
+  LRequestData := LoadTestData('GetVersionRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -740,7 +740,7 @@ var
   LResult: IRequestResult<string>;
 begin
   LResponseData := LoadTestData('Health/GetHealthHealthyResponse.json');
-  LRequestData  := LoadTestData('Health/GetHealthRequest.json');
+  LRequestData := LoadTestData('Health/GetHealthRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -763,7 +763,7 @@ var
   LResult: IRequestResult<string>;
 begin
   LResponseData := LoadTestData('Health/GetHealthUnhealthyResponse.json');
-  LRequestData  := LoadTestData('Health/GetHealthRequest.json');
+  LRequestData := LoadTestData('Health/GetHealthRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -790,7 +790,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('GetMinimumBalanceForRateExemptionResponse.json');
-  LRequestData  := LoadTestData('GetMinimumBalanceForRateExemptionRequest.json');
+  LRequestData := LoadTestData('GetMinimumBalanceForRateExemptionRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -814,7 +814,7 @@ var
   LResult: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('GetMinimumBalanceForRateExemptionResponse.json');
-  LRequestData  := LoadTestData('GetMinimumBalanceForRateExemptionConfirmedRequest.json');
+  LRequestData := LoadTestData('GetMinimumBalanceForRateExemptionConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -838,7 +838,7 @@ var
   LResult: IRequestResult<string>;
 begin
   LResponseData := LoadTestData('RequestAirdropResult.json');
-  LRequestData  := LoadTestData('RequestAirdropRequest.json');
+  LRequestData := LoadTestData('RequestAirdropRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -864,7 +864,7 @@ var
   LResult: IRequestResult<TObjectList<TAccountKeyPair>>;
 begin
   LResponseData := LoadTestData('GetProgramAccountsResponse-Fail-410.json');
-  LRequestData  := LoadTestData('GetProgramAccountsRequest-Fail-410.json');
+  LRequestData := LoadTestData('GetProgramAccountsRequest-Fail-410.json');
 
   // Simulate HTTP 410 Gone
   LMockRpcHttpClient := SetupTest(LResponseData, 410);
@@ -873,7 +873,7 @@ begin
   LFilter := TMemCmp.Create;
   try
     LFilter.Offset := 45;
-    LFilter.Bytes  := '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5';
+    LFilter.Bytes := '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5';
 
     SetLength(LFilters, 1);
     LFilters[0] := LFilter;
@@ -909,7 +909,7 @@ var
   LResult: IRequestResult<TResponseValue<UInt64>>;
 begin
   LResponseData := 'Supplied content type is not allowed. Content-Type: application/json is required';
-  LRequestData  := LoadTestData('GetBalanceRequest.json');
+  LRequestData := LoadTestData('GetBalanceRequest.json');
 
   // Simulate HTTP 415 Unsupported Media Type
   LMockRpcHttpClient := SetupTest(LResponseData, 415);

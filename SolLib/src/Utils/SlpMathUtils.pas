@@ -66,9 +66,9 @@ end;
 
 class function TMathUtils.DoubleToUInt64(const AV: Double): UInt64;
 const
-  TWO63  : Double = 9223372036854775808.0;    // 2^63
-  MAXU64 : Double = 18446744073709551615.0;   // 2^64 - 1 (not exact as Double)
-  K_SNAP : Integer = 16;                      // snap window = 16 ULPs
+  TWO63: Double = 9223372036854775808.0;    // 2^63
+  MAXU64: Double = 18446744073709551615.0;   // 2^64 - 1 (not exact as Double)
+  K_SNAP: Integer = 16;                      // snap window = 16 ULPs
 var
   LW, LSnap, LWInt: Double;
   LUlp: Double;
@@ -83,7 +83,7 @@ begin
   LW := EnsureRange(LW, 0.0, MAXU64);
 
   // Adaptive snap: if we're within K * ULP of the ceiling, snap to exact High(UInt64)
-  LUlp  := ULPAt(MAXU64);
+  LUlp := ULPAt(MAXU64);
   LSnap := LUlp * K_SNAP;
   if LW >= (MAXU64 - LSnap) then
   begin

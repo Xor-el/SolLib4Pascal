@@ -273,14 +273,14 @@ var
 begin
   if not IsEnabled(ALevel) then Exit;
 
-  LMsg      := FormatMessage(AMessageTemplate, AArgs);
+  LMsg := FormatMessage(AMessageTemplate, AArgs);
   LLevelStr := LevelToString(ALevel);
-  LDateStr  := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now);
+  LDateStr := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now);
 
   // Style tokens collapse to empty when ANSI is disabled
   if FAnsiEnabled then
   begin
-    LDim   := DIM_ANSI;
+    LDim := DIM_ANSI;
     LColor := LevelAnsiColor(ALevel);
     LReset := ResetAnsiColor;
   end

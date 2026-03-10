@@ -377,10 +377,10 @@ begin
   if GetEnumName(TypeInfo(TComputeBudgetProgramInstructions.TValues), LInstruction) = '' then
   begin
     Result := TDecodedInstruction.Create;
-    Result.PublicKey         := ProgramIdKey;
-    Result.InstructionName   := 'Unknown Instruction';
-    Result.ProgramName       := ProgramName;
-    Result.Values            := TDictionary<string, TValue>.Create;
+    Result.PublicKey := ProgramIdKey;
+    Result.InstructionName := 'Unknown Instruction';
+    Result.ProgramName := ProgramName;
+    Result.Values := TDictionary<string, TValue>.Create;
     Result.InnerInstructions := TList<IDecodedInstruction>.Create;
     Exit;
   end;
@@ -388,10 +388,10 @@ begin
   LInstructionValue := TComputeBudgetProgramInstructions.TValues(LInstruction);
 
   Result := TDecodedInstruction.Create;
-  Result.PublicKey       := ProgramIdKey;
+  Result.PublicKey := ProgramIdKey;
   Result.InstructionName := TComputeBudgetProgramInstructions.Names[LInstructionValue];
-  Result.ProgramName     := ProgramName;
-  Result.Values          := TDictionary<string, TValue>.Create;
+  Result.ProgramName := ProgramName;
+  Result.Values := TDictionary<string, TValue>.Create;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create();
 
   case LInstructionValue of

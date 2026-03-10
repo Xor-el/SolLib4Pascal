@@ -76,13 +76,13 @@ end;
 
 procedure TMemoProgramTests.TestWriteUtf8_ValidInput;
 var
-  LAccount : IPublicKey;
-  LMemo    : string;
-  LInstr   : ITransactionInstruction;
-  LBytes   : TBytes;
+  LAccount: IPublicKey;
+  LMemo: string;
+  LInstr: ITransactionInstruction;
+  LBytes: TBytes;
 begin
   LAccount := AccountKey;
-  LMemo    := 'Test memo';
+  LMemo := 'Test memo';
 
   LInstr := TMemoProgram.NewMemo(LAccount, LMemo);
 
@@ -111,7 +111,7 @@ end;
 
 procedure TMemoProgramTests.TestWriteUtf8_EmptyMemo;
 var
-  LAccount : IPublicKey;
+  LAccount: IPublicKey;
 begin
   LAccount := AccountKey;
   AssertException(
@@ -125,13 +125,13 @@ end;
 
 procedure TMemoProgramTests.TestWriteUtf8_LongMemo;
 var
-  LAccount : IPublicKey;
-  LLong    : string;
-  LInstr   : ITransactionInstruction;
-  LBytes   : TBytes;
+  LAccount: IPublicKey;
+  LLong: string;
+  LInstr: ITransactionInstruction;
+  LBytes: TBytes;
 begin
   LAccount := AccountKey;
-  LLong    := StringOfChar('A', 1000);
+  LLong := StringOfChar('A', 1000);
 
   LInstr := TMemoProgram.NewMemo(LAccount, LLong);
 
@@ -146,13 +146,13 @@ end;
 
 procedure TMemoProgramTests.TestWriteUtf8V2_ValidInput_WithAccount;
 var
-  LAccount : IPublicKey;
-  LMemo    : string;
-  LInstr   : ITransactionInstruction;
-  LBytes   : TBytes;
+  LAccount: IPublicKey;
+  LMemo: string;
+  LInstr: ITransactionInstruction;
+  LBytes: TBytes;
 begin
   LAccount := AccountKey;
-  LMemo    := 'Test memo v2';
+  LMemo := 'Test memo v2';
 
   LInstr := TMemoProgram.NewMemoV2(LMemo, LAccount);
 
@@ -170,11 +170,11 @@ end;
 
 procedure TMemoProgramTests.TestWriteUtf8V2_ValidInput_NoAccount;
 var
-  LMemo  : string;
-  LInstr : ITransactionInstruction;
-  LBytes : TBytes;
+  LMemo: string;
+  LInstr: ITransactionInstruction;
+  LBytes: TBytes;
 begin
-  LMemo  := 'Memo without account';
+  LMemo := 'Memo without account';
   LInstr := TMemoProgram.NewMemoV2(LMemo, nil);
 
   AssertNotNull(LInstr, 'Instruction was nil');
@@ -198,13 +198,13 @@ end;
 
 procedure TMemoProgramTests.TestWriteUtf8V2_LongMemo;
 var
-  LAccount : IPublicKey;
-  LLong    : string;
-  LInstr   : ITransactionInstruction;
-  LBytes   : TBytes;
+  LAccount: IPublicKey;
+  LLong: string;
+  LInstr: ITransactionInstruction;
+  LBytes: TBytes;
 begin
   LAccount := AccountKey;
-  LLong    := StringOfChar('A', 1000);
+  LLong := StringOfChar('A', 1000);
 
   LInstr := TMemoProgram.NewMemoV2(LLong, LAccount);
 

@@ -82,8 +82,7 @@ begin
   Result := LKdfVal.Value;
 end;
 
-class function TKeyStoreKdfChecker.GetKeyStoreKdfType(const AJson: string)
-  : TKdfType;
+class function TKeyStoreKdfChecker.GetKeyStoreKdfType(const AJson: string): TKdfType;
 var
   LRootVal: TJSONValue;
   LRootObj: TJSONObject;

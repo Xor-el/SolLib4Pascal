@@ -75,16 +75,16 @@ begin
   //
   // Setup: create wallet and accounts
   //
-  LWallet  := TWallet.Create(MnemonicWords);
-  LOwner   := LWallet.GetAccountByIndex(0);   // fee payer / owner
-  LMint    := LWallet.GetAccountByIndex(1030);  // mint account
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwner := LWallet.GetAccountByIndex(0);   // fee payer / owner
+  LMint := LWallet.GetAccountByIndex(1030);  // mint account
   LInitial := LWallet.GetAccountByIndex(1031);  // token account to hold minted tokens
 
   //
   // Get network info and minimum balance requirements
   //
-  LBlockhash   := TestNetRpcClient.GetLatestBlockHash;
-  LMinAccRent  := TestNetRpcClient.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
+  LBlockhash := TestNetRpcClient.GetLatestBlockHash;
+  LMinAccRent := TestNetRpcClient.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
   LMinMintRent := TestNetRpcClient.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
 
   Writeln(Format('MinBalanceForRentExemption Account >> %d', [LMinAccRent.Result]));
@@ -175,7 +175,7 @@ begin
   // Step 2: Create an associated token account (ATA) for another owner and transfer tokens
   //
   LAssociatedOwner := TPublicKey.Create('65EoWs57dkMEWbK4TJkPDM76rnbumq7r3fiZJnxggj2G');
-  LAssociatedAta   := TAssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(
+  LAssociatedAta := TAssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(
                         LAssociatedOwner,
                         LMint.PublicKey
                       );

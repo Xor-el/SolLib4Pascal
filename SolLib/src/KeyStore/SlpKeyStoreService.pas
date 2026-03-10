@@ -261,12 +261,12 @@ begin
 
   // Random salt & IV
   LSalt := GenerateRandomSalt;
-  LIV   := GenerateRandomInitializationVector;
+  LIV := GenerateRandomInitializationVector;
 
   // KDF
   LDerivedKey := GenerateDerivedKey(APassword, LSalt, AKdfParams);
   // AES-128-CTR cipher key is first 16 bytes of derived key
-  LCipherKey  := FKeyStoreCrypto.GenerateCipherKey(LDerivedKey);
+  LCipherKey := FKeyStoreCrypto.GenerateCipherKey(LDerivedKey);
 
   // Encrypt
   LCipherText := GenerateCipher(APrivateKey, LIV, LCipherKey);
@@ -285,8 +285,8 @@ begin
   try
     Result.Version := CurrentVersion;
     Result.Address := AAddress;
-    Result.Id      := LId.ToLower;
-    Result.Crypto  := LCryptoInfo;
+    Result.Id := LId.ToLower;
+    Result.Crypto := LCryptoInfo;
   except
     Result.Free;
     raise;
@@ -355,7 +355,7 @@ begin
   Result := TPbkdf2Params.Create;
   Result.DkLen := 32;
   Result.Count := 262144;
-  Result.Prf   := 'hmac-sha256';
+  Result.Prf := 'hmac-sha256';
 end;
 
 function TKeyStorePbkdf2Service.DeserializeKeyStoreFromJson(const AJson: string): TKeyStore<TPbkdf2Params>;
@@ -377,10 +377,10 @@ begin
   if APassword = '' then raise EArgumentNilException.Create('password');
   if AKeyStore = nil then raise EArgumentNilException.Create('keyStore');
 
-  LMac        := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
-  LIV         := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
+  LMac := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
+  LIV := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
   LCipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
-  LSalt       := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
+  LSalt := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
 
   LDkLen := AKeyStore.Crypto.KdfParams.DkLen;
 
@@ -428,9 +428,9 @@ function TKeyStoreScryptService.GetDefaultParams: TScryptParams;
 begin
   Result := TScryptParams.Create;
   Result.DkLen := 32;
-  Result.N     := 262144;
-  Result.R     := 1;
-  Result.P     := 8;
+  Result.N := 262144;
+  Result.R := 1;
+  Result.P := 8;
 end;
 
 function TKeyStoreScryptService.DeserializeKeyStoreFromJson(const AJson: string): TKeyStore<TScryptParams>;
@@ -452,10 +452,10 @@ begin
   if APassword = '' then raise EArgumentNilException.Create('password');
   if AKeyStore = nil then raise EArgumentNilException.Create('keyStore');
 
-  LMac        := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
-  LIV         := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
+  LMac := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
+  LIV := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
   LCipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
-  LSalt       := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
+  LSalt := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
 
   LDkLen := AKeyStore.Crypto.KdfParams.DkLen;
 

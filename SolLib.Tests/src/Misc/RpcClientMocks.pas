@@ -130,15 +130,15 @@ type
   /// </summary>
   TMockTokenWalletRpcProxy = class(TInterfacedObject, ITokenWalletRpcProxy)
   strict private
-    FResponses : TQueue<string>;
-    FLock      : TCriticalSection;
-    FReqSeqId  : Integer;
+    FResponses: TQueue<string>;
+    FLock: TCriticalSection;
+    FReqSeqId: Integer;
     FSerializer: TJsonSerializer;
 
   private
-    function  GetNextJsonResponse<T>: TJsonRpcResponse<T>;
-    function  MockResponseValue<T>: TRequestResult<TResponseValue<T>>;
-    function  MockValue<T>: TRequestResult<T>;
+    function GetNextJsonResponse<T>: TJsonRpcResponse<T>;
+    function MockResponseValue<T>: TRequestResult<TResponseValue<T>>;
+    function MockValue<T>: TRequestResult<T>;
 
   protected
     /// <summary>
@@ -175,58 +175,58 @@ type
   private type
     TInboundKind = (Text, Binary);
     TInboundFrame = record
-      Kind : TInboundKind;
-      Text : string;
-      Data : TBytes;
+      Kind: TInboundKind;
+      Text: string;
+      Data: TBytes;
     end;
   private
     // state
     FConnected: Boolean;
-    FUrl      : string;
+    FUrl: string;
 
     // callbacks
-    FOnConnect             : TProc;
-    FOnDisconnect          : TProc;
-    FOnReceiveTextMessage  : TProc<string>;
+    FOnConnect: TProc;
+    FOnDisconnect: TProc;
+    FOnReceiveTextMessage: TProc<string>;
     FOnReceiveBinaryMessage: TProc<TBytes>;
-    FOnError               : TProc<string>;
-    FOnException           : TProc<Exception>;
+    FOnError: TProc<string>;
+    FOnException: TProc<Exception>;
 
     // captures
-    FSentText   : TList<string>;
-    FSentBinary : TList<TBytes>;
+    FSentText: TList<string>;
+    FSentBinary: TList<TBytes>;
 
     // inbound queue
-    FInboundQ   : TQueue<TInboundFrame>;
+    FInboundQ: TQueue<TInboundFrame>;
 
     procedure DoConnectCallback;
     procedure DoDisconnectCallback;
     procedure Deliver(const AFrame: TInboundFrame);
 
     { IWebSocketApiClient }
-    function  Connected: Boolean;
+    function Connected: Boolean;
     procedure Connect(const AUrl: string);
     procedure Disconnect;
 
     procedure Send(const AText: string); overload;
     procedure Send(const AData: TBytes); overload;
 
-    function  GetOnConnect: TProc;
+    function GetOnConnect: TProc;
     procedure SetOnConnect(const AValue: TProc);
 
-    function  GetOnDisconnect: TProc;
+    function GetOnDisconnect: TProc;
     procedure SetOnDisconnect(const AValue: TProc);
 
-    function  GetOnReceiveTextMessage: TProc<string>;
+    function GetOnReceiveTextMessage: TProc<string>;
     procedure SetOnReceiveTextMessage(const AValue: TProc<string>);
 
-    function  GetOnReceiveBinaryMessage: TProc<TBytes>;
+    function GetOnReceiveBinaryMessage: TProc<TBytes>;
     procedure SetOnReceiveBinaryMessage(const AValue: TProc<TBytes>);
 
-    function  GetOnError: TProc<string>;
+    function GetOnError: TProc<string>;
     procedure SetOnError(const AValue: TProc<string>);
 
-    function  GetOnException: TProc<Exception>;
+    function GetOnException: TProc<Exception>;
     procedure SetOnException(const AValue: TProc<Exception>);
 
   public
@@ -242,28 +242,28 @@ type
     procedure EnqueueBinary(const AData: TBytes);
 
     /// <summary>Deliver the next queued inbound frame (if any).</summary>
-    function  TriggerNext: Boolean;
+    function TriggerNext: Boolean;
 
     /// <summary>Deliver all queued inbound frames.</summary>
     procedure TriggerAll;
 
     /// <summary>Number of text payloads sent via Send(string).</summary>
-    function  SentTextCount: Integer;
+    function SentTextCount: Integer;
 
     /// <summary>Number of binary payloads sent via Send(TBytes).</summary>
-    function  SentBinaryCount: Integer;
+    function SentBinaryCount: Integer;
 
     /// <summary>Return last sent text ('' if none).</summary>
-    function  LastSentText: string;
+    function LastSentText: string;
 
     /// <summary>Return a copy of the last sent binary payload (empty if none).</summary>
-    function  LastSentBinary: TBytes;
+    function LastSentBinary: TBytes;
 
     /// <summary>Return the i-th sent text (0-based).</summary>
-    function  SentTextAt(AIndex: Integer): string;
+    function SentTextAt(AIndex: Integer): string;
 
     /// <summary>Return a copy of the i-th sent binary payload (0-based).</summary>
-    function  SentBinaryAt(AIndex: Integer): TBytes;
+    function SentBinaryAt(AIndex: Integer): TBytes;
   end;
 
 implementation
@@ -273,33 +273,33 @@ implementation
 procedure TMockRpcHttpClient.ConfigureThrow(const AMessage: string);
 begin
   FRaiseOnRequest := True;
-  FStatusText   := AMessage;
+  FStatusText := AMessage;
 end;
 
 constructor TMockRpcHttpClient.Create(const AExpectedUrl: string;
   AStatusCode: Integer; const AStatusText, ABody: string);
 begin
   inherited Create;
-  FExpectedUrl    := AExpectedUrl;
+  FExpectedUrl := AExpectedUrl;
   FStatusCode := AStatusCode;
-  FStatusText   := AStatusText;
-  FResponseBody   := ABody;
-  FCallCount      := 0;
-  FLastUrl        := '';
-  FLastJson       := '';
+  FStatusText := AStatusText;
+  FResponseBody := ABody;
+  FCallCount := 0;
+  FLastUrl := '';
+  FLastJson := '';
   FRaiseOnRequest := False;
 end;
 
 constructor TMockRpcHttpClient.CreateForThrow(const AExpectedUrl: string; const AMessage: string);
 begin
   inherited Create;
-  FExpectedUrl    := AExpectedUrl;
+  FExpectedUrl := AExpectedUrl;
   FStatusCode := 0;
-  FStatusText   := AMessage;
-  FResponseBody   := '';
-  FCallCount      := 0;
-  FLastUrl        := '';
-  FLastJson       := '';
+  FStatusText := AMessage;
+  FResponseBody := '';
+  FCallCount := 0;
+  FLastUrl := '';
+  FLastJson := '';
   FRaiseOnRequest := True;
 end;
 
@@ -316,7 +316,7 @@ end;
 function TMockRpcHttpClient.GetJson(const AUrl: string; const AQuery: THttpApiQueryParams;
   const AHeaders: THttpApiHeaderParams): IHttpApiResponse;
 var
-  _ : string;
+  _: string;
 begin
    // computed but not used; kept to mirror real flow
   _ := THttpClientBase.BuildUrlWithQuery(AUrl, AQuery);
@@ -341,7 +341,7 @@ function TMockRpcHttpClient.PostJson(const AUrl, AJson: string;
   const AHeaders: THttpApiHeaderParams): IHttpApiResponse;
 begin
   Inc(FCallCount);
-  FLastUrl  := AUrl;
+  FLastUrl := AUrl;
   FLastJson := AJson;
   if FRaiseOnRequest then
     raise Exception.Create(FStatusText);
@@ -368,8 +368,8 @@ var
   LR: TReqResp;
 begin
   LR.ExpectedRequest := AExpectedRequests;
-  LR.Response        := AExpectedResponses;
-  LR.Status          := AStatus;
+  LR.Response := AExpectedResponses;
+  LR.Status := AStatus;
   FQueue.Enqueue(LR);
 end;
 
@@ -380,9 +380,9 @@ begin
   Result := False;
   if FQueue.Count = 0 then Exit;
   LR := FQueue.Dequeue;
-  AExpectedRequests  := LR.ExpectedRequest;
+  AExpectedRequests := LR.ExpectedRequest;
   AExpectedResponses := LR.Response;
-  AStatus            := LR.Status;
+  AStatus := LR.Status;
   Result := True;
 end;
 
@@ -419,7 +419,7 @@ end;
 function TQueuedMockRpcHttpClient.GetJson(const AUrl: string; const AQuery: THttpApiQueryParams;
   const AHeaders: THttpApiHeaderParams): IHttpApiResponse;
 var
-  _ : string;
+  _: string;
 begin
   // computed but not used; kept to mirror real flow
   _ := THttpClientBase.BuildUrlWithQuery(AUrl, AQuery);
@@ -445,9 +445,9 @@ end;
 constructor TMockTokenWalletRpcProxy.Create;
 begin
   inherited Create;
-  FReqSeqId   := 0;
-  FResponses  := TQueue<string>.Create;
-  FLock       := TCriticalSection.Create;
+  FReqSeqId := 0;
+  FResponses := TQueue<string>.Create;
+  FLock := TCriticalSection.Create;
   FSerializer := BuildSerializer;
 end;
 
@@ -620,11 +620,11 @@ end;
 constructor TMockWebSocketApiClient.Create;
 begin
   inherited Create;
-  FConnected  := False;
-  FUrl        := '';
-  FSentText   := TList<string>.Create;
+  FConnected := False;
+  FUrl := '';
+  FSentText := TList<string>.Create;
   FSentBinary := TList<TBytes>.Create;
-  FInboundQ   := TQueue<TInboundFrame>.Create;
+  FInboundQ := TQueue<TInboundFrame>.Create;
 end;
 
 destructor TMockWebSocketApiClient.Destroy;
@@ -642,7 +642,7 @@ end;
 
 procedure TMockWebSocketApiClient.Connect(const AUrl: string);
 begin
-  FUrl       := AUrl;
+  FUrl := AUrl;
   FConnected := True;
   DoConnectCallback;
 end;

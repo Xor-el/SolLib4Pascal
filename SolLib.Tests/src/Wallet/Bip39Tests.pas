@@ -158,7 +158,7 @@ begin
     begin
       LUnitTest := LArray.Items[LI] as TJSONArray;
       LMnemonicStr := LUnitTest.Items[1].Value;
-      LSeedStr     := LUnitTest.Items[2].Value;
+      LSeedStr := LUnitTest.Items[2].Value;
 
       LMnemonic := TMnemonic.Create(LMnemonicStr, TWordList.English);
       AssertTrue(LMnemonic.IsValidChecksum, 'Checksum should be valid');
@@ -188,7 +188,7 @@ end;
 
 procedure TBip39Tests.KdTableCanNormalize;
 const
-  Input    = 'あおぞら';
+  Input = 'あおぞら';
   Expected = 'あおぞら';
 begin
   AssertNotEquals(Input, Expected, 'Precondition: strings must differ in composition');
@@ -210,8 +210,8 @@ begin
     begin
       LObj := LArray.Items[LI] as TJSONObject;
       LMnemonicStr := LObj.GetValue('mnemonic').Value;
-      LSeedStr     := LObj.GetValue('seed').Value;
-      LPassphrase  := LObj.GetValue('passphrase').Value;
+      LSeedStr := LObj.GetValue('seed').Value;
+      LPassphrase := LObj.GetValue('passphrase').Value;
 
       LMnemonic := TMnemonic.Create(LMnemonicStr, TWordList.Japanese);
       AssertTrue(LMnemonic.IsValidChecksum, 'Checksum should be valid');

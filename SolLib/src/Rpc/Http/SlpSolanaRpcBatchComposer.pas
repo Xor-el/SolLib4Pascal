@@ -338,7 +338,7 @@ function TSolanaRpcBatchComposer.Execute(
 ): TJsonRpcBatchResponse;
 var
   LBatch: TJsonRpcBatchRequest;
-  LResp : IRequestResult<TJsonRpcBatchResponse>;
+  LResp: IRequestResult<TJsonRpcBatchResponse>;
 begin
   LBatch := CreateJsonRequests;
   try
@@ -362,7 +362,7 @@ function TSolanaRpcBatchComposer.ExecuteWithFatalFailure(
 ): TJsonRpcBatchResponse;
 var
   LBatch: TJsonRpcBatchRequest;
-  LResp : IRequestResult<TJsonRpcBatchResponse>;
+  LResp: IRequestResult<TJsonRpcBatchResponse>;
 begin
   LBatch := CreateJsonRequests;
   try
@@ -381,7 +381,7 @@ function TSolanaRpcBatchComposer.ProcessBatchResponse(
 ): TJsonRpcBatchResponse;
 var
   LI: Integer;
-  LReq : TRpcBatchReqRespItem;
+  LReq: TRpcBatchReqRespItem;
   LItem: TJsonRpcBatchResponseItem;
   LInvoked: Boolean;
 begin
@@ -396,7 +396,7 @@ begin
     // Transfer expected type info to individual batch response items
     for LI := 0 to FReqs.Count - 1 do
     begin
-      LReq  := FReqs[LI];
+      LReq := FReqs[LI];
       LItem := AResponse.Result[LI];
 
       // Set the runtime type on the response item
@@ -438,7 +438,7 @@ function TSolanaRpcBatchComposer.ProcessBatchFailure(
   const AResponse: IRequestResult<TJsonRpcBatchResponse>
 ): TJsonRpcBatchResponse;
 var
-  LEx : EBatchRequestException;
+  LEx: EBatchRequestException;
   LReq: TRpcBatchReqRespItem;
 begin
   if AResponse = nil then
@@ -484,10 +484,10 @@ function TSolanaRpcBatchComposer.MapJsonTypeToNativeType(
 var
   LTextReader: TTextReader;
   LJsonReader: TJsonTextReader;
-  LTarget    : TValue;
-  LJson      : TJSONValue;
-  LIsClass   : Boolean;
-  LObj       : TObject;
+  LTarget: TValue;
+  LJson: TJSONValue;
+  LIsClass: Boolean;
+  LObj: TObject;
 begin
   Result := AInput;
   if (ANativeType = nil) or AInput.IsEmpty then Exit;

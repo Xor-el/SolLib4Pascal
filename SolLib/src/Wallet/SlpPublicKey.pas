@@ -136,8 +136,7 @@ type
     /// <param name="AKey">The base58 encoded public key.</param>
     /// <param name="AValidateCurve">Whether or not to validate if the public key belongs to the Ed25519 curve.</param>
     /// <returns>Returns true if the input is a valid key, false otherwise.</returns>
-    class function IsValid(const AKey: string; AValidateCurve: Boolean = False)
-      : Boolean; overload; static;
+    class function IsValid(const AKey: string; AValidateCurve: Boolean = False): Boolean; overload; static;
 
     /// <summary>
     /// Checks if a given set of bytes forms a valid PublicKey.
@@ -151,8 +150,7 @@ type
     /// <param name="AKey">The key bytes.</param>
     /// <param name="AValidateCurve">Whether or not to validate if the public key belongs to the Ed25519 curve.</param>
     /// <returns>Returns true if the input is a valid key, false otherwise.</returns>
-    class function IsValid(const AKey: TBytes; AValidateCurve: Boolean = False)
-      : Boolean; overload; static;
+    class function IsValid(const AKey: TBytes; AValidateCurve: Boolean = False): Boolean; overload; static;
 
     { #region KeyDerivation }
 
@@ -176,8 +174,7 @@ type
     /// <param name="Bump">The bump used to derive the address, returned as inline out.</param>
     /// <returns>True whenever the address for a nonce was found, otherwise false.</returns>
     class function TryFindProgramAddress(const ASeeds: TArray<TBytes>;
-      const AProgramId: IPublicKey; out AAddress: IPublicKey; out ABump: Byte)
-      : Boolean; static;
+      const AProgramId: IPublicKey; out AAddress: IPublicKey; out ABump: Byte): Boolean; static;
 
     /// <summary>
     /// Derives a new public key from an existing public key and seed
@@ -383,8 +380,7 @@ begin
 end;
 
 class function TPublicKey.TryFindProgramAddress(const ASeeds: TArray<TBytes>;
-  const AProgramId: IPublicKey; out AAddress: IPublicKey; out ABump: Byte)
-  : Boolean;
+  const AProgramId: IPublicKey; out AAddress: IPublicKey; out ABump: Byte): Boolean;
 var
   LSeedBump: Byte;
   LBuf: TList<TBytes>;

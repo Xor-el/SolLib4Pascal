@@ -95,7 +95,7 @@ implementation
 
 class constructor TMemoProgram.Create;
 begin
-  FProgramIdKey   := TPublicKey.Create('Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo');
+  FProgramIdKey := TPublicKey.Create('Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo');
   FProgramIdKeyV2 := TPublicKey.Create('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr');
 end;
 
@@ -159,8 +159,8 @@ class function TMemoProgram.Decode(
   const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes
 ): IDecodedInstruction;
 var
-  LMemoStr : string;
-  LUseV1   : Boolean;
+  LMemoStr: string;
+  LUseV1: Boolean;
 begin
 
   LUseV1 := TArrayUtils.Any<IPublicKey>(AKeys,
@@ -176,10 +176,10 @@ begin
     then Result.PublicKey := ProgramIdKey
     else Result.PublicKey := ProgramIdKeyV2;
 
-  Result.InstructionName   := InstructionName;
-  Result.ProgramName       := ProgramName;
+  Result.InstructionName := InstructionName;
+  Result.ProgramName := ProgramName;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create();
-  Result.Values  := TDictionary<string, TValue>.Create;
+  Result.Values := TDictionary<string, TValue>.Create;
 
   LMemoStr := TEncoding.UTF8.GetString(AData);
 

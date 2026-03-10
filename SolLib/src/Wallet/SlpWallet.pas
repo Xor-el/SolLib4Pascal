@@ -45,8 +45,7 @@ type
     /// <summary>
     /// Verify the signed message.
     /// </summary>
-    function Verify(const AMessage, ASignature: TBytes; AAccountIndex: Integer)
-      : Boolean; overload;
+    function Verify(const AMessage, ASignature: TBytes; AAccountIndex: Integer): Boolean; overload;
 
     /// <summary>
     /// Verify the signed message with the default account.
@@ -56,8 +55,7 @@ type
     /// <summary>
     /// Sign the data with a specific account index.
     /// </summary>
-    function Sign(const AMessage: TBytes; AAccountIndex: Integer)
-      : TBytes; overload;
+    function Sign(const AMessage: TBytes; AAccountIndex: Integer): TBytes; overload;
 
     /// <summary>
     /// Sign the data with the default account.
@@ -117,8 +115,7 @@ type
     /// <summary>
     /// Verify the signed message.
     /// </summary>
-    function Verify(const AMessage, ASignature: TBytes; AAccountIndex: Integer)
-      : Boolean; overload;
+    function Verify(const AMessage, ASignature: TBytes; AAccountIndex: Integer): Boolean; overload;
 
     /// <summary>
     /// Verify the signed message with the default account.
@@ -128,8 +125,7 @@ type
     /// <summary>
     /// Sign the data with a specific account index.
     /// </summary>
-    function Sign(const AMessage: TBytes; AAccountIndex: Integer)
-      : TBytes; overload;
+    function Sign(const AMessage: TBytes; AAccountIndex: Integer): TBytes; overload;
 
     /// <summary>
     /// Sign the data with the default account.

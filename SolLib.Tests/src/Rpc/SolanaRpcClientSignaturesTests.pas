@@ -63,7 +63,7 @@ var
   LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
   LResponseData := LoadTestData('Signatures/GetSignaturesForAddressResponse.json');
-  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressRequest.json');
+  LRequestData := LoadTestData('Signatures/GetSignaturesForAddressRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -119,7 +119,7 @@ var
   LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
   LResponseData := LoadTestData('Signatures/GetSignaturesForAddressUntilResponse.json');
-  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressUntilRequest.json');
+  LRequestData := LoadTestData('Signatures/GetSignaturesForAddressUntilRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -154,7 +154,7 @@ var
   LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
   LResponseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
-  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeRequest.json');
+  LRequestData := LoadTestData('Signatures/GetSignaturesForAddressBeforeRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -187,7 +187,7 @@ var
   LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
   LResponseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
-  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeConfirmedRequest.json');
+  LRequestData := LoadTestData('Signatures/GetSignaturesForAddressBeforeConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -223,7 +223,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
 begin
   LResponseData := LoadTestData('Signatures/GetSignatureStatusesResponse.json');
-  LRequestData  := LoadTestData('Signatures/GetSignatureStatusesRequest.json');
+  LRequestData := LoadTestData('Signatures/GetSignatureStatusesRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;
@@ -260,7 +260,7 @@ var
   LResult: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
 begin
   LResponseData := LoadTestData('Signatures/GetSignatureStatusesWithHistoryResponse.json');
-  LRequestData  := LoadTestData('Signatures/GetSignatureStatusesWithHistoryRequest.json');
+  LRequestData := LoadTestData('Signatures/GetSignatureStatusesWithHistoryRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
   LRpcHttpClient := LMockRpcHttpClient;

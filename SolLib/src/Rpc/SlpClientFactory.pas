@@ -42,7 +42,7 @@ type
   /// <summary>
   /// The dev net cluster.
   /// </summary>
-  RpcDevNet  = 'https://api.devnet.solana.com';
+  RpcDevNet = 'https://api.devnet.solana.com';
   /// <summary>
   /// The test net cluster.
   /// </summary>

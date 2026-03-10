@@ -85,10 +85,10 @@ var
   LFirstTransactionInfo: TTransactionInfo;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlock(79662905);
@@ -188,10 +188,10 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockProductionNoArgsResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockProductionNoArgsRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockProductionNoArgsRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockProduction('', TNullable<UInt64>.None, TNullable<UInt64>.None, TCommitment.Finalized);
@@ -242,10 +242,10 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockProductionIdentityResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockProductionIdentityRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockProductionIdentityRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockProduction('Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu',
@@ -274,10 +274,10 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockProductionRangeStartResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockProductionRangeStartRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockProductionRangeStartRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockProduction('', 79714135, TNullable<UInt64>.None, TCommitment.Processed);
@@ -306,10 +306,10 @@ var
   LKey: string;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockProductionIdentityRangeResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockProductionIdentityRangeRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockProductionIdentityRangeRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockProduction('Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu', 79000000, 79500000);
@@ -335,14 +335,14 @@ var
   LRpcHttpClient: IHttpApiClient;
   LRpcClient: IRpcClient;
   LRes: IRequestResult<TTransactionMetaSlotInfo>;
-  LTmi : TTransactionMetaInfo;
+  LTmi: TTransactionMetaInfo;
   LTmiTransactionInfo: TTransactionInfo;
 begin
   LResponseData := LoadTestData('Transaction/GetTransactionResponse.json');
-  LRequestData  := LoadTestData('Transaction/GetTransactionRequest.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetTransaction(
@@ -399,13 +399,13 @@ var
   LRpcHttpClient: IHttpApiClient;
   LRpcClient: IRpcClient;
   LRes: IRequestResult<TTransactionMetaSlotInfo>;
-  LFirst : TTransactionMetaInfo;
+  LFirst: TTransactionMetaInfo;
 begin
   LResponseData := LoadTestData('Transaction/GetTransactionResponse2.json');
-  LRequestData  := LoadTestData('Transaction/GetTransactionRequest2.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionRequest2.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetTransaction(
@@ -432,14 +432,14 @@ var
   LRpcHttpClient: IHttpApiClient;
   LRpcClient: IRpcClient;
   LRes: IRequestResult<TTransactionMetaSlotInfo>;
-  LTmi : TTransactionMetaInfo;
+  LTmi: TTransactionMetaInfo;
   LTmiTransactionInfo: TTransactionInfo;
 begin
   LResponseData := LoadTestData('Transaction/GetTransactionVersionedResponse.json');
-  LRequestData  := LoadTestData('Transaction/GetTransactionVersionedRequest.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionVersionedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   // maxSupportedTransactionVersion = 0
@@ -504,10 +504,10 @@ var
   LRes: IRequestResult<TTransactionMetaSlotInfo>;
 begin
   LResponseData := LoadTestData('Transaction/GetTransactionResponse.json');
-  LRequestData  := LoadTestData('Transaction/GetTransactionProcessedRequest.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionProcessedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetTransaction(
@@ -529,10 +529,10 @@ var
   LRes: IRequestResult<TList<UInt64>>;
 begin
   LResponseData := LoadTestData('Blocks/GetBlocksResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlocksRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlocksRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlocks(79499950, 79500000, TCommitment.Finalized);
@@ -578,10 +578,10 @@ var
   LRes: IRequestResult<TList<UInt64>>;
 begin
   LResponseData := LoadTestData('Blocks/GetBlocksWithLimitResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlocksWithLimitRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlocksWithLimitRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlocksWithLimit(79699950, 2);
@@ -627,10 +627,10 @@ var
   LRes: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Blocks/GetFirstAvailableBlockResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetFirstAvailableBlockRequest.json');
+  LRequestData := LoadTestData('Blocks/GetFirstAvailableBlockRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetFirstAvailableBlock;
@@ -651,10 +651,10 @@ var
   LRes: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockHeightRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockHeightRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockHeight;
@@ -676,10 +676,10 @@ var
   LRes: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockHeightConfirmedRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockHeightConfirmedRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockHeight(TCommitment.Confirmed);
@@ -701,10 +701,10 @@ var
   LRes: IRequestResult<TBlockCommitment>;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockCommitmentResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockCommitmentRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockCommitmentRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockCommitment(78561320);
@@ -727,10 +727,10 @@ var
   LRes: IRequestResult<UInt64>;
 begin
   LResponseData := LoadTestData('Blocks/GetBlockTimeResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetBlockTimeRequest.json');
+  LRequestData := LoadTestData('Blocks/GetBlockTimeRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetBlockTime(78561320);
@@ -752,10 +752,10 @@ var
   LRes: IRequestResult<TResponseValue<TLatestBlockHash>>;
 begin
   LResponseData := LoadTestData('Blocks/GetLatestBlockhashResponse.json');
-  LRequestData  := LoadTestData('Blocks/GetLatestBlockhashRequest.json');
+  LRequestData := LoadTestData('Blocks/GetLatestBlockhashRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.GetLatestBlockhash(TCommitment.Finalized);
@@ -779,10 +779,10 @@ var
   LRes: IRequestResult<TResponseValue<Boolean>>;
 begin
   LResponseData := LoadTestData('Blocks/IsBlockhashValidResponse.json');
-  LRequestData  := LoadTestData('Blocks/IsBlockhashValidRequest.json');
+  LRequestData := LoadTestData('Blocks/IsBlockhashValidRequest.json');
 
   LMockRpcHttpClient := SetupTest(LResponseData, 200);
-  LRpcHttpClient  := LMockRpcHttpClient;
+  LRpcHttpClient := LMockRpcHttpClient;
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   LRes := LRpcClient.IsBlockhashValid('DDFfxGAsEVcqNbCLRgvDtzcc2ZxNnqJfQJfMTRhEEPwW');

@@ -146,8 +146,7 @@ begin
   Result := ParseTokenList(LResp.ResponseBody);
 end;
 
-class function TTokenMintResolver.ParseTokenList(const AJson: string)
-  : ITokenMintResolver;
+class function TTokenMintResolver.ParseTokenList(const AJson: string): ITokenMintResolver;
 var
   LTokenList: TTokenListDoc;
 begin
@@ -222,8 +221,7 @@ begin
 end;
 
 
-class function TTokenMintResolver.ParseJsonToTokenListDoc(const AJson: string)
-  : TTokenListDoc;
+class function TTokenMintResolver.ParseJsonToTokenListDoc(const AJson: string): TTokenListDoc;
 begin
   if AJson = '' then
     raise EArgumentNilException.Create('json');

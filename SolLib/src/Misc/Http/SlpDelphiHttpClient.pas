@@ -89,7 +89,7 @@ begin
     SetLength(Result, Length(LKeys));
     for LI := 0 to High(LKeys) do
     begin
-      Result[LI].Name  := LKeys[LI];
+      Result[LI].Name := LKeys[LI];
       Result[LI].Value := LTmp.Items[LKeys[LI]];
     end;
   finally

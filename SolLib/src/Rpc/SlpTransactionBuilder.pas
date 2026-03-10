@@ -323,22 +323,19 @@ begin
   end;
 end;
 
-function TTransactionBuilder.AddInstruction(const AInstruction
-  : ITransactionInstruction): ITransactionBuilder;
+function TTransactionBuilder.AddInstruction(const AInstruction: ITransactionInstruction): ITransactionBuilder;
 begin
   FMessageBuilder.AddInstruction(AInstruction);
   Result := Self;
 end;
 
-function TTransactionBuilder.AddSignature(const ASignature: TBytes)
-  : ITransactionBuilder;
+function TTransactionBuilder.AddSignature(const ASignature: TBytes): ITransactionBuilder;
 begin
   FSignatures.Add(TEncoders.Base58.EncodeData(ASignature));
   Result := Self;
 end;
 
-function TTransactionBuilder.AddSignature(const ASignature: string)
-  : ITransactionBuilder;
+function TTransactionBuilder.AddSignature(const ASignature: string): ITransactionBuilder;
 begin
   FSignatures.Add(ASignature);
   Result := Self;
@@ -368,29 +365,25 @@ begin
   Result := FMessageBuilder.Build;
 end;
 
-function TTransactionBuilder.SetFeePayer(const APublicKey: IPublicKey)
-  : ITransactionBuilder;
+function TTransactionBuilder.SetFeePayer(const APublicKey: IPublicKey): ITransactionBuilder;
 begin
   FMessageBuilder.FeePayer := APublicKey;
   Result := Self;
 end;
 
-function TTransactionBuilder.SetNonceInformation(const ANonceInfo
-  : INonceInformation): ITransactionBuilder;
+function TTransactionBuilder.SetNonceInformation(const ANonceInfo: INonceInformation): ITransactionBuilder;
 begin
   FMessageBuilder.NonceInformation := ANonceInfo;
   Result := Self;
 end;
 
-function TTransactionBuilder.SetPriorityFeesInformation(const APriorityFeesInfo
-  : IPriorityFeesInformation): ITransactionBuilder;
+function TTransactionBuilder.SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): ITransactionBuilder;
 begin
   FMessageBuilder.PriorityFeesInformation := APriorityFeesInfo;
   Result := Self;
 end;
 
-function TTransactionBuilder.SetRecentBlockHash(const ARecentBlockHash: string)
-  : ITransactionBuilder;
+function TTransactionBuilder.SetRecentBlockHash(const ARecentBlockHash: string): ITransactionBuilder;
 begin
   FMessageBuilder.RecentBlockHash := ARecentBlockHash;
   Result := Self;
@@ -476,7 +469,7 @@ begin
       LNextIndexByKey.AddOrSetValue(LKey, LUsedCount + 1);
 
       // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
-      LSigBytes  := LSignerToUse.Sign(FSerializedMessage);
+      LSigBytes := LSignerToUse.Sign(FSerializedMessage);
       LSigBase58 := TEncoders.Base58.EncodeData(LSigBytes);
 
       LSignatureCacheByKey.Add(LKey, LSigBase58);
@@ -705,7 +698,7 @@ begin
       LNextIndexByKey.AddOrSetValue(LKey, LUsedCount + 1);
 
       // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
-      LSigBytes  := LSignerToUse.Sign(FSerializedMessage);
+      LSigBytes := LSignerToUse.Sign(FSerializedMessage);
       LSigBase58 := TEncoders.Base58.EncodeData(LSigBytes);
 
       LSignatureCacheByKey.Add(LKey, LSigBase58);

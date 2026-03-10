@@ -222,9 +222,9 @@ var
   LFromAccount, LToAccount: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet      := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(0);
-  LToAccount   := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   LTx := TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000);
 
@@ -239,8 +239,8 @@ var
   LMintAccount, LOwnerAccount: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet       := TWallet.Create(MnemonicWords);
-  LMintAccount  := LWallet.GetAccountByIndex(3);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMintAccount := LWallet.GetAccountByIndex(3);
   LOwnerAccount := LWallet.GetAccountByIndex(4);
 
   LTx := TSystemProgram.CreateAccount(
@@ -262,8 +262,8 @@ var
   LAccount, LNewOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
-  LAccount  := LWallet.GetAccountByIndex(4);
+  LWallet := TWallet.Create(MnemonicWords);
+  LAccount := LWallet.GetAccountByIndex(4);
   LNewOwner := LWallet.GetAccountByIndex(5);
 
   LTx := TSystemProgram.Assign(LAccount.PublicKey, LNewOwner.PublicKey);
@@ -279,11 +279,11 @@ var
   LBaseAccount, LFrom, LToAcc, LOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet      := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LBaseAccount := LWallet.GetAccountByIndex(6);
-  LFrom        := LWallet.GetAccountByIndex(5);
-  LToAcc       := LWallet.GetAccountByIndex(4);
-  LOwner       := LWallet.GetAccountByIndex(3);
+  LFrom := LWallet.GetAccountByIndex(5);
+  LToAcc := LWallet.GetAccountByIndex(4);
+  LOwner := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.CreateAccountWithSeed(
           LFrom.PublicKey,
@@ -306,9 +306,9 @@ var
   LNonceAcc, LOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LNonceAcc := LWallet.GetAccountByIndex(69);
-  LOwner    := LWallet.GetAccountByIndex(3);
+  LOwner := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.AdvanceNonceAccount(LNonceAcc.PublicKey, LOwner.PublicKey);
 
@@ -323,10 +323,10 @@ var
   LNonceAcc, LToAcc, LOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LNonceAcc := LWallet.GetAccountByIndex(69);
-  LToAcc    := LWallet.GetAccountByIndex(5);
-  LOwner    := LWallet.GetAccountByIndex(3);
+  LToAcc := LWallet.GetAccountByIndex(5);
+  LOwner := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.WithdrawNonceAccount(
           LNonceAcc.PublicKey,
@@ -346,9 +346,9 @@ var
   LNonceAcc, LOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LNonceAcc := LWallet.GetAccountByIndex(69);
-  LOwner    := LWallet.GetAccountByIndex(3);
+  LOwner := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.InitializeNonceAccount(LNonceAcc.PublicKey, LOwner.PublicKey);
 
@@ -363,9 +363,9 @@ var
   LNonceAcc, LOwner, LNewAuthority: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet       := TWallet.Create(MnemonicWords);
-  LNonceAcc     := LWallet.GetAccountByIndex(69);
-  LOwner        := LWallet.GetAccountByIndex(4);
+  LWallet := TWallet.Create(MnemonicWords);
+  LNonceAcc := LWallet.GetAccountByIndex(69);
+  LOwner := LWallet.GetAccountByIndex(4);
   LNewAuthority := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.AuthorizeNonceAccount(
@@ -385,7 +385,7 @@ var
   LNonceAcc: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet   := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LNonceAcc := LWallet.GetAccountByIndex(69);
 
   LTx := TSystemProgram.Allocate(LNonceAcc.PublicKey, 1000000);
@@ -401,10 +401,10 @@ var
   LBaseAccount, LAccount, LOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet      := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LBaseAccount := LWallet.GetAccountByIndex(6);
-  LAccount     := LWallet.GetAccountByIndex(5);
-  LOwner       := LWallet.GetAccountByIndex(3);
+  LAccount := LWallet.GetAccountByIndex(5);
+  LOwner := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.AllocateWithSeed(
           LAccount.PublicKey,
@@ -425,10 +425,10 @@ var
   LBaseAccount, LAccount, LOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet      := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LBaseAccount := LWallet.GetAccountByIndex(6);
-  LAccount     := LWallet.GetAccountByIndex(5);
-  LOwner       := LWallet.GetAccountByIndex(3);
+  LAccount := LWallet.GetAccountByIndex(5);
+  LOwner := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.AssignWithSeed(
           LAccount.PublicKey,
@@ -445,14 +445,14 @@ end;
 procedure TSystemProgramTests.TestSystemProgramTransferWithSeed;
 var
   LWallet: IWallet;
-  LBaseAccount, LFromAcc, LToAcc, LOwner : IAccount;
+  LBaseAccount, LFromAcc, LToAcc, LOwner: IAccount;
   LTx: ITransactionInstruction;
 begin
-  LWallet      := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LBaseAccount := LWallet.GetAccountByIndex(6);
-  LFromAcc     := LWallet.GetAccountByIndex(5);
-  LToAcc       := LWallet.GetAccountByIndex(4);
-  LOwner       := LWallet.GetAccountByIndex(3);
+  LFromAcc := LWallet.GetAccountByIndex(5);
+  LToAcc := LWallet.GetAccountByIndex(4);
+  LOwner := LWallet.GetAccountByIndex(3);
 
   LTx := TSystemProgram.TransferWithSeed(
           LFromAcc.PublicKey,

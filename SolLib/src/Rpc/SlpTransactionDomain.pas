@@ -324,13 +324,13 @@ type
   /// </summary>
   TTransaction = class(TInterfacedObject, ITransaction)
   private
-    FFeePayer        : IPublicKey;
-    FInstructions    : TList<ITransactionInstruction>;
-    FRecentBlockHash : string;
+    FFeePayer: IPublicKey;
+    FInstructions: TList<ITransactionInstruction>;
+    FRecentBlockHash: string;
     FNonceInformation: INonceInformation;
-    FPriorityFeesInformation : IPriorityFeesInformation;
-    FSignatures      : TList<ISignaturePubKeyPair>;
-    FAccountKeys     : TList<IPublicKey>;
+    FPriorityFeesInformation: IPriorityFeesInformation;
+    FSignatures: TList<ISignaturePubKeyPair>;
+    FAccountKeys: TList<IPublicKey>;
 
     function GetFeePayer: IPublicKey;
     procedure SetFeePayer(const AValue: IPublicKey);
@@ -992,22 +992,22 @@ end;
 
 class function TTransaction.DoDeserialize(const AData: TBytes): ITransaction;
 var
-  LVecDecode       : TShortVecDecode;
-  LI              : Integer;
+  LVecDecode: TShortVecDecode;
+  LI: Integer;
   LSignaturesLength: Integer;
-  LEncodedLength   : Integer;
-  LSignatures      : TArray<TBytes>;
-  LSignature       : TBytes;
-  LPrefix          : Byte;
-  LMaskedPrefix    : Byte;
-  LMsg            : IMessage;
+  LEncodedLength: Integer;
+  LSignatures: TArray<TBytes>;
+  LSignature: TBytes;
+  LPrefix: Byte;
+  LMaskedPrefix: Byte;
+  LMsg: IMessage;
 begin
   // Read number of signatures
   LVecDecode := TShortVectorEncoding.DecodeLength(
     TArrayUtils.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
   );
   LSignaturesLength := LVecDecode.Value;
-  LEncodedLength    := LVecDecode.Length;
+  LEncodedLength := LVecDecode.Length;
 
   SetLength(LSignatures, LSignaturesLength);
   for LI := 0 to LSignaturesLength - 1 do
@@ -1020,7 +1020,7 @@ begin
     LSignatures[LI] := LSignature;
   end;
 
-  LPrefix       := AData[LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)];
+  LPrefix := AData[LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)];
   LMaskedPrefix := LPrefix and TVersionedMessage.VersionPrefixMask;
 
   // If the transaction is a VersionedTransaction, use VersionedTransaction.Deserialize instead.
@@ -1043,7 +1043,7 @@ begin
   inherited Create;
   FAddressTableLookups := TList<IMessageAddressTableLookup>.Create;
   FInstructions := TList<ITransactionInstruction>.Create;
-  FSignatures   := TList<ISignaturePubKeyPair>.Create;
+  FSignatures := TList<ISignaturePubKeyPair>.Create;
   FAddressTableLookups := TList<IMessageAddressTableLookup>.Create;
   FAccountKeys := TList<IPublicKey>.Create;
 end;
@@ -1180,21 +1180,21 @@ end;
 
 class function TVersionedTransaction.DoDeserialize(const AData: TBytes): ITransaction;
 var
-  LVecDecode       : TShortVecDecode;
-  LI              : Integer;
+  LVecDecode: TShortVecDecode;
+  LI: Integer;
   LSignaturesLength: Integer;
-  LEncodedLength   : Integer;
-  LSignatures      : TArray<TBytes>;
-  LSignature       : TBytes;
-  LMessageOffset   : Integer;
-  LMsg            : IMessage;
+  LEncodedLength: Integer;
+  LSignatures: TArray<TBytes>;
+  LSignature: TBytes;
+  LMessageOffset: Integer;
+  LMsg: IMessage;
   LVersionedMessage: IVersionedMessage;
 begin
   LVecDecode := TShortVectorEncoding.DecodeLength(
     TArrayUtils.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
   );
   LSignaturesLength := LVecDecode.Value;
-  LEncodedLength    := LVecDecode.Length;
+  LEncodedLength := LVecDecode.Length;
 
   SetLength(LSignatures, LSignaturesLength);
   for LI := 0 to LSignaturesLength - 1 do

@@ -89,14 +89,14 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
 
   // Retrieve accounts for this example
-  LOwnerAccount   := LWallet.GetAccountByIndex(0);     // Fee payer / authority
-  LMintAccount    := LWallet.GetAccountByIndex(7000);   // Mint account
+  LOwnerAccount := LWallet.GetAccountByIndex(0);     // Fee payer / authority
+  LMintAccount := LWallet.GetAccountByIndex(7000);   // Mint account
   LInitialAccount := LWallet.GetAccountByIndex(7001);   // Token account
 
   // 2. Fetch recent blockhash and rent-exemption balances
   LBlockhashResult := LRpc.GetLatestBlockHash;
-  LMinRentAcc      := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
-  LMinRentMint     := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
+  LMinRentAcc := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
+  LMinRentMint := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
 
   // Log account info
   Writeln(Format('MinBalanceForRentExemption Account >> %d', [LMinRentAcc.Result]));

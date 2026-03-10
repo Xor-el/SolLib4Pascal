@@ -352,11 +352,11 @@ class function TComputeBudgetEstimator.EstimatePriorityFeesInformationV2(
   const AMaxPriceMicroLamportsPerCu: UInt64
 ): IPriorityFeesInformation;
 var
-  LUnitsConsumed     : UInt64;
-  LComputeUnitLimit  : UInt64;
-  LFees              : TArray<UInt64>;
-  LPercentileValue   : UInt64;
-  LComputeUnitPrice  : UInt64;
+  LUnitsConsumed: UInt64;
+  LComputeUnitLimit: UInt64;
+  LFees: TArray<UInt64>;
+  LPercentileValue: UInt64;
+  LComputeUnitPrice: UInt64;
 begin
   if ARpc = nil then
     raise EComputeBudgetEstimationError.Create('RpcClient is nil.');

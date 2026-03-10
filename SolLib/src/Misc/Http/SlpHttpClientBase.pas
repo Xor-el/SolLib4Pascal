@@ -28,7 +28,7 @@ uses
   SlpHttpApiResponse;
 
 type
-  THttpApiQueryParams  = TDictionary<string,string>;
+  THttpApiQueryParams = TDictionary<string,string>;
   THttpApiHeaderParams = TDictionary<string,string>;
   // Abstract base for compiler-specific HTTP implementations
   THttpClientBase = class abstract

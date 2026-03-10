@@ -69,11 +69,11 @@ type
 implementation
 
 const
-  ExpectedEncodedPublicKey  = 'ALSzrjtGi8MZGmAZa6ZhtUZq3rwurWuJqWFdgcj9MMFL';
+  ExpectedEncodedPublicKey = 'ALSzrjtGi8MZGmAZa6ZhtUZq3rwurWuJqWFdgcj9MMFL';
   ExpectedEncodedPrivateKey = '5ZD7ntKtyHrnqMhfSuKBLdqHzT5N3a2aYnCGBcz4N78b84TKpjwQ4QBsapEnpnZFchM7F1BpqDkSuLdwMZwM8hLi';
 
   PrivateKeyString = 'c1BzdtL4RByNQnzcaUq3WuNLuyY4tQogGT7JWwy4YGBE8FGSgWUH8eNJFyJgXNYtwTKq4emhC4V132QX9REwujm';
-  PublicKeyString  = '9KmfMX4Ne5ocb8C7PwjmJTWTpQTQcPhkeD2zY35mawhq';
+  PublicKeyString = '9KmfMX4Ne5ocb8C7PwjmJTWTpQTQcPhkeD2zY35mawhq';
 
 { TAccountTests }
 

@@ -125,8 +125,7 @@ end;
 
 { EBatchRequestException }
 
-constructor EBatchRequestException.Create(const ARpcResult
-  : IRequestResult<TJsonRpcBatchResponse>);
+constructor EBatchRequestException.Create(const ARpcResult: IRequestResult<TJsonRpcBatchResponse>);
 begin
   inherited Create('Batch request failure - ' + ARpcResult.Reason);
   FRpcResult := ARpcResult;

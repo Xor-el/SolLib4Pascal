@@ -142,7 +142,7 @@ var
 begin
   LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(0);
-  LToAccount   := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   LBuilder := TTransactionBuilder.Create;
   LTxBytes := LBuilder
@@ -164,7 +164,7 @@ var
 begin
   LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(0);
-  LToAccount   := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   LBuilder := TTransactionBuilder.Create;
   LBuilder
@@ -189,7 +189,7 @@ var
 begin
   LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(0);
-  LToAccount   := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   LBuilder := TTransactionBuilder.Create;
   LBuilder
@@ -215,7 +215,7 @@ var
 begin
   LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(0);
-  LToAccount   := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   LEmptySigners := TList<IAccount>.Create;
   try
@@ -253,10 +253,10 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
   LBlockHash := 'G9JC6E7LfG6ayxARq5zDV5RdDr6P8NJEdzTUJ8ttrSKs';
   LMinBalanceForAccount := 2039280;
-  LMinBalanceForMint    := 1461600;
+  LMinBalanceForMint := 1461600;
 
-  LMintAccount    := LWallet.GetAccountByIndex(17);
-  LOwnerAccount   := LWallet.GetAccountByIndex(10);
+  LMintAccount := LWallet.GetAccountByIndex(17);
+  LOwnerAccount := LWallet.GetAccountByIndex(10);
   LInitialAccount := LWallet.GetAccountByIndex(18);
 
   LBuilder := TTransactionBuilder.Create;
@@ -332,7 +332,7 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
   LOwnerAccount := LWallet.GetAccountByIndex(10);
   LNonceAccount := LWallet.GetAccountByIndex(1119);
-  LToAccount    := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   LNonceInfo := TNonceInformation.Create(
     NonceStr,
@@ -401,7 +401,7 @@ var
 begin
   LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(10);
-  LToAccount   := LWallet.GetAccountByIndex(8);
+  LToAccount := LWallet.GetAccountByIndex(8);
 
   LBuilder := TTransactionBuilder.Create;
   LBuilder
@@ -411,7 +411,7 @@ begin
     .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'));
 
   LMsgBytes := LBuilder.CompileMessage;
-  LSig      := LFromAccount.Sign(LMsgBytes);
+  LSig := LFromAccount.Sign(LMsgBytes);
 
   LSig58 := TEncoders.Base58.EncodeData(LSig);
   AssertEquals(AddSignatureSignature, LSig58, 'base58 signature');
@@ -430,9 +430,9 @@ var
   LTxBytes: TBytes;
   LTxB64: string;
 begin
-  LWallet      := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(10);
-  LToAccount   := LWallet.GetAccountByIndex(1);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   // Prepare priority-fee instructions
   LPriorityFeesInfo := TPriorityFeesInformation.Create(

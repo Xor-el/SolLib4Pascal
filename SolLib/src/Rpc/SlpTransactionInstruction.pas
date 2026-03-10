@@ -101,8 +101,7 @@ type
       const AKeys: TList<IAccountMeta>; const AData, AKeyIndices: TBytes);
 
     function Make(const AProgramId: TBytes;
-      const AKeys: TList<IAccountMeta>; const AData, AKeyIndices: TBytes)
-      : IVersionedTransactionInstruction;
+      const AKeys: TList<IAccountMeta>; const AData, AKeyIndices: TBytes): IVersionedTransactionInstruction;
   end;
 
   TCompiledInstruction = class(TInterfacedObject, ICompiledInstruction)
@@ -127,13 +126,12 @@ type
     function ItemCount: Integer;
 
     class function Make(const AProgramIdIndex: Byte;
-      const AKeyIndicesCount, AKeyIndices, ADataLength, AData: TBytes)
-      : ICompiledInstruction; static;
+      const AKeyIndicesCount, AKeyIndices, ADataLength, AData: TBytes): ICompiledInstruction; static;
   public
     constructor Create(const AProgramIdIndex: Byte;
       const AKeyIndicesCount, AKeyIndices, ADataLength, AData: TBytes);
 
-    class function Deserialize(const AData: TBytes) : TCompiledInstructionDecode; static;
+    class function Deserialize(const AData: TBytes): TCompiledInstructionDecode; static;
 
   end;
 
@@ -146,7 +144,7 @@ constructor TTransactionInstruction.Create(const AProgramId: TBytes;
 begin
   inherited Create;
   FProgramId := AProgramId;
-  FData      := AData;
+  FData := AData;
   FKeys := AKeys;
 end;
 
@@ -225,8 +223,7 @@ begin
 end;
 
 function TVersionedTransactionInstruction.Make(const AProgramId: TBytes;
-  const AKeys: TList<IAccountMeta>; const AData, AKeyIndices: TBytes)
-  : IVersionedTransactionInstruction;
+  const AKeys: TList<IAccountMeta>; const AData, AKeyIndices: TBytes): IVersionedTransactionInstruction;
 begin
   Result := TVersionedTransactionInstruction.Create(AProgramId, AKeys, AData, AKeyIndices);
 end;
