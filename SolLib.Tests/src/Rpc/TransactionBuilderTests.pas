@@ -27,7 +27,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpWallet,
   SlpPublicKey,
   SlpAccount,
@@ -152,7 +151,7 @@ begin
     .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'))
     .Build(LFromAccount);
 
-  LB64 := TEncoders.Base64.EncodeData(LTxBytes);
+  LB64 := EncodeBase64(LTxBytes);
   AssertEquals(ExpectedTransactionHashWithTransferAndMemo, LB64);
 end;
 
@@ -305,7 +304,7 @@ begin
   LOk := LTx2.Signatures[0].PublicKey.Verify(LMsg, LTx2.Signatures[0].Signature);
   AssertTrue(LOk, 'Signature[0] should verify');
 
-  LB64 := TEncoders.Base64.EncodeData(LTx);
+  LB64 := EncodeBase64(LTx);
   AssertEquals(ExpectedTransactionHashCreateInitializeAndMintTo, LB64);
 end;
 
@@ -375,8 +374,8 @@ begin
   );
 
   AssertEquals(
-    TEncoders.Base64.EncodeData(LMemoIx.ProgramId),
-    TEncoders.Base64.EncodeData(LCreated.ProgramId),
+    EncodeBase64(LMemoIx.ProgramId),
+    EncodeBase64(LCreated.ProgramId),
     'ProgramId b64'
   );
 
@@ -385,8 +384,8 @@ begin
     AssertTrue(LMemoIx.Keys[LI] = LCreated.Keys[LI], Format('Keys[%d] instance', [LI]));
 
   AssertEquals(
-    TEncoders.Base64.EncodeData(LMemoIx.Data),
-    TEncoders.Base64.EncodeData(LCreated.Data),
+    EncodeBase64(LMemoIx.Data),
+    EncodeBase64(LCreated.Data),
     'Data b64'
   );
 end;
@@ -413,11 +412,11 @@ begin
   LMsgBytes := LBuilder.CompileMessage;
   LSig := LFromAccount.Sign(LMsgBytes);
 
-  LSig58 := TEncoders.Base58.EncodeData(LSig);
+  LSig58 := EncodeBase58(LSig);
   AssertEquals(AddSignatureSignature, LSig58, 'base58 signature');
 
   LTx := LBuilder.AddSignature(LSig).Serialize;
-  LTxB64 := TEncoders.Base64.EncodeData(LTx);
+  LTxB64 := EncodeBase64(LTx);
   AssertEquals(AddSignatureTransaction, LTxB64, 'serialized tx b64');
 end;
 
@@ -448,7 +447,7 @@ begin
     .SetPriorityFeesInformation(LPriorityFeesInfo)
     .Build(LFromAccount);
 
-  LTxB64 := TEncoders.Base64.EncodeData(LTxBytes);
+  LTxB64 := EncodeBase64(LTxBytes);
   AssertEquals(ExpectedTransactionWithPriorityFees, LTxB64);
 end;
 

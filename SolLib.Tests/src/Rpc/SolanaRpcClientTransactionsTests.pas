@@ -34,7 +34,6 @@ uses
   SlpRpcModel,
   SlpRequestResult,
   SlpSolanaRpcClient,
-  SlpDataEncoders,
   SlpNullable,
   RpcClientMocks,
   SolLibRpcClientTestCase;
@@ -167,7 +166,7 @@ begin
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  LBytes := TEncoders.Base64.DecodeData(LTxData);
+  LBytes := DecodeBase64(LTxData);
 
   LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
@@ -366,7 +365,7 @@ begin
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  LBytes := TEncoders.Base64.DecodeData(LTxData);
+  LBytes := DecodeBase64(LTxData);
   LAcctList := TList<string>.Create;
   try
     LAcctList.Add('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z');

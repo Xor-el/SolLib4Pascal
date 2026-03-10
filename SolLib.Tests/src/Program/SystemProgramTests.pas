@@ -27,7 +27,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -473,7 +472,7 @@ begin
   AssertException(
     procedure
     begin
-      TNonceAccount.Deserialize(TEncoders.Base64.DecodeData(NonceAccountInvalidBase64Data));
+      TNonceAccount.Deserialize(DecodeBase64(NonceAccountInvalidBase64Data));
     end,
     EArgumentException
   );
@@ -483,7 +482,7 @@ procedure TSystemProgramTests.TestNonceAccountDeserialization;
 var
   LAcc: INonceAccount;
 begin
-  LAcc := TNonceAccount.Deserialize(TEncoders.Base64.DecodeData(NonceAccountBase64Data));
+  LAcc := TNonceAccount.Deserialize(DecodeBase64(NonceAccountBase64Data));
 
   AssertEquals(0, LAcc.Version, 'Version');
   AssertEquals(1, LAcc.State,   'State');

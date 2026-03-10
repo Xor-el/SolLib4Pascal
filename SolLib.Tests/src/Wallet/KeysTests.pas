@@ -28,7 +28,6 @@ uses
 {$ENDIF}
   SlpPublicKey,
   SlpPrivateKey,
-  SlpDataEncoders,
   SolLibTestCase;
 
 type
@@ -311,7 +310,7 @@ begin
   LPubKey := nil;
 
   // 1) Base58-decoded seed
-  LB58Seed := TEncoders.Base58.DecodeData('SeedPubey1111111111111111111111111111111111');
+  LB58Seed := DecodeBase58('SeedPubey1111111111111111111111111111111111');
   LOk := TPublicKey.TryCreateProgramAddress([LB58Seed], LLoader, LPubKey);
   AssertTrue(LOk, 'TryCreateProgramAddress #1 failed');
   AssertEquals('GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K', LPubKey.Key);
@@ -370,12 +369,12 @@ end;
 
 procedure TKeysTests.TestIsValidOnCurveSpan_False;
 begin
-  AssertFalse(TPublicKey.IsValid(TEncoders.Base58.DecodeData('GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K'), True));
+  AssertFalse(TPublicKey.IsValid(DecodeBase58('GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K'), True));
 end;
 
 procedure TKeysTests.TestIsValidOnCurveSpan_True;
 begin
-  AssertTrue(TPublicKey.IsValid(TEncoders.Base58.DecodeData('oaksGKfwkFZwCniyCF35ZVxHDPexQ3keXNTiLa7RCSp'), True));
+  AssertTrue(TPublicKey.IsValid(DecodeBase58('oaksGKfwkFZwCniyCF35ZVxHDPexQ3keXNTiLa7RCSp'), True));
 end;
 
 procedure TKeysTests.TestIsValid_False;

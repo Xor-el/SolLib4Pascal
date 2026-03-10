@@ -28,7 +28,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -2008,7 +2007,7 @@ var
   LAccount: IMultiSignatureAccount;
 begin
   // arrange
-  LAccount := TMultiSignatureAccount.Deserialize(TEncoders.Base64.DecodeData(MultiSignatureAccountBase64Data));
+  LAccount := TMultiSignatureAccount.Deserialize(DecodeBase64(MultiSignatureAccountBase64Data));
 
   // assert
   AssertEquals(3, LAccount.MinimumSigners, 'MinimumSigners');
@@ -2027,7 +2026,7 @@ var
   LAcc: ITokenAccount;
 begin
   // arrange
-  LAcc := TTokenAccount.Deserialize(TEncoders.Base64.DecodeData(TokenAccountBase64Data));
+  LAcc := TTokenAccount.Deserialize(DecodeBase64(TokenAccountBase64Data));
 
   // assert
   AssertEquals(0, LAcc.Amount, 'Amount');
@@ -2045,7 +2044,7 @@ var
   LMint: ITokenMint;
 begin
   // arrange
-  LMint := TTokenMint.Deserialize(TEncoders.Base64.DecodeData(TokenMintAccountBase64Data));
+  LMint := TTokenMint.Deserialize(DecodeBase64(TokenMintAccountBase64Data));
 
   // assert
   AssertEquals(6, LMint.Decimals, 'Decimals');

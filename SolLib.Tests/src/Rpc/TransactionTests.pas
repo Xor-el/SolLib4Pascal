@@ -27,7 +27,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -198,14 +197,14 @@ begin
   AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', LTx.Signatures[0].PublicKey.Key);
   AssertEquals(
     'GAJa8rLiVeTHYTcbwjLmVnxVH986Vwxz4PXDEPaZKz4BEcmv9rvMF2Sw2xLzbu8mwNHA8ZZ6Es5Thf8yQrwjLv9',
-    TEncoders.Base58.EncodeData(LTx.Signatures[0].Signature)
+    EncodeBase58(LTx.Signatures[0].Signature)
   );
 
   // This is 1 because the transaction uses durable nonce.
   AssertEquals(1, LTx.Instructions.Count);
   AssertEquals('2S1kjspXLPs6jpNVXQfNMqZzzSrKLbGdr9Fxap5h1DLN', LTx.NonceInformation.Nonce);
   AssertEquals(3, LTx.NonceInformation.Instruction.Keys.Count);
-  AssertEquals('11111111111111111111111111111111', TEncoders.Base58.EncodeData(LTx.NonceInformation.Instruction.ProgramId));
+  AssertEquals('11111111111111111111111111111111', EncodeBase58(LTx.NonceInformation.Instruction.ProgramId));
   AssertEquals('G5EWCBwDM5GzVNwrG9LbgpTdQBD9PEAaey82ttuJJ7Qo', LTx.NonceInformation.Instruction.Keys[0].PublicKey.Key);
   AssertTrue(LTx.NonceInformation.Instruction.Keys[0].IsWritable);
   AssertFalse(LTx.NonceInformation.Instruction.Keys[0].IsSigner);
@@ -217,18 +216,18 @@ begin
   AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', LTx.NonceInformation.Instruction.Keys[2].PublicKey.Key);
   AssertTrue(LTx.NonceInformation.Instruction.Keys[2].IsWritable);
   AssertTrue(LTx.NonceInformation.Instruction.Keys[2].IsSigner);
-  AssertEquals('BAAAAA==', TEncoders.Base64.EncodeData(LTx.NonceInformation.Instruction.Data));
+  AssertEquals('BAAAAA==', EncodeBase64(LTx.NonceInformation.Instruction.Data));
 
   // Nonce-unrelated instruction
   AssertEquals(2, LTx.Instructions[0].Keys.Count);
-  AssertEquals('11111111111111111111111111111111', TEncoders.Base58.EncodeData(LTx.Instructions[0].ProgramId));
+  AssertEquals('11111111111111111111111111111111', EncodeBase58(LTx.Instructions[0].ProgramId));
   AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', LTx.Instructions[0].Keys[0].PublicKey.Key);
   AssertTrue(LTx.Instructions[0].Keys[0].IsWritable);
   AssertTrue(LTx.Instructions[0].Keys[0].IsSigner);
   AssertEquals('9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', LTx.Instructions[0].Keys[1].PublicKey.Key);
   AssertTrue(LTx.Instructions[0].Keys[1].IsWritable);
   AssertFalse(LTx.Instructions[0].Keys[1].IsSigner);
-  AssertEquals('AgAAAADKmjsAAAAA', TEncoders.Base64.EncodeData(LTx.Instructions[0].Data));
+  AssertEquals('AgAAAADKmjsAAAAA', EncodeBase64(LTx.Instructions[0].Data));
 end;
 
 procedure TTransactionTests.PopulateTest;
@@ -248,9 +247,9 @@ var
 begin
   LSigList := TList<TBytes>.Create;
   try
-    LSigList.Add(TEncoders.Base58.DecodeData('5vjECoK7kVSJ1MvYuZtyDAmYZxh8ZRbwyFtr4JGsUzTiaPqEbfTTMJqYsBUNLWqQnvytFxm7A2Gw32p3sFBqznzh'));
-    LSigList.Add(TEncoders.Base58.DecodeData('cDJQq6WQMiX2bMpam2btyuRwCtNLRF778UsjWpQqX3DHdr8nUTog8CGwanGHDQMzpuW3iDQx1mkR6dBzNDJNLpX'));
-    LSigList.Add(TEncoders.Base58.DecodeData('5kFMN7jNmPtnZfUidcCVYaDiRqFV1Wz3wA7cya8CXmAyDoMiGQqiZpUbDas6q2jmiMfizBpe6oDbqKgUvCCNn9iX'));
+    LSigList.Add(DecodeBase58('5vjECoK7kVSJ1MvYuZtyDAmYZxh8ZRbwyFtr4JGsUzTiaPqEbfTTMJqYsBUNLWqQnvytFxm7A2Gw32p3sFBqznzh'));
+    LSigList.Add(DecodeBase58('cDJQq6WQMiX2bMpam2btyuRwCtNLRF778UsjWpQqX3DHdr8nUTog8CGwanGHDQMzpuW3iDQx1mkR6dBzNDJNLpX'));
+    LSigList.Add(DecodeBase58('5kFMN7jNmPtnZfUidcCVYaDiRqFV1Wz3wA7cya8CXmAyDoMiGQqiZpUbDas6q2jmiMfizBpe6oDbqKgUvCCNn9iX'));
 
     LTx := TTransaction.Populate(Base64Message, LSigList.ToArray());
     LTxBytes := LTx.Serialize;

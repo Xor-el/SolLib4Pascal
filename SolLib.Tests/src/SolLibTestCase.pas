@@ -28,6 +28,7 @@ uses
   TestFramework,
 {$ENDIF}
   SlpArrayUtils,
+  SlpDataEncoders,
   JsonStructuralComparer;
 
 type
@@ -81,6 +82,13 @@ type
     procedure AssertException(const AProc: TTestProc; const AExpectedClass: ExceptClass; const AExpectedExceptionMessage: string; AExactTypeMatch: Boolean; out ARaisedException: Exception); overload;
 
     procedure AssertIsInstanceOf(const AObj: TObject; const AClassType: TClass; const AMsg: string = '');
+
+    function DecodeHex(const AHex: string): TBytes;
+    function EncodeHex(const AData: TBytes): string;
+    function DecodeBase58(const AEncoded: string): TBytes;
+    function EncodeBase58(const AData: TBytes): string;
+    function DecodeBase64(const AEncoded: string): TBytes;
+    function EncodeBase64(const AData: TBytes): string;
 
   end;
 
@@ -261,6 +269,36 @@ procedure TSolLibTestCase.AssertIsInstanceOf(const AObj: TObject; const AClassTy
   const AMsg: string);
 begin
     CheckIs(AObj, AClassType, AMsg);
+end;
+
+function TSolLibTestCase.DecodeHex(const AHex: string): TBytes;
+begin
+  Result := TEncoders.Hex.DecodeData(AHex);
+end;
+
+function TSolLibTestCase.EncodeHex(const AData: TBytes): string;
+begin
+  Result := TEncoders.Hex.EncodeData(AData);
+end;
+
+function TSolLibTestCase.DecodeBase58(const AEncoded: string): TBytes;
+begin
+  Result := TEncoders.Base58.DecodeData(AEncoded);
+end;
+
+function TSolLibTestCase.EncodeBase58(const AData: TBytes): string;
+begin
+  Result := TEncoders.Base58.EncodeData(AData);
+end;
+
+function TSolLibTestCase.DecodeBase64(const AEncoded: string): TBytes;
+begin
+  Result := TEncoders.Base64.DecodeData(AEncoded);
+end;
+
+function TSolLibTestCase.EncodeBase64(const AData: TBytes): string;
+begin
+  Result := TEncoders.Base64.EncodeData(AData);
 end;
 
 end.

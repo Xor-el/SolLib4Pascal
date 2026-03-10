@@ -31,7 +31,6 @@ uses
   SlpMnemonic,
   SlpKdTable,
   SlpWalletEnum,
-  SlpDataEncoders,
   SolLibWalletTestCase;
 
 type
@@ -68,7 +67,7 @@ function TBip39Tests.BytesToHexLower(const ABytes: TBytes): string;
 begin
   if Length(ABytes) = 0 then
     Exit('');
-  Result := TEncoders.Hex.EncodeData(ABytes).ToLower();
+  Result := EncodeHex(ABytes).ToLower();
 end;
 
 function TBip39Tests.LoadJsonArrayFromFile(const AFileName: string): TJSONArray;

@@ -27,7 +27,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpSolLibExceptions,
   SlpSecretKeyStoreService,
   SlpKeyStoreService,
@@ -283,7 +282,7 @@ begin
   LSut := TKeyStoreScryptService.Create;
   try
     LSeed := LSut.DecryptKeyStoreFromJson('testpassword', LFileJson);
-    AssertEquals(TEncoders.Hex.DecodeData(EthTestVectorSecret), LSeed, 'Seed mismatch (scrypt, with passphrase)');
+    AssertEquals(DecodeHex(EthTestVectorSecret), LSeed, 'Seed mismatch (scrypt, with passphrase)');
   finally
     LSut.Free;
   end;
@@ -301,7 +300,7 @@ begin
   LKs := TKeyStorePbkdf2Service.Create;
   try
     LSeed := LKs.DecryptKeyStoreFromJson('testpassword', LFileJson);
-    AssertEquals(TEncoders.Hex.DecodeData(EthTestVectorSecret), LSeed, 'Seed mismatch (pbkdf2, with passphrase)');
+    AssertEquals(DecodeHex(EthTestVectorSecret), LSeed, 'Seed mismatch (pbkdf2, with passphrase)');
   finally
     LKs.Free;
   end;

@@ -26,7 +26,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SolLibTestCase;
 
 type
@@ -68,7 +67,7 @@ const
 
 function TBase58Tests.FromHexString(const AHex: string): TBytes;
 begin
-  Result := TEncoders.Hex.DecodeData(AHex);
+  Result := DecodeHex(AHex);
 end;
 
 procedure TBase58Tests.ShouldEncodeProperly;
@@ -80,7 +79,7 @@ begin
   for LI := Low(DataSet) to High(DataSet) do
   begin
     LDataBytes := FromHexString(DataSet[LI].Hex);
-    LEncoded := TEncoders.Base58.EncodeData(LDataBytes);
+    LEncoded := EncodeBase58(LDataBytes);
     AssertEquals(DataSet[LI].B58, LEncoded);
   end;
 end;
@@ -93,7 +92,7 @@ var
 begin
   for LI := Low(DataSet) to High(DataSet) do
   begin
-    LDecoded := TEncoders.Base58.DecodeData(DataSet[LI].B58);
+    LDecoded := DecodeBase58(DataSet[LI].B58);
     LExpected := FromHexString(DataSet[LI].Hex);
     AssertEquals(LDecoded, LExpected);
   end;
@@ -107,7 +106,7 @@ begin
   AssertException(
     procedure
     begin
-      TEncoders.Base58.DecodeData('invalid');
+      DecodeBase58('invalid');
     end,
     Exception
   );
@@ -116,13 +115,13 @@ begin
   AssertException(
     procedure
     begin
-      TEncoders.Base58.DecodeData(' '#9#10#11#12#13' skip '#13#12#11#10#9' a');
+      DecodeBase58(' '#9#10#11#12#13' skip '#13#12#11#10#9' a');
     end,
     Exception
   );
 
   // only ignorable whitespace around the word "skip"
-  LResultBytes := TEncoders.Base58.DecodeData(' '#9#10#11#12#13' skip '#13#12#11#10#9' ');
+  LResultBytes := DecodeBase58(' '#9#10#11#12#13' skip '#13#12#11#10#9' ');
   LExpected2 := FromHexString('971a55');
   AssertEquals(LResultBytes, LExpected2);
 end;
@@ -136,7 +135,7 @@ begin
     procedure
     begin
       LTmp := nil;
-      TEncoders.Base58.EncodeData(LTmp);
+      EncodeBase58(LTmp);
     end,
     EArgumentNilException
   );
@@ -146,7 +145,7 @@ begin
     procedure
     begin
       SetLength(LTmp, 0);
-      TEncoders.Base58.EncodeData(LTmp);
+      EncodeBase58(LTmp);
     end,
     EArgumentNilException
   );
@@ -158,7 +157,7 @@ begin
   AssertException(
     procedure
     begin
-      TEncoders.Base58.DecodeData('');
+      DecodeBase58('');
     end,
     EArgumentException
   );
