@@ -43,8 +43,6 @@ type
     /// </summary>
     class function Slice<T>(const AArr: TArray<T>; AOffset, ACount: Integer): TArray<T>; overload;
 
-        {==================== COPY (PROCEDURES) ====================}
-
     /// <summary>
     /// Copy the entire Source to Dest starting at index 0.
     /// Raises if Dest is nil or Dest.Length &lt; Source.Length.
@@ -77,8 +75,6 @@ type
       const ASource: TArray<T>; ASrcIndex: Integer;
       var ADest: TArray<T>; ADestIndex: Integer); overload; static;
 
-    {==================== COPY (FUNCTIONS) ====================}
-
     /// <summary>
     /// Returns a NEW array that is a copy of Source (entire array).
     /// </summary>
@@ -110,11 +106,6 @@ type
       const AStartIndex, ACount: Integer; out AIndex: Integer): Boolean; overload; static;
 
     /// <summary>
-    /// Overwrite the entire array with zeros (0).
-    /// </summary>
-    class procedure Fill<T>(var AArr: TArray<T>); overload; static;
-
-    /// <summary>
     /// Overwrite the entire array with the specified value.
     /// </summary>
     class procedure Fill<T>(var AArr: TArray<T>; const AValue: T); overload; static;
@@ -134,14 +125,9 @@ type
     class function Any<T>(const AList: TArray<T>; const APred: TPredicate<T>): Boolean; static;
 
     /// <summary>
-    /// Constant-time comparison of two byte arrays (timing-attack resistant).
+    /// Constant-time comparison of two byte arrays.
     /// </summary>
     class function ConstantTimeEquals(const AFirst, ASecond: TBytes): Boolean; static;
-
-    /// <summary>
-    /// Securely zero-out a byte array.
-    /// </summary>
-    class procedure Zeroize(var AArr: TBytes); static;
   end;
 
 implementation
@@ -223,8 +209,6 @@ begin
   Result := Copy<T>(AArr, LOffset, LCount);
 end;
 
-{==================== COPY (PROCEDURES) ====================}
-
 class procedure TArrayUtils.Copy<T>(
   const ASource: TArray<T>;
   var ADest: TArray<T>);
@@ -287,8 +271,6 @@ begin
   RequireRange(ASrcIndex >= 0, 'SrcIndex must be >= 0.');
   Copy<T>(ASource, ASrcIndex, ADest, ADestIndex, Length(ASource) - ASrcIndex);
 end;
-
-{==================== COPY (FUNCTIONS) ====================}
 
 class function TArrayUtils.Copy<T>(
   const ASource: TArray<T>): TArray<T>;
@@ -372,13 +354,6 @@ begin
   Result := False;
 end;
 
-class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>);
-begin
-  if Length(AArr) = 0 then
-    Exit;
-  Fill<T>(AArr, 0, Length(AArr), Default(T));
-end;
-
 class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>; const AValue: T);
 begin
   if Length(AArr) = 0 then
@@ -437,13 +412,6 @@ begin
   for LI := 0 to High(AFirst) do
     LDiff := LDiff or (AFirst[LI] xor ASecond[LI]);
   Result := (LDiff = 0);
-end;
-
-class procedure TArrayUtils.Zeroize(var AArr: TBytes);
-begin
-  if Length(AArr) = 0 then
-    Exit;
-  Fill<Byte>(AArr, 0, Length(AArr), 0);
 end;
 
 end.

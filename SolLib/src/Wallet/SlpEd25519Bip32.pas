@@ -111,8 +111,7 @@ begin
   try
     Result := HmacSha512(LKeyBuf, ASeed);
   finally
-    if Length(LKeyBuf) > 0 then
-      FillChar(LKeyBuf[0], Length(LKeyBuf), 0);
+    TArrayUtils.Fill<Byte>(LKeyBuf, 0);
   end;
 end;
 
@@ -135,8 +134,7 @@ begin
 
     Result := HmacSha512(AChainCode, LBuf);
   finally
-    if Length(LBuf) > 0 then
-      FillChar(LBuf[0], Length(LBuf), 0);
+    TArrayUtils.Fill<Byte>(LBuf, 0);
   end;
 end;
 
@@ -158,8 +156,7 @@ begin
       TArrayUtils.Copy<Byte>(LMac, 32, Result.ChainCode, 0, 32);
     end;
   finally
-    if Length(LMac) > 0 then
-      FillChar(LMac[0], Length(LMac), 0);
+    TArrayUtils.Fill<Byte>(LMac, 0);
   end;
 end;
 
