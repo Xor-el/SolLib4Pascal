@@ -48,6 +48,7 @@ type
 implementation
 
 uses
+  SlpEnumUtils,
   SlpRpcModel;
 
 { TTransactionErrorJsonConverter }
@@ -60,18 +61,11 @@ end;
 function TTransactionErrorJsonConverter.ReadJson(const AReader: TJsonReader;
   ATypeInf: PTypeInfo; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
-
-  function TryParseEnum(const AType: PTypeInfo; const AStr: string;
-    out AOrdVal: Integer): Boolean;
-  begin
-    AOrdVal := GetEnumValue(AType, AStr);
-    Result := AOrdVal >= 0;
-  end;
-
 var
   LErr: TTransactionError;
-  LEnumOrd: Integer;
   LEnumStr: string;
+  LErrType: TTransactionErrorType;
+  LInstrType: TInstructionErrorType;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Exit(nil);
@@ -81,8 +75,8 @@ begin
   if AReader.TokenType = TJsonToken.&String then
   begin
     LEnumStr := AReader.Value.AsString;
-    if TryParseEnum(TypeInfo(TTransactionErrorType), LEnumStr, LEnumOrd) then
-      LErr.&Type := TTransactionErrorType(LEnumOrd);
+    if TEnumUtils.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
+      LErr.&Type := LErrType;
     Exit(LErr);
   end;
 
@@ -94,11 +88,9 @@ begin
   if AReader.TokenType <> TJsonToken.PropertyName then
     raise EJsonException.Create('Unexpected error value.');
 
-  begin
-    LEnumStr := AReader.Value.AsString;
-    if TryParseEnum(TypeInfo(TTransactionErrorType), LEnumStr, LEnumOrd) then
-      LErr.&Type := TTransactionErrorType(LEnumOrd);
-  end;
+  LEnumStr := AReader.Value.AsString;
+   if TEnumUtils.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
+    LErr.&Type := LErrType;
 
   if LErr.&Type = TTransactionErrorType.InstructionError then
   begin
@@ -120,8 +112,8 @@ begin
     if AReader.TokenType = TJsonToken.&String then
     begin
       LEnumStr := AReader.Value.AsString;
-      if TryParseEnum(TypeInfo(TInstructionErrorType), LEnumStr, LEnumOrd) then
-        LErr.InstructionError.&Type := TInstructionErrorType(LEnumOrd);
+      if TEnumUtils.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
+        LErr.InstructionError.&Type := LInstrType;
       AReader.Read; // string
       AReader.Read; // endarray
       Exit(LErr);
@@ -136,8 +128,8 @@ begin
       raise EJsonException.Create('Unexpected error value.');
 
     LEnumStr := AReader.Value.AsString;
-    if TryParseEnum(TypeInfo(TInstructionErrorType), LEnumStr, LEnumOrd) then
-      LErr.InstructionError.&Type := TInstructionErrorType(LEnumOrd);
+    if TEnumUtils.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
+      LErr.InstructionError.&Type := LInstrType;
 
     AReader.Read;
 
@@ -208,7 +200,7 @@ begin
   // If not InstructionError, serialize as a simple string (enum name).
   if LErr.&Type <> TTransactionErrorType.InstructionError then
   begin
-    LErrTypeName := GetEnumName(TypeInfo(TTransactionErrorType), Ord(LErr.&Type));
+    LErrTypeName := TEnumUtils.ToString<TTransactionErrorType>(LErr.&Type);
     AWriter.WriteValue(LErrTypeName);
     Exit;
   end;
@@ -228,7 +220,7 @@ begin
     Exit;
   end;
 
-  LInstrTypeName := GetEnumName(TypeInfo(TInstructionErrorType), Ord(LInstr.&Type));
+  LInstrTypeName := TEnumUtils.ToString<TInstructionErrorType>(LInstr.&Type);
 
   AWriter.WriteStartObject;
   AWriter.WritePropertyName('InstructionError');

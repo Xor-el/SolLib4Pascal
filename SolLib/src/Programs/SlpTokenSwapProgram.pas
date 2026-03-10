@@ -26,6 +26,7 @@ uses
   System.Generics.Collections,
   System.Rtti,
   System.TypInfo,
+  SlpEnumUtils,
   SlpPublicKey,
   SlpAccountDomain,
   SlpTransactionInstruction,
@@ -867,7 +868,7 @@ var
 begin
   LInstr := TDeserialization.GetU8(AData, TTokenSwapProgramData.MethodOffset);
 
-  if GetEnumName(TypeInfo(TTokenSwapProgramInstructions.TValues), LInstr) = '' then
+  if not TEnumUtils.TryGetEnumFromOrdinal<TTokenSwapProgramInstructions.TValues>(LInstr, LVal) then
   begin
     Result := TDecodedInstruction.Create;
     Result.PublicKey := ProgramIdKey;
@@ -877,8 +878,6 @@ begin
     Result.InnerInstructions := TList<IDecodedInstruction>.Create;
     Exit;
   end;
-
-  LVal := TTokenSwapProgramInstructions.TValues(LInstr);
 
   Result := TDecodedInstruction.Create;
   Result.PublicKey := ProgramIdKey;

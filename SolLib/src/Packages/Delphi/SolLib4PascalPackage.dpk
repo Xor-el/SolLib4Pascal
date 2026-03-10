@@ -135,6 +135,7 @@ contains
   SlpIOUtils in '..\..\Utils\SlpIOUtils.pas',
   SlpListUtils in '..\..\Utils\SlpListUtils.pas',
   SlpMathUtils in '..\..\Utils\SlpMathUtils.pas',
+  SlpEnumUtils in '..\..\Utils\SlpEnumUtils.pas',
   SlpValueUtils in '..\..\Utils\SlpValueUtils.pas',
   SlpHardcodedWordListSource in '..\..\Wallet\Bip39\SlpHardcodedWordListSource.pas',
   SlpMnemonic in '..\..\Wallet\Bip39\SlpMnemonic.pas',

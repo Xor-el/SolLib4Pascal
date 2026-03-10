@@ -75,6 +75,7 @@ uses
   SlpValueUtils in '..\..\SolLib\src\Utils\SlpValueUtils.pas',
   SlpIOUtils in '..\..\SolLib\src\Utils\SlpIOUtils.pas',
   SlpMathUtils in '..\..\SolLib\src\Utils\SlpMathUtils.pas',
+  SlpEnumUtils in '..\..\SolLib\src\Utils\SlpEnumUtils.pas',
   SlpAccount in '..\..\SolLib\src\Wallet\SlpAccount.pas',
   SlpEd25519Bip32 in '..\..\SolLib\src\Wallet\SlpEd25519Bip32.pas',
   SlpPrivateKey in '..\..\SolLib\src\Wallet\SlpPrivateKey.pas',

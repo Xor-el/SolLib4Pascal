@@ -29,8 +29,10 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpEnumUtils,
   SlpValueHelpers,
-  SlpRpcEnum;
+  SlpRpcEnum,
+  SlpSolLibTypes;
 
 type
   TEncodingConverter = class(TJsonConverter)
@@ -62,18 +64,11 @@ begin
     raise EJsonException.Create('EncodingConverter called for non-enum type.');
 
   LS := AReader.Value.AsString;
-
-  if SameText(LS, 'json') then
-    LEnc := TBinaryEncoding.Json
-  else if SameText(LS, 'jsonParsed') then
-    LEnc := TBinaryEncoding.JsonParsed
-  else if SameText(LS, 'base58') then
-    LEnc := TBinaryEncoding.Base58
-  else if SameText(LS, 'base64') then
-    LEnc := TBinaryEncoding.Base64
-  else if SameText(LS, 'base64+zstd') then
-    LEnc := TBinaryEncoding.Base64Zstd
-  else
+  if not TEnumUtils.TryGetEnumValue<TBinaryEncoding>(LS, LEnc,
+    function(AInput: string): string
+    begin
+      Result := StringReplace(AInput, '+', '', [rfReplaceAll]);
+    end) then
     raise EJsonException.CreateFmt('Unknown binary encoding "%s".', [LS]);
 
   Result := TValue.From<TBinaryEncoding>(LEnc);

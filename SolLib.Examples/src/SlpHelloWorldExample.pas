@@ -29,6 +29,7 @@ uses
   SlpRequestResult,
   SlpRpcModel,
   SlpRpcMessage,
+  SlpEnumUtils,
   SlpRpcEnum,
   SlpSolanaRpcClient,
   SlpSolanaStreamingRpcClient,
@@ -157,7 +158,7 @@ begin
       begin
         // Error case (surface type if available)
         if (AData <> nil) and (AData.Value <> nil) and (AData.Value.Error <> nil) then
-          Writeln('Transaction error: ' + GetEnumName(TypeInfo(TTransactionErrorType), Ord(AData.Value.Error.&Type)))
+          Writeln('Transaction error: ' + TEnumUtils.ToString<TTransactionErrorType>(AData.Value.Error.&Type))
         else
           Writeln('Transaction error: <unknown>');
 

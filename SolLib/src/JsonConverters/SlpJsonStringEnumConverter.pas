@@ -29,6 +29,7 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
+  SlpEnumUtils,
   SlpStringTransformer,
   SlpJsonKit,
   SlpRpcEnum,
@@ -260,8 +261,7 @@ begin
   end;
 
   // Fallback: original Delphi enum identifier (no transform)
-  LEnumValue := GetEnumValue(ATypeInf, LInput);
-  if LEnumValue >= 0 then
+  if TEnumUtils.TryGetEnumValue(ATypeInf, LInput, LEnumValue) then
   begin
     TValue.Make(@LEnumValue, ATypeInf, Result);
     Exit;
@@ -283,7 +283,7 @@ begin
 
   ResolveTransform(AValue.TypeInfo, LTransform);
 
-  LRawName := GetEnumName(AValue.TypeInfo, AValue.AsOrdinal);
+  LRawName := TEnumUtils.ToString(AValue.TypeInfo, AValue.AsOrdinal);
   LOutName := TransformName(LRawName, LTransform);
 
   AWriter.WriteValue(LOutName);
@@ -304,7 +304,7 @@ begin
 
   for LOrdVal := LTD^.MinValue to LTD^.MaxValue do
   begin
-    LRawName := GetEnumName(ATypeInf, LOrdVal);
+    LRawName := TEnumUtils.ToString(ATypeInf, LOrdVal);
     LTransformed := TransformName(LRawName, ATransform); // if ATransform=nil, this is LRawName
     if SameText(LTransformed, AStr) then
     begin

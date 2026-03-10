@@ -34,6 +34,7 @@ uses
   System.Net.URLClient,
 {$ENDIF}
   SlpDataEncoders,
+  SlpEnumUtils,
   SlpRpcModel,
   SlpRpcEnum,
   SlpRpcMessage,
@@ -1743,7 +1744,7 @@ begin
   else
     raise EArgumentException.CreateFmt(
       'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 
@@ -1813,7 +1814,7 @@ begin
   else
     raise EArgumentException.CreateFmt(
       'SimulateTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 

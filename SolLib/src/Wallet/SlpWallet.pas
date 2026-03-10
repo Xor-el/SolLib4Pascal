@@ -23,7 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  System.TypInfo,
+  SlpEnumUtils,
   SlpWalletEnum,
   SlpWordList,
   SlpAccount,
@@ -326,7 +326,7 @@ begin
   if FSeedMode <> TSeedMode.Ed25519Bip32 then
     raise Exception.CreateFmt
       ('seed mode: %s cannot derive Ed25519 based BIP32 keys',
-      [GetEnumName(TypeInfo(TSeedMode), Ord(FSeedMode))]);
+      [TEnumUtils.ToString<TSeedMode>(FSeedMode)]);
 
   if not Assigned(FEd25519Bip32) then
     raise EInvalidOpException.Create('Ed25519Bip32 not initialized');

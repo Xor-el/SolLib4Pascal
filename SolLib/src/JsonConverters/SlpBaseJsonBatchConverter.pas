@@ -23,7 +23,6 @@ interface
 
 uses
   System.SysUtils,
-  System.TypInfo,
   System.Rtti,
   System.Generics.Collections,
   System.JSON,

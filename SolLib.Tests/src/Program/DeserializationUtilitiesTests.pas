@@ -27,9 +27,7 @@ uses
   TestFramework,
 {$ENDIF}
   SlpDeserialization,
-  SlpSerialization,
   SlpPublicKey,
-  SlpArrayUtils,
   SolLibProgramTestCase;
 
 type

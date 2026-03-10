@@ -35,6 +35,7 @@ uses
   SlpSolanaRpcClient,
   SlpPublicKey,
   SlpClientFactory,
+  SlpEnumUtils,
   SlpRpcEnum,
   SlpRpcModel,
   SlpNullable,
@@ -210,7 +211,7 @@ begin
     if LSim.Result.Value.&Error <> nil then
     begin
       Writeln(Format('Transaction Simulation:%s%sError: %s',
-        [NEWLINE, TAB, GetEnumName(TypeInfo(TTransactionErrorType), Ord(LSim.Result.Value.&Error.&Type))]));
+        [NEWLINE, TAB, TEnumUtils.ToString<TTransactionErrorType>(LSim.Result.Value.&Error.&Type)]));
 
       Result := True;
     end;

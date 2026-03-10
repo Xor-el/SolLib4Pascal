@@ -27,6 +27,7 @@ uses
   System.TypInfo,
   System.Generics.Collections,
   SlpDataEncoders,
+  SlpEnumUtils,
   SlpRpcModel,
   SlpRpcEnum,
   SlpSolanaRpcClient,
@@ -515,7 +516,7 @@ begin
   else
     raise EArgumentException.CreateFmt(
       'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 

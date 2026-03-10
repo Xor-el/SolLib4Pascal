@@ -28,7 +28,6 @@ uses
   System.TypInfo,
   System.JSON.Types,
   System.JSON.Readers,
-  System.JSON.Writers,
   System.JSON.Serializers,
   SlpBaseJsonConverter,
   SlpMathUtils;
