@@ -27,7 +27,7 @@ uses
   SlpKeyStoreModel,
   SlpJsonKeyStoreSerializer,
   SlpCryptoUtils,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpKeyStoreCrypto;
 
 type
@@ -377,10 +377,10 @@ begin
   if APassword = '' then raise EArgumentNilException.Create('password');
   if AKeyStore = nil then raise EArgumentNilException.Create('keyStore');
 
-  LMac := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
-  LIV := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
-  LCipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
-  LSalt := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
+  LMac := THexEncoder.DecodeData(AKeyStore.Crypto.Mac);
+  LIV := THexEncoder.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
+  LCipherText := THexEncoder.DecodeData(AKeyStore.Crypto.CipherText);
+  LSalt := THexEncoder.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
 
   LDkLen := AKeyStore.Crypto.KdfParams.DkLen;
 
@@ -452,10 +452,10 @@ begin
   if APassword = '' then raise EArgumentNilException.Create('password');
   if AKeyStore = nil then raise EArgumentNilException.Create('keyStore');
 
-  LMac := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
-  LIV := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
-  LCipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
-  LSalt := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
+  LMac := THexEncoder.DecodeData(AKeyStore.Crypto.Mac);
+  LIV := THexEncoder.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
+  LCipherText := THexEncoder.DecodeData(AKeyStore.Crypto.CipherText);
+  LSalt := THexEncoder.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
 
   LDkLen := AKeyStore.Crypto.KdfParams.DkLen;
 

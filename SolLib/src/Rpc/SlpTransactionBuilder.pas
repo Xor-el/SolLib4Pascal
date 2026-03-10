@@ -32,7 +32,7 @@ uses
   SlpPublicKey,
   SlpTransactionDomain,
   SlpShortVectorEncoding,
-  SlpDataEncoders;
+  SlpDataEncoderUtils;
 
 type
   /// <summary>
@@ -309,7 +309,7 @@ begin
 
     for LSig in FSignatures do
     begin
-      LSigBytes := TEncoders.Base58.DecodeData(LSig);
+      LSigBytes := TBase58Encoder.DecodeData(LSig);
       LMS.WriteBuffer(LSigBytes[0], Length(LSigBytes));
     end;
 
@@ -331,7 +331,7 @@ end;
 
 function TTransactionBuilder.AddSignature(const ASignature: TBytes): ITransactionBuilder;
 begin
-  FSignatures.Add(TEncoders.Base58.EncodeData(ASignature));
+  FSignatures.Add(TBase58Encoder.EncodeData(ASignature));
   Result := Self;
 end;
 
@@ -470,7 +470,7 @@ begin
 
       // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
       LSigBytes := LSignerToUse.Sign(FSerializedMessage);
-      LSigBase58 := TEncoders.Base58.EncodeData(LSigBytes);
+      LSigBase58 := TBase58Encoder.EncodeData(LSigBytes);
 
       LSignatureCacheByKey.Add(LKey, LSigBase58);
       FSignatures.Add(LSigBase58);
@@ -524,7 +524,7 @@ end;
 function TVersionedTransactionBuilder.AddSignature(
   const ASignature: TBytes): IVersionedTransactionBuilder;
 begin
-  FSignatures.Add(TEncoders.Base58.EncodeData(ASignature));
+  FSignatures.Add(TBase58Encoder.EncodeData(ASignature));
   Result := Self;
 end;
 
@@ -583,7 +583,7 @@ begin
 
     for LSig in FSignatures do
     begin
-      LSigBytes := TEncoders.Base58.DecodeData(LSig);
+      LSigBytes := TBase58Encoder.DecodeData(LSig);
       LMS.WriteBuffer(LSigBytes[0], Length(LSigBytes));
     end;
 
@@ -699,7 +699,7 @@ begin
 
       // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
       LSigBytes := LSignerToUse.Sign(FSerializedMessage);
-      LSigBase58 := TEncoders.Base58.EncodeData(LSigBytes);
+      LSigBase58 := TBase58Encoder.EncodeData(LSigBytes);
 
       LSignatureCacheByKey.Add(LKey, LSigBase58);
       FSignatures.Add(LSigBase58);

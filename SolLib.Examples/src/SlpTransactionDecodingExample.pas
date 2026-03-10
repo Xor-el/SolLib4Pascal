@@ -30,7 +30,7 @@ uses
   SlpRpcMessage,
   SlpAccount,
   SlpPublicKey,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpTransactionDomain,
   SlpTransactionInstruction,
   SlpTransactionBuilder,
@@ -187,7 +187,7 @@ begin
       .CompileMessage;
 
   // 5. Encode message to Base64
-  LBase64Msg := TEncoders.Base64.EncodeData(LMsgData);
+  LBase64Msg := TBase64Encoder.EncodeData(LMsgData);
   Writeln(Format('Message: %s', [LBase64Msg]));
 
   // 6. Sign and populate transaction
@@ -217,16 +217,16 @@ begin
     Writeln(Format('Signer: %s%sSignature: %s',
       [LSigPair.PublicKey.Key,
        TAB,
-       TEncoders.Base58.EncodeData(LSigPair.Signature)]));
+       TBase58Encoder.EncodeData(LSigPair.Signature)]));
 
   // Display instructions and account metadata
   for LTxIx in LTxDecoded.Instructions do
   begin
     Writeln(Format('ProgramKey: %s%s%sInstructionData: %s',
-      [TEncoders.Base58.EncodeData(LTxIx.ProgramId),
+      [TBase58Encoder.EncodeData(LTxIx.ProgramId),
        NEWLINE,
        TAB,
-       TEncoders.Base64.EncodeData(LTxIx.Data)]));
+       TBase64Encoder.EncodeData(LTxIx.Data)]));
 
     var LAccountMeta: IAccountMeta;
     for LAccountMeta in LTxIx.Keys do

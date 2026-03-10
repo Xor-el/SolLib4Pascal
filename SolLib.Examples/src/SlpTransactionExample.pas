@@ -37,7 +37,7 @@ uses
   SlpMessageDomain,
   SlpTransactionBuilder,
   SlpRequestResult,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpExample,
   SlpComputeBudgetEstimator;
 
@@ -233,7 +233,7 @@ begin
 
   // Get the Nonce Account to get the Nonce to use for the transaction
   LNonceAccInfo := LRpc.GetAccountInfo(LNonceAcc.PublicKey.Key);
-  LAcctDataBytes := TEncoders.Base64.DecodeData(LNonceAccInfo.Result.Value.Data[0]);
+  LAcctDataBytes := TBase64Encoder.DecodeData(LNonceAccInfo.Result.Value.Data[0]);
   LNonceData := TNonceAccount.Deserialize(LAcctDataBytes);
 
   Writeln('NonceAccount Authority: ' + LNonceData.Authorized.Key);

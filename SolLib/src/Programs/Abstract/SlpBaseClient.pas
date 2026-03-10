@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   System.Rtti,
   System.TypInfo,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpSolanaRpcClient,
   SlpSolanaStreamingRpcClient,
   SlpRequestResult,
@@ -429,7 +429,7 @@ begin
     begin
       if (Assigned(LPair.Account.Data)) and (Length(LPair.Account.Data) > 0) then
       begin
-        LBytes := TEncoders.Base64.DecodeData(LPair.Account.Data[0]);
+        LBytes := TBase64Encoder.DecodeData(LPair.Account.Data[0]);
         LItem := DeserializeAccount<T>(LBytes);
         LParsed.Add(LItem);
       end;
@@ -464,7 +464,7 @@ begin
     begin
       if (Assigned(LInfo.Data)) and (Length(LInfo.Data) > 0) then
       begin
-        LBytes := TEncoders.Base64.DecodeData(LInfo.Data[0]);
+        LBytes := TBase64Encoder.DecodeData(LInfo.Data[0]);
         LItem := DeserializeAccount<T>(LBytes);
         LParsed.Add(LItem);
       end;
@@ -490,7 +490,7 @@ begin
   if LRes.WasSuccessful and (LRes.Result <> nil) and (LRes.Result.Value <> nil) and
      (Assigned(LRes.Result.Value.Data)) and (Length(LRes.Result.Value.Data) > 0) then
   begin
-    LBytes := TEncoders.Base64.DecodeData(LRes.Result.Value.Data[0]);
+    LBytes := TBase64Encoder.DecodeData(LRes.Result.Value.Data[0]);
     LItem := DeserializeAccount<T>(LBytes);
     Exit(TAccountResultWrapper<T>.Create(LRes, LItem));
   end;
@@ -518,7 +518,7 @@ begin
         if (AEnv <> nil) and (AEnv.Value <> nil) and
            (Length(AEnv.Value.Data) > 0) and (AEnv.Value.Data[0] <> '') then
         begin
-          LBytes := TEncoders.Base64.DecodeData(AEnv.Value.Data[0]);
+          LBytes := TBase64Encoder.DecodeData(AEnv.Value.Data[0]);
           LParsed := DeserializeAccount<T>(LBytes);
         end;
 

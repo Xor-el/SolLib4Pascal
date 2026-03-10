@@ -35,7 +35,7 @@ uses
   SlpMessageDomain,
   SlpTransactionBuilder,
   SlpRequestResult,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpExample;
 
 const
@@ -1336,7 +1336,7 @@ begin
   LMs := LWallet.GetAccountByIndex(4045);
   LAccInfo := LRpc.GetAccountInfo(LMs.PublicKey.Key);
 
-  LBytes := TEncoders.Base64.DecodeData(LAccInfo.Result.Value.Data[0]);
+  LBytes := TBase64Encoder.DecodeData(LAccInfo.Result.Value.Data[0]);
   LMultiSig := TMultiSignatureAccount.Deserialize(LBytes);
 
   Writeln(Format('Multisig threshold: MinimumSigners = %d of NumberOfSigners = %d',

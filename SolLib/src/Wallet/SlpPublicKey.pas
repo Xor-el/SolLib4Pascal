@@ -25,7 +25,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Generics.Collections,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpCryptoUtils,
   SlpArrayUtils;
 
@@ -231,7 +231,7 @@ function TPublicKey.GetKey: string;
 begin
   if FKey = '' then
   begin
-    FKey := TEncoders.Base58.EncodeData(GetKeyBytes);
+    FKey := TBase58Encoder.EncodeData(GetKeyBytes);
   end;
   Result := FKey;
 end;
@@ -245,7 +245,7 @@ function TPublicKey.GetKeyBytes: TBytes;
 begin
   if Length(FKeyBytes) = 0 then
   begin
-    FKeyBytes := TEncoders.Base58.DecodeData(GetKey);
+    FKeyBytes := TBase58Encoder.DecodeData(GetKey);
   end;
   Result := FKeyBytes;
 end;
@@ -308,7 +308,7 @@ begin
   try
     if not FastCheck(AKey) then
       Exit(False);
-    LBytes := TEncoders.Base58.DecodeData(AKey);
+    LBytes := TBase58Encoder.DecodeData(AKey);
     Result := IsValid(LBytes, AValidateCurve);
   except
     Result := False;
@@ -324,7 +324,7 @@ end;
 
 class function TPublicKey.FastCheck(const AValue: string): Boolean;
 begin
-  Result := TEncoders.Base58.IsValid(AValue);
+  Result := TBase58Encoder.IsValid(AValue);
 end;
 
 class function TPublicKey.TryCreateProgramAddress(const ASeeds: TArray<TBytes>;

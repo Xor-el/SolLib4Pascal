@@ -33,7 +33,7 @@ uses
 {$ELSE}
   System.Net.URLClient,
 {$ENDIF}
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpEnumUtils,
   SlpRpcModel,
   SlpRpcEnum,
@@ -1736,10 +1736,10 @@ var
 begin
   case AEncoding of
     TBinaryEncoding.Base58:
-      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+      LEncoded := TBase58Encoder.EncodeData(ATransaction);
 
     TBinaryEncoding.Base64:
-      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+      LEncoded := TBase64Encoder.EncodeData(ATransaction);
 
   else
     raise EArgumentException.CreateFmt(
@@ -1806,10 +1806,10 @@ var
 begin
   case AEncoding of
     TBinaryEncoding.Base58:
-      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+      LEncoded := TBase58Encoder.EncodeData(ATransaction);
 
     TBinaryEncoding.Base64:
-      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+      LEncoded := TBase64Encoder.EncodeData(ATransaction);
 
   else
     raise EArgumentException.CreateFmt(

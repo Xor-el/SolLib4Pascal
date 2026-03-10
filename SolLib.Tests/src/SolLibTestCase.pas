@@ -28,7 +28,7 @@ uses
   TestFramework,
 {$ENDIF}
   SlpArrayUtils,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   JsonStructuralComparer;
 
 type
@@ -273,32 +273,32 @@ end;
 
 function TSolLibTestCase.DecodeHex(const AHex: string): TBytes;
 begin
-  Result := TEncoders.Hex.DecodeData(AHex);
+  Result := THexEncoder.DecodeData(AHex);
 end;
 
 function TSolLibTestCase.EncodeHex(const AData: TBytes): string;
 begin
-  Result := TEncoders.Hex.EncodeData(AData);
+  Result := THexEncoder.EncodeData(AData);
 end;
 
 function TSolLibTestCase.DecodeBase58(const AEncoded: string): TBytes;
 begin
-  Result := TEncoders.Base58.DecodeData(AEncoded);
+  Result := TBase58Encoder.DecodeData(AEncoded);
 end;
 
 function TSolLibTestCase.EncodeBase58(const AData: TBytes): string;
 begin
-  Result := TEncoders.Base58.EncodeData(AData);
+  Result := TBase58Encoder.EncodeData(AData);
 end;
 
 function TSolLibTestCase.DecodeBase64(const AEncoded: string): TBytes;
 begin
-  Result := TEncoders.Base64.DecodeData(AEncoded);
+  Result := TBase64Encoder.DecodeData(AEncoded);
 end;
 
 function TSolLibTestCase.EncodeBase64(const AData: TBytes): string;
 begin
-  Result := TEncoders.Base64.EncodeData(AData);
+  Result := TBase64Encoder.EncodeData(AData);
 end;
 
 end.

@@ -26,7 +26,7 @@ uses
   System.Rtti,
   System.TypInfo,
   System.Generics.Collections,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpEnumUtils,
   SlpRpcModel,
   SlpRpcEnum,
@@ -509,10 +509,10 @@ var
 begin
   case AEncoding of
     TBinaryEncoding.Base58:
-      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+      LEncoded := TBase58Encoder.EncodeData(ATransaction);
 
     TBinaryEncoding.Base64:
-      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+      LEncoded := TBase64Encoder.EncodeData(ATransaction);
   else
     raise EArgumentException.CreateFmt(
       'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',

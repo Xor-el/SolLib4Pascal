@@ -25,7 +25,7 @@ uses
   System.TypInfo,
   System.Generics.Collections,
   SlpHttpApiClient,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpValueHelpers,
   SlpInstructionDecoder,
   SlpMessageDomain,
@@ -165,7 +165,7 @@ begin
   case AValue.Kind of
     tkDynArray:
       if AValue.IsType<TBytes> then
-        Result := TEncoders.Base64.EncodeData(AValue.AsType<TBytes>)
+        Result := TBase64Encoder.EncodeData(AValue.AsType<TBytes>)
       else
         Result := '<array>';
   else
@@ -196,7 +196,7 @@ var
 begin
   Result := False;
   // log tx bytes in base64 for easy inspection
-  LTxBase64 := TEncoders.Base64.EncodeData(ATx);
+  LTxBase64 := TBase64Encoder.EncodeData(ATx);
   Writeln(Format('Tx Data: %s', [LTxBase64]));
 
   // simulate
@@ -283,7 +283,7 @@ var
   LMsg: IMessage;
   LKey: IPublicKey;
 begin
-  LBase64 := TEncoders.Base64.EncodeData(AMsgData);
+  LBase64 := TBase64Encoder.EncodeData(AMsgData);
   Writeln(Format('Message: %s', [LBase64]));
 
   LMsg := TMessage.Deserialize(LBase64);
@@ -413,7 +413,7 @@ begin
   for LPair in ATx.Signatures do
   begin
     if Length(LPair.Signature) > 0 then
-      LSigB58 := TEncoders.Base58.EncodeData(LPair.Signature)
+      LSigB58 := TBase58Encoder.EncodeData(LPair.Signature)
     else
       LSigB58 := '';
     Writeln(Format('Tx Signer: %s %sSignature: %s',
@@ -423,9 +423,9 @@ begin
   // instructions
   for LIns in ATx.Instructions do
   begin
-    LProg := TEncoders.Base58.EncodeData(LIns.ProgramId);
+    LProg := TBase58Encoder.EncodeData(LIns.ProgramId);
     Writeln(Format('Tx ProgramKey: %s%s%sInstructionData: %s',
-      [LProg, NEWLINE, TAB, TEncoders.Base64.EncodeData(LIns.Data)]));
+      [LProg, NEWLINE, TAB, TBase64Encoder.EncodeData(LIns.Data)]));
 
     for LMeta in LIns.Keys do
     begin

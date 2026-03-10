@@ -28,7 +28,7 @@ uses
   SlpWordList,
   SlpPublicKey,
   SlpSecretKeyStoreService,
-  SlpDataEncoders;
+  SlpDataEncoderUtils;
 
 type
   /// <summary>
@@ -95,7 +95,7 @@ begin
   LWallet := TWallet.Create(LMnemonic);
   LSeed := LWallet.DeriveMnemonicSeed;
 
-  Writeln('Seed: ', TEncoders.Solana.EncodeData(LSeed));
+  Writeln('Seed: ', TSolanaCliKeyPairEncoder.EncodeData(LSeed));
   Writeln('Address: ', LWallet.Account.PublicKey.Key);
 
   LKeystoreSvc := TSecretKeyStoreService.Create;
@@ -126,7 +126,7 @@ begin
   LRestoredWallet := TWallet.Create(LRestoredMnemonic);
   LRestoredSeed := LRestoredWallet.DeriveMnemonicSeed;
 
-  Writeln('Seed: ', TEncoders.Solana.EncodeData(LRestoredSeed));
+  Writeln('Seed: ', TSolanaCliKeyPairEncoder.EncodeData(LRestoredSeed));
 
   // Mimic Sollet key generation and verify the first 10 accounts.
   LOk := True;

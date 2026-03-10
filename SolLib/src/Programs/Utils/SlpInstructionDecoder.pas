@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   System.Generics.Defaults,
   System.Rtti,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpPublicKey,
   SlpRpcModel,
   SlpMessageDomain,
@@ -238,7 +238,7 @@ begin
         if LInstructionInfo.Data = '' then
           LData := nil
         else
-          LData := TEncoders.Base58.DecodeData(LInstructionInfo.Data);
+          LData := TBase58Encoder.DecodeData(LInstructionInfo.Data);
 
         LDecodedInstruction := LMethod(
           LData,
@@ -287,7 +287,7 @@ begin
               if LInnerInstructionInfo.Data = '' then
                 LData := nil
               else
-                LData := TEncoders.Base58.DecodeData(LInnerInstructionInfo.Data);
+                LData := TBase58Encoder.DecodeData(LInnerInstructionInfo.Data);
 
               LInnerDecodedInstruction := LMethod(
                 LData,
@@ -332,7 +332,7 @@ begin
       LDecoded.InstructionName := 'Unknown';
       LDecoded.ProgramName := 'Unknown';
       LDecoded.Values := TDictionary<string, TValue>.Create;
-      LDecoded.Values.Add('Data', TValue.From<string>(TEncoders.Base58.EncodeData(LCompiled.Data)));
+      LDecoded.Values.Add('Data', TValue.From<string>(TBase58Encoder.EncodeData(LCompiled.Data)));
       LDecoded.InnerInstructions := TList<IDecodedInstruction>.Create;
       LDecoded.PublicKey := LProgramKey;
 

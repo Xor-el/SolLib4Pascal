@@ -27,7 +27,7 @@ uses
   System.Generics.Collections,
   SlpPublicKey,
   SlpShortVectorEncoding,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpTransactionInstruction,
   SlpArrayUtils;
 
@@ -419,7 +419,7 @@ begin
       LAccountKeysBuf.WriteBuffer(LAccountKeyBytes[0], Length(LAccountKeyBytes));
     end;
 
-    LBlockHashBytes := TEncoders.Base58.DecodeData(FRecentBlockhash);
+    LBlockHashBytes := TBase58Encoder.DecodeData(FRecentBlockhash);
 
     LEstMsgSize := TMessageHeader.TLayout.HeaderLength +
                   TPublicKey.PublicKeyLength + Length(LAccountAddressesLength) +
@@ -470,7 +470,7 @@ begin
     raise EArgumentNilException.Create('data');
 
   try
-    LBytes := TEncoders.Base64.DecodeData(ABase64);
+    LBytes := TBase64Encoder.DecodeData(ABase64);
   except
     on E: Exception do
       raise Exception.Create('could not decode message data from base64');
@@ -558,7 +558,7 @@ begin
     HLen + LAccountAddressLengthEncodedLength + LAccountAddressLength * PKLen,
     PKLen
   );
-  Result.RecentBlockhash := TEncoders.Base58.EncodeData(LBlockHashSlice);
+  Result.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
 
   LInstrLenSlice := TArrayUtils.Slice<Byte>(
     AData,
@@ -759,7 +759,7 @@ begin
     HLen + LAccountAddressLengthEncodedLength + LAccountAddressLength * PKLen,
     PKLen
   );
-  LRes.RecentBlockhash := TEncoders.Base58.EncodeData(LBlockHashSlice);
+  LRes.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
 
   // Instructions
   LInstrLenSlice := TArrayUtils.Slice<Byte>(

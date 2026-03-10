@@ -31,7 +31,7 @@ uses
   SlpArrayUtils,
   SlpCryptoUtils,
   SlpListUtils,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpMessageDomain,
   SlpAccount,
   SlpSysVars,
@@ -975,7 +975,7 @@ begin
     raise EArgumentNilException.Create('data');
 
   try
-    LBytes := TEncoders.Base64.DecodeData(AData);
+    LBytes := TBase64Encoder.DecodeData(AData);
   except
     on E: Exception do
       raise Exception.Create('could not decode transaction data from base64');

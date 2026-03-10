@@ -24,7 +24,7 @@ interface
 uses
   System.SysUtils,
   System.JSON.Serializers,
-  SlpDataEncoders;
+  SlpDataEncoderUtils;
 
 type
   TKdfParams = class
@@ -127,7 +127,7 @@ implementation
 constructor TCipherParams.Create(const AIV: TBytes);
 begin
   inherited Create;
-  FIv := TEncoders.Hex.EncodeData(AIV).ToLower;
+  FIv := THexEncoder.EncodeData(AIV).ToLower;
 end;
 
 { TCryptoInfo<T> }
@@ -137,13 +137,13 @@ constructor TCryptoInfo<TKdfParamsType>.Create(const ACipher: string; const ACip
 begin
   inherited Create;
   FCipher := ACipher;
-  FCipherText := TEncoders.Hex.EncodeData(ACipherText).ToLower;
-  FMac := TEncoders.Hex.EncodeData(AMac).ToLower;
+  FCipherText := THexEncoder.EncodeData(ACipherText).ToLower;
+  FMac := THexEncoder.EncodeData(AMac).ToLower;
   FCipherParams := TCipherParams.Create(AIV);
   FKdf := AKdfType;
   FKdfParams := AKdfParams;
   if Assigned(FKdfParams) then
-    FKdfParams.Salt := TEncoders.Hex.EncodeData(ASalt).ToLower;
+    FKdfParams.Salt := THexEncoder.EncodeData(ASalt).ToLower;
 end;
 
 destructor TCryptoInfo<TKdfParamsType>.Destroy;

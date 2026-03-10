@@ -34,7 +34,7 @@ uses
   SlpTokenProgram,
   SlpTokenSwapProgram,
   SlpTokenSwapModel,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpExample;
 
 type
@@ -110,7 +110,7 @@ begin
   LAccInfo := LMainRpc.GetAccountInfo('GAM8dQkm4LwYJgPZbML61mKPUCQX7uAquxu67p9oifSK');
   if LAccInfo.WasSuccessful and (Length(LAccInfo.Result.Value.Data) > 0) then
   begin
-    LAccountInfoDataBytes := TEncoders.Base64.DecodeData(LAccInfo.Result.Value.Data[0]);
+    LAccountInfoDataBytes := TBase64Encoder.DecodeData(LAccInfo.Result.Value.Data[0]);
     Writeln('Live TokenSwap account length:  ' + IntToStr(Length(LAccountInfoDataBytes)) + 'bytes');
     LSwapState := TTokenSwapAccount.Deserialize(LAccountInfoDataBytes);
     Writeln('Pool Mint (from mainnet state read): ' + LSwapState.PoolMint.Key);

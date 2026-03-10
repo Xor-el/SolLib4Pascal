@@ -23,7 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpArrayUtils,
   SlpCryptoUtils;
 
@@ -141,7 +141,7 @@ function TPrivateKey.GetKey: string;
 begin
   if FKey = '' then
   begin
-    FKey := TEncoders.Base58.EncodeData(GetKeyBytes);
+    FKey := TBase58Encoder.EncodeData(GetKeyBytes);
   end;
   Result := FKey;
 end;
@@ -155,7 +155,7 @@ function TPrivateKey.GetKeyBytes: TBytes;
 begin
   if Length(FKeyBytes) = 0 then
   begin
-    FKeyBytes := TEncoders.Base58.DecodeData(GetKey);
+    FKeyBytes := TBase58Encoder.DecodeData(GetKey);
   end;
   Result := FKeyBytes;
 end;

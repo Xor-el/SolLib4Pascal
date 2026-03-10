@@ -62,7 +62,7 @@
 
 {========================== Crypto Provider Strategy ===========================}
 
-// By default, use CryptoLib4Pascal implementations
+// By default, use the default encoder implementations from SlpDefaultCryptoProviders
 // To use custom crypto providers, define USE_CUSTOM_CRYPTO_PROVIDERS instead
 {$IF NOT DEFINED(USE_CUSTOM_CRYPTO_PROVIDERS)}
   {$DEFINE USE_DEFAULT_CRYPTO_PROVIDERS}
@@ -73,6 +73,21 @@
 // Ensure one crypto provider strategy is defined
 {$IF NOT DEFINED(USE_DEFAULT_CRYPTO_PROVIDERS) AND NOT DEFINED(USE_CUSTOM_CRYPTO_PROVIDERS)}
   {$MESSAGE ERROR 'Either USE_DEFAULT_CRYPTO_PROVIDERS or USE_CUSTOM_CRYPTO_PROVIDERS must be defined'}
+{$IFEND}
+
+{========================== Data Encoder Provider Strategy ===========================}
+
+// By default, use the default encoder implementations from SlpDefaultDataEncoderProviders
+// To use custom encoder providers, define USE_CUSTOM_DATA_ENCODER_PROVIDERS instead
+{$IF NOT DEFINED(USE_CUSTOM_DATA_ENCODER_PROVIDERS)}
+  {$DEFINE USE_DEFAULT_DATA_ENCODER_PROVIDERS}
+{$IFEND}
+
+{=========================== Data Encoder Provider Validation ========================}
+
+// Ensure one data encoder provider strategy is defined
+{$IF NOT DEFINED(USE_DEFAULT_DATA_ENCODER_PROVIDERS) AND NOT DEFINED(USE_CUSTOM_DATA_ENCODER_PROVIDERS)}
+  {$MESSAGE ERROR 'Either USE_DEFAULT_DATA_ENCODER_PROVIDERS or USE_CUSTOM_DATA_ENCODER_PROVIDERS must be defined'}
 {$IFEND}
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)

@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   SlpArrayUtils,
   SlpCryptoUtils,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpPrivateKey,
   SlpPublicKey,
   SlpCryptoProviders;
@@ -134,7 +134,7 @@ var
   LSK: TBytes;
   LPK: TBytes;
 begin
-  LSK := TEncoders.Base58.DecodeData(ASecretKeyB58);
+  LSK := TBase58Encoder.DecodeData(ASecretKeyB58);
 
   if Length(LSK) <> 64 then
     raise EArgumentException.Create('Not a secret key');

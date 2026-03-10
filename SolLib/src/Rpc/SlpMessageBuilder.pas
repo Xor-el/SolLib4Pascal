@@ -23,7 +23,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Generics.Collections,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpShortVectorEncoding,
   SlpPublicKey,
   SlpAccountDomain,
@@ -306,7 +306,7 @@ begin
           LBuffer.WriteBuffer(LMessageHeaderBytes[0], Length(LMessageHeaderBytes));
           LBuffer.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
           LBuffer.WriteBuffer(LAccountKeysBuffer.Memory^, LAccountKeysBuffer.Size);
-          LEncodedRecentBlockhash := TEncoders.Base58.DecodeData(FRecentBlockHash);
+          LEncodedRecentBlockhash := TBase58Encoder.DecodeData(FRecentBlockHash);
           LBuffer.WriteBuffer(LEncodedRecentBlockhash[0], Length(LEncodedRecentBlockhash));
           LBuffer.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
 
@@ -344,7 +344,7 @@ class function TMessageBuilder.FindAccountIndex(
 var
   LEncoded: string;
 begin
-  LEncoded := TEncoders.Base58.EncodeData(APublicKeyBytes);
+  LEncoded := TBase58Encoder.EncodeData(APublicKeyBytes);
   Result := FindAccountIndex(AAccountMetas, LEncoded);
 end;
 
@@ -594,7 +594,7 @@ begin
           LBuffer.WriteBuffer(LMessageHeaderBytes[0], Length(LMessageHeaderBytes));
           LBuffer.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
           LBuffer.WriteBuffer(LAccountKeysBuffer.Memory^, LAccountKeysBuffer.Size);
-          LEncodedRecentBlockhash := TEncoders.Base58.DecodeData(FRecentBlockHash);
+          LEncodedRecentBlockhash := TBase58Encoder.DecodeData(FRecentBlockHash);
           LBuffer.WriteBuffer(LEncodedRecentBlockhash[0], Length(LEncodedRecentBlockhash));
           LBuffer.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
 
