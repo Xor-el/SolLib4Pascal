@@ -31,19 +31,19 @@ type
   INonceAccount = interface
     ['{6E7A4A9B-AE4F-4A2B-BF7F-0C2A36E1F1F2}']
     function  GetVersion: Cardinal;
-    procedure SetVersion(const Value: Cardinal);
+    procedure SetVersion(const AValue: Cardinal);
 
     function  GetState: Cardinal;
-    procedure SetState(const Value: Cardinal);
+    procedure SetState(const AValue: Cardinal);
 
     function  GetAuthorized: IPublicKey;
-    procedure SetAuthorized(const Value: IPublicKey);
+    procedure SetAuthorized(const AValue: IPublicKey);
 
     function  GetNonce: IPublicKey;
-    procedure SetNonce(const Value: IPublicKey);
+    procedure SetNonce(const AValue: IPublicKey);
 
     function  GetFeeCalculator: TFeeCalculator;
-    procedure SetFeeCalculator(const Value: TFeeCalculator);
+    procedure SetFeeCalculator(const AValue: TFeeCalculator);
 
     /// <summary>
     /// The value used to specify version.
@@ -109,15 +109,15 @@ type
     FFeeCalculator: TFeeCalculator;
 
     function  GetVersion: Cardinal;
-    procedure SetVersion(const Value: Cardinal);
+    procedure SetVersion(const AValue: Cardinal);
     function  GetState: Cardinal;
-    procedure SetState(const Value: Cardinal);
+    procedure SetState(const AValue: Cardinal);
     function  GetAuthorized: IPublicKey;
-    procedure SetAuthorized(const Value: IPublicKey);
+    procedure SetAuthorized(const AValue: IPublicKey);
     function  GetNonce: IPublicKey;
-    procedure SetNonce(const Value: IPublicKey);
+    procedure SetNonce(const AValue: IPublicKey);
     function  GetFeeCalculator: TFeeCalculator;
-    procedure SetFeeCalculator(const Value: TFeeCalculator);
+    procedure SetFeeCalculator(const AValue: TFeeCalculator);
   public
     destructor Destroy; override;
     /// <summary>
@@ -165,29 +165,29 @@ begin
   Result := FVersion;
 end;
 
-procedure TNonceAccount.SetAuthorized(const Value: IPublicKey);
+procedure TNonceAccount.SetAuthorized(const AValue: IPublicKey);
 begin
-  FAuthorized := Value;
+  FAuthorized := AValue;
 end;
 
-procedure TNonceAccount.SetFeeCalculator(const Value: TFeeCalculator);
+procedure TNonceAccount.SetFeeCalculator(const AValue: TFeeCalculator);
 begin
-  FFeeCalculator := Value;
+  FFeeCalculator := AValue;
 end;
 
-procedure TNonceAccount.SetNonce(const Value: IPublicKey);
+procedure TNonceAccount.SetNonce(const AValue: IPublicKey);
 begin
-  FNonce := Value;
+  FNonce := AValue;
 end;
 
-procedure TNonceAccount.SetState(const Value: Cardinal);
+procedure TNonceAccount.SetState(const AValue: Cardinal);
 begin
-  FState := Value;
+  FState := AValue;
 end;
 
-procedure TNonceAccount.SetVersion(const Value: Cardinal);
+procedure TNonceAccount.SetVersion(const AValue: Cardinal);
 begin
-  FVersion := Value;
+  FVersion := AValue;
 end;
 
 class function TNonceAccount.Deserialize(const AData: TBytes): INonceAccount;

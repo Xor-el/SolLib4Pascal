@@ -1017,14 +1017,14 @@ end;
 class procedure TTokenProgramData.DecodeInitializeMultiSignatureData(const ADecoded: IDecodedInstruction;
   const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
   LNum: Byte;
 begin
   ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   LNum := TDeserialization.GetU8(AData, 1);
   ADecoded.Values.Add('Required Signers', LNum);
-  for I := 2 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 1]), TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 2 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 1]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeTransferData(
@@ -1033,7 +1033,7 @@ class procedure TTokenProgramData.DecodeTransferData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
   LAmount: UInt64;
 begin
   ADecoded.Values.Add('Source',      TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
@@ -1043,9 +1043,9 @@ begin
   LAmount := TDeserialization.GetU64(AData, 1);
   ADecoded.Values.Add('Amount', LAmount);
 
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeApproveData(
@@ -1054,7 +1054,7 @@ class procedure TTokenProgramData.DecodeApproveData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
   LAmount: UInt64;
 begin
   ADecoded.Values.Add('Source',    TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
@@ -1064,9 +1064,9 @@ begin
   LAmount := TDeserialization.GetU64(AData, 1);
   ADecoded.Values.Add('Amount', LAmount);
 
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 
@@ -1075,13 +1075,13 @@ class procedure TTokenProgramData.DecodeRevokeData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Source',    TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  for I := 2 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 1]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 2 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 1]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeSetAuthorityData(
@@ -1091,6 +1091,7 @@ class procedure TTokenProgramData.DecodeSetAuthorityData(
   const AKeyIndices: TBytes);
 var
   LAuthType: TAuthorityType;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Account',           TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Current Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
@@ -1105,10 +1106,9 @@ begin
       TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 3)));
 
   // Signers (starting from index 2)
-  var I: Integer;
-  for I := 2 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 1]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 2 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 1]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeMintToData(
@@ -1118,7 +1118,7 @@ class procedure TTokenProgramData.DecodeMintToData(
   const AKeyIndices: TBytes);
 var
   LAmount: UInt64;
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Mint',           TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Destination',    TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
@@ -1127,9 +1127,9 @@ begin
   LAmount := TDeserialization.GetU64(AData, 1);
   ADecoded.Values.Add('Amount', LAmount);
 
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeBurnData(
@@ -1139,7 +1139,7 @@ class procedure TTokenProgramData.DecodeBurnData(
   const AKeyIndices: TBytes);
 var
   LAmount: UInt64;
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Account',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
@@ -1148,9 +1148,9 @@ begin
   LAmount := TDeserialization.GetU64(AData, 1);
   ADecoded.Values.Add('Amount', LAmount);
 
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeCloseAccountData(
@@ -1158,14 +1158,14 @@ class procedure TTokenProgramData.DecodeCloseAccountData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Account',     TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Destination', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
   ADecoded.Values.Add('Authority',   TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeFreezeAccountData(
@@ -1173,14 +1173,14 @@ class procedure TTokenProgramData.DecodeFreezeAccountData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Account',         TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Mint',            TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
   ADecoded.Values.Add('Freeze Authority',TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeThawAccountData(
@@ -1188,14 +1188,14 @@ class procedure TTokenProgramData.DecodeThawAccountData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Account',         TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Mint',            TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
   ADecoded.Values.Add('Freeze Authority',TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeTransferCheckedData(
@@ -1204,7 +1204,7 @@ class procedure TTokenProgramData.DecodeTransferCheckedData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Source',      TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Mint',        TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
@@ -1214,9 +1214,9 @@ begin
   ADecoded.Values.Add('Amount',   TValue.From<UInt64>(TDeserialization.GetU64(AData, 1)));
   ADecoded.Values.Add('Decimals', TValue.From<Byte>(TDeserialization.GetU8(AData, 9)));
 
-  for I := 4 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 3]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 4 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 3]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeApproveCheckedData(
@@ -1225,7 +1225,7 @@ class procedure TTokenProgramData.DecodeApproveCheckedData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Source',    TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
@@ -1235,9 +1235,9 @@ begin
   ADecoded.Values.Add('Amount',   TValue.From<UInt64>(TDeserialization.GetU64(AData, 1)));
   ADecoded.Values.Add('Decimals', TValue.From<Byte>(TDeserialization.GetU8(AData, 9)));
 
-  for I := 4 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 3]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 4 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 3]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeMintToCheckedData(
@@ -1248,7 +1248,7 @@ class procedure TTokenProgramData.DecodeMintToCheckedData(
 var
   LAmount : UInt64;
   LDec    : Byte;
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Mint',           TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Destination',    TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
@@ -1259,9 +1259,9 @@ begin
   ADecoded.Values.Add('Amount',   LAmount);
   ADecoded.Values.Add('Decimals', LDec);
 
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeBurnCheckedData(
@@ -1270,7 +1270,7 @@ class procedure TTokenProgramData.DecodeBurnCheckedData(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Account',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
@@ -1279,9 +1279,9 @@ begin
   ADecoded.Values.Add('Amount',   TValue.From<UInt64>(TDeserialization.GetU64(AData, 1)));
   ADecoded.Values.Add('Decimals', TValue.From<Byte>(TDeserialization.GetU8(AData, 9)));
 
-  for I := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 2]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 3 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 2]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeSyncNativeData(
@@ -1320,14 +1320,14 @@ class procedure TTokenProgramData.DecodeInitializeMultiSignature2(
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
 var
-  I: Integer;
+  LI: Integer;
 begin
   ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecoded.Values.Add('Required Signers', TValue.From<Byte>(TDeserialization.GetU8(AData, 1)));
 
-  for I := 1 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [I - 1]),
-      TValue.From<IPublicKey>(AKeys[AKeyIndices[I]]));
+  for LI := 1 to High(AKeyIndices) do
+    ADecoded.Values.Add(Format('Signer %d', [LI - 1]),
+      TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
 end;
 
 class procedure TTokenProgramData.DecodeInitializeMint2(
@@ -1409,14 +1409,14 @@ class function TTokenProgram.AddSigners(const AKeys: TList<IAccountMeta>;
                                         const AAuthority: IPublicKey;
                                         const ASigners: TArray<IPublicKey>): TList<IAccountMeta>;
 var
-  S: IPublicKey;
+  LS: IPublicKey;
 begin
   Result := AKeys;
   if (ASigners <> nil) and (Length(ASigners) > 0) then
   begin
     Result.Add(TAccountMeta.ReadOnly(AAuthority, False));
-    for S in ASigners do
-      Result.Add(TAccountMeta.ReadOnly(S, True));
+    for LS in ASigners do
+      Result.Add(TAccountMeta.ReadOnly(LS, True));
   end
   else
   begin
@@ -1427,248 +1427,248 @@ end;
 class function TTokenProgram.Transfer(const ASource, ADestination: IPublicKey; const AAmount: UInt64;
                                       const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ASource, False));
-  Keys.Add(TAccountMeta.Writable(ADestination, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ASource, False));
+  LKeys.Add(TAccountMeta.Writable(ADestination, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeTransferData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeTransferData(AAmount));
 end;
 
 class function TTokenProgram.TransferChecked(const ASource, ADestination: IPublicKey; const AAmount: UInt64; const ADecimals: Integer;
                                              const AAuthority, ATokenMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ASource, False));
-  Keys.Add(TAccountMeta.ReadOnly(ATokenMint, False));
-  Keys.Add(TAccountMeta.Writable(ADestination, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ASource, False));
+  LKeys.Add(TAccountMeta.ReadOnly(ATokenMint, False));
+  LKeys.Add(TAccountMeta.Writable(ADestination, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeTransferCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeTransferCheckedData(AAmount, ADecimals));
 end;
 
 class function TTokenProgram.InitializeAccount(const AAccount, AMint, AAuthority: IPublicKey): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys.Add(TAccountMeta.ReadOnly(AMint, False));
-  Keys.Add(TAccountMeta.ReadOnly(AAuthority, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AAuthority, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeInitializeAccountData);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccountData);
 end;
 
 class function TTokenProgram.InitializeMultiSignature(const AMultiSignature: IPublicKey; const ASigners: TArray<IPublicKey>;
                                                       const AM: Integer): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
-  S: IPublicKey;
+  LKeys: TList<IAccountMeta>;
+  LS: IPublicKey;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AMultiSignature, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
-  for S in ASigners do
-    Keys.Add(TAccountMeta.ReadOnly(S, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMultiSignature, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
+  for LS in ASigners do
+    LKeys.Add(TAccountMeta.ReadOnly(LS, False));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeInitializeMultiSignatureData(AM));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMultiSignatureData(AM));
 end;
 
 class function TTokenProgram.InitializeMint(const AMint: IPublicKey; const ADecimals: Integer;
                                             const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
-  FreezeOpt: Integer;
-  FreezeKey: IPublicKey;
-  Account: IAccount;
+  LKeys: TList<IAccountMeta>;
+  LFreezeOpt: Integer;
+  LFreezeKey: IPublicKey;
+  LAccount: IAccount;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AMint, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
 
-  FreezeOpt := Ord(Assigned(AFreezeAuthority));
+  LFreezeOpt := Ord(Assigned(AFreezeAuthority));
 
   if Assigned(AFreezeAuthority) then
-    FreezeKey := AFreezeAuthority
+    LFreezeKey := AFreezeAuthority
   else
   begin
-    Account := TAccount.Create;
-    FreezeKey := Account.PublicKey;
+    LAccount := TAccount.Create;
+    LFreezeKey := LAccount.PublicKey;
   end;
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeInitializeMintData(AMintAuthority, FreezeKey, ADecimals, FreezeOpt));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMintData(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
 end;
 
 class function TTokenProgram.MintTo(const AMint, ADestination: IPublicKey; const AAmount: UInt64;
                                     const AMintAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AMint, False));
-  Keys.Add(TAccountMeta.Writable(ADestination, False));
-  Keys := AddSigners(Keys, AMintAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+  LKeys.Add(TAccountMeta.Writable(ADestination, False));
+  LKeys := AddSigners(LKeys, AMintAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeMintToData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeMintToData(AAmount));
 end;
 
 class function TTokenProgram.Approve(const ASource, ADelegate, AAuthority: IPublicKey; const AAmount: UInt64;
                                      const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ASource, False));
-  Keys.Add(TAccountMeta.ReadOnly(ADelegate, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ASource, False));
+  LKeys.Add(TAccountMeta.ReadOnly(ADelegate, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeApproveData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeApproveData(AAmount));
 end;
 
 class function TTokenProgram.Revoke(const ASource, AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ASource, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ASource, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeRevokeData);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeRevokeData);
 end;
 
 class function TTokenProgram.SetAuthority(const AAccount: IPublicKey; const AAuthorityType: TAuthorityType;
                                           const ACurrentAuthority, ANewAuthority: IPublicKey;
                                           const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
-  Opt: Integer;
-  NewAuth: IPublicKey;
-  Account: IAccount;
+  LKeys: TList<IAccountMeta>;
+  LOpt: Integer;
+  LNewAuth: IPublicKey;
+  LAccount: IAccount;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys := AddSigners(Keys, ACurrentAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys := AddSigners(LKeys, ACurrentAuthority, ASigners);
 
-  Opt := Ord(Assigned(ANewAuthority));
+  LOpt := Ord(Assigned(ANewAuthority));
 
   if Assigned(ANewAuthority) then
-    NewAuth := ANewAuthority
+    LNewAuth := ANewAuthority
   else
   begin
-    Account := TAccount.Create;
-    NewAuth := Account.PublicKey;
+    LAccount := TAccount.Create;
+    LNewAuth := LAccount.PublicKey;
   end;
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeSetAuthorityData(AAuthorityType, Opt, NewAuth));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeSetAuthorityData(AAuthorityType, LOpt, LNewAuth));
 end;
 
 class function TTokenProgram.Burn(const ASource, AMint: IPublicKey; const AAmount: UInt64;
                                   const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ASource, False));
-  Keys.Add(TAccountMeta.Writable(AMint, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ASource, False));
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeBurnData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeBurnData(AAmount));
 end;
 
 class function TTokenProgram.CloseAccount(const AAccount, ADestination, AAuthority, AProgramId: IPublicKey;
                                           const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys.Add(TAccountMeta.Writable(ADestination, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.Writable(ADestination, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, Keys, TTokenProgramData.EncodeCloseAccountData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeCloseAccountData);
 end;
 
 class function TTokenProgram.FreezeAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
                                            const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys.Add(TAccountMeta.ReadOnly(AMint, False));
-  Keys := AddSigners(Keys, AFreezeAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  LKeys := AddSigners(LKeys, AFreezeAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, Keys, TTokenProgramData.EncodeFreezeAccountData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeFreezeAccountData);
 end;
 
 class function TTokenProgram.ThawAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
                                          const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys.Add(TAccountMeta.ReadOnly(AMint, False));
-  Keys := AddSigners(Keys, AFreezeAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  LKeys := AddSigners(LKeys, AFreezeAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, Keys, TTokenProgramData.EncodeThawAccountData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeThawAccountData);
 end;
 
 class function TTokenProgram.ApproveChecked(const ASource, ADelegate: IPublicKey; const AAmount: UInt64; const ADecimals: Byte;
                                             const AAuthority, AMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ASource, False));
-  Keys.Add(TAccountMeta.ReadOnly(AMint, False));
-  Keys.Add(TAccountMeta.ReadOnly(ADelegate, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ASource, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  LKeys.Add(TAccountMeta.ReadOnly(ADelegate, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeApproveCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeApproveCheckedData(AAmount, ADecimals));
 end;
 
 class function TTokenProgram.MintToChecked(const AMint, ADestination, AMintAuthority: IPublicKey;
                                            const AAmount: UInt64; const ADecimals: Integer;
                                            const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AMint, False));
-  Keys.Add(TAccountMeta.Writable(ADestination, False));
-  Keys := AddSigners(Keys, AMintAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+  LKeys.Add(TAccountMeta.Writable(ADestination, False));
+  LKeys := AddSigners(LKeys, AMintAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeMintToCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeMintToCheckedData(AAmount, ADecimals));
 end;
 
 class function TTokenProgram.BurnChecked(const AMint, AAccount, AAuthority: IPublicKey;
                                          const AAmount: UInt64; const ADecimals: Integer;
                                          const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys.Add(TAccountMeta.Writable(AMint, False));
-  Keys := AddSigners(Keys, AAuthority, ASigners);
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+  LKeys := AddSigners(LKeys, AAuthority, ASigners);
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeBurnCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeBurnCheckedData(AAmount, ADecimals));
 end;
 
 class function TTokenProgram.SyncNative(const AAccount: IPublicKey): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TTokenProgramData.EncodeSyncNativeData);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeSyncNativeData);
 end;
 
 { ==== Decoder entrypoint ==== }
@@ -1676,12 +1676,12 @@ end;
 class function TTokenProgram.Decode(const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes): IDecodedInstruction;
 
 var
-  Instruction: Byte;
-  InstructionValue: TTokenProgramInstructions.TValues;
+  LInstruction: Byte;
+  LInstructionValue: TTokenProgramInstructions.TValues;
 begin
-  Instruction := TDeserialization.GetU8(AData, TTokenProgramData.MethodOffset);
+  LInstruction := TDeserialization.GetU8(AData, TTokenProgramData.MethodOffset);
 
-  if GetEnumName(TypeInfo(TTokenProgramInstructions.TValues), Instruction) = '' then
+  if GetEnumName(TypeInfo(TTokenProgramInstructions.TValues), LInstruction) = '' then
   begin
     Result := TDecodedInstruction.Create;
     Result.PublicKey        := ProgramIdKey;
@@ -1692,16 +1692,16 @@ begin
     Exit;
   end;
 
-  InstructionValue := TTokenProgramInstructions.TValues(Instruction);
+  LInstructionValue := TTokenProgramInstructions.TValues(LInstruction);
 
   Result := TDecodedInstruction.Create;
   Result.PublicKey       := ProgramIdKey;
-  Result.InstructionName := TTokenProgramInstructions.Names[InstructionValue];
+  Result.InstructionName := TTokenProgramInstructions.Names[LInstructionValue];
   Result.ProgramName     := ProgramName;
   Result.Values          := TDictionary<string, TValue>.Create;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create();
 
-  case InstructionValue of
+  case LInstructionValue of
     TTokenProgramInstructions.TValues.InitializeMint:
       TTokenProgramData.DecodeInitializeMintData(Result, AData, AKeys, AKeyIndices);
     TTokenProgramInstructions.TValues.InitializeAccount:

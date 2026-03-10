@@ -77,7 +77,7 @@ var
   LWallet: IWallet;
   LAccount: IAccount;
   LOk: Boolean;
-  I: Integer;
+  LI: Integer;
   LPubB58, LPrivB58: string;
 begin
   // Sollet derivation uses the mnemonic only (no passphrase hardening here)
@@ -87,9 +87,9 @@ begin
   LOk := True;
 
   // Mimic Sollet key generation across the first 10 accounts
-  for I := 0 to 9 do
+  for LI := 0 to 9 do
   begin
-    LAccount := LWallet.GetAccountByIndex(I);
+    LAccount := LWallet.GetAccountByIndex(LI);
 
     // Read Base58 keys (Base58 is case-sensitive; use exact equality)
     LPubB58  := LAccount.PublicKey.Key;
@@ -98,8 +98,8 @@ begin
     Writeln('SOLLET publicKey>b58 ', LPubB58);
     Writeln('SOLLET privateKey>b58 ', LPrivB58);
 
-    if (not SameStr(LPubB58, Expected[I].Pub)) or
-       (not SameStr(LPrivB58, Expected[I].Priv)) then
+    if (not SameStr(LPubB58, Expected[LI].Pub)) or
+       (not SameStr(LPrivB58, Expected[LI].Priv)) then
       LOk := False;
   end;
 

@@ -250,20 +250,20 @@ end;
 procedure TSgcWebSocketClientImpl.DoBinary(AConnection: TsgcWsConnection;
   const AData: TMemoryStream);
 
-  function StreamToBytes(const S: TStream): TBytes;
+  function StreamToBytes(const AStream: TStream): TBytes;
   var
-    L: Integer;
+    LSize: Integer;
   begin
-    L := S.Size;
-    if L <= 0 then
+    LSize := AStream.Size;
+    if LSize <= 0 then
       Exit(nil);
-    SetLength(Result, L);
-    S.Position := 0;
-    S.ReadBuffer(Result[0], L);
+    SetLength(Result, LSize);
+    AStream.Position := 0;
+    AStream.ReadBuffer(Result[0], LSize);
   end;
 
 var
-  Bytes: TBytes;
+  LBytes: TBytes;
 begin
   if Assigned(FLogger) then
    FLogger.LogInformation('Binary Data Received', []);
@@ -271,8 +271,8 @@ begin
   if not Assigned(Callbacks.OnReceiveBinaryMessage) then
     Exit;
 
-  Bytes := StreamToBytes(AData);
-  Callbacks.OnReceiveBinaryMessage(Bytes);
+  LBytes := StreamToBytes(AData);
+  Callbacks.OnReceiveBinaryMessage(LBytes);
 end;
 
 procedure TSgcWebSocketClientImpl.DoError(AConnection: TsgcWsConnection;

@@ -50,38 +50,38 @@ const
     'PtKWCWZjI/MJBiQan1RcZLFxRIYzJTD1K8X9Y2u4Im6H9ROPb2YoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG3fbh12Whk9nL4UbO63m' +
     'sHLSF7V9bN5E6jPWFfv8AqeIfQzb6ERv8S2AqP3kpqFe1rhOi8a8q+HoB5Z/4WUfiAgQCAAE0AAAAAPAdHwAAAAAApQAAAAAAAAAG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqQUEAQIAAwEB';
 var
-  Msg: IMessage;
+  LMsg: IMessage;
 begin
-  Msg := TMessage.Deserialize(Base64Message);
+  LMsg := TMessage.Deserialize(Base64Message);
 
   // Header
-  AssertNotNull(Msg);
-  AssertEquals(2, Msg.Header.RequiredSignatures);
-  AssertEquals(0, Msg.Header.ReadOnlySignedAccounts);
-  AssertEquals(4, Msg.Header.ReadOnlyUnsignedAccounts);
+  AssertNotNull(LMsg);
+  AssertEquals(2, LMsg.Header.RequiredSignatures);
+  AssertEquals(0, LMsg.Header.ReadOnlySignedAccounts);
+  AssertEquals(4, LMsg.Header.ReadOnlyUnsignedAccounts);
 
   // Blockhash
-  AssertEquals('GDgnjNiNGnw9nA3diFYKeizi8LpBzFMjDaBSU5hoqEUH', Msg.RecentBlockhash);
+  AssertEquals('GDgnjNiNGnw9nA3diFYKeizi8LpBzFMjDaBSU5hoqEUH', LMsg.RecentBlockhash);
 
   // Account keys
-  AssertEquals(6, Msg.AccountKeys.Count);
-  AssertEquals('7y62LXLwANaN9g3KJPxQFYwMxSdZraw5PkqwtqY9zLDF', Msg.AccountKeys[0].Key);
-  AssertEquals('FWUPMzrLbAEuH83cf1QphoFdyUdhenDF5oHftwd9Vjyr', Msg.AccountKeys[1].Key);
-  AssertEquals('AN5M7KvEFiZFxgEUWFdZUdR5i4b96HjXawADpqjxjXCL', Msg.AccountKeys[2].Key);
-  AssertEquals('SysvarRent111111111111111111111111111111111',   Msg.AccountKeys[3].Key);
-  AssertEquals('11111111111111111111111111111111',             Msg.AccountKeys[4].Key);
-  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',  Msg.AccountKeys[5].Key);
+  AssertEquals(6, LMsg.AccountKeys.Count);
+  AssertEquals('7y62LXLwANaN9g3KJPxQFYwMxSdZraw5PkqwtqY9zLDF', LMsg.AccountKeys[0].Key);
+  AssertEquals('FWUPMzrLbAEuH83cf1QphoFdyUdhenDF5oHftwd9Vjyr', LMsg.AccountKeys[1].Key);
+  AssertEquals('AN5M7KvEFiZFxgEUWFdZUdR5i4b96HjXawADpqjxjXCL', LMsg.AccountKeys[2].Key);
+  AssertEquals('SysvarRent111111111111111111111111111111111',   LMsg.AccountKeys[3].Key);
+  AssertEquals('11111111111111111111111111111111',             LMsg.AccountKeys[4].Key);
+  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',  LMsg.AccountKeys[5].Key);
 
   // Instructions
-  AssertEquals(2, Msg.Instructions.Count);
+  AssertEquals(2, LMsg.Instructions.Count);
 
   // Instruction 0
-  AssertEquals(4, Msg.Instructions[0].ProgramIdIndex);
-  AssertEquals(Msg.Instructions[0].KeyIndices,      TBytes.Create(0, 1));
-  AssertEquals(Msg.Instructions[0].KeyIndicesCount, TBytes.Create(2));
-  AssertEquals(Msg.Instructions[0].DataLength,      TBytes.Create(52));
+  AssertEquals(4, LMsg.Instructions[0].ProgramIdIndex);
+  AssertEquals(LMsg.Instructions[0].KeyIndices,      TBytes.Create(0, 1));
+  AssertEquals(LMsg.Instructions[0].KeyIndicesCount, TBytes.Create(2));
+  AssertEquals(LMsg.Instructions[0].DataLength,      TBytes.Create(52));
   AssertEquals(
-    Msg.Instructions[0].Data,
+    LMsg.Instructions[0].Data,
     TBytes.Create(
       0,0,0,0,240,29,31,0,0,0,0,0,165,0,0,0,0,0,0,0,
       6,221,246,225,215,101,161,147,217,203,225,70,206,235,121,172,28,180,
@@ -90,20 +90,20 @@ begin
   );
 
   // Instruction 1
-  AssertEquals(5, Msg.Instructions[1].ProgramIdIndex);
-  AssertEquals(Msg.Instructions[1].KeyIndices,      TBytes.Create(1, 2, 0, 3));
-  AssertEquals(Msg.Instructions[1].KeyIndicesCount, TBytes.Create(4));
-  AssertEquals(Msg.Instructions[1].DataLength,      TBytes.Create(1));
-  AssertEquals(Msg.Instructions[1].Data,            TBytes.Create(1));
+  AssertEquals(5, LMsg.Instructions[1].ProgramIdIndex);
+  AssertEquals(LMsg.Instructions[1].KeyIndices,      TBytes.Create(1, 2, 0, 3));
+  AssertEquals(LMsg.Instructions[1].KeyIndicesCount, TBytes.Create(4));
+  AssertEquals(LMsg.Instructions[1].DataLength,      TBytes.Create(1));
+  AssertEquals(LMsg.Instructions[1].Data,            TBytes.Create(1));
 end;
 
 procedure TMessageTests.MessageSerializeTest;
 var
-  Msg: IMessage;
-  C0, C1: ICompiledInstruction;
-  MessageBytes, Ser: TBytes;
+  LMsg: IMessage;
+  LC0, LC1: ICompiledInstruction;
+  LMessageBytes, LSer: TBytes;
 begin
-  MessageBytes := TBytes.Create(
+  LMessageBytes := TBytes.Create(
     2,0,4,6,103,132,83,145,168,194,85,123,82,13,216,210,8,202,191,237,245,126,242,
     121,138,175,133,11,234,99,249,185,73,124,75,186,152,4,15,191,192,69,38,242,209,25,
     50,6,106,251,40,228,145,75,129,20,113,52,100,202,150,100,146,135,243,11,171,9,139,
@@ -118,17 +118,17 @@ begin
     121,172,28,180,133,237,95,91,55,145,58,140,245,133,126,255,0,169,5,4,1,2,0,3,1,1
   );
 
-  Msg := TMessage.Create;
-  Msg.Header := TMessageHeader.Create;
-  Msg.Header.RequiredSignatures := 2;
-  Msg.Header.ReadOnlySignedAccounts := 0;
-  Msg.Header.ReadOnlyUnsignedAccounts := 4;
+  LMsg := TMessage.Create;
+  LMsg.Header := TMessageHeader.Create;
+  LMsg.Header.RequiredSignatures := 2;
+  LMsg.Header.ReadOnlySignedAccounts := 0;
+  LMsg.Header.ReadOnlyUnsignedAccounts := 4;
 
-  Msg.RecentBlockhash := '6dpApBv7syEswXqBMkyHqETN3MGY5x4ZW2cnLzRSSLJ4';
+  LMsg.RecentBlockhash := '6dpApBv7syEswXqBMkyHqETN3MGY5x4ZW2cnLzRSSLJ4';
 
   // Accounts
-  Msg.AccountKeys := TList<IPublicKey>.Create;
-  Msg.AccountKeys.AddRange([
+  LMsg.AccountKeys := TList<IPublicKey>.Create;
+  LMsg.AccountKeys.AddRange([
     TPublicKey.Create('7y62LXLwANaN9g3KJPxQFYwMxSdZraw5PkqwtqY9zLDF'),
     TPublicKey.Create('BEQZbsAdm5tRgtezK65oFgQwYanujpxx96jYo7Nkp592'),
     TPublicKey.Create('AN5M7KvEFiZFxgEUWFdZUdR5i4b96HjXawADpqjxjXCL'),
@@ -138,10 +138,10 @@ begin
   ]);
 
   // Compiled Instructions
-  Msg.Instructions := TList<ICompiledInstruction>.Create;
+  LMsg.Instructions := TList<ICompiledInstruction>.Create;
 
   // Instruction 0
-  C0 := TCompiledInstruction.Create(
+  LC0 := TCompiledInstruction.Create(
           4,
           TBytes.Create(2),
           TBytes.Create(0, 1),
@@ -152,21 +152,21 @@ begin
             133,237,95,91,55,145,58,140,245,133,126,255,0,169
           )
         );
-  Msg.Instructions.Add(C0);
+  LMsg.Instructions.Add(LC0);
 
   // Instruction 1
-  C1 := TCompiledInstruction.Create(
+  LC1 := TCompiledInstruction.Create(
           5,
           TBytes.Create(4),
           TBytes.Create(1, 2, 0, 3),
           TBytes.Create(1),
           TBytes.Create(1)
         );
-  Msg.Instructions.Add(C1);
+  LMsg.Instructions.Add(LC1);
 
   // Serialize and verify
-  Ser := Msg.Serialize;
-  AssertEquals(Ser, MessageBytes, 'Serialized message bytes mismatch');
+  LSer := LMsg.Serialize;
+  AssertEquals(LSer, LMessageBytes, 'Serialized message bytes mismatch');
 end;
 
 initialization

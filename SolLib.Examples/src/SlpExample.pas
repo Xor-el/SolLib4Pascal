@@ -308,15 +308,15 @@ var
   LDecoded : TList<IDecodedInstruction>;
   LInst    : IDecodedInstruction;
   LPair    : TPair<string, TValue>;
-  S        : string;
+  LStr     : string;
 
 begin
   LDecoded := TInstructionDecoder.DecodeInstructions(AMessage);
   try
-    S := 'Message Decoded Instructions:';
+    LStr := 'Message Decoded Instructions:';
     for LInst in LDecoded do
     begin
-      S := S + Format('%s%sProgram: %s%s%sInstruction: %s%s', [
+      LStr := LStr + Format('%s%sProgram: %s%s%sInstruction: %s%s', [
         NEWLINE,
         TAB, LInst.ProgramName,
         NEWLINE,
@@ -325,12 +325,12 @@ begin
       ]);
 
       for LPair in LInst.Values do
-        S := S + Format('%s%s - %s%s', [
+        LStr := LStr + Format('%s%s - %s%s', [
           QUADTAB, LPair.Key, GetStringRepresentation(LPair.Value), NEWLINE
         ]);
     end;
 
-    Writeln(S);
+    Writeln(LStr);
   finally
     LDecoded.Free;
   end;
@@ -343,55 +343,55 @@ var
   LInst    : IDecodedInstruction;
   LInner   : IDecodedInstruction;
   LPair    : TPair<string, TValue>;
-  S        : string;
+  LStr     : string;
 begin
   LDecoded := TInstructionDecoder.DecodeInstructions(ATxMeta);
   try
-    S := Format('%s%s', [TAB, 'Instructions']);
+    LStr := Format('%s%s', [TAB, 'Instructions']);
 
     for LInst in LDecoded do
     begin
-      S := S + Format('%s%sProgram: %s%sKey: %s%s', [
+      LStr := LStr + Format('%s%sProgram: %s%sKey: %s%s', [
         NEWLINE,
         TAB, LInst.ProgramName,
         TAB, LInst.PublicKey.Key,
         NEWLINE
       ]);
-      S := S + Format('%s%sInstruction: %s%s', [
+      LStr := LStr + Format('%s%sInstruction: %s%s', [
         NEWLINE, DOUBLETAB, LInst.InstructionName, NEWLINE
       ]);
 
       for LPair in LInst.Values do
-        S := S + Format('%s%s - %s%s', [
+        LStr := LStr + Format('%s%s - %s%s', [
           TRIPLETAB, LPair.Key, GetStringRepresentation(LPair.Value), NEWLINE
         ]);
 
       // Inner instructions block
       if LInst.InnerInstructions.Count > 0 then
       begin
-        S := S + Format('%s%s', [DOUBLETAB, 'InnerInstructions']);
+        LStr := LStr + Format('%s%s', [DOUBLETAB, 'InnerInstructions']);
 
         for LInner in LInst.InnerInstructions do
         begin
-          S := S + Format('%s%sCPI: %s%sKey: %s%s', [
+          LStr := LStr + Format('%s%sCPI: %s%sKey: %s%s', [
             NEWLINE,
             DOUBLETAB, LInner.ProgramName,
             TAB, LInner.PublicKey.Key,
             NEWLINE
           ]);
-          S := S + Format('%s%sInstruction: %s%s', [
+          LStr := LStr + Format('%s%sInstruction: %s%s', [
             TRIPLETAB, LInner.InstructionName, NEWLINE
           ]);
 
           for LPair in LInner.Values do
-            S := S + Format('%s%s - %s%s', [
+            LStr := LStr + Format('%s%s - %s%s', [
               QUADTAB, LPair.Key, GetStringRepresentation(LPair.Value), NEWLINE
             ]);
         end;
       end;
     end;
 
-    Writeln(S);
+    Writeln(LStr);
   finally
     LDecoded.Free;
   end;

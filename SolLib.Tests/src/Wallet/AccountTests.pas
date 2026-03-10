@@ -170,21 +170,21 @@ end;
 
 procedure TAccountTests.TestAccountNoKeys;
 var
-  A: IAccount;
+  LA: IAccount;
 begin
-  A := TAccount.Create;
+  LA := TAccount.Create;
 
-  AssertNotNull(A.PrivateKey, 'A.PrivateKey <> nil');
-  AssertNotNull(A.PublicKey,  'A.PublicKey <> nil');
+  AssertNotNull(LA.PrivateKey, 'A.PrivateKey <> nil');
+  AssertNotNull(LA.PublicKey,  'A.PublicKey <> nil');
 end;
 
 procedure TAccountTests.TestAccountInvalidKeys;
 begin
   AssertException(
     procedure
-    var A: IAccount;
+    var LA: IAccount;
     begin
-      A := TAccount.Create(InvalidPrivateKeyBytes, InvalidPublicKeyBytes);
+      LA := TAccount.Create(InvalidPrivateKeyBytes, InvalidPublicKeyBytes);
     end,
     EArgumentException
   );
@@ -194,9 +194,9 @@ procedure TAccountTests.TestAccountInvalidPrivateKey;
 begin
   AssertException(
     procedure
-    var A: IAccount;
+    var LA: IAccount;
     begin
-      A := TAccount.Create(InvalidPrivateKeyBytes, PublicKeyBytes);
+      LA := TAccount.Create(InvalidPrivateKeyBytes, PublicKeyBytes);
     end,
     EArgumentException
   );
@@ -206,9 +206,9 @@ procedure TAccountTests.TestAccountInvalidPublicKey;
 begin
   AssertException(
     procedure
-    var A: IAccount;
+    var LA: IAccount;
     begin
-      A := TAccount.Create(PrivateKeyBytes, InvalidPublicKeyBytes);
+      LA := TAccount.Create(PrivateKeyBytes, InvalidPublicKeyBytes);
     end,
     EArgumentException
   );
@@ -216,110 +216,110 @@ end;
 
 procedure TAccountTests.TestAccountGetPublicKey;
 var
-  A: IAccount;
+  LA: IAccount;
 begin
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
-  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
-  AssertEquals(ExpectedEncodedPublicKey, A.PublicKey.Key, 'Encoded public key mismatch');
+  AssertEquals(LA.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
+  AssertEquals(LA.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
+  AssertEquals(ExpectedEncodedPublicKey, LA.PublicKey.Key, 'Encoded public key mismatch');
 end;
 
 procedure TAccountTests.TestAccountGetPrivateKey;
 var
-  A: IAccount;
+  LA: IAccount;
 begin
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
-  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
-  AssertEquals(ExpectedEncodedPrivateKey, A.PrivateKey.Key, 'Encoded private key mismatch');
+  AssertEquals(LA.PrivateKey.KeyBytes, PrivateKeyBytes, 'PrivateKey mismatch');
+  AssertEquals(LA.PublicKey.KeyBytes,  PublicKeyBytes,  'PublicKey mismatch');
+  AssertEquals(ExpectedEncodedPrivateKey, LA.PrivateKey.Key, 'Encoded private key mismatch');
 end;
 
 procedure TAccountTests.TestAccountSign;
 var
-  A: IAccount;
-  Sig: TBytes;
+  LA: IAccount;
+  LSig: TBytes;
 begin
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes);
-  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes);
-  Sig := A.Sign(SerializedMessageBytes);
-  AssertEquals(Sig, SerializedMessageSignatureBytes, 'Signature mismatch');
+  AssertEquals(LA.PrivateKey.KeyBytes, PrivateKeyBytes);
+  AssertEquals(LA.PublicKey.KeyBytes,  PublicKeyBytes);
+  LSig := LA.Sign(SerializedMessageBytes);
+  AssertEquals(LSig, SerializedMessageSignatureBytes, 'Signature mismatch');
 end;
 
 procedure TAccountTests.TestAccountVerify;
 var
-  A: IAccount;
-  Ok: Boolean;
+  LA: IAccount;
+  LOk: Boolean;
 begin
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertEquals(A.PrivateKey.KeyBytes, PrivateKeyBytes);
-  AssertEquals(A.PublicKey.KeyBytes,  PublicKeyBytes);
-  Ok := A.Verify(SerializedMessageBytes, SerializedMessageSignatureBytes);
-  AssertTrue(Ok, 'Verify should return True');
+  AssertEquals(LA.PrivateKey.KeyBytes, PrivateKeyBytes);
+  AssertEquals(LA.PublicKey.KeyBytes,  PublicKeyBytes);
+  LOk := LA.Verify(SerializedMessageBytes, SerializedMessageSignatureBytes);
+  AssertTrue(LOk, 'Verify should return True');
 end;
 
 procedure TAccountTests.TestAccountInitFromPair;
 var
-  A: IAccount;
+  LA: IAccount;
 begin
-  A := TAccount.Create(PrivateKeyString, PublicKeyString);
+  LA := TAccount.Create(PrivateKeyString, PublicKeyString);
 
-  AssertEquals(A.PrivateKey.KeyBytes, ExpectedPrivateKeyBytes, 'Derived PrivateKey bytes mismatch');
-  AssertEquals(A.PublicKey.KeyBytes,  ExpectedPublicKeyBytes,  'Derived PublicKey bytes mismatch');
+  AssertEquals(LA.PrivateKey.KeyBytes, ExpectedPrivateKeyBytes, 'Derived PrivateKey bytes mismatch');
+  AssertEquals(LA.PublicKey.KeyBytes,  ExpectedPublicKeyBytes,  'Derived PublicKey bytes mismatch');
 end;
 
 procedure TAccountTests.TestAccountToString;
 var
-  A: IAccount;
+  LA: IAccount;
 begin
-  A := TAccount.Create(PrivateKeyString, PublicKeyString);
+  LA := TAccount.Create(PrivateKeyString, PublicKeyString);
 
-  AssertEquals(PublicKeyString, A.ToString);
+  AssertEquals(PublicKeyString, LA.ToString);
 end;
 
 procedure TAccountTests.Equals_ExactSameInterface_ReturnsTrue;
 var
-  A, B: IAccount;
+  LA, LB: IAccount;
 begin
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
-  B := A; // same interface reference
-  AssertTrue(A.Equals(B), 'Exact same interface reference should be equal');
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LB := LA; // same interface reference
+  AssertTrue(LA.Equals(LB), 'Exact same interface reference should be equal');
 end;
 
 procedure TAccountTests.Equals_SamePublicKeyDifferentInstances_ReturnsTrue;
 var
-  A, B: IAccount;
+  LA, LB: IAccount;
 begin
   // Two DISTINCT instances, constructed with the SAME keys
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
-  B := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LB := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
 
-  AssertTrue(A.Equals(B), 'Equals should be True when public keys are equal');
-  AssertTrue(B.Equals(A), 'Equals should be symmetric when public keys are equal');
+  AssertTrue(LA.Equals(LB), 'Equals should be True when public keys are equal');
+  AssertTrue(LB.Equals(LA), 'Equals should be symmetric when public keys are equal');
 end;
 
 procedure TAccountTests.Equals_DifferentPublicKeys_ReturnsFalse;
 var
-  A, B: IAccount;
+  LA, LB: IAccount;
 begin
   // A has known keys; B is random (very likely different public key)
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
-  B := TAccount.Create; // random seed - different keypair
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  LB := TAccount.Create; // random seed - different keypair
 
-  AssertFalse(A.Equals(B), 'Equals should be False when public keys differ');
-  AssertFalse(B.Equals(A), 'Equals should be symmetric when public keys differ');
+  AssertFalse(LA.Equals(LB), 'Equals should be False when public keys differ');
+  AssertFalse(LB.Equals(LA), 'Equals should be symmetric when public keys differ');
 end;
 
 procedure TAccountTests.Equals_Nil_ReturnsFalse;
 var
-  A: IAccount;
+  LA: IAccount;
 begin
-  A := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
-  AssertFalse(A.Equals(nil), 'Equals(nil) should be False');
+  LA := TAccount.Create(PrivateKeyBytes, PublicKeyBytes);
+  AssertFalse(LA.Equals(nil), 'Equals(nil) should be False');
 end;
 
 

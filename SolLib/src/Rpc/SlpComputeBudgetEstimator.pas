@@ -203,15 +203,15 @@ class function TComputeBudgetEstimator.ComputePriceFromAccountMinimums(
 ): UInt64;
 var
   LMaxFee: UInt64;
-  I: Integer;
+  LI: Integer;
 begin
   // Assume caller validated AMaxRequiredFeeRatio between [0,1].
   LMaxFee := 0;
 
   if (AFees <> nil) and (Length(AFees) > 0) then
-    for I := 0 to High(AFees) do
-      if AFees[I] > LMaxFee then
-        LMaxFee := AFees[I];
+    for LI := 0 to High(AFees) do
+      if AFees[LI] > LMaxFee then
+        LMaxFee := AFees[LI];
 
   if LMaxFee = 0 then
     // Empty or all zeros ? fallback
@@ -247,7 +247,7 @@ class function TComputeBudgetEstimator.FetchRecentPrioritizationFees(
 ): TArray<UInt64>;
 var
   LFees: IRequestResult<TObjectList<TPrioritizationFeeItem>>;
-  I: Integer;
+  LI: Integer;
 begin
   LFees := ARpc.GetRecentPrioritizationFees(AHintAccounts);
 
@@ -261,9 +261,9 @@ begin
     Exit(nil);
 
   SetLength(Result, LFees.Result.Count);
-  for I := 0 to LFees.Result.Count - 1 do
+  for LI := 0 to LFees.Result.Count - 1 do
     // guard against negative values (shouldn’t happen)
-    Result[I] := Max(0, LFees.Result[I].PrioritizationFee);
+    Result[LI] := Max(0, LFees.Result[LI].PrioritizationFee);
 end;
 
 class function TComputeBudgetEstimator.RoundUpToStep(

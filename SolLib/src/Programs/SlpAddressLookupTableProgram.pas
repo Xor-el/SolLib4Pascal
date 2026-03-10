@@ -181,7 +181,7 @@ end;
 class function TAddressLookupTableProgramData.EncodeExtendLookupTableData(
   const AKeys: TArray<IPublicKey>): TBytes;
 var
-  I, LCount: Integer;
+  LI, LCount: Integer;
 begin
   LCount := Length(AKeys);
   SetLength(Result, 12 + LCount * 32);
@@ -190,8 +190,8 @@ begin
   // u64 key count
   TSerialization.WriteU64(Result, LCount, 4);
   // packed pubkeys
-  for I := 0 to High(AKeys) do
-    TSerialization.WritePubKey(Result, AKeys[I], 12 + I * 32);
+  for LI := 0 to High(AKeys) do
+    TSerialization.WritePubKey(Result, AKeys[LI], 12 + LI * 32);
 end;
 
 class function TAddressLookupTableProgramData.EncodeDeactivateLookupTableData: TBytes;

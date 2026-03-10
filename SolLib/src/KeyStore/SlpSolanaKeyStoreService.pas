@@ -78,27 +78,27 @@ end;
 
 function TSolanaKeyStoreService.RestoreKeystoreFromFile(const APath, APassphrase: string): IWallet;
 var
-  JsonText: string;
+  LJsonText: string;
 begin
   if APath = '' then
     raise EArgumentNilException.Create('path');
 
-  JsonText := TIOUtils.ReadAllText(APath, TEncoding.UTF8);
-  Result := InitializeWallet(TEncoders.Solana.DecodeData(JsonText), APassphrase);
+  LJsonText := TIOUtils.ReadAllText(APath, TEncoding.UTF8);
+  Result := InitializeWallet(TEncoders.Solana.DecodeData(LJsonText), APassphrase);
 end;
 
 procedure TSolanaKeyStoreService.SaveKeystore(const APath: string; const AWallet: IWallet);
 var
-  SeedString: string;
+  LSeedString: string;
 begin
   if APath = '' then
     raise EArgumentNilException.Create('path');
   if AWallet = nil then
     raise EArgumentNilException.Create('wallet');
 
-  SeedString := TEncoders.Solana.EncodeData(AWallet.Account.PrivateKey.KeyBytes);
+  LSeedString := TEncoders.Solana.EncodeData(AWallet.Account.PrivateKey.KeyBytes);
 
-  TIOUtils.WriteAllBytes(APath, TEncoding.ASCII.GetBytes(SeedString));
+  TIOUtils.WriteAllBytes(APath, TEncoding.ASCII.GetBytes(LSeedString));
 end;
 
 function TSolanaKeyStoreService.InitializeWallet(const ASeed: TBytes; const APassphrase: string): IWallet;

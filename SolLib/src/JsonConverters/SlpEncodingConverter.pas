@@ -52,8 +52,8 @@ end;
 function TEncodingConverter.ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  S: string;
-  Enc: TBinaryEncoding;
+  LS: string;
+  LEnc: TBinaryEncoding;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Exit(TValue.Empty);
@@ -61,36 +61,36 @@ begin
   if (ATypeInfo = nil) or (ATypeInfo.Kind <> tkEnumeration) then
     raise EJsonException.Create('EncodingConverter called for non-enum type.');
 
-  S := AReader.Value.AsString;
+  LS := AReader.Value.AsString;
 
-  if SameText(S, 'json') then
-    Enc := TBinaryEncoding.Json
-  else if SameText(S, 'jsonParsed') then
-    Enc := TBinaryEncoding.JsonParsed
-  else if SameText(S, 'base58') then
-    Enc := TBinaryEncoding.Base58
-  else if SameText(S, 'base64') then
-    Enc := TBinaryEncoding.Base64
-  else if SameText(S, 'base64+zstd') then
-    Enc := TBinaryEncoding.Base64Zstd
+  if SameText(LS, 'json') then
+    LEnc := TBinaryEncoding.Json
+  else if SameText(LS, 'jsonParsed') then
+    LEnc := TBinaryEncoding.JsonParsed
+  else if SameText(LS, 'base58') then
+    LEnc := TBinaryEncoding.Base58
+  else if SameText(LS, 'base64') then
+    LEnc := TBinaryEncoding.Base64
+  else if SameText(LS, 'base64+zstd') then
+    LEnc := TBinaryEncoding.Base64Zstd
   else
-    raise EJsonException.CreateFmt('Unknown binary encoding "%s".', [S]);
+    raise EJsonException.CreateFmt('Unknown binary encoding "%s".', [LS]);
 
-  Result := TValue.From<TBinaryEncoding>(Enc);
+  Result := TValue.From<TBinaryEncoding>(LEnc);
 end;
 
 procedure TEncodingConverter.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
   const ASerializer: TJsonSerializer);
 var
-  Enc: TBinaryEncoding;
-  V: TValue;
+  LEnc: TBinaryEncoding;
+  LV: TValue;
 begin
-  V := AValue.Unwrap();
+  LV := AValue.Unwrap();
 
-  if not V.TryAsType<TBinaryEncoding>(Enc) then
+  if not LV.TryAsType<TBinaryEncoding>(LEnc) then
     raise EJsonException.Create('EncodingConverter received unexpected value type.');
 
-  case Enc of
+  case LEnc of
     TBinaryEncoding.Json:
       AWriter.WriteValue('json');
 
@@ -108,7 +108,7 @@ begin
   else
     raise EJsonException.CreateFmt(
       'EncodingConverter received unsupported encoding value (%d).',
-      [Ord(Enc)]
+      [Ord(LEnc)]
     );
   end;
 end;

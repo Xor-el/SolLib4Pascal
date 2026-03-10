@@ -47,8 +47,8 @@ type
     TokenProgramProgramId: string = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
   private
     function CreateMockRequestResult<T>(
-      const Req, Resp: string;
-      const StatusCode: Integer
+      const AReq, AResp: string;
+      const AStatusCode: Integer
     ): IRequestResult<T>;
 
   published
@@ -65,294 +65,294 @@ implementation
 { TSolanaRpcClientBatchTests }
 
 function TSolanaRpcClientBatchTests.CreateMockRequestResult<T>(
-  const Req, Resp: string;
-  const StatusCode: Integer
+  const AReq, AResp: string;
+  const AStatusCode: Integer
 ): IRequestResult<T>;
 var
   LRes: TRequestResult<T>;
 begin
   LRes := TRequestResult<T>.Create;
-  LRes.HttpStatusCode := StatusCode;
-  LRes.RawRpcRequest  := Req;
-  LRes.RawRpcResponse := Resp;
+  LRes.HttpStatusCode := AStatusCode;
+  LRes.RawRpcRequest  := AReq;
+  LRes.RawRpcResponse := AResp;
 
-  if StatusCode = 200 then
-    LRes.Result := TTestUtils.Deserialize<T>(Resp);
+  if AStatusCode = 200 then
+    LRes.Result := TTestUtils.Deserialize<T>(AResp);
 
   Result := LRes;
 end;
 
 procedure TSolanaRpcClientBatchTests.TestCreateAndSerializeBatchTokenMintInfoRequest;
 var
-  expected, json: string;
-  unusedRpcClient: IRpcClient;
-  unusedMockRpcHttpClient: IHttpApiClient;
-  batch: TSolanaRpcBatchWithCallbacks;
-  reqs: TJsonRpcBatchRequest;
+  LExpected, LJson: string;
+  LUnusedRpcClient: IRpcClient;
+  LUnusedMockRpcHttpClient: IHttpApiClient;
+  LBatch: TSolanaRpcBatchWithCallbacks;
+  LReqs: TJsonRpcBatchRequest;
 begin
-  expected := LoadTestData('Batch/SampleBatchTokenMintInfoRequest.json');
+  LExpected := LoadTestData('Batch/SampleBatchTokenMintInfoRequest.json');
 
-  unusedMockRpcHttpClient := SetupTest('', 200);
+  LUnusedMockRpcHttpClient := SetupTest('', 200);
   // compose a new batch of requests
-  unusedRpcClient := TClientFactory.GetClient(TCluster.TestNet, unusedMockRpcHttpClient);
+  LUnusedRpcClient := TClientFactory.GetClient(TCluster.TestNet, LUnusedMockRpcHttpClient);
 
-  batch := TSolanaRpcBatchWithCallbacks.Create(unusedRpcClient);
+  LBatch := TSolanaRpcBatchWithCallbacks.Create(LUnusedRpcClient);
   try
-    batch.GetTokenMintInfo('7yC2ABeaKRfvQsbZ5rA7cKTKF6YcyCYWV65jYrWrnhRN');
-    batch.GetTokenMintInfo('GPytBb4s75MZxxviHJzpbHHgdWTcajmMDBd8VsBVAFS5');
+    LBatch.GetTokenMintInfo('7yC2ABeaKRfvQsbZ5rA7cKTKF6YcyCYWV65jYrWrnhRN');
+    LBatch.GetTokenMintInfo('GPytBb4s75MZxxviHJzpbHHgdWTcajmMDBd8VsBVAFS5');
 
-    AssertEquals(2, batch.Composer.Count, 'Composer.Count');
+    AssertEquals(2, LBatch.Composer.Count, 'Composer.Count');
 
-    reqs := nil;
+    LReqs := nil;
     try
-      reqs := batch.Composer.CreateJsonRequests;
-      AssertNotNull(reqs, 'reqs should not be nil');
-      AssertEquals(2, reqs.Count, 'reqs.Count');
+      LReqs := LBatch.Composer.CreateJsonRequests;
+      AssertNotNull(LReqs, 'reqs should not be nil');
+      AssertEquals(2, LReqs.Count, 'reqs.Count');
 
-      json := TTestUtils.Serialize(reqs);
-      AssertJsonMatch(expected, json, 'Serialized batch JSON mismatch');
+      LJson := TTestUtils.Serialize(LReqs);
+      AssertJsonMatch(LExpected, LJson, 'Serialized batch JSON mismatch');
     finally
-      reqs.Free;
+      LReqs.Free;
     end;
   finally
-    batch.Free;
+    LBatch.Free;
   end;
 end;
 
 procedure TSolanaRpcClientBatchTests.TestDeserializeBatchResponse;
 var
-  responseData: string;
-  res: TJsonRpcBatchResponse;
+  LResponseData: string;
+  LRes: TJsonRpcBatchResponse;
 begin
-  responseData := LoadTestData('Batch/SampleBatchResponse.json');
+  LResponseData := LoadTestData('Batch/SampleBatchResponse.json');
 
-  res := nil;
+  LRes := nil;
   try
-    res := TTestUtils.Deserialize<TJsonRpcBatchResponse>(responseData);
-    AssertNotNull(res, 'Batch response should not be nil');
-    AssertEquals(5, res.Count, 'Batch response item count');
+    LRes := TTestUtils.Deserialize<TJsonRpcBatchResponse>(LResponseData);
+    AssertNotNull(LRes, 'Batch response should not be nil');
+    AssertEquals(5, LRes.Count, 'Batch response item count');
   finally
-    res.Free;
+    LRes.Free;
   end;
 end;
 
 procedure TSolanaRpcClientBatchTests.TestDeserializeBatchTokenMintInfoResponse;
 var
-  responseData: string;
-  res: TJsonRpcBatchResponse;
+  LResponseData: string;
+  LRes: TJsonRpcBatchResponse;
 begin
-  responseData := LoadTestData('Batch/SampleBatchTokenMintInfoResponse.json');
+  LResponseData := LoadTestData('Batch/SampleBatchTokenMintInfoResponse.json');
 
-  res := nil;
+  LRes := nil;
   try
-    res := TTestUtils.Deserialize<TJsonRpcBatchResponse>(responseData);
-    AssertNotNull(res);
-    AssertEquals(2, res.Count);
+    LRes := TTestUtils.Deserialize<TJsonRpcBatchResponse>(LResponseData);
+    AssertNotNull(LRes);
+    AssertEquals(2, LRes.Count);
   finally
-    res.Free;
+    LRes.Free;
   end;
 end;
 
 procedure TSolanaRpcClientBatchTests.TestTransactionError_1;
 var
-  exampleFail, json: string;
-  obj: TTransactionError;
+  LExampleFail, LJson: string;
+  LObj: TTransactionError;
 begin
-  exampleFail := '{''InstructionError'':[0,''InvalidAccountData'']}';
-  exampleFail := StringReplace(exampleFail, '''', '"', [rfReplaceAll]);
+  LExampleFail := '{''InstructionError'':[0,''InvalidAccountData'']}';
+  LExampleFail := StringReplace(LExampleFail, '''', '"', [rfReplaceAll]);
 
-  obj := TTestUtils.Deserialize<TTransactionError>(exampleFail);
+  LObj := TTestUtils.Deserialize<TTransactionError>(LExampleFail);
   try
-    AssertNotNull(obj, 'Deserialized object should not be nil');
+    AssertNotNull(LObj, 'Deserialized object should not be nil');
 
-    json := TTestUtils.Serialize(obj);
-    AssertTrue(json <> '', 'Serialized JSON should not be empty');
-    AssertJsonMatch(exampleFail, json, 'Round-trip JSON mismatch');
+    LJson := TTestUtils.Serialize(LObj);
+    AssertTrue(LJson <> '', 'Serialized JSON should not be empty');
+    AssertJsonMatch(LExampleFail, LJson, 'Round-trip JSON mismatch');
   finally
-    obj.Free;
+    LObj.Free;
   end;
 end;
 
 procedure TSolanaRpcClientBatchTests.TestAutoExecuteMode;
 var
-  expectedRequests, expectedResponses: string;
-  foundLamports: UInt64;
-  foundBalance: Double;
-  sigCallbackCount: Integer;
-  baseAddress: string;
-  mockHandler: TMyMockHttpMessageHandler;
-  mockHttpClient: IHttpApiClient;
-  mockRpcClient: IRpcClient;
-  batch: TSolanaRpcBatchWithCallbacks;
+  LExpectedRequests, LExpectedResponses: string;
+  LFoundLamports: UInt64;
+  LFoundBalance: Double;
+  LSigCallbackCount: Integer;
+  LBaseAddress: string;
+  LMockHandler: TMyMockHttpMessageHandler;
+  LMockHttpClient: IHttpApiClient;
+  LMockRpcClient: IRpcClient;
+  LBatch: TSolanaRpcBatchWithCallbacks;
   LTokenAccountData: TTokenAccountData;
 begin
-  expectedRequests := LoadTestData('Batch/SampleBatchRequest.json');
-  expectedResponses := LoadTestData('Batch/SampleBatchResponse.json');
+  LExpectedRequests := LoadTestData('Batch/SampleBatchRequest.json');
+  LExpectedResponses := LoadTestData('Batch/SampleBatchResponse.json');
 
-  foundLamports := 0;
-  foundBalance := 0.0;
-  sigCallbackCount := 0;
+  LFoundLamports := 0;
+  LFoundBalance := 0.0;
+  LSigCallbackCount := 0;
 
-  baseAddress := TestnetUrl;
-  mockHandler := TMyMockHttpMessageHandler.Create;
+  LBaseAddress := TestnetUrl;
+  LMockHandler := TMyMockHttpMessageHandler.Create;
   try
-    mockHandler.Add(expectedRequests, expectedResponses, 200);
-    mockHttpClient := TQueuedMockRpcHttpClient.Create(mockHandler, baseAddress);
-    mockRpcClient := TClientFactory.GetClient(TCluster.TestNet, mockHttpClient, nil);
+    LMockHandler.Add(LExpectedRequests, LExpectedResponses, 200);
+    LMockHttpClient := TQueuedMockRpcHttpClient.Create(LMockHandler, LBaseAddress);
+    LMockRpcClient := TClientFactory.GetClient(TCluster.TestNet, LMockHttpClient, nil);
 
-    batch := TSolanaRpcBatchWithCallbacks.Create(mockRpcClient);
+    LBatch := TSolanaRpcBatchWithCallbacks.Create(LMockRpcClient);
     try
-      batch.AutoExecute(TBatchAutoExecuteMode.ExecuteWithFatalFailure, 10);
+      LBatch.AutoExecute(TBatchAutoExecuteMode.ExecuteWithFatalFailure, 10);
 
-      batch.GetBalance(
+      LBatch.GetBalance(
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', TCommitment.Finalized,
-        procedure (x: TResponseValue<UInt64>; ex: Exception)
+        procedure (AResponse: TResponseValue<UInt64>; AException: Exception)
         begin
-          foundLamports := x.Value;
+          LFoundLamports := AResponse.Value;
         end
       );
 
-      batch.GetTokenAccountsByOwner(
+      LBatch.GetTokenAccountsByOwner(
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', '', TokenProgramProgramId, TBinaryEncoding.JsonParsed, TCommitment.Finalized,
-        procedure (x: TResponseValue<TObjectList<TTokenAccount>>; ex: Exception)
+        procedure (AResponse: TResponseValue<TObjectList<TTokenAccount>>; AException: Exception)
         begin
-          LTokenAccountData := x.Value[0].Account.Data.AsType<TTokenAccountData>;
-          foundBalance := LTokenAccountData.Parsed.Info.TokenAmount.AmountDouble;
+          LTokenAccountData := AResponse.Value[0].Account.Data.AsType<TTokenAccountData>;
+          LFoundBalance := LTokenAccountData.Parsed.Info.TokenAmount.AmountDouble;
         end
       );
 
-      batch.GetSignaturesForAddress(
+      LBatch.GetSignaturesForAddress(
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', 200, '', '', TCommitment.Finalized,
-        procedure (x: TObjectList<TSignatureStatusInfo>; ex: Exception)
+        procedure (AResponse: TObjectList<TSignatureStatusInfo>; AException: Exception)
         begin
-          Inc(sigCallbackCount, x.Count);
+          Inc(LSigCallbackCount, AResponse.Count);
         end
       );
-      batch.GetSignaturesForAddress(
+      LBatch.GetSignaturesForAddress(
         '88ocFjrLgHEMQRMwozC7NnDBQUsq2UoQaqREFZoDEex', 200, '', '', TCommitment.Finalized,
-        procedure (x: TObjectList<TSignatureStatusInfo>; ex: Exception)
+        procedure (AResponse: TObjectList<TSignatureStatusInfo>; AException: Exception)
         begin
-          Inc(sigCallbackCount, x.Count);
+          Inc(LSigCallbackCount, AResponse.Count);
         end
       );
-      batch.GetSignaturesForAddress(
+      LBatch.GetSignaturesForAddress(
         '4NSREK36nAr32vooa3L9z8tu6JWj5rY3k4KnsqTgynvm', 200, '', '', TCommitment.Finalized,
-        procedure (x: TObjectList<TSignatureStatusInfo>; ex: Exception)
+        procedure (AResponse: TObjectList<TSignatureStatusInfo>; AException: Exception)
         begin
-          Inc(sigCallbackCount, x.Count);
+          Inc(LSigCallbackCount, AResponse.Count);
         end
       );
 
       // run through any remaining requests in batch
-      batch.Flush;
+      LBatch.Flush;
 
       // after flush: queue should be empty; second flush non-fatal
-      AssertEquals(0, batch.Composer.Count);
-      batch.Flush;
+      AssertEquals(0, LBatch.Composer.Count);
+      LBatch.Flush;
 
-      AssertEquals(237543960, foundLamports, 'lamports');
-      AssertEquals(12.5, foundBalance, 0.0, 'balance');
-      AssertEquals(3, sigCallbackCount, 'sig count');
+      AssertEquals(237543960, LFoundLamports, 'lamports');
+      AssertEquals(12.5, LFoundBalance, 0.0, 'balance');
+      AssertEquals(3, LSigCallbackCount, 'sig count');
     finally
-      batch.Free;
+      LBatch.Free;
     end;
   finally
-    mockHandler.Free;
+    LMockHandler.Free;
   end;
 end;
 
 procedure TSolanaRpcClientBatchTests.TestBatchFailed;
 var
-  expectedRequests, expectedResponses: string;
-  exceptionsEncountered: Integer;
-  baseAddress: string;
-  mockHandler: TMyMockHttpMessageHandler;
-  mockHttpClient: IHttpApiClient;
-  mockRpcClient: IRpcClient;
-  mockResultObj, exceptionResultObj: IRequestResult<TJsonRpcBatchResponse>;
-  batch: TSolanaRpcBatchWithCallbacks;
-  catchForAssert: EBatchRequestException;
+  LExpectedRequests, LExpectedResponses: string;
+  LExceptionsEncountered: Integer;
+  LBaseAddress: string;
+  LMockHandler: TMyMockHttpMessageHandler;
+  LMockHttpClient: IHttpApiClient;
+  LMockRpcClient: IRpcClient;
+  LMockResultObj, LExceptionResultObj: IRequestResult<TJsonRpcBatchResponse>;
+  LBatch: TSolanaRpcBatchWithCallbacks;
+  LCatchForAssert: EBatchRequestException;
 begin
-  expectedRequests := LoadTestData('Batch/SampleBatchRequest.json');
-  expectedResponses := 'BAD REQUEST';
-  exceptionsEncountered := 0;
-  catchForAssert := nil;
+  LExpectedRequests := LoadTestData('Batch/SampleBatchRequest.json');
+  LExpectedResponses := 'BAD REQUEST';
+  LExceptionsEncountered := 0;
+  LCatchForAssert := nil;
 
-  baseAddress := TestnetUrl;
-  mockHandler := TMyMockHttpMessageHandler.Create;
+  LBaseAddress := TestnetUrl;
+  LMockHandler := TMyMockHttpMessageHandler.Create;
   try
     // Mock HTTP 400
-    mockHandler.Add(expectedRequests, expectedResponses, 400);
-    mockHttpClient := TQueuedMockRpcHttpClient.Create(mockHandler, baseAddress);
-    mockRpcClient := TClientFactory.GetClient(TCluster.TestNet, mockHttpClient, nil);
+    LMockHandler.Add(LExpectedRequests, LExpectedResponses, 400);
+    LMockHttpClient := TQueuedMockRpcHttpClient.Create(LMockHandler, LBaseAddress);
+    LMockRpcClient := TClientFactory.GetClient(TCluster.TestNet, LMockHttpClient, nil);
 
-    batch := TSolanaRpcBatchWithCallbacks.Create(mockRpcClient);
+    LBatch := TSolanaRpcBatchWithCallbacks.Create(LMockRpcClient);
     try
       // queue 5 requests; callbacks count exceptions / capture the batch exception
-      batch.GetBalance(
+      LBatch.GetBalance(
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', TCommitment.Finalized,
-        procedure (x: TResponseValue<UInt64>; ex: Exception)
+        procedure (AResponse: TResponseValue<UInt64>; AException: Exception)
         begin
-          if ex <> nil then Inc(exceptionsEncountered);
+          if AException <> nil then Inc(LExceptionsEncountered);
         end
       );
-      batch.GetTokenAccountsByOwner(
+      LBatch.GetTokenAccountsByOwner(
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', '', TokenProgramProgramId, TBinaryEncoding.JsonParsed, TCommitment.Finalized,
-        procedure (x: TResponseValue<TObjectList<TTokenAccount>>; ex: Exception)
+        procedure (AResponse: TResponseValue<TObjectList<TTokenAccount>>; AException: Exception)
         begin
-          if ex <> nil then Inc(exceptionsEncountered);
+          if AException <> nil then Inc(LExceptionsEncountered);
         end
       );
-      batch.GetSignaturesForAddress(
+      LBatch.GetSignaturesForAddress(
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', 200, '', '', TCommitment.Finalized,
-        procedure (x: TObjectList<TSignatureStatusInfo>; ex: Exception)
+        procedure (AResponse: TObjectList<TSignatureStatusInfo>; AException: Exception)
         begin
-          if ex <> nil then Inc(exceptionsEncountered);
+          if AException <> nil then Inc(LExceptionsEncountered);
         end
       );
-      batch.GetSignaturesForAddress(
+      LBatch.GetSignaturesForAddress(
         '88ocFjrLgHEMQRMwozC7NnDBQUsq2UoQaqREFZoDEex', 200, '', '', TCommitment.Finalized,
-        procedure (x: TObjectList<TSignatureStatusInfo>; ex: Exception)
+        procedure (AResponse: TObjectList<TSignatureStatusInfo>; AException: Exception)
         begin
-          if ex <> nil then Inc(exceptionsEncountered);
+          if AException <> nil then Inc(LExceptionsEncountered);
         end
       );
-      batch.GetSignaturesForAddress(
+      LBatch.GetSignaturesForAddress(
         '4NSREK36nAr32vooa3L9z8tu6JWj5rY3k4KnsqTgynvm', 200, '', '', TCommitment.Finalized,
-        procedure (x: TObjectList<TSignatureStatusInfo>; ex: Exception)
+        procedure (AResponse: TObjectList<TSignatureStatusInfo>; AException: Exception)
         begin
-          if ex is EBatchRequestException then
-            catchForAssert := EBatchRequestException(ex);
-          exceptionResultObj := catchForAssert.RpcResult;
-          if ex <> nil then Inc(exceptionsEncountered);
+          if AException is EBatchRequestException then
+            LCatchForAssert := EBatchRequestException(AException);
+          LExceptionResultObj := LCatchForAssert.RpcResult;
+          if AException <> nil then Inc(LExceptionsEncountered);
         end
       );
 
       // before executing: 5 requests queued
-      AssertEquals(5, batch.Composer.Count, 'Composer.Count');
+      AssertEquals(5, LBatch.Composer.Count, 'Composer.Count');
 
       // fabricate failed RequestResult for composer failure path
-      mockResultObj := CreateMockRequestResult<TJsonRpcBatchResponse>(
-        expectedRequests, expectedResponses, 400
+      LMockResultObj := CreateMockRequestResult<TJsonRpcBatchResponse>(
+        LExpectedRequests, LExpectedResponses, 400
       );
 
-      AssertNotNull(mockResultObj, 'resp');
-      AssertNull(mockResultObj.Result, 'resp.Result');
-      AssertEquals(expectedResponses, mockResultObj.RawRpcResponse);
+      AssertNotNull(LMockResultObj, 'resp');
+      AssertNull(LMockResultObj.Result, 'resp.Result');
+      AssertEquals(LExpectedResponses, LMockResultObj.RawRpcResponse);
 
       // process failure and invoke callbacks
-      batch.Composer.ProcessBatchFailure(mockResultObj);
+      LBatch.Composer.ProcessBatchFailure(LMockResultObj);
 
       // now all callbacks should have been called with exceptions
-      AssertEquals(5, exceptionsEncountered, 'All callbacks should receive exceptions');
-      AssertNotNull(catchForAssert, 'Expected EBatchRequestException to be caught');
-      AssertNotNull(exceptionResultObj, 'Exception should carry RpcResult');
-      AssertEquals(expectedResponses, exceptionResultObj.RawRpcResponse, 'RawRpcResponse');
+      AssertEquals(5, LExceptionsEncountered, 'All callbacks should receive exceptions');
+      AssertNotNull(LCatchForAssert, 'Expected EBatchRequestException to be caught');
+      AssertNotNull(LExceptionResultObj, 'Exception should carry RpcResult');
+      AssertEquals(LExpectedResponses, LExceptionResultObj.RawRpcResponse, 'RawRpcResponse');
     finally
-      batch.Free;
+      LBatch.Free;
     end;
   finally
-    mockHandler.Free;
+    LMockHandler.Free;
   end;
 end;
 

@@ -265,15 +265,15 @@ end;
 
 destructor TSolanaRpcBatchComposer.Destroy;
 var
-  I: Integer;
+  LI: Integer;
 begin
   if Assigned(FSerializer) then
   begin
     if Assigned(FSerializer.Converters) then
     begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
+      for LI := 0 to FSerializer.Converters.Count - 1 do
+        if Assigned(FSerializer.Converters[LI]) then
+          FSerializer.Converters[LI].Free;
       FSerializer.Converters.Clear;
     end;
     FSerializer.Free;
@@ -297,19 +297,19 @@ end;
 
 function TSolanaRpcBatchComposer.BuildSerializer: TJsonSerializer;
 var
-  Converters: TList<TJsonConverter>;
+  LConverters: TList<TJsonConverter>;
 begin
-  Converters := GetConverters();
+  LConverters := GetConverters();
   try
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,
         TJsonNamingPolicy.CamelCase
       ),
-      Converters
+      LConverters
     );
   finally
-    Converters.Free;
+    LConverters.Free;
   end;
 end;
 
@@ -380,7 +380,7 @@ function TSolanaRpcBatchComposer.ProcessBatchResponse(
   const AResponse: IRequestResult<TJsonRpcBatchResponse>
 ): TJsonRpcBatchResponse;
 var
-  I: Integer;
+  LI: Integer;
   LReq : TRpcBatchReqRespItem;
   LItem: TJsonRpcBatchResponseItem;
   LInvoked: Boolean;
@@ -394,10 +394,10 @@ begin
 
   try
     // Transfer expected type info to individual batch response items
-    for I := 0 to FReqs.Count - 1 do
+    for LI := 0 to FReqs.Count - 1 do
     begin
-      LReq  := FReqs[I];
-      LItem := AResponse.Result[I];
+      LReq  := FReqs[LI];
+      LItem := AResponse.Result[LI];
 
       // Set the runtime type on the response item
       LItem.ResultType := LReq.ResultType;
@@ -486,16 +486,16 @@ var
   LJsonReader: TJsonTextReader;
   LTarget    : TValue;
   LJson      : TJSONValue;
-  IsClass    : Boolean;
-  Obj        : TObject;
+  LIsClass   : Boolean;
+  LObj       : TObject;
 begin
   Result := AInput;
   if (ANativeType = nil) or AInput.IsEmpty then Exit;
   if (AInput.Kind <> tkClass) or not (AInput.AsObject is TJSONValue) then Exit;
 
   TValue.Make(nil, ANativeType, LTarget);
-  IsClass := (ANativeType^.Kind = tkClass);
-  if IsClass then
+  LIsClass := (ANativeType^.Kind = tkClass);
+  if LIsClass then
     LTarget := TValueUtils.MakeInstanceForPopulate(ANativeType);
 
   LJson := TJSONValue(AInput.AsObject);
@@ -509,8 +509,8 @@ begin
         except
           on E: Exception do
           begin
-            if IsClass and LTarget.TryAsType<TObject>(Obj) then
-              Obj.Free; // prevent leak on failed populate
+            if LIsClass and LTarget.TryAsType<TObject>(LObj) then
+              LObj.Free; // prevent leak on failed populate
             raise;
           end;
         end;
@@ -536,23 +536,23 @@ end;
 
 procedure TSolanaRpcBatchComposer.Flush;
 var
-  Res: TJsonRpcBatchResponse;
+  LRes: TJsonRpcBatchResponse;
 begin
-  Res := nil;
+  LRes := nil;
   try
     case FAutoMode of
       TBatchAutoExecuteMode.ExecuteWithFatalFailure:
-       Res := ExecuteWithFatalFailure(FRpcClient);
+       LRes := ExecuteWithFatalFailure(FRpcClient);
 
       TBatchAutoExecuteMode.ExecuteWithCallbackFailures:
-        Res := Execute(FRpcClient);
+        LRes := Execute(FRpcClient);
     else
       raise Exception.Create('BatchComposer AutoExecute mode not set');
     end;
 
   finally
 
-    Res.Free;
+    LRes.Free;
   end;
 end;
 

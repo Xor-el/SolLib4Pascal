@@ -31,10 +31,10 @@ type
     // Machine epsilon for Double at 1.0, computed at runtime.
     class var FEps: Double;
     class constructor Create;
-    class function ULPAt(const X: Double): Double; static;
+    class function ULPAt(const AX: Double): Double; static;
   public
-    class function DoubleToUInt64(const V: Double): UInt64; static;
-    class function DoubleToNativeUInt(const V: Double): NativeUInt; static;
+    class function DoubleToUInt64(const AV: Double): UInt64; static;
+    class function DoubleToNativeUInt(const AV: Double): NativeUInt; static;
   end;
 
 implementation
@@ -43,76 +43,76 @@ implementation
 
 class constructor TMathUtils.Create;
 var
-  eps, one: Double;
+  LEps, LOne: Double;
 begin
-  // Compute machine epsilon for Double: smallest eps where 1 + eps > 1
-  one := 1.0;
-  eps := 1.0;
+  // Compute machine epsilon for Double: smallest LEps where 1 + LEps > 1
+  LOne := 1.0;
+  LEps := 1.0;
   repeat
-    eps := eps * 0.5;
-  until (one + eps = one);
-  FEps := eps * 2.0; // last eps that still changed 1.0
+    LEps := LEps * 0.5;
+  until (LOne + LEps = LOne);
+  FEps := LEps * 2.0; // last LEps that still changed 1.0
 end;
 
-class function TMathUtils.ULPAt(const X: Double): Double;
+class function TMathUtils.ULPAt(const AX: Double): Double;
 var
-  m: Double;
-  e: Integer;
+  LM: Double;
+  LE: Integer;
 begin
-  // Decompose X ˜ m * 2^e with m in [0.5, 1). ULP(X) ˜ FEps * 2^e for Double.
-  Frexp(X, m, e);
-  Result := Ldexp(1.0, e) * FEps; // FEps scaled by exponent near X
+  // Decompose AX ~ LM * 2^LE with LM in [0.5, 1). ULP(AX) ~ FEps * 2^LE for Double.
+  Frexp(AX, LM, LE);
+  Result := Ldexp(1.0, LE) * FEps; // FEps scaled by exponent near AX
 end;
 
-class function TMathUtils.DoubleToUInt64(const V: Double): UInt64;
+class function TMathUtils.DoubleToUInt64(const AV: Double): UInt64;
 const
   TWO63  : Double = 9223372036854775808.0;    // 2^63
   MAXU64 : Double = 18446744073709551615.0;   // 2^64 - 1 (not exact as Double)
   K_SNAP : Integer = 16;                      // snap window = 16 ULPs
 var
-  W, snap, wInt: Double;
-  ulp: Double;
+  LW, LSnap, LWInt: Double;
+  LUlp: Double;
 begin
   // Treat NaN as 0.0
-  if IsNan(V) then
-    W := 0.0
+  if IsNan(AV) then
+    LW := 0.0
   else
-    W := V;
+    LW := AV;
 
   // Clamp in floating space first
-  W := EnsureRange(W, 0.0, MAXU64);
+  LW := EnsureRange(LW, 0.0, MAXU64);
 
   // Adaptive snap: if we're within K * ULP of the ceiling, snap to exact High(UInt64)
-  ulp  := ULPAt(MAXU64);
-  snap := ulp * K_SNAP;
-  if W >= (MAXU64 - snap) then
+  LUlp  := ULPAt(MAXU64);
+  LSnap := LUlp * K_SNAP;
+  if LW >= (MAXU64 - LSnap) then
   begin
     Exit(High(UInt64));
   end;
 
   // Drop fraction; avoid overflow by splitting around 2^63
-  wInt := Int(W); // Int(Double) -> Double
-  if wInt < TWO63 then
-    Result := UInt64(Int64(Trunc(wInt)))
+  LWInt := Int(LW); // Int(Double) -> Double
+  if LWInt < TWO63 then
+    Result := UInt64(Int64(Trunc(LWInt)))
   else
-    Result := (UInt64(1) shl 63) + UInt64(Int64(Trunc(wInt - TWO63)));
+    Result := (UInt64(1) shl 63) + UInt64(Int64(Trunc(LWInt - TWO63)));
 end;
 
-class function TMathUtils.DoubleToNativeUInt(const V: Double): NativeUInt;
+class function TMathUtils.DoubleToNativeUInt(const AV: Double): NativeUInt;
 var
-  W, wInt: Double;
+  LW, LWInt: Double;
 begin
   if SizeOf(NativeUInt) = 8 then
-    Exit(NativeUInt(DoubleToUInt64(V)));
+    Exit(NativeUInt(DoubleToUInt64(AV)));
 
-  if IsNan(V) then
-    W := 0.0
+  if IsNan(AV) then
+    LW := 0.0
   else
-    W := V;
+    LW := AV;
 
-  W := EnsureRange(W, 0.0, Double(High(NativeUInt)));
-  wInt := Int(W);
-  Result := NativeUInt(Cardinal(Trunc(wInt)));
+  LW := EnsureRange(LW, 0.0, Double(High(NativeUInt)));
+  LWInt := Int(LW);
+  Result := NativeUInt(Cardinal(Trunc(LWInt)));
 end;
 
 end.

@@ -59,30 +59,30 @@ var
   LTokenResolver: ITokenMintResolver;
   LTokenWallet: ITokenWallet;
   LBalances: TList<ITokenWalletBalance>;
-  LAccounts, LSublist: ITokenWalletFilterList;
+  LAccounts, LSubList: ITokenWalletFilterList;
   LMaxSym, LMaxName: Integer;
-  B: ITokenWalletBalance;
-  A: ITokenWalletAccount;
+  LBalance: ITokenWalletBalance;
+  LAccount: ITokenWalletAccount;
 
   // formatting helpers
-  function PadRight(const S: string; const AWidth: Integer): string;
+  function PadRight(const AStr: string; const AWidth: Integer): string;
   begin
-    if Length(S) >= AWidth then
-      Exit(S);
-    Result := S + StringOfChar(' ', AWidth - Length(S));
+    if Length(AStr) >= AWidth then
+      Exit(AStr);
+    Result := AStr + StringOfChar(' ', AWidth - Length(AStr));
   end;
 
-  function FormatQty(const V: Double; const AWidth: Integer): string;
+  function FormatQty(const AValue: Double; const AWidth: Integer): string;
   var
-    FS: TFormatSettings;
-    S: string;
+    LFS: TFormatSettings;
+    LStr: string;
   begin
-    FS := TFormatSettings.Invariant; // use '.' decimal
-    S := FormatFloat('0.####################', V, FS); // up to 20 dp, no trailing zeros
-    if Length(S) < AWidth then
-      Result := StringOfChar(' ', AWidth - Length(S)) + S
+    LFS := TFormatSettings.Invariant; // use '.' decimal
+    LStr := FormatFloat('0.####################', AValue, LFS); // up to 20 dp, no trailing zeros
+    if Length(LStr) < AWidth then
+      Result := StringOfChar(' ', AWidth - Length(LStr)) + LStr
     else
-      Result := S;
+      Result := LStr;
   end;
 
 begin
@@ -105,49 +105,49 @@ begin
     // Compute max widths for pretty columns
     LMaxSym  := 0;
     LMaxName := 0;
-    for B in LBalances do
+    for LBalance in LBalances do
     begin
-      if Length(B.Symbol)    > LMaxSym  then LMaxSym  := Length(B.Symbol);
-      if Length(B.TokenName) > LMaxName then LMaxName := Length(B.TokenName);
+      if Length(LBalance.Symbol)    > LMaxSym  then LMaxSym  := Length(LBalance.Symbol);
+      if Length(LBalance.TokenName) > LMaxName then LMaxName := Length(LBalance.TokenName);
     end;
 
     Writeln('Individual Accounts...');
-    for A in LAccounts do
+    for LAccount in LAccounts do
     begin
       Writeln(
-        PadRight(A.Symbol, LMaxSym), ' ',
-        FormatQty(A.QuantityDouble, 14), ' ',
-        PadRight(A.TokenName, LMaxName), ' ',
-        A.PublicKey, ' ',
-        IfThen(A.IsAssociatedTokenAccount, '[ATA]', '')
+        PadRight(LAccount.Symbol, LMaxSym), ' ',
+        FormatQty(LAccount.QuantityDouble, 14), ' ',
+        PadRight(LAccount.TokenName, LMaxName), ' ',
+        LAccount.PublicKey, ' ',
+        IfThen(LAccount.IsAssociatedTokenAccount, '[ATA]', '')
       );
     end;
     Writeln;
 
     Writeln('Filtered Accounts...');
-    LSublist := LTokenWallet.TokenAccounts.WithSymbol(Symbol).WithMint(Mint);
-    for A in LSublist do
+    LSubList := LTokenWallet.TokenAccounts.WithSymbol(Symbol).WithMint(Mint);
+    for LAccount in LSubList do
     begin
       Writeln(
-        PadRight(A.Symbol, LMaxSym), ' ',
-        FormatQty(A.QuantityDouble, 14), ' ',
-        PadRight(A.TokenName, LMaxName), ' ',
-        A.PublicKey, ' ',
-        IfThen(A.IsAssociatedTokenAccount, '[ATA]', '')
+        PadRight(LAccount.Symbol, LMaxSym), ' ',
+        FormatQty(LAccount.QuantityDouble, 14), ' ',
+        PadRight(LAccount.TokenName, LMaxName), ' ',
+        LAccount.PublicKey, ' ',
+        IfThen(LAccount.IsAssociatedTokenAccount, '[ATA]', '')
       );
     end;
     Writeln;
 
     // Show consolidated balances
     Writeln('Consolidated Balances...');
-    for B in LBalances do
+    for LBalance in LBalances do
     begin
       Writeln(
-        PadRight(B.Symbol, LMaxSym), ' ',
-        FormatQty(B.QuantityDouble, 14), ' ',
-        PadRight(B.TokenName, LMaxName), ' in ',
-        B.AccountCount, ' ',
-        IfThen(B.AccountCount = 1, 'account', 'accounts')
+        PadRight(LBalance.Symbol, LMaxSym), ' ',
+        FormatQty(LBalance.QuantityDouble, 14), ' ',
+        PadRight(LBalance.TokenName, LMaxName), ' in ',
+        LBalance.AccountCount, ' ',
+        IfThen(LBalance.AccountCount = 1, 'account', 'accounts')
       );
     end;
 

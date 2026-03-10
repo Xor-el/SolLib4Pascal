@@ -53,194 +53,194 @@ implementation
 
 procedure TSolanaRpcClientLeaderScheduleTests.TestGetLeaderSchedule_SlotArgsRequest;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  res: IRequestResult<TDictionary<string, TList<UInt64>>>;
-  key: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TDictionary<string, TList<UInt64>>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotArgsRequest.json');
+  LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotArgsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetLeaderSchedule(79700000);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetLeaderSchedule(79700000);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(res.Result <> nil, 'Result should not be nil');
-  AssertTrue(res.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LRes.Result <> nil, 'Result should not be nil');
+  AssertTrue(LRes.WasSuccessful, 'Should be successful');
 
-  AssertEquals(2, res.Result.Count);
-  key := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
-  AssertTrue(res.Result.ContainsKey(key), 'Expected identity key not present');
+  AssertEquals(2, LRes.Result.Count);
+  LKey := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
+  AssertTrue(LRes.Result.ContainsKey(LKey), 'Expected identity key not present');
 
-  AssertEquals(7, res.Result.Items[key].Count);
-  AssertEquals(0, res.Result.Items[key][0]);
+  AssertEquals(7, LRes.Result.Items[LKey].Count);
+  AssertEquals(0, LRes.Result.Items[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientLeaderScheduleTests.TestGetLeaderSchedule_IdentityArgsRequest;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  res: IRequestResult<TDictionary<string, TList<UInt64>>>;
-  key: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TDictionary<string, TList<UInt64>>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleIdentityArgsRequest.json');
+  LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleIdentityArgsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetLeaderSchedule(0, 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu');
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetLeaderSchedule(0, 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(res.Result <> nil);
-  AssertTrue(res.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LRes.Result <> nil);
+  AssertTrue(LRes.WasSuccessful);
 
-  AssertEquals(2, res.Result.Count);
-  key := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
-  AssertTrue(res.Result.ContainsKey(key));
+  AssertEquals(2, LRes.Result.Count);
+  LKey := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
+  AssertTrue(LRes.Result.ContainsKey(LKey));
 
-  AssertEquals(7, res.Result.Items[key].Count);
-  AssertEquals(0, res.Result.Items[key][0]);
+  AssertEquals(7, LRes.Result.Items[LKey].Count);
+  AssertEquals(0, LRes.Result.Items[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientLeaderScheduleTests.TestGetLeaderSchedule_SlotIdentityArgsRequest;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  res: IRequestResult<TDictionary<string, TList<UInt64>>>;
-  key: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TDictionary<string, TList<UInt64>>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotIdentityArgsRequest.json');
+  LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleSlotIdentityArgsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetLeaderSchedule(79700000, 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu');
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetLeaderSchedule(79700000, 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(res.Result <> nil);
-  AssertTrue(res.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LRes.Result <> nil);
+  AssertTrue(LRes.WasSuccessful);
 
-  AssertEquals(2, res.Result.Count);
-  key := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
-  AssertTrue(res.Result.ContainsKey(key));
+  AssertEquals(2, LRes.Result.Count);
+  LKey := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
+  AssertTrue(LRes.Result.ContainsKey(LKey));
 
-  AssertEquals(7, res.Result.Items[key].Count);
-  AssertEquals(0, res.Result.Items[key][0]);
+  AssertEquals(7, LRes.Result.Items[LKey].Count);
+  AssertEquals(0, LRes.Result.Items[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientLeaderScheduleTests.TestGetLeaderSchedule_NoArgsRequest;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  res: IRequestResult<TDictionary<string, TList<UInt64>>>;
-  key: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TDictionary<string, TList<UInt64>>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
+  LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetLeaderSchedule;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetLeaderSchedule;
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(res.Result <> nil);
-  AssertTrue(res.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LRes.Result <> nil);
+  AssertTrue(LRes.WasSuccessful);
 
-  AssertEquals(2, res.Result.Count);
-  key := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
-  AssertTrue(res.Result.ContainsKey(key));
+  AssertEquals(2, LRes.Result.Count);
+  LKey := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
+  AssertTrue(LRes.Result.ContainsKey(LKey));
 
-  AssertEquals(7, res.Result.Items[key].Count);
-  AssertEquals(0, res.Result.Items[key][0]);
+  AssertEquals(7, LRes.Result.Items[LKey].Count);
+  AssertEquals(0, LRes.Result.Items[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientLeaderScheduleTests.TestGetLeaderSchedule_CommitmentFinalizedRequest;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TDictionary<string, TList<UInt64>>>;
-  key: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TDictionary<string, TList<UInt64>>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
+  LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleNoArgsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetLeaderSchedule(0, '', TCommitment.Finalized);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetLeaderSchedule(0, '', TCommitment.Finalized);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(2, result.Result.Count);
-  key := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
-  AssertTrue(result.Result.ContainsKey(key));
+  AssertEquals(2, LResult.Result.Count);
+  LKey := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
+  AssertTrue(LResult.Result.ContainsKey(LKey));
 
-  AssertEquals(7, result.Result.Items[key].Count);
-  AssertEquals(0, result.Result.Items[key][0]);
+  AssertEquals(7, LResult.Result.Items[LKey].Count);
+  AssertEquals(0, LResult.Result.Items[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientLeaderScheduleTests.TestGetLeaderSchedule_CommitmentProcessedRequest;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TDictionary<string, TList<UInt64>>>;
-  key: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TDictionary<string, TList<UInt64>>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
-  requestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleProcessedRequest.json');
+  LResponseData := LoadTestData('LeaderSchedule/GetLeaderScheduleResponse.json');
+  LRequestData  := LoadTestData('LeaderSchedule/GetLeaderScheduleProcessedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetLeaderSchedule(0, '', TCommitment.Processed);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetLeaderSchedule(0, '', TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(2, result.Result.Count);
-  key := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
-  AssertTrue(result.Result.ContainsKey(key));
+  AssertEquals(2, LResult.Result.Count);
+  LKey := '4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F';
+  AssertTrue(LResult.Result.ContainsKey(LKey));
 
-  AssertEquals(7, result.Result.Items[key].Count);
-  AssertEquals(UInt64(0), result.Result.Items[key][0]);
+  AssertEquals(7, LResult.Result.Items[LKey].Count);
+  AssertEquals(UInt64(0), LResult.Result.Items[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 initialization

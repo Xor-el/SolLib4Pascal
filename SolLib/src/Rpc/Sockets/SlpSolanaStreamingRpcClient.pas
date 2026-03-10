@@ -661,7 +661,8 @@ end;
 
 procedure TSubscriptionState.ChangeState(const ANewState: TSubscriptionStatus; const AError, ACode: string);
 var
-  Ev: ISubscriptionEvent;
+  LEv: ISubscriptionEvent;
+  LSubState: ISubscriptionState;
 begin
   FState := ANewState;
   FLastError := AError;
@@ -669,21 +670,27 @@ begin
 
   if Assigned(FSubs) and not FSubs.IsEmpty then
   begin
-    Ev := TSubscriptionEvent.Create(ANewState, AError, ACode);
+    LSubState := Self;
+    LEv := TSubscriptionEvent.Create(ANewState, AError, ACode);
 
     FSubs.Notify(
-        procedure(H: TProc<ISubscriptionState, ISubscriptionEvent>)
+        procedure(AHandler: TProc<ISubscriptionState, ISubscriptionEvent>)
         begin
-          H(Self as ISubscriptionState, Ev);
+          AHandler(LSubState, LEv);
         end
     );
   end;
 end;
 
 procedure TSubscriptionState.Unsubscribe;
+var
+  LSubState: ISubscriptionState;
 begin
   if Assigned(FRpcClient) then
-    FRpcClient.Unsubscribe(Self as ISubscriptionState);
+  begin
+    LSubState := Self;
+    FRpcClient.Unsubscribe(LSubState);
+  end;
 end;
 
 { TSubscriptionStateWithHandler<T> }
@@ -704,11 +711,15 @@ end;
 
 procedure TSubscriptionStateWithHandler<T>.HandleData(const AData: TValue);
 var
-  H: TProc<ISubscriptionStateWithHandler<T>, T>;
+  LHandler: TProc<ISubscriptionStateWithHandler<T>, T>;
+  LSubHandler: ISubscriptionStateWithHandler<T>;
 begin
-  H := FDataHandler;
-  if Assigned(H) then
-    H(Self as ISubscriptionStateWithHandler<T>, AData.AsType<T>);
+  LHandler := FDataHandler;
+  if Assigned(LHandler) then
+  begin
+    LSubHandler := Self;
+    LHandler(LSubHandler, AData.AsType<T>);
+  end;
 end;
 
 procedure TSubscriptionStateWithHandler<T>.SetDataHandler(
@@ -731,7 +742,7 @@ end;
 
 destructor TSolanaStreamingRpcClient.Destroy;
 var
-  I: Integer;
+  LI: Integer;
 begin
   inherited;
 
@@ -745,9 +756,9 @@ begin
   begin
     if Assigned(FSerializer.Converters) then
     begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
+      for LI := 0 to FSerializer.Converters.Count - 1 do
+        if Assigned(FSerializer.Converters[LI]) then
+          FSerializer.Converters[LI].Free;
       FSerializer.Converters.Clear;
     end;
     FSerializer.Free;
@@ -760,32 +771,32 @@ end;
 procedure TSolanaStreamingRpcClient.SendAs<T>(
   const AJson: string; const ASub: ISubscriptionState);
 var
-  V: TValue;
+  LV: TValue;
 begin
-  V := TValue.From<T>(FSerializer.Deserialize<T>(AJson));
+  LV := TValue.From<T>(FSerializer.Deserialize<T>(AJson));
   try
-    ASub.HandleData(V);
+    ASub.HandleData(LV);
   finally
-    TValueUtils.FreeParameter(V);
+    TValueUtils.FreeParameter(LV);
   end;
 end;
 
 procedure TSolanaStreamingRpcClient.CleanupSubscriptions;
 var
-  Pair: TPair<Integer, ISubscriptionState>;
+  LPair: TPair<Integer, ISubscriptionState>;
 begin
-  for Pair in FConfirmed do
-    if Assigned(Pair.Value) then
+  for LPair in FConfirmed do
+    if Assigned(LPair.Value) then
     begin
-      Pair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
-      FConfirmed[Pair.Key] := nil;
+      LPair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
+      FConfirmed[LPair.Key] := nil;
     end;
 
-  for Pair in FUnconfirmed do
-    if Assigned(Pair.Value) then
+  for LPair in FUnconfirmed do
+    if Assigned(LPair.Value) then
     begin
-      Pair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
-      FUnconfirmed[Pair.Key] := nil;
+      LPair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
+      FUnconfirmed[LPair.Key] := nil;
     end;
 
   FUnconfirmed.Clear;
@@ -811,11 +822,11 @@ end;
 
 procedure TSolanaStreamingRpcClient.RemoveSubscription(const AId: Integer; const AShouldNotify: Boolean);
 var
-  Sub: ISubscriptionState;
+  LSub: ISubscriptionState;
 begin
   FLock.Acquire;
   try
-    if not FConfirmed.TryGetValue(AId, Sub) then
+    if not FConfirmed.TryGetValue(AId, LSub) then
     begin
       if Assigned(FLogger) then
         FLogger.LogDebug('No subscription found with ID:{0}', [IntToStr(AId)]);
@@ -826,30 +837,30 @@ begin
     FLock.Release;
   end;
 
-  if AShouldNotify and Assigned(Sub) then
-    Sub.ChangeState(TSubscriptionStatus.Unsubscribed);
+  if AShouldNotify and Assigned(LSub) then
+    LSub.ChangeState(TSubscriptionStatus.Unsubscribed);
 end;
 
 procedure TSolanaStreamingRpcClient.ConfirmSubscription(const AInternalId, AResultId: Integer);
 var
-  Sub: ISubscriptionState;
+  LSub: ISubscriptionState;
 begin
-  Sub := nil;
+  LSub := nil;
 
   FLock.Acquire;
   try
-    if FUnconfirmed.TryGetValue(AInternalId, Sub) then
+    if FUnconfirmed.TryGetValue(AInternalId, LSub) then
     begin
       FUnconfirmed.Remove(AInternalId);
-      Sub.SubscriptionId := AResultId;
-      FConfirmed.AddOrSetValue(AResultId, Sub);
+      LSub.SubscriptionId := AResultId;
+      FConfirmed.AddOrSetValue(AResultId, LSub);
     end;
   finally
     FLock.Release;
   end;
 
-  if Assigned(Sub) then
-    Sub.ChangeState(TSubscriptionStatus.Subscribed);
+  if Assigned(LSub) then
+    LSub.ChangeState(TSubscriptionStatus.Subscribed);
 end;
 
 procedure TSolanaStreamingRpcClient.AddSubscription(const ASubscription: ISubscriptionState; const AInternalId: Integer);
@@ -1088,10 +1099,12 @@ function TSolanaStreamingRpcClient.Subscribe<T>(
 var
   LSub: ISubscriptionState;
   LReq: TJsonRpcRequest;
+  LRpcClient: IStreamingRpcClient;
 begin
+  LRpcClient := Self;
   // Create the typed subscription state with the provided callback
   LSub := TSubscriptionStateWithHandler<T>.Create(
-            Self as IStreamingRpcClient,
+            LRpcClient,
             AChannel,
             ACallback,
             TValueUtils.CloneValueList(AParams)
@@ -1264,14 +1277,14 @@ var
     );
   end;
 
-  function FiltersValue(const Items: TList<TValue>): TValue;
+  function FiltersValue(const AItems: TList<TValue>): TValue;
   begin
     // JSON array for "filters": [...]
-    Result := TValue.From<TArray<TValue>>(Items.ToArray);
+    Result := TValue.From<TArray<TValue>>(AItems.ToArray);
   end;
 
 var
-  I: Integer;
+  LI: Integer;
 begin
   // Build filters list (optional dataSize + optional memcmp[])
   LFilters := TList<TValue>.Create;
@@ -1283,8 +1296,8 @@ begin
         )
       );
 
-    for I := Low(AMemCmpList) to High(AMemCmpList) do
-      LFilters.Add(MemCmpValue(AMemCmpList[I]));
+    for LI := Low(AMemCmpList) to High(AMemCmpList) do
+      LFilters.Add(MemCmpValue(AMemCmpList[LI]));
 
     // parameters = [
     //   programPubkey,
@@ -1364,15 +1377,15 @@ function TSolanaStreamingRpcClient.Subscribe(
   const AMsg: TJsonRpcRequest
 ): ISubscriptionState;
 var
-  Payload : string;
+  LPayload : string;
 begin
-  Payload := FSerializer.Serialize(AMsg);
+  LPayload := FSerializer.Serialize(AMsg);
 
   if Assigned(FLogger) and FLogger.IsEnabled(TLogLevel.Info) then
-    FLogger.LogInformation(TEventId.Create(AMsg.Id.Value, AMsg.Method), '[Sending]{0}', [Payload]);
+    FLogger.LogInformation(TEventId.Create(AMsg.Id.Value, AMsg.Method), '[Sending]{0}', [LPayload]);
 
   try
-    FClient.Send(Payload);
+    FClient.Send(LPayload);
     AddSubscription(ASub, AMsg.Id.Value);
   except
     on E: Exception do
@@ -1411,11 +1424,11 @@ end;
 function TSolanaStreamingRpcClient.GetUnsubscribeMethodName(
   const AChannel: string): string;
 var
-  Pair: TPair<string, string>;
+  LPair: TPair<string, string>;
 begin
-  for Pair in GetUnsubscribeMap do
-    if SameStr(Pair.Key, AChannel) then
-      Exit(Pair.Value);
+  for LPair in GetUnsubscribeMap do
+    if SameStr(LPair.Key, AChannel) then
+      Exit(LPair.Value);
 
   raise EArgumentOutOfRangeException.CreateFmt(
     'invalid message type (channel=%s)', [AChannel]);

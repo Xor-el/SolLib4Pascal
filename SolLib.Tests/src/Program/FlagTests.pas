@@ -75,26 +75,26 @@ end;
 
 class function TFlagTests.TryExtractBitIndex(const APropName: string; out ABit: Integer): Boolean;
 var
-  P, I, StartIdx: Integer;
-  Digits: string;
+  LP, LI, LStartIdx: Integer;
+  LDigits: string;
 begin
   Result := False;
   ABit := -1;
 
-  P := Pos('Bit', APropName);
-  if P <= 0 then Exit;
+  LP := Pos('Bit', APropName);
+  if LP <= 0 then Exit;
 
-  StartIdx := P + Length('Bit');
-  Digits := '';
-  for I := StartIdx to Length(APropName) do
+  LStartIdx := LP + Length('Bit');
+  LDigits := '';
+  for LI := LStartIdx to Length(APropName) do
   begin
-    if CharInSet(APropName[I], ['0'..'9']) then
-      Digits := Digits + APropName[I]
+    if CharInSet(APropName[LI], ['0'..'9']) then
+      LDigits := LDigits + APropName[LI]
     else
       Break;
   end;
 
-  Result := (Digits <> '') and TryStrToInt(Digits, ABit);
+  Result := (LDigits <> '') and TryStrToInt(LDigits, ABit);
 end;
 
 class function TFlagTests.PowerOfTwo(const ABit: Integer): UInt64;
@@ -108,64 +108,64 @@ end;
 
 procedure TFlagTests.TestByte_AllBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TByteFlag;
-  SUT: IByteFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TByteFlag;
+  LSut: IByteFlag;
+  LVal: TValue;
 begin
-  Obj := TByteFlag.Create(High(Byte));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TByteFlag.Create(High(Byte));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, 'Byte ' + P.Name + ' should be TRUE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, 'Byte ' + LP.Name + ' should be TRUE');
   end;
 end;
 
 procedure TFlagTests.TestByte_NoBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TByteFlag;
-  SUT: IByteFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TByteFlag;
+  LSut: IByteFlag;
+  LVal: TValue;
 begin
-  Obj := TByteFlag.Create(Low(Byte));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TByteFlag.Create(Low(Byte));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertFalse(Val.AsBoolean, 'Byte ' + P.Name + ' should be FALSE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertFalse(LVal.AsBoolean, 'Byte ' + LP.Name + ' should be FALSE');
   end;
 end;
 
 procedure TFlagTests.TestByte_IndividualBitSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TByteFlag;
-  SUT: IByteFlag;
-  Bit: Integer;
-  Mask: UInt64;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TByteFlag;
+  LSut: IByteFlag;
+  LBit: Integer;
+  LMask: UInt64;
+  LVal: TValue;
 begin
-  T := FRttiContext.GetType(TByteFlag);
-  for P in T.GetProperties do
+  LT := FRttiContext.GetType(TByteFlag);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    if not TryExtractBitIndex(P.Name, Bit) then Continue;
-    if (Bit < 0) or (Bit > 7) then Continue;
+    if not PropIsBitBoolean(LP) then Continue;
+    if not TryExtractBitIndex(LP.Name, LBit) then Continue;
+    if (LBit < 0) or (LBit > 7) then Continue;
 
-    Mask := PowerOfTwo(Bit);
-    Obj := TByteFlag.Create(Byte(Mask));
-    SUT := Obj;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, Format('Byte %s should be TRUE (mask=$%.2x)', [P.Name, Byte(Mask)]));
+    LMask := PowerOfTwo(LBit);
+    LObj := TByteFlag.Create(Byte(LMask));
+    LSut := LObj;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, Format('Byte %s should be TRUE (mask=$%.2x)', [LP.Name, Byte(LMask)]));
   end;
 end;
 
@@ -173,64 +173,64 @@ end;
 
 procedure TFlagTests.TestShort_AllBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TShortFlag;
-  SUT: IShortFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TShortFlag;
+  LSut: IShortFlag;
+  LVal: TValue;
 begin
-  Obj := TShortFlag.Create(High(Word));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TShortFlag.Create(High(Word));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, 'Short ' + P.Name + ' should be TRUE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, 'Short ' + LP.Name + ' should be TRUE');
   end;
 end;
 
 procedure TFlagTests.TestShort_NoBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TShortFlag;
-  SUT: IShortFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TShortFlag;
+  LSut: IShortFlag;
+  LVal: TValue;
 begin
-  Obj := TShortFlag.Create(Low(Word));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TShortFlag.Create(Low(Word));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertFalse(Val.AsBoolean, 'Short ' + P.Name + ' should be FALSE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertFalse(LVal.AsBoolean, 'Short ' + LP.Name + ' should be FALSE');
   end;
 end;
 
 procedure TFlagTests.TestShort_IndividualBitSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TShortFlag;
-  SUT: IShortFlag;
-  Bit: Integer;
-  Mask: UInt64;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TShortFlag;
+  LSut: IShortFlag;
+  LBit: Integer;
+  LMask: UInt64;
+  LVal: TValue;
 begin
-  T := FRttiContext.GetType(TShortFlag);
-  for P in T.GetProperties do
+  LT := FRttiContext.GetType(TShortFlag);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    if not TryExtractBitIndex(P.Name, Bit) then Continue;
-    if (Bit < 0) or (Bit > 15) then Continue;
+    if not PropIsBitBoolean(LP) then Continue;
+    if not TryExtractBitIndex(LP.Name, LBit) then Continue;
+    if (LBit < 0) or (LBit > 15) then Continue;
 
-    Mask := PowerOfTwo(Bit);
-    Obj := TShortFlag.Create(Word(Mask));
-    SUT := Obj;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, Format('Short %s should be TRUE (mask=$%.4x)', [P.Name, Word(Mask)]));
+    LMask := PowerOfTwo(LBit);
+    LObj := TShortFlag.Create(Word(LMask));
+    LSut := LObj;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, Format('Short %s should be TRUE (mask=$%.4x)', [LP.Name, Word(LMask)]));
   end;
 end;
 
@@ -238,64 +238,64 @@ end;
 
 procedure TFlagTests.TestInt_AllBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TIntFlag;
-  SUT: IIntFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TIntFlag;
+  LSut: IIntFlag;
+  LVal: TValue;
 begin
-  Obj := TIntFlag.Create(High(Cardinal));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TIntFlag.Create(High(Cardinal));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, 'Int ' + P.Name + ' should be TRUE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, 'Int ' + LP.Name + ' should be TRUE');
   end;
 end;
 
 procedure TFlagTests.TestInt_NoBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TIntFlag;
-  SUT: IIntFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TIntFlag;
+  LSut: IIntFlag;
+  LVal: TValue;
 begin
-  Obj := TIntFlag.Create(Low(Cardinal));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TIntFlag.Create(Low(Cardinal));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertFalse(Val.AsBoolean, 'Int ' + P.Name + ' should be FALSE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertFalse(LVal.AsBoolean, 'Int ' + LP.Name + ' should be FALSE');
   end;
 end;
 
 procedure TFlagTests.TestInt_IndividualBitSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TIntFlag;
-  SUT: IIntFlag;
-  Bit: Integer;
-  Mask: UInt64;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TIntFlag;
+  LSut: IIntFlag;
+  LBit: Integer;
+  LMask: UInt64;
+  LVal: TValue;
 begin
-  T := FRttiContext.GetType(TIntFlag);
-  for P in T.GetProperties do
+  LT := FRttiContext.GetType(TIntFlag);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    if not TryExtractBitIndex(P.Name, Bit) then Continue;
-    if (Bit < 0) or (Bit > 31) then Continue;
+    if not PropIsBitBoolean(LP) then Continue;
+    if not TryExtractBitIndex(LP.Name, LBit) then Continue;
+    if (LBit < 0) or (LBit > 31) then Continue;
 
-    Mask := PowerOfTwo(Bit);
-    Obj := TIntFlag.Create(Cardinal(Mask));
-    SUT := Obj;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, Format('Int %s should be TRUE (mask=$%.8x)', [P.Name, Cardinal(Mask)]));
+    LMask := PowerOfTwo(LBit);
+    LObj := TIntFlag.Create(Cardinal(LMask));
+    LSut := LObj;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, Format('Int %s should be TRUE (mask=$%.8x)', [LP.Name, Cardinal(LMask)]));
   end;
 end;
 
@@ -303,64 +303,64 @@ end;
 
 procedure TFlagTests.TestLong_AllBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TLongFlag;
-  SUT: ILongFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TLongFlag;
+  LSut: ILongFlag;
+  LVal: TValue;
 begin
-  Obj := TLongFlag.Create(High(UInt64));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TLongFlag.Create(High(UInt64));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, 'Long ' + P.Name + ' should be TRUE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, 'Long ' + LP.Name + ' should be TRUE');
   end;
 end;
 
 procedure TFlagTests.TestLong_NoBitsSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TLongFlag;
-  SUT: ILongFlag;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TLongFlag;
+  LSut: ILongFlag;
+  LVal: TValue;
 begin
-  Obj := TLongFlag.Create(Low(UInt64));
-  SUT := Obj;
-  T := FRttiContext.GetType(Obj.ClassType);
-  for P in T.GetProperties do
+  LObj := TLongFlag.Create(Low(UInt64));
+  LSut := LObj;
+  LT := FRttiContext.GetType(LObj.ClassType);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    Val := P.GetValue(Obj);
-    AssertFalse(Val.AsBoolean, 'Long ' + P.Name + ' should be FALSE');
+    if not PropIsBitBoolean(LP) then Continue;
+    LVal := LP.GetValue(LObj);
+    AssertFalse(LVal.AsBoolean, 'Long ' + LP.Name + ' should be FALSE');
   end;
 end;
 
 procedure TFlagTests.TestLong_IndividualBitSet;
 var
-  T: TRttiType;
-  P: TRttiProperty;
-  Obj: TLongFlag;
-  SUT: ILongFlag;
-  Bit: Integer;
-  Mask: UInt64;
-  Val: TValue;
+  LT: TRttiType;
+  LP: TRttiProperty;
+  LObj: TLongFlag;
+  LSut: ILongFlag;
+  LBit: Integer;
+  LMask: UInt64;
+  LVal: TValue;
 begin
-  T := FRttiContext.GetType(TLongFlag);
-  for P in T.GetProperties do
+  LT := FRttiContext.GetType(TLongFlag);
+  for LP in LT.GetProperties do
   begin
-    if not PropIsBitBoolean(P) then Continue;
-    if not TryExtractBitIndex(P.Name, Bit) then Continue;
-    if (Bit < 0) or (Bit > 63) then Continue;
+    if not PropIsBitBoolean(LP) then Continue;
+    if not TryExtractBitIndex(LP.Name, LBit) then Continue;
+    if (LBit < 0) or (LBit > 63) then Continue;
 
-    Mask := PowerOfTwo(Bit);
-    Obj := TLongFlag.Create(Mask);
-    SUT := Obj;
-    Val := P.GetValue(Obj);
-    AssertTrue(Val.AsBoolean, Format('Long %s should be TRUE (mask=$%.16x)', [P.Name, Mask]));
+    LMask := PowerOfTwo(LBit);
+    LObj := TLongFlag.Create(LMask);
+    LSut := LObj;
+    LVal := LP.GetValue(LObj);
+    AssertTrue(LVal.AsBoolean, Format('Long %s should be TRUE (mask=$%.16x)', [LP.Name, LMask]));
   end;
 end;
 

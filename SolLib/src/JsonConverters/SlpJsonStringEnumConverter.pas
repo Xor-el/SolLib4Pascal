@@ -53,13 +53,13 @@ type
     // When True, ignore enum-type attributes
     FIgnoreTypeAttributes: Boolean;
 
-    function ResolveTransform(ATypeInf: PTypeInfo; out Transform: TStringTransform): Boolean;
-    function TransformName(const S: string; const Transform: TStringTransform): string;
-    function TryMapStringToEnum(const ATypeInf: PTypeInfo; const S: string; const Transform: TStringTransform; out EnumValue: Integer): Boolean;
+    function ResolveTransform(ATypeInf: PTypeInfo; out ATransform: TStringTransform): Boolean;
+    function TransformName(const AStr: string; const ATransform: TStringTransform): string;
+    function TryMapStringToEnum(const ATypeInf: PTypeInfo; const AStr: string; const ATransform: TStringTransform; out AEnumValue: Integer): Boolean;
 
     class function ComposeProviderThenPolicy(
-      Provider: TStringTransformProviderClass;
-      const Policy: TJsonNamingPolicy): TStringTransform; static;
+      AProvider: TStringTransformProviderClass;
+      const APolicy: TJsonNamingPolicy): TStringTransform; static;
   public
     // No-op default (no transform unless attribute provides one)
     constructor Create; overload;
@@ -141,139 +141,139 @@ begin
 end;
 
 class function TJsonStringEnumConverter.ComposeProviderThenPolicy(
-  Provider: TStringTransformProviderClass; const Policy: TJsonNamingPolicy): TStringTransform;
+  AProvider: TStringTransformProviderClass; const APolicy: TJsonNamingPolicy): TStringTransform;
 var
-  steps: array of TStringTransform;
-  n: Integer;
-  provT, polT: TStringTransform;
+  LSteps: array of TStringTransform;
+  LN: Integer;
+  LProvT, LPolT: TStringTransform;
 begin
-  provT := nil;
-  if Provider <> nil then
-    provT := Provider.GetTransform();
+  LProvT := nil;
+  if AProvider <> nil then
+    LProvT := AProvider.GetTransform();
 
-  polT := Policy.GetFunc();
+  LPolT := APolicy.GetFunc();
 
-  n := 0;
-  SetLength(steps, 0);
+  LN := 0;
+  SetLength(LSteps, 0);
 
-  if Assigned(provT) then
+  if Assigned(LProvT) then
   begin
-    SetLength(steps, n + 1);
-    steps[n] := provT;
-    Inc(n);
+    SetLength(LSteps, LN + 1);
+    LSteps[LN] := LProvT;
+    Inc(LN);
   end;
 
-  if Assigned(polT) then
+  if Assigned(LPolT) then
   begin
-    SetLength(steps, n + 1);
-    steps[n] := polT;
-    Inc(n);
+    SetLength(LSteps, LN + 1);
+    LSteps[LN] := LPolT;
+    Inc(LN);
   end;
 
-  case n of
+  case LN of
     0: Result := nil;
-    1: Result := steps[0];
+    1: Result := LSteps[0];
   else
-    Result := TStringTransformer.ComposeMany(steps);
+    Result := TStringTransformer.ComposeMany(LSteps);
   end;
 end;
 
-function TJsonStringEnumConverter.ResolveTransform(ATypeInf: PTypeInfo; out Transform: TStringTransform): Boolean;
+function TJsonStringEnumConverter.ResolveTransform(ATypeInf: PTypeInfo; out ATransform: TStringTransform): Boolean;
 var
-  Ctx: TRttiContext;
-  RT : TRttiType;
-  Attr: TCustomAttribute;
-  TypeAttr: JsonStringEnumAttribute;
+  LCtx: TRttiContext;
+  LRT: TRttiType;
+  LAttr: TCustomAttribute;
+  LTypeAttr: JsonStringEnumAttribute;
 begin
   // 1) Enum-type attribute (unless suppressed)
   if not FIgnoreTypeAttributes then
   begin
-    Ctx := TRttiContext.Create;
+    LCtx := TRttiContext.Create;
     try
-      RT := Ctx.GetType(ATypeInf);
-      if RT <> nil then
-        for Attr in RT.GetAttributes do
-          if Attr is JsonStringEnumAttribute then
+      LRT := LCtx.GetType(ATypeInf);
+      if LRT <> nil then
+        for LAttr in LRT.GetAttributes do
+          if LAttr is JsonStringEnumAttribute then
           begin
-            TypeAttr := JsonStringEnumAttribute(Attr);
+            LTypeAttr := JsonStringEnumAttribute(LAttr);
 
             // Provider AND Policy: Provider first, then Policy
-            if (TypeAttr.Provider <> nil) and TypeAttr.HasExplicitPolicy then
+            if (LTypeAttr.Provider <> nil) and LTypeAttr.HasExplicitPolicy then
             begin
-              Transform := ComposeProviderThenPolicy(TypeAttr.Provider, TypeAttr.Policy);
-              Exit(Assigned(Transform));
+              ATransform := ComposeProviderThenPolicy(LTypeAttr.Provider, LTypeAttr.Policy);
+              Exit(Assigned(ATransform));
             end;
 
             // Provider-only
-            if TypeAttr.Provider <> nil then
+            if LTypeAttr.Provider <> nil then
             begin
-              Transform := TypeAttr.Provider.GetTransform();
-              Exit(Assigned(Transform));
+              ATransform := LTypeAttr.Provider.GetTransform();
+              Exit(Assigned(ATransform));
             end;
 
             // Policy-only
-            if TypeAttr.HasExplicitPolicy then
+            if LTypeAttr.HasExplicitPolicy then
             begin
-              Transform := TypeAttr.Policy.GetFunc();
-              Exit(Assigned(Transform));
+              ATransform := LTypeAttr.Policy.GetFunc();
+              Exit(Assigned(ATransform));
             end;
 
             // Neither -> fall through (no transform)
           end;
     finally
-      Ctx.Free;
+      LCtx.Free;
     end;
   end;
 
   // 2) Converter’s own default (whatever ctor provided)
-  Transform := FOwnTransform;          // may be nil (no transform)
-  Result := Assigned(Transform);
+  ATransform := FOwnTransform;          // may be nil (no transform)
+  Result := Assigned(ATransform);
 end;
 
-function TJsonStringEnumConverter.TransformName(const S: string; const Transform: TStringTransform): string;
+function TJsonStringEnumConverter.TransformName(const AStr: string; const ATransform: TStringTransform): string;
 begin
-  if Assigned(Transform) then
-    Result := Transform(S)
+  if Assigned(ATransform) then
+    Result := ATransform(AStr)
   else
-    Result := S; // no-op if no transform
+    Result := AStr; // no-op if no transform
 end;
 
 function TJsonStringEnumConverter.ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  Input: string;
-  Transform: TStringTransform;
-  EnumValue: Integer;
+  LInput: string;
+  LTransform: TStringTransform;
+  LEnumValue: Integer;
 begin
   if (AReader = nil) or (ATypeInf = nil) then
     Exit(TValue.Empty);
 
-  Input := AReader.Value.AsString;
+  LInput := AReader.Value.AsString;
 
-  ResolveTransform(ATypeInf, Transform);
+  ResolveTransform(ATypeInf, LTransform);
 
   // Try via (maybe) transformed names
-  if TryMapStringToEnum(ATypeInf, Input, Transform, EnumValue) then
+  if TryMapStringToEnum(ATypeInf, LInput, LTransform, LEnumValue) then
   begin
-    TValue.Make(@EnumValue, ATypeInf, Result);
+    TValue.Make(@LEnumValue, ATypeInf, Result);
     Exit;
   end;
 
   // Fallback: original Delphi enum identifier (no transform)
-  EnumValue := GetEnumValue(ATypeInf, Input);
-  if EnumValue >= 0 then
+  LEnumValue := GetEnumValue(ATypeInf, LInput);
+  if LEnumValue >= 0 then
   begin
-    TValue.Make(@EnumValue, ATypeInf, Result);
+    TValue.Make(@LEnumValue, ATypeInf, Result);
     Exit;
   end;
 
-  raise EJsonException.CreateFmt(SEnumStringNotMatching, [Input, ATypeInf^.Name]);
+  raise EJsonException.CreateFmt(SEnumStringNotMatching, [LInput, ATypeInf^.Name]);
 end;
 
 procedure TJsonStringEnumConverter.WriteJson(const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
 var
-  Transform: TStringTransform;
-  RawName, OutName: string;
+  LTransform: TStringTransform;
+  LRawName, LOutName: string;
 begin
   if AValue.IsEmpty then
   begin
@@ -281,34 +281,34 @@ begin
     Exit;
   end;
 
-  ResolveTransform(AValue.TypeInfo, Transform);
+  ResolveTransform(AValue.TypeInfo, LTransform);
 
-  RawName := GetEnumName(AValue.TypeInfo, AValue.AsOrdinal);
-  OutName := TransformName(RawName, Transform);
+  LRawName := GetEnumName(AValue.TypeInfo, AValue.AsOrdinal);
+  LOutName := TransformName(LRawName, LTransform);
 
-  AWriter.WriteValue(OutName);
+  AWriter.WriteValue(LOutName);
 end;
 
-function TJsonStringEnumConverter.TryMapStringToEnum(const ATypeInf: PTypeInfo; const S: string;
-  const Transform: TStringTransform; out EnumValue: Integer): Boolean;
+function TJsonStringEnumConverter.TryMapStringToEnum(const ATypeInf: PTypeInfo; const AStr: string;
+  const ATransform: TStringTransform; out AEnumValue: Integer): Boolean;
 var
-  TD: PTypeData;
-  OrdVal: Integer;
-  RawName, Transformed: string;
+  LTD: PTypeData;
+  LOrdVal: Integer;
+  LRawName, LTransformed: string;
 begin
   Result := False;
-  EnumValue := -1;
+  AEnumValue := -1;
 
-  TD := GetTypeData(ATypeInf);
-  if TD = nil then Exit;
+  LTD := GetTypeData(ATypeInf);
+  if LTD = nil then Exit;
 
-  for OrdVal := TD^.MinValue to TD^.MaxValue do
+  for LOrdVal := LTD^.MinValue to LTD^.MaxValue do
   begin
-    RawName := GetEnumName(ATypeInf, OrdVal);
-    Transformed := TransformName(RawName, Transform); // if Transform=nil, this is RawName
-    if SameText(Transformed, S) then
+    LRawName := GetEnumName(ATypeInf, LOrdVal);
+    LTransformed := TransformName(LRawName, ATransform); // if ATransform=nil, this is LRawName
+    if SameText(LTransformed, AStr) then
     begin
-      EnumValue := OrdVal;
+      AEnumValue := LOrdVal;
       Exit(True);
     end;
   end;

@@ -56,10 +56,10 @@ function TTokenListItemExtensionsConverter.ReadJson(
   const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  Dict: TDictionary<string, TValue>;
-  JV  : TJSONValue;
-  Obj : TJSONObject;
-  P   : TJSONPair;
+  LDict: TDictionary<string, TValue>;
+  LJV  : TJSONValue;
+  LObj : TJSONObject;
+  LP   : TJSONPair;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Exit(nil);
@@ -70,24 +70,24 @@ begin
     Exit(nil);
   end;
 
-  JV := AReader.ReadJsonValue; // consumes entire object
+  LJV := AReader.ReadJsonValue; // consumes entire object
   try
-    if not (JV is TJSONObject) then
+    if not (LJV is TJSONObject) then
       Exit(nil);
 
-    Obj := TJSONObject(JV);
-    Dict := TDictionary<string, TValue>.Create;
+    LObj := TJSONObject(LJV);
+    LDict := TDictionary<string, TValue>.Create;
     try
-      for P in Obj do
-        Dict.Add(P.JsonString.Value, P.JsonValue.ToTValue());
+      for LP in LObj do
+        LDict.Add(LP.JsonString.Value, LP.JsonValue.ToTValue());
 
-      Result := TValue.From<TDictionary<string, TValue>>(Dict);
+      Result := TValue.From<TDictionary<string, TValue>>(LDict);
     except
-      Dict.Free;
+      LDict.Free;
       raise;
     end;
   finally
-    JV.Free;
+    LJV.Free;
   end;
 end;
 

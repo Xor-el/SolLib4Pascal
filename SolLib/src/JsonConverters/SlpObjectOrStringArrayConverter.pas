@@ -57,37 +57,37 @@ function TObjectOrStringArrayConverter<T>.ReadJson(
   const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  Elem: TJSONValue;
-  Bag: TList<string>;
-  Obj: T;
+  LElem: TJSONValue;
+  LBag: TList<string>;
+  LObj: T;
 begin
   SkipPropertyName(AReader);
 
   case AReader.TokenType of
     TJsonToken.StartObject:
       begin
-        Obj := ASerializer.Deserialize<T>(AReader.ToJson);
-        Result := TValue.From<T>(Obj);
+        LObj := ASerializer.Deserialize<T>(AReader.ToJson);
+        Result := TValue.From<T>(LObj);
       end;
 
     TJsonToken.StartArray:
       begin
-        Bag := TList<string>.Create;
+        LBag := TList<string>.Create;
         try
-          while AReader.ReadNextArrayElement(Elem) do
+          while AReader.ReadNextArrayElement(LElem) do
           begin
             try
-              if not Elem.IsExactClass(TJSONString) then
+              if not LElem.IsExactClass(TJSONString) then
                 raise EJsonSerializationException.CreateFmt(
                   '%s: array must contain only strings', [Self.ClassName]);
-              Bag.Add(TJSONString(Elem).Value);
+              LBag.Add(TJSONString(LElem).Value);
             finally
-              Elem.Free;
+              LElem.Free;
             end;
           end;
-          Result := TValue.From<TArray<string>>(Bag.ToArray);
+          Result := TValue.From<TArray<string>>(LBag.ToArray);
         finally
-          Bag.Free;
+          LBag.Free;
         end;
       end;
   else

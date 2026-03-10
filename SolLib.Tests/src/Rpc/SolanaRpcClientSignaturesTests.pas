@@ -56,49 +56,49 @@ implementation
 
 procedure TSolanaRpcClientSignaturesTests.TestGetSignaturesForAddress;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := LoadTestData('Signatures/GetSignaturesForAddressResponse.json');
-  requestData  := LoadTestData('Signatures/GetSignaturesForAddressRequest.json');
+  LResponseData := LoadTestData('Signatures/GetSignaturesForAddressResponse.json');
+  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetSignaturesForAddress('4Rf9mGD7FeYknun5JczX5nGLTfQuS1GRjNVfkEMKE92b', 3);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetSignaturesForAddress('4Rf9mGD7FeYknun5JczX5nGLTfQuS1GRjNVfkEMKE92b', 3);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result, 'Result should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result, 'Result should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
 
-  AssertEquals(3, result.Result.Count);
-  AssertEquals(1616245823, result.Result[0].BlockTime.Value);
-  AssertEquals(68710495,   result.Result[0].Slot);
-  AssertEquals('5Jofwx5JcPT1dMsgo6DkyT6x61X5chS9K7hM7huGKAnUq8xxHwGKuDnnZmPGoapWVZcN4cPvQtGNCicnWZfPHowr', result.Result[0].Signature);
-  AssertEquals('', result.Result[0].Memo);
-  AssertNull(result.Result[0].Error);
+  AssertEquals(3, LResult.Result.Count);
+  AssertEquals(1616245823, LResult.Result[0].BlockTime.Value);
+  AssertEquals(68710495,   LResult.Result[0].Slot);
+  AssertEquals('5Jofwx5JcPT1dMsgo6DkyT6x61X5chS9K7hM7huGKAnUq8xxHwGKuDnnZmPGoapWVZcN4cPvQtGNCicnWZfPHowr', LResult.Result[0].Signature);
+  AssertEquals('', LResult.Result[0].Memo);
+  AssertNull(LResult.Result[0].Error);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientSignaturesTests.TestGetSignaturesForAddress_InvalidCommitment;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   AssertException(
     procedure
     begin
-      rpcClient.GetSignaturesForAddress(
+      LRpcClient.GetSignaturesForAddress(
         '4Rf9mGD7FeYknun5JczX5nGLTfQuS1GRjNVfkEMKE92b',
         1000,
         '',
@@ -112,179 +112,179 @@ end;
 
 procedure TSolanaRpcClientSignaturesTests.TestGetSignaturesForAddressUntil;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := LoadTestData('Signatures/GetSignaturesForAddressUntilResponse.json');
-  requestData  := LoadTestData('Signatures/GetSignaturesForAddressUntilRequest.json');
+  LResponseData := LoadTestData('Signatures/GetSignaturesForAddressUntilResponse.json');
+  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressUntilRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetSignaturesForAddress(
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetSignaturesForAddress(
     'Vote111111111111111111111111111111111111111',
     1,
     '',
     'Vote111111111111111111111111111111111111111'
   );
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
-  AssertEquals(1, result.Result.Count);
-  AssertFalse(result.Result[0].BlockTime.HasValue);
-  AssertEquals(114, result.Result[0].Slot);
-  AssertEquals('5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv', result.Result[0].Signature);
-  AssertEquals('', result.Result[0].Memo);
-  AssertNull(result.Result[0].Error);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
+  AssertEquals(1, LResult.Result.Count);
+  AssertFalse(LResult.Result[0].BlockTime.HasValue);
+  AssertEquals(114, LResult.Result[0].Slot);
+  AssertEquals('5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv', LResult.Result[0].Signature);
+  AssertEquals('', LResult.Result[0].Memo);
+  AssertNull(LResult.Result[0].Error);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientSignaturesTests.TestGetSignaturesForAddressBefore;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
-  requestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeRequest.json');
+  LResponseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
+  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetSignaturesForAddress(
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetSignaturesForAddress(
     'Vote111111111111111111111111111111111111111',
     1, 'Vote111111111111111111111111111111111111111', ''
   );
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
-  AssertEquals(1, result.Result.Count);
-  AssertFalse(result.Result[0].BlockTime.HasValue);
-  AssertEquals(114, result.Result[0].Slot);
-  AssertEquals('5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv', result.Result[0].Signature);
-  AssertEquals('', result.Result[0].Memo);
-  AssertNull(result.Result[0].Error);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
+  AssertEquals(1, LResult.Result.Count);
+  AssertFalse(LResult.Result[0].BlockTime.HasValue);
+  AssertEquals(114, LResult.Result[0].Slot);
+  AssertEquals('5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv', LResult.Result[0].Signature);
+  AssertEquals('', LResult.Result[0].Memo);
+  AssertNull(LResult.Result[0].Error);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientSignaturesTests.TestGetSignaturesForAddressBeforeConfirmed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TObjectList<TSignatureStatusInfo>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TObjectList<TSignatureStatusInfo>>;
 begin
-  responseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
-  requestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeConfirmedRequest.json');
+  LResponseData := LoadTestData('Signatures/GetSignaturesForAddressBeforeResponse.json');
+  LRequestData  := LoadTestData('Signatures/GetSignaturesForAddressBeforeConfirmedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetSignaturesForAddress(
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetSignaturesForAddress(
     'Vote111111111111111111111111111111111111111',
     1,
     'Vote111111111111111111111111111111111111111', '',
     TCommitment.Confirmed
   );
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
-  AssertEquals(1, result.Result.Count);
-  AssertFalse(result.Result[0].BlockTime.HasValue);
-  AssertEquals(114, result.Result[0].Slot);
-  AssertEquals('5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv', result.Result[0].Signature);
-  AssertEquals('', result.Result[0].Memo);
-  AssertNull(result.Result[0].Error);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
+  AssertEquals(1, LResult.Result.Count);
+  AssertFalse(LResult.Result[0].BlockTime.HasValue);
+  AssertEquals(114, LResult.Result[0].Slot);
+  AssertEquals('5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv', LResult.Result[0].Signature);
+  AssertEquals('', LResult.Result[0].Memo);
+  AssertNull(LResult.Result[0].Error);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientSignaturesTests.TestGetSignatureStatuses;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  sigs: TArray<string>;
-  result: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LSigs: TArray<string>;
+  LResult: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
 begin
-  responseData := LoadTestData('Signatures/GetSignatureStatusesResponse.json');
-  requestData  := LoadTestData('Signatures/GetSignatureStatusesRequest.json');
+  LResponseData := LoadTestData('Signatures/GetSignatureStatusesResponse.json');
+  LRequestData  := LoadTestData('Signatures/GetSignatureStatusesRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  sigs := TArray<string>.Create(
+  LSigs := TArray<string>.Create(
     '5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW',
     '5j7s6NiJS3JAkvgkoc18WVAsiSaci2pxB2A6ueCJP4tprA2TFg9wSyTLeYouxPBJEMzJinENTkpA52YStRW5Dia7'
   );
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetSignatureStatuses(sigs);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetSignatureStatuses(LSigs);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(82, result.Result.Context.Slot);
-  AssertEquals(2, result.Result.Value.Count);
-  AssertTrue(result.Result.Value[1] = nil);
-  AssertEquals(72, result.Result.Value[0].Slot);
-  AssertEquals(10, result.Result.Value[0].Confirmations.Value);
-  AssertEquals('confirmed', result.Result.Value[0].ConfirmationStatus);
+  AssertEquals(82, LResult.Result.Context.Slot);
+  AssertEquals(2, LResult.Result.Value.Count);
+  AssertTrue(LResult.Result.Value[1] = nil);
+  AssertEquals(72, LResult.Result.Value[0].Slot);
+  AssertEquals(10, LResult.Result.Value[0].Confirmations.Value);
+  AssertEquals('confirmed', LResult.Result.Value[0].ConfirmationStatus);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientSignaturesTests.TestGetSignatureStatusesWithHistory;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  sigs: TArray<string>;
-  result: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LSigs: TArray<string>;
+  LResult: IRequestResult<TResponseValue<TObjectList<TSignatureStatusInfo>>>;
 begin
-  responseData := LoadTestData('Signatures/GetSignatureStatusesWithHistoryResponse.json');
-  requestData  := LoadTestData('Signatures/GetSignatureStatusesWithHistoryRequest.json');
+  LResponseData := LoadTestData('Signatures/GetSignatureStatusesWithHistoryResponse.json');
+  LRequestData  := LoadTestData('Signatures/GetSignatureStatusesWithHistoryRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  sigs := TArray<string>.Create(
+  LSigs := TArray<string>.Create(
     '5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW',
     '5j7s6NiJS3JAkvgkoc18WVAsiSaci2pxB2A6ueCJP4tprA2TFg9wSyTLeYouxPBJEMzJinENTkpA52YStRW5Dia7'
   );
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetSignatureStatuses(sigs, True);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetSignatureStatuses(LSigs, True);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(82, result.Result.Context.Slot);
-  AssertEquals(2, result.Result.Value.Count);
-  AssertTrue(result.Result.Value[1] = nil);
-  AssertEquals(48, result.Result.Value[0].Slot);
-  AssertFalse(result.Result.Value[0].Confirmations.HasValue);
-  AssertEquals('finalized', result.Result.Value[0].ConfirmationStatus);
+  AssertEquals(82, LResult.Result.Context.Slot);
+  AssertEquals(2, LResult.Result.Value.Count);
+  AssertTrue(LResult.Result.Value[1] = nil);
+  AssertEquals(48, LResult.Result.Value[0].Slot);
+  AssertFalse(LResult.Result.Value[0].Confirmations.HasValue);
+  AssertEquals('finalized', LResult.Result.Value[0].ConfirmationStatus);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 initialization

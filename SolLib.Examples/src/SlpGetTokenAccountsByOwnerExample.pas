@@ -54,14 +54,14 @@ var
   LTokenAccData: TTokenAccountData;
 
   // helpers
-  function UiOrEmpty(const S: string): string;
+  function UiOrEmpty(const AStr: string): string;
   begin
-    if S <> '' then Result := S else Result := '0';
+    if AStr <> '' then Result := AStr else Result := '0';
   end;
 
-  function HasDelegatedAmount(const A: TTokenAccountInfoDetails): Boolean;
+  function HasDelegatedAmount(const ADetails: TTokenAccountInfoDetails): Boolean;
   begin
-    Result := Assigned(A.DelegatedAmount);
+    Result := Assigned(ADetails.DelegatedAmount);
   end;
 
 begin

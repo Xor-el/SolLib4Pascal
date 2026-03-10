@@ -259,20 +259,20 @@ end;
 
 class procedure TBinaryPrimitives.WriteSingleLittleEndian(const AData: TBytes; AOffset: Integer; AValue: Single);
 var
-  bits: UInt32;
+  LBits: UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
-  Move(AValue, bits, SizeOf(Single));
-  WriteUInt32LEInternal(bits, AData, AOffset);
+  Move(AValue, LBits, SizeOf(Single));
+  WriteUInt32LEInternal(LBits, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteDoubleLittleEndian(const AData: TBytes; AOffset: Integer; AValue: Double);
 var
-  bits: UInt64;
+  LBits: UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
-  Move(AValue, bits, SizeOf(Double));
-  WriteUInt64LEInternal(bits, AData, AOffset);
+  Move(AValue, LBits, SizeOf(Double));
+  WriteUInt64LEInternal(LBits, AData, AOffset);
 end;
 
 // ============================================================================
@@ -317,20 +317,20 @@ end;
 
 class procedure TBinaryPrimitives.WriteSingleBigEndian(const AData: TBytes; AOffset: Integer; AValue: Single);
 var
-  bits: UInt32;
+  LBits: UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
-  Move(AValue, bits, SizeOf(Single));
-  WriteUInt32BEInternal(bits, AData, AOffset);
+  Move(AValue, LBits, SizeOf(Single));
+  WriteUInt32BEInternal(LBits, AData, AOffset);
 end;
 
 class procedure TBinaryPrimitives.WriteDoubleBigEndian(const AData: TBytes; AOffset: Integer; AValue: Double);
 var
-  bits: UInt64;
+  LBits: UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
-  Move(AValue, bits, SizeOf(Double));
-  WriteUInt64BEInternal(bits, AData, AOffset);
+  Move(AValue, LBits, SizeOf(Double));
+  WriteUInt64BEInternal(LBits, AData, AOffset);
 end;
 
 // ============================================================================
@@ -375,20 +375,20 @@ end;
 
 class function TBinaryPrimitives.ReadSingleLittleEndian(const AData: TBytes; AOffset: Integer): Single;
 var
-  bits: UInt32;
+  LBits: UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
-  bits := ReadUInt32LEInternal(AData, AOffset);
-  Move(bits, Result, SizeOf(Single));
+  LBits := ReadUInt32LEInternal(AData, AOffset);
+  Move(LBits, Result, SizeOf(Single));
 end;
 
 class function TBinaryPrimitives.ReadDoubleLittleEndian(const AData: TBytes; AOffset: Integer): Double;
 var
-  bits: UInt64;
+  LBits: UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
-  bits := ReadUInt64LEInternal(AData, AOffset);
-  Move(bits, Result, SizeOf(Double));
+  LBits := ReadUInt64LEInternal(AData, AOffset);
+  Move(LBits, Result, SizeOf(Double));
 end;
 
 // ============================================================================
@@ -433,20 +433,20 @@ end;
 
 class function TBinaryPrimitives.ReadSingleBigEndian(const AData: TBytes; AOffset: Integer): Single;
 var
-  bits: UInt32;
+  LBits: UInt32;
 begin
   CheckBounds(AData, AOffset, SizeOf(Single));
-  bits := ReadUInt32BEInternal(AData, AOffset);
-  Move(bits, Result, SizeOf(Single));
+  LBits := ReadUInt32BEInternal(AData, AOffset);
+  Move(LBits, Result, SizeOf(Single));
 end;
 
 class function TBinaryPrimitives.ReadDoubleBigEndian(const AData: TBytes; AOffset: Integer): Double;
 var
-  bits: UInt64;
+  LBits: UInt64;
 begin
   CheckBounds(AData, AOffset, SizeOf(Double));
-  bits := ReadUInt64BEInternal(AData, AOffset);
-  Move(bits, Result, SizeOf(Double));
+  LBits := ReadUInt64BEInternal(AData, AOffset);
+  Move(LBits, Result, SizeOf(Double));
 end;
 
 end.

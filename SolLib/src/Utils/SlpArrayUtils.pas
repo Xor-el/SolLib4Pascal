@@ -29,19 +29,19 @@ uses
 type
   TArrayUtils = class sealed
   private
-    class procedure RequireRange(Cond: Boolean; const Msg: string); static;
+    class procedure RequireRange(ACond: Boolean; const AMsg: string); static;
   public
 
-    class function AreArraysEqual(const A, B: TBytes): Boolean; overload; static;
-    class function AreArraysEqual(const A, B: TArray<Integer>): Boolean; overload; static;
+    class function AreArraysEqual(const AFirst, BSecond: TBytes): Boolean; overload; static;
+    class function AreArraysEqual(const AFirst, BSecond: TArray<Integer>): Boolean; overload; static;
 
     /// <summary>Concatenate two arrays of any type T.</summary>
-    class function Concat<T>(const A, B: TArray<T>): TArray<T>; static;
-    class function Slice<T>(const A: TArray<T>; Offset: Integer): TArray<T>; overload;
+    class function Concat<T>(const AFirst, BSecond: TArray<T>): TArray<T>; static;
+    class function Slice<T>(const A: TArray<T>; AOffset: Integer): TArray<T>; overload;
     /// <summary>
     /// Generic slice: returns A[Offset .. Offset+Count-1], clamped to bounds.
     /// </summary>
-    class function Slice<T>(const A: TArray<T>; Offset, Count: Integer): TArray<T>; overload;
+    class function Slice<T>(const A: TArray<T>; AOffset, ACount: Integer): TArray<T>; overload;
 
         {==================== COPY (PROCEDURES) ====================}
 
@@ -49,398 +49,401 @@ type
     /// Copy the entire Source to Dest starting at index 0.
     /// Raises if Dest is nil or Dest.Length &lt; Source.Length.
     /// </summary>
-    class procedure Copy<T>(const Source: TArray<T>; var Dest: TArray<T>); overload; static;
+    class procedure Copy<T>(const ASource: TArray<T>; var ADest: TArray<T>); overload; static;
 
     /// <summary>
     /// Copy Count items from Source[SrcIndex] into Dest[DestIndex].
     /// No resizing: raises if the copy will not fit. Overlap-safe.
     /// </summary>
     class procedure Copy<T>(
-      const Source: TArray<T>; SrcIndex: Integer;
-      var Dest: TArray<T>; DestIndex: Integer;
-      Count: Integer); overload; static;
+      const ASource: TArray<T>; ASrcIndex: Integer;
+      var ADest: TArray<T>; ADestIndex: Integer;
+      ACount: Integer); overload; static;
 
     /// <summary>
     /// Copy entire Source into Dest starting at DestIndex.
     /// No resizing: raises if the copy will not fit.
     /// </summary>
     class procedure Copy<T>(
-      const Source: TArray<T>;
-      var Dest: TArray<T>;
-      DestIndex: Integer); overload; static;
+      const ASource: TArray<T>;
+      var ADest: TArray<T>;
+      ADestIndex: Integer); overload; static;
 
     /// <summary>
     /// Copy Source[SrcIndex..end] into Dest starting at DestIndex.
     /// No resizing: raises if the copy will not fit.
     /// </summary>
     class procedure Copy<T>(
-      const Source: TArray<T>; SrcIndex: Integer;
-      var Dest: TArray<T>; DestIndex: Integer); overload; static;
+      const ASource: TArray<T>; ASrcIndex: Integer;
+      var ADest: TArray<T>; ADestIndex: Integer); overload; static;
 
     {==================== COPY (FUNCTIONS) ====================}
 
     /// <summary>
     /// Returns a NEW array that is a copy of Source (entire array).
     /// </summary>
-    class function Copy<T>(const Source: TArray<T>): TArray<T>; overload; static;
+    class function Copy<T>(const ASource: TArray<T>): TArray<T>; overload; static;
 
     /// <summary>
     /// Returns a NEW array with the first Count items of Source.
     /// Raises if Count &lt; 0 or Count &gt; Source.Length.
     /// </summary>
     class function Copy<T>(
-      const Source: TArray<T>; Count: Integer): TArray<T>; overload; static;
+      const ASource: TArray<T>; ACount: Integer): TArray<T>; overload; static;
 
     /// <summary>
     /// Returns a NEW array with Source[Index..Index+Count-1].
     /// Range-checked.
     /// </summary>
     class function Copy<T>(
-      const Source: TArray<T>; Index, Count: Integer): TArray<T>; overload; static;
+      const ASource: TArray<T>; AIndex, ACount: Integer): TArray<T>; overload; static;
 
     class function Copy<T>(
-      const Source: TArray<T>; const Cloner: TFunc<T, T>): TArray<T>; overload; static;
+      const ASource: TArray<T>; const ACloner: TFunc<T, T>): TArray<T>; overload; static;
 
     class function IndexOf<T>(
-      const Values: TArray<T>; const Predicate: TFunc<T, Boolean>;
-      out Index: Integer): Boolean; overload; static;
+      const AValues: TArray<T>; const APredicate: TFunc<T, Boolean>;
+      out AIndex: Integer): Boolean; overload; static;
 
     class function IndexOf<T>(
-      const Values: TArray<T>; const Predicate: TFunc<T, Boolean>;
-      const StartIndex, Count: Integer; out Index: Integer): Boolean; overload; static;
+      const AValues: TArray<T>; const APredicate: TFunc<T, Boolean>;
+      const AStartIndex, ACount: Integer; out AIndex: Integer): Boolean; overload; static;
 
     /// <summary>
     /// Overwrite the entire array with zeros (0).
     /// </summary>
-    class procedure Fill<T>(var Arr: TArray<T>); overload; static;
+    class procedure Fill<T>(var AArr: TArray<T>); overload; static;
 
     /// <summary>
     /// Overwrite the entire array with the specified value.
     /// </summary>
-    class procedure Fill<T>(var Arr: TArray<T>; const Value: T); overload; static;
+    class procedure Fill<T>(var AArr: TArray<T>; const AValue: T); overload; static;
 
     /// <summary>
     /// Overwrite a subrange of the array starting at Offset for Count elements with zero.
     /// </summary>
-    class procedure Fill<T>(var Arr: TArray<T>; const Offset, Count: Integer); overload; static;
+    class procedure Fill<T>(var AArr: TArray<T>; const AOffset, ACount: Integer); overload; static;
 
     /// <summary>
     /// Overwrite a subrange of the array starting at Offset for Count elements with a specific value.
     /// </summary>
-    class procedure Fill<T>(var Arr: TArray<T>; const Offset, Count: Integer; const Value: T); overload; static;
+    class procedure Fill<T>(var AArr: TArray<T>; const AOffset, ACount: Integer; const AValue: T); overload; static;
 
-    class function Reverse<T>(const Source: TArray<T>): TArray<T>; static;
+    class function Reverse<T>(const ASource: TArray<T>): TArray<T>; static;
 
-    class function Any<T>(const L: TArray<T>; const Pred: TPredicate<T>): Boolean; static;
+    class function Any<T>(const AList: TArray<T>; const APred: TPredicate<T>): Boolean; static;
 
     /// <summary>
     /// Constant-time comparison of two byte arrays (timing-attack resistant).
     /// </summary>
-    class function ConstantTimeEquals(const A, B: TBytes): Boolean; static;
+    class function ConstantTimeEquals(const AFirst, BSecond: TBytes): Boolean; static;
 
     /// <summary>
     /// Securely zero-out a byte array.
     /// </summary>
-    class procedure Zeroize(var Arr: TBytes); static;
+    class procedure Zeroize(var AArr: TBytes); static;
   end;
 
 implementation
 
 { TArrayUtils }
 
-class procedure TArrayUtils.RequireRange(Cond: Boolean; const Msg: string);
+class procedure TArrayUtils.RequireRange(ACond: Boolean; const AMsg: string);
 begin
-  if not Cond then
-    raise ERangeError.Create(Msg);
+  if not ACond then
+    raise ERangeError.Create(AMsg);
 end;
 
-class function TArrayUtils.AreArraysEqual(const A, B: TBytes): Boolean;
+class function TArrayUtils.AreArraysEqual(const AFirst, BSecond: TBytes): Boolean;
 var
-  LA: Integer;
+  LLen: Integer;
 begin
-  if Pointer(A) = Pointer(B) then
+  if Pointer(AFirst) = Pointer(BSecond) then
     Exit(True);
-  LA := Length(A);
-  if LA <> Length(B) then
+  LLen := Length(AFirst);
+  if LLen <> Length(BSecond) then
     Exit(False);
-  if LA = 0 then
+  if LLen = 0 then
     Exit(True);
-  Result := CompareMem(@A[0], @B[0], LA);
+  Result := CompareMem(@AFirst[0], @BSecond[0], LLen);
 end;
 
-class function TArrayUtils.AreArraysEqual(const A, B: TArray<Integer>): Boolean;
+class function TArrayUtils.AreArraysEqual(const AFirst, BSecond: TArray<Integer>): Boolean;
 var
-  LA: Integer;
+  LLen: Integer;
 begin
-  if Pointer(A) = Pointer(B) then
+  if Pointer(AFirst) = Pointer(BSecond) then
     Exit(True);
-  LA := Length(A);
-  if LA <> Length(B) then
+  LLen := Length(AFirst);
+  if LLen <> Length(BSecond) then
     Exit(False);
-  if LA = 0 then
+  if LLen = 0 then
     Exit(True);
-  Result := CompareMem(@A[0], @B[0], LA * SizeOf(Integer));
+  Result := CompareMem(@AFirst[0], @BSecond[0], LLen * SizeOf(Integer));
 end;
 
-class function TArrayUtils.Concat<T>(const A, B: TArray<T>): TArray<T>;
+class function TArrayUtils.Concat<T>(const AFirst, BSecond: TArray<T>): TArray<T>;
 var
-  LA, LB: Integer;
+  LLenA, LLenB: Integer;
 begin
-  LA := Length(A);
-  LB := Length(B);
-  SetLength(Result, LA + LB);
-  if LA > 0 then
-    Copy<T>(A, 0, Result, 0, LA);
-  if LB > 0 then
-    Copy<T>(B, 0, Result, LA, LB);
+  LLenA := Length(AFirst);
+  LLenB := Length(BSecond);
+  SetLength(Result, LLenA + LLenB);
+  if LLenA > 0 then
+    Copy<T>(AFirst, 0, Result, 0, LLenA);
+  if LLenB > 0 then
+    Copy<T>(BSecond, 0, Result, LLenA, LLenB);
 end;
 
-class function TArrayUtils.Slice<T>(const A: TArray<T>; Offset: Integer): TArray<T>;
+class function TArrayUtils.Slice<T>(const A: TArray<T>; AOffset: Integer): TArray<T>;
 begin
-  Result := Slice<T>(A, Offset, Length(A) - Offset);
+  Result := Slice<T>(A, AOffset, Length(A) - AOffset);
 end;
 
-class function TArrayUtils.Slice<T>(const A: TArray<T>; Offset, Count: Integer): TArray<T>;
+class function TArrayUtils.Slice<T>(const A: TArray<T>; AOffset, ACount: Integer): TArray<T>;
 var
-  L: Integer;
+  LLen, LOffset, LCount: Integer;
 begin
-  L := Length(A);
+  LLen := Length(A);
+  LOffset := AOffset;
+  LCount := ACount;
 
   // Clamp offset
-  if Offset < 0 then
-    Offset := 0
-  else if Offset > L then
-    Offset := L;
+  if LOffset < 0 then
+    LOffset := 0
+  else if LOffset > LLen then
+    LOffset := LLen;
 
   // Clamp count
-  if Count < 0 then
-    Count := 0
-  else if Offset + Count > L then
-    Count := L - Offset;
+  if LCount < 0 then
+    LCount := 0
+  else if LOffset + LCount > LLen then
+    LCount := LLen - LOffset;
 
-  Result := Copy<T>(A, Offset, Count);
+  Result := Copy<T>(A, LOffset, LCount);
 end;
 
 {==================== COPY (PROCEDURES) ====================}
 
 class procedure TArrayUtils.Copy<T>(
-  const Source: TArray<T>;
-  var Dest: TArray<T>);
+  const ASource: TArray<T>;
+  var ADest: TArray<T>);
 var
-  SrcLen: Integer;
+  LSrcLen: Integer;
 begin
-  SrcLen := Length(Source);
-  RequireRange(Length(Dest) >= SrcLen, 'Destination too small for copy.');
-  if SrcLen = 0 then
+  LSrcLen := Length(ASource);
+  RequireRange(Length(ADest) >= LSrcLen, 'Destination too small for copy.');
+  if LSrcLen = 0 then
     Exit;
-  Copy<T>(Source, 0, Dest, 0, SrcLen);
+  Copy<T>(ASource, 0, ADest, 0, LSrcLen);
 end;
 
 class procedure TArrayUtils.Copy<T>(
-  const Source: TArray<T>; SrcIndex: Integer;
-  var Dest: TArray<T>; DestIndex: Integer;
-  Count: Integer);
+  const ASource: TArray<T>; ASrcIndex: Integer;
+  var ADest: TArray<T>; ADestIndex: Integer;
+  ACount: Integer);
 var
-  SrcLen, DestLen, i: Integer;
+  LSrcLen, LDestLen, LI: Integer;
 begin
-  RequireRange(SrcIndex >= 0, 'SrcIndex must be >= 0.');
-  RequireRange(DestIndex >= 0, 'DestIndex must be >= 0.');
-  RequireRange(Count >= 0, 'Count must be >= 0.');
+  RequireRange(ASrcIndex >= 0, 'SrcIndex must be >= 0.');
+  RequireRange(ADestIndex >= 0, 'DestIndex must be >= 0.');
+  RequireRange(ACount >= 0, 'Count must be >= 0.');
 
-  SrcLen := Length(Source);
-  DestLen := Length(Dest);
+  LSrcLen := Length(ASource);
+  LDestLen := Length(ADest);
 
-  RequireRange(SrcIndex <= SrcLen, 'SrcIndex out of range.');
-  RequireRange(Count <= (SrcLen - SrcIndex), 'Count exceeds Source length.');
-  RequireRange(DestIndex <= DestLen, 'DestIndex out of range.');
-  RequireRange(Count <= (DestLen - DestIndex), 'Destination too small for copy.');
+  RequireRange(ASrcIndex <= LSrcLen, 'SrcIndex out of range.');
+  RequireRange(ACount <= (LSrcLen - ASrcIndex), 'Count exceeds Source length.');
+  RequireRange(ADestIndex <= LDestLen, 'DestIndex out of range.');
+  RequireRange(ACount <= (LDestLen - ADestIndex), 'Destination too small for copy.');
 
-  if Count = 0 then Exit;
+  if ACount = 0 then Exit;
 
-  if (Pointer(Source) = Pointer(Dest)) and (DestIndex > SrcIndex)
-     and (DestIndex < SrcIndex + Count) then
+  if (Pointer(ASource) = Pointer(ADest)) and (ADestIndex > ASrcIndex)
+     and (ADestIndex < ASrcIndex + ACount) then
   begin
-    for i := Count - 1 downto 0 do
-      Dest[DestIndex + i] := Source[SrcIndex + i];
+    for LI := ACount - 1 downto 0 do
+      ADest[ADestIndex + LI] := ASource[ASrcIndex + LI];
   end
   else
   begin
-    for i := 0 to Count - 1 do
-      Dest[DestIndex + i] := Source[SrcIndex + i];
+    for LI := 0 to ACount - 1 do
+      ADest[ADestIndex + LI] := ASource[ASrcIndex + LI];
   end;
 end;
 
 class procedure TArrayUtils.Copy<T>(
-  const Source: TArray<T>;
-  var Dest: TArray<T>;
-  DestIndex: Integer);
+  const ASource: TArray<T>;
+  var ADest: TArray<T>;
+  ADestIndex: Integer);
 begin
-  Copy<T>(Source, 0, Dest, DestIndex, Length(Source));
+  Copy<T>(ASource, 0, ADest, ADestIndex, Length(ASource));
 end;
 
 class procedure TArrayUtils.Copy<T>(
-  const Source: TArray<T>; SrcIndex: Integer;
-  var Dest: TArray<T>; DestIndex: Integer);
+  const ASource: TArray<T>; ASrcIndex: Integer;
+  var ADest: TArray<T>; ADestIndex: Integer);
 begin
-  RequireRange(SrcIndex >= 0, 'SrcIndex must be >= 0.');
-  Copy<T>(Source, SrcIndex, Dest, DestIndex, Length(Source) - SrcIndex);
+  RequireRange(ASrcIndex >= 0, 'SrcIndex must be >= 0.');
+  Copy<T>(ASource, ASrcIndex, ADest, ADestIndex, Length(ASource) - ASrcIndex);
 end;
 
 {==================== COPY (FUNCTIONS) ====================}
 
 class function TArrayUtils.Copy<T>(
-  const Source: TArray<T>): TArray<T>;
+  const ASource: TArray<T>): TArray<T>;
 begin
-  Result := Copy<T>(Source, 0, Length(Source));
+  Result := Copy<T>(ASource, 0, Length(ASource));
 end;
 
 class function TArrayUtils.Copy<T>(
-  const Source: TArray<T>; Count: Integer): TArray<T>;
+  const ASource: TArray<T>; ACount: Integer): TArray<T>;
 begin
-  RequireRange(Count >= 0, 'Count must be >= 0.');
-  RequireRange(Count <= Length(Source), 'Count exceeds Source length.');
-  Result := Copy<T>(Source, 0, Count);
+  RequireRange(ACount >= 0, 'Count must be >= 0.');
+  RequireRange(ACount <= Length(ASource), 'Count exceeds Source length.');
+  Result := Copy<T>(ASource, 0, ACount);
 end;
 
 class function TArrayUtils.Copy<T>(
-  const Source: TArray<T>; Index, Count: Integer): TArray<T>;
+  const ASource: TArray<T>; AIndex, ACount: Integer): TArray<T>;
 begin
-  RequireRange(Index >= 0, 'Index must be >= 0.');
-  RequireRange(Count >= 0, 'Count must be >= 0.');
-  RequireRange(Index <= Length(Source), 'Index out of range.');
-  RequireRange(Count <= (Length(Source) - Index), 'Index+Count exceeds Source length.');
+  RequireRange(AIndex >= 0, 'Index must be >= 0.');
+  RequireRange(ACount >= 0, 'Count must be >= 0.');
+  RequireRange(AIndex <= Length(ASource), 'Index out of range.');
+  RequireRange(ACount <= (Length(ASource) - AIndex), 'Index+Count exceeds Source length.');
 
-  SetLength(Result, Count);
-  if Count > 0 then
-    Copy<T>(Source, Index, Result, 0, Count);
+  SetLength(Result, ACount);
+  if ACount > 0 then
+    Copy<T>(ASource, AIndex, Result, 0, ACount);
 end;
 
 class function TArrayUtils.Copy<T>(
-  const Source: TArray<T>;
-  const Cloner: TFunc<T, T>): TArray<T>;
+  const ASource: TArray<T>;
+  const ACloner: TFunc<T, T>): TArray<T>;
 var
-  I, L: Integer;
+  LI, LLen: Integer;
 begin
-  if not Assigned(Cloner) then
+  if not Assigned(ACloner) then
     raise EArgumentNilException.Create('Cloner must be assigned');
 
-  L := Length(Source);
-  SetLength(Result, L);
-  for I := 0 to L - 1 do
-    Result[I] := Cloner(Source[I]);
+  LLen := Length(ASource);
+  SetLength(Result, LLen);
+  for LI := 0 to LLen - 1 do
+    Result[LI] := ACloner(ASource[LI]);
 end;
 
 class function TArrayUtils.IndexOf<T>(
-  const Values: TArray<T>;
-  const Predicate: TFunc<T, Boolean>;
-  out Index: Integer): Boolean;
+  const AValues: TArray<T>;
+  const APredicate: TFunc<T, Boolean>;
+  out AIndex: Integer): Boolean;
 begin
-  Result := IndexOf<T>(Values, Predicate, 0, Length(Values), Index);
+  Result := IndexOf<T>(AValues, APredicate, 0, Length(AValues), AIndex);
 end;
 
+
 class function TArrayUtils.IndexOf<T>(
-  const Values: TArray<T>;
-  const Predicate: TFunc<T, Boolean>;
-  const StartIndex, Count: Integer;
-  out Index: Integer): Boolean;
+  const AValues: TArray<T>;
+  const APredicate: TFunc<T, Boolean>;
+  const AStartIndex, ACount: Integer;
+  out AIndex: Integer): Boolean;
 var
-  I, LastIndex, Limit: Integer;
+  LI, LLastIndex, LLimit: Integer;
 begin
-  if not Assigned(Predicate) then
+  if not Assigned(APredicate) then
     raise Exception.Create('Predicate function cannot be nil.');
 
-  if (StartIndex < 0) or (StartIndex > Length(Values)) then
-    raise Exception.CreateFmt('StartIndex (%d) is out of bounds.', [StartIndex]);
+  if (AStartIndex < 0) or (AStartIndex > Length(AValues)) then
+    raise Exception.CreateFmt('StartIndex (%d) is out of bounds.', [AStartIndex]);
 
-  if (Count < 0) then
-    raise Exception.CreateFmt('Count (%d) cannot be negative.', [Count]);
+  if (ACount < 0) then
+    raise Exception.CreateFmt('Count (%d) cannot be negative.', [ACount]);
 
-  Limit := Min(Length(Values), StartIndex + Count);
-  LastIndex := Limit - 1;
+  LLimit := Min(Length(AValues), AStartIndex + ACount);
+  LLastIndex := LLimit - 1;
 
-  for I := StartIndex to LastIndex do
-    if Predicate(Values[I]) then
+  for LI := AStartIndex to LLastIndex do
+    if APredicate(AValues[LI]) then
     begin
-      Index := I;
+      AIndex := LI;
       Exit(True);
     end;
 
-  Index := -1;
+  AIndex := -1;
   Result := False;
 end;
 
-class procedure TArrayUtils.Fill<T>(var Arr: TArray<T>);
+class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>);
 begin
-  if Length(Arr) = 0 then
+  if Length(AArr) = 0 then
     Exit;
-  Fill<T>(Arr, 0, Length(Arr), Default(T));
+  Fill<T>(AArr, 0, Length(AArr), Default(T));
 end;
 
-class procedure TArrayUtils.Fill<T>(var Arr: TArray<T>; const Value: T);
+class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>; const AValue: T);
 begin
-  if Length(Arr) = 0 then
+  if Length(AArr) = 0 then
     Exit;
-  Fill<T>(Arr, 0, Length(Arr), Value);
+  Fill<T>(AArr, 0, Length(AArr), AValue);
 end;
 
-class procedure TArrayUtils.Fill<T>(var Arr: TArray<T>; const Offset, Count: Integer);
+class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>; const AOffset, ACount: Integer);
 begin
-  Fill<T>(Arr, Offset, Count, Default(T));
+  Fill<T>(AArr, AOffset, ACount, Default(T));
 end;
 
 class procedure TArrayUtils.Fill<T>(
-  var Arr: TArray<T>;
-  const Offset, Count: Integer;
-  const Value: T);
+  var AArr: TArray<T>;
+  const AOffset, ACount: Integer;
+  const AValue: T);
 var
-  I: Integer;
+  LI: Integer;
 begin
-  if (Offset < 0) or (Count < 0) or (Offset + Count > Length(Arr)) then
+  if (AOffset < 0) or (ACount < 0) or (AOffset + ACount > Length(AArr)) then
     raise EArgumentOutOfRangeException.Create('Invalid offset/count range.');
 
-  for I := Offset to Offset + Count - 1 do
-    Arr[I] := Value;
+  for LI := AOffset to AOffset + ACount - 1 do
+    AArr[LI] := AValue;
 end;
 
-class function TArrayUtils.Reverse<T>(const Source: TArray<T>): TArray<T>;
+class function TArrayUtils.Reverse<T>(const ASource: TArray<T>): TArray<T>;
 var
-  I, L: Integer;
+  LI, LLen: Integer;
 begin
-  L := Length(Source);
-  SetLength(Result, L);
+  LLen := Length(ASource);
+  SetLength(Result, LLen);
 
-  for I := 0 to L - 1 do
-    Result[I] := Source[L - 1 - I];
+  for LI := 0 to LLen - 1 do
+    Result[LI] := ASource[LLen - 1 - LI];
 end;
 
-class function TArrayUtils.Any<T>(const L: TArray<T>; const Pred: TPredicate<T>): Boolean;
+class function TArrayUtils.Any<T>(const AList: TArray<T>; const APred: TPredicate<T>): Boolean;
 var
-  Item: T;
+  LItem: T;
 begin
-  for Item in L do
-    if Pred(Item) then
+  for LItem in AList do
+    if APred(LItem) then
       Exit(True);
   Result := False;
 end;
 
-class function TArrayUtils.ConstantTimeEquals(const A, B: TBytes): Boolean;
+class function TArrayUtils.ConstantTimeEquals(const AFirst, BSecond: TBytes): Boolean;
 var
-  I: Integer;
-  Diff: Byte;
+  LI: Integer;
+  LDiff: Byte;
 begin
-  if Length(A) <> Length(B) then
+  if Length(AFirst) <> Length(BSecond) then
     Exit(False);
-  Diff := 0;
-  for I := 0 to High(A) do
-    Diff := Diff or (A[I] xor B[I]);
-  Result := (Diff = 0);
+  LDiff := 0;
+  for LI := 0 to High(AFirst) do
+    LDiff := LDiff or (AFirst[LI] xor BSecond[LI]);
+  Result := (LDiff = 0);
 end;
 
-class procedure TArrayUtils.Zeroize(var Arr: TBytes);
+class procedure TArrayUtils.Zeroize(var AArr: TBytes);
 begin
-  if Length(Arr) = 0 then
+  if Length(AArr) = 0 then
     Exit;
-  Fill<Byte>(Arr, 0, Length(Arr), 0);
+  Fill<Byte>(AArr, 0, Length(AArr), 0);
 end;
 
 end.

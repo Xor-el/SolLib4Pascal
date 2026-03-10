@@ -56,11 +56,11 @@ type
   /// </summary>
   TConfigObject = class sealed
   public
-    class function Make(const Pair1: TKeyValue): TDictionary<string, TValue>; overload; static;
-    class function Make(const Pair1, Pair2: TKeyValue): TDictionary<string, TValue>; overload; static;
-    class function Make(const Pair1, Pair2, Pair3: TKeyValue): TDictionary<string, TValue>; overload; static;
-    class function Make(const Pair1, Pair2, Pair3, Pair4: TKeyValue): TDictionary<string, TValue>; overload; static;
-    class function Make(const Pair1, Pair2, Pair3, Pair4, Pair5: TKeyValue): TDictionary<string, TValue>; overload; static;
+    class function Make(const APair1: TKeyValue): TDictionary<string, TValue>; overload; static;
+    class function Make(const APair1, APair2: TKeyValue): TDictionary<string, TValue>; overload; static;
+    class function Make(const APair1, APair2, APair3: TKeyValue): TDictionary<string, TValue>; overload; static;
+    class function Make(const APair1, APair2, APair3, APair4: TKeyValue): TDictionary<string, TValue>; overload; static;
+    class function Make(const APair1, APair2, APair3, APair4, APair5: TKeyValue): TDictionary<string, TValue>; overload; static;
   end;
 
   /// <summary>
@@ -68,7 +68,7 @@ type
   /// Returns nil if no valid entries.
   /// </summary>
   TParameters = class sealed
-    class function IsNullish(const V: TValue): Boolean; static;
+    class function IsNullish(const AValue: TValue): Boolean; static;
   public
     class function Make(const V1: TValue): TList<TValue>; overload; static;
     class function Make(const V1, V2: TValue): TList<TValue>; overload; static;
@@ -79,52 +79,52 @@ implementation
 
 { Utilities }
 
-function IsNullishValue(const V: TValue): Boolean;
+function IsNullishValue(const AValue: TValue): Boolean;
 var
-  Ctx: TRttiContext;
-  RType: TRttiType;
-  HasValueMeth: TRttiMethod;
-  Ret: TValue;
-  DynArray: Pointer;
+  LCtx: TRttiContext;
+  LRType: TRttiType;
+  LHasValueMeth: TRttiMethod;
+  LRet: TValue;
+  LDynArray: Pointer;
 begin
   // Uninitialized TValue
-  if V.IsEmpty then
+  if AValue.IsEmpty then
     Exit(True);
 
   // Nil object/interface wrapped in TValue
-  case V.Kind of
+  case AValue.Kind of
     tkClass:
-      Exit(V.AsObject = nil);
+      Exit(AValue.AsObject = nil);
     tkInterface:
-      Exit(IInterface(V.AsInterface) = nil);
+      Exit(IInterface(AValue.AsInterface) = nil);
     tkString, tkLString, tkWString, tkUString:
-      Exit(V.AsString = '');
+      Exit(AValue.AsString = '');
     tkDynArray:
       begin
-        DynArray := V.GetReferenceToRawData;
-        if (DynArray = nil) or (V.GetArrayLength = 0) then
+        LDynArray := AValue.GetReferenceToRawData;
+        if (LDynArray = nil) or (AValue.GetArrayLength = 0) then
           Exit(True);
       end;
   end;
 
   // Handle TNullable<T> and TKeyValue (record with HasValue: Boolean)
-  if (V.Kind = tkRecord) then
+  if (AValue.Kind = tkRecord) then
   begin
-    Ctx := TRttiContext.Create;
+    LCtx := TRttiContext.Create;
     try
-      RType := Ctx.GetType(V.TypeInfo);
+      LRType := LCtx.GetType(AValue.TypeInfo);
       // Look for a parameterless method named "HasValue" returning Boolean
-      HasValueMeth := RType.GetMethod('HasValue');
-      if Assigned(HasValueMeth)
-        and (Length(HasValueMeth.GetParameters) = 0)
-        and Assigned(HasValueMeth.ReturnType)
-        and (HasValueMeth.ReturnType.Handle = TypeInfo(Boolean)) then
+      LHasValueMeth := LRType.GetMethod('HasValue');
+      if Assigned(LHasValueMeth)
+        and (Length(LHasValueMeth.GetParameters) = 0)
+        and Assigned(LHasValueMeth.ReturnType)
+        and (LHasValueMeth.ReturnType.Handle = TypeInfo(Boolean)) then
       begin
-        Ret := HasValueMeth.Invoke(V, []);
-        Exit(not Ret.AsBoolean); // nullish if NOT HasValue
+        LRet := LHasValueMeth.Invoke(AValue, []);
+        Exit(not LRet.AsBoolean); // nullish if NOT HasValue
       end;
     finally
-      Ctx.Free;
+      LCtx.Free;
     end;
   end;
 
@@ -167,25 +167,25 @@ end;
 
 { TConfigObject }
 
-class function TConfigObject.Make(const Pair1: TKeyValue): TDictionary<string, TValue>;
+class function TConfigObject.Make(const APair1: TKeyValue): TDictionary<string, TValue>;
 begin
-  if Pair1.IsValid then
+  if APair1.IsValid then
   begin
     Result := TDictionary<string, TValue>.Create;
-    Result.Add(Pair1.Key, Pair1.Value);
+    Result.Add(APair1.Key, APair1.Value);
   end
   else
     Result := nil;
 end;
 
-class function TConfigObject.Make(const Pair1, Pair2: TKeyValue): TDictionary<string, TValue>;
+class function TConfigObject.Make(const APair1, APair2: TKeyValue): TDictionary<string, TValue>;
 begin
-  Result := Make(Pair1);
+  Result := Make(APair1);
   if not Assigned(Result) then
     Result := TDictionary<string, TValue>.Create;
 
-  if Pair2.IsValid then
-    Result.Add(Pair2.Key, Pair2.Value);
+  if APair2.IsValid then
+    Result.Add(APair2.Key, APair2.Value);
 
   if Result.Count = 0 then
   begin
@@ -194,14 +194,14 @@ begin
   end;
 end;
 
-class function TConfigObject.Make(const Pair1, Pair2, Pair3: TKeyValue): TDictionary<string, TValue>;
+class function TConfigObject.Make(const APair1, APair2, APair3: TKeyValue): TDictionary<string, TValue>;
 begin
-  Result := Make(Pair1, Pair2);
+  Result := Make(APair1, APair2);
   if not Assigned(Result) then
     Result := TDictionary<string, TValue>.Create;
 
-  if Pair3.IsValid then
-    Result.Add(Pair3.Key, Pair3.Value);
+  if APair3.IsValid then
+    Result.Add(APair3.Key, APair3.Value);
 
   if Result.Count = 0 then
   begin
@@ -210,14 +210,14 @@ begin
   end;
 end;
 
-class function TConfigObject.Make(const Pair1, Pair2, Pair3, Pair4: TKeyValue): TDictionary<string, TValue>;
+class function TConfigObject.Make(const APair1, APair2, APair3, APair4: TKeyValue): TDictionary<string, TValue>;
 begin
-  Result := Make(Pair1, Pair2, Pair3);
+  Result := Make(APair1, APair2, APair3);
   if not Assigned(Result) then
     Result := TDictionary<string, TValue>.Create;
 
-  if Pair4.IsValid then
-    Result.Add(Pair4.Key, Pair4.Value);
+  if APair4.IsValid then
+    Result.Add(APair4.Key, APair4.Value);
 
   if Result.Count = 0 then
   begin
@@ -226,14 +226,14 @@ begin
   end;
 end;
 
-class function TConfigObject.Make(const Pair1, Pair2, Pair3, Pair4, Pair5: TKeyValue): TDictionary<string, TValue>;
+class function TConfigObject.Make(const APair1, APair2, APair3, APair4, APair5: TKeyValue): TDictionary<string, TValue>;
 begin
-  Result := Make(Pair1, Pair2, Pair3, Pair4);
+  Result := Make(APair1, APair2, APair3, APair4);
   if not Assigned(Result) then
     Result := TDictionary<string, TValue>.Create;
 
-  if Pair5.IsValid then
-    Result.Add(Pair5.Key, Pair5.Value);
+  if APair5.IsValid then
+    Result.Add(APair5.Key, APair5.Value);
 
   if Result.Count = 0 then
   begin
@@ -244,9 +244,9 @@ end;
 
 { TParameters }
 
-class function TParameters.IsNullish(const V: TValue): Boolean;
+class function TParameters.IsNullish(const AValue: TValue): Boolean;
 begin
-  Result := IsNullishValue(V);
+  Result := IsNullishValue(AValue);
 end;
 
 class function TParameters.Make(const V1: TValue): TList<TValue>;

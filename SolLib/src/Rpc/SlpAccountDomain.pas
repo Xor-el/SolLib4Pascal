@@ -33,9 +33,9 @@ type
     ['{A7F57C9C-6C5A-4E08-9A4E-3B2A6E7E5B3C}']
     function GetPublicKey: IPublicKey;
     function GetIsSigner: Boolean;
-    procedure SetIsSigner(Value: Boolean);
+    procedure SetIsSigner(AValue: Boolean);
     function GetIsWritable: Boolean;
-    procedure SetIsWritable(Value: Boolean);
+    procedure SetIsWritable(AValue: Boolean);
 
     function Clone: IAccountMeta;
 
@@ -55,9 +55,9 @@ type
 
     function GetPublicKey: IPublicKey;
     function GetIsSigner: Boolean;
-    procedure SetIsSigner(Value: Boolean);
+    procedure SetIsSigner(AValue: Boolean);
     function GetIsWritable: Boolean;
-    procedure SetIsWritable(Value: Boolean);
+    procedure SetIsWritable(AValue: Boolean);
 
   public
     constructor Create(const APublicKey: IPublicKey; const AIsWritable, AIsSigner: Boolean);
@@ -86,7 +86,7 @@ type
     FAccounts: TList<IAccountMeta>;
     function GetCount: Integer;
     function GetAccountList: TList<IAccountMeta>;
-    function FindByPublicKey(const Key: IPublicKey): IAccountMeta;
+    function FindByPublicKey(const AKey: IPublicKey): IAccountMeta;
   public
     /// <summary>
     /// Initialize the account keys list for use within transaction building.
@@ -105,20 +105,20 @@ type
     /// <summary>
     /// Add an account meta to the list of accounts.
     /// </summary>
-    /// <param name="AccountMeta">The account meta to add.</param>
-    procedure Add(AccountMeta: IAccountMeta); overload;
+    /// <param name="AAccountMeta">The account meta to add.</param>
+    procedure Add(AAccountMeta: IAccountMeta); overload;
 
     /// <summary>
     /// Add a list of account metas to the list of accounts.
     /// </summary>
-    /// <param name="AccountMetas">The account metas to add.</param>
-    procedure Add(const AccountMetas: array of IAccountMeta); overload;
+    /// <param name="AAccountMetas">The account metas to add.</param>
+    procedure Add(const AAccountMetas: array of IAccountMeta); overload;
 
     /// <summary>
     /// Add a list of account metas to the list of accounts.
     /// </summary>
-    /// <param name="AccountMetas">The account metas to add.</param>
-    procedure Add(const AccountMetas: TList<IAccountMeta>); overload;
+    /// <param name="AAccountMetas">The account metas to add.</param>
+    procedure Add(const AAccountMetas: TList<IAccountMeta>); overload;
   end;
 
 implementation
@@ -145,9 +145,9 @@ begin
   Result := FIsSigner;
 end;
 
-procedure TAccountMeta.SetIsSigner(Value: Boolean);
+procedure TAccountMeta.SetIsSigner(AValue: Boolean);
 begin
-  FIsSigner := Value;
+  FIsSigner := AValue;
 end;
 
 function TAccountMeta.GetIsWritable: Boolean;
@@ -155,9 +155,9 @@ begin
   Result := FIsWritable;
 end;
 
-procedure TAccountMeta.SetIsWritable(Value: Boolean);
+procedure TAccountMeta.SetIsWritable(AValue: Boolean);
 begin
-  FIsWritable := Value;
+  FIsWritable := AValue;
 end;
 
 function TAccountMeta.Clone: IAccountMeta;
@@ -190,18 +190,18 @@ begin
   inherited Destroy;
 end;
 
-function TAccountKeysList.FindByPublicKey(const Key: IPublicKey): IAccountMeta;
+function TAccountKeysList.FindByPublicKey(const AKey: IPublicKey): IAccountMeta;
 var
-  I: Integer;
-  Item: IAccountMeta;
+  LI: Integer;
+  LItem: IAccountMeta;
 begin
   Result := nil;
-  for I := 0 to FAccounts.Count - 1 do
+  for LI := 0 to FAccounts.Count - 1 do
   begin
-    Item := FAccounts[I];
-    if (Item.PublicKey.Equals(Key)) then
+    LItem := FAccounts[LI];
+    if (LItem.PublicKey.Equals(AKey)) then
     begin
-      Exit(Item);
+      Exit(LItem);
     end;
   end;
 end;
@@ -218,96 +218,96 @@ type
     Index : Integer;
   end;
 var
-  I: Integer;
-  Pair: TMetaIdx;
-  Pairs: TList<TMetaIdx>;
+  LI: Integer;
+  LPair: TMetaIdx;
+  LPairs: TList<TMetaIdx>;
 begin
-  Pairs := TList<TMetaIdx>.Create;
+  LPairs := TList<TMetaIdx>.Create;
   try
-    Pairs.Capacity := FAccounts.Count;
-    for I := 0 to FAccounts.Count - 1 do
+    LPairs.Capacity := FAccounts.Count;
+    for LI := 0 to FAccounts.Count - 1 do
     begin
-      Pair := Default(TMetaIdx);
-      Pair.Item  := FAccounts[I];
-      Pair.Index := I;
-      Pairs.Add(Pair);
+      LPair := Default(TMetaIdx);
+      LPair.Item  := FAccounts[LI];
+      LPair.Index := LI;
+      LPairs.Add(LPair);
     end;
 
-    Pairs.Sort(
+    LPairs.Sort(
       TComparer<TMetaIdx>.Construct(
-        function (const L, R: TMetaIdx): Integer
+        function (const ALeft, ARight: TMetaIdx): Integer
         begin
-          if L.Item.IsSigner <> R.Item.IsSigner then
-            Exit(IfThen(L.Item.IsSigner, -1, 1));
+          if ALeft.Item.IsSigner <> ARight.Item.IsSigner then
+            Exit(IfThen(ALeft.Item.IsSigner, -1, 1));
 
-          if L.Item.IsWritable <> R.Item.IsWritable then
-            Exit(IfThen(L.Item.IsWritable, -1, 1));
+          if ALeft.Item.IsWritable <> ARight.Item.IsWritable then
+            Exit(IfThen(ALeft.Item.IsWritable, -1, 1));
 
-          Result := Sign(CompareText(L.Item.PublicKey.Key, R.Item.PublicKey.Key));
+          Result := Sign(CompareText(ALeft.Item.PublicKey.Key, ARight.Item.PublicKey.Key));
           if Result <> 0 then
             Exit(Result);
 
           // Stable tiebreaker: preserve insertion order
-          //Result := Sign(L.Index - R.Index);
-          Result := TComparer<Integer>.Default.Compare(L.Index, R.Index);
+          //Result := Sign(ALeft.Index - ARight.Index);
+          Result := TComparer<Integer>.Default.Compare(ALeft.Index, ARight.Index);
         end
       )
     );
 
     Result := TList<IAccountMeta>.Create;
     try
-      Result.Capacity := Pairs.Count;
-      for I := 0 to Pairs.Count - 1 do
-        Result.Add(Pairs[I].Item);
+      Result.Capacity := LPairs.Count;
+      for LI := 0 to LPairs.Count - 1 do
+        Result.Add(LPairs[LI].Item);
     except
       Result.Free;
       raise;
     end;
   finally
-    Pairs.Free;
+    LPairs.Free;
   end;
 end;
 
-procedure TAccountKeysList.Add(AccountMeta: IAccountMeta);
+procedure TAccountKeysList.Add(AAccountMeta: IAccountMeta);
 var
-  Existing: IAccountMeta;
+  LExisting: IAccountMeta;
 begin
-  if AccountMeta = nil then
+  if AAccountMeta = nil then
     Exit;
 
-  Existing := FindByPublicKey(AccountMeta.PublicKey);
+  LExisting := FindByPublicKey(AAccountMeta.PublicKey);
 
-  if Existing = nil then
+  if LExisting = nil then
   begin
-    FAccounts.Add(AccountMeta)
+    FAccounts.Add(AAccountMeta)
   end
   else
   begin
     // Merge flags:
     // if existing is not signer but new is signer -> promote
-    if (not Existing.IsSigner) and AccountMeta.IsSigner then
-      Existing.IsSigner := True;
+    if (not LExisting.IsSigner) and AAccountMeta.IsSigner then
+      LExisting.IsSigner := True;
 
     // if existing is not writable but new is writable -> promote
-    if (not Existing.IsWritable) and AccountMeta.IsWritable then
-      Existing.IsWritable := True;
+    if (not LExisting.IsWritable) and AAccountMeta.IsWritable then
+      LExisting.IsWritable := True;
   end;
 end;
 
-procedure TAccountKeysList.Add(const AccountMetas: array of IAccountMeta);
+procedure TAccountKeysList.Add(const AAccountMetas: array of IAccountMeta);
 var
-  I: Integer;
+  LI: Integer;
 begin
-  for I := 0 to High(AccountMetas) do
-    Add(AccountMetas[I]);
+  for LI := 0 to High(AAccountMetas) do
+    Add(AAccountMetas[LI]);
 end;
 
-procedure TAccountKeysList.Add(const AccountMetas: TList<IAccountMeta>);
+procedure TAccountKeysList.Add(const AAccountMetas: TList<IAccountMeta>);
 var
-  I: Integer;
+  LI: Integer;
 begin
-  for I := 0 to AccountMetas.Count - 1 do
-    Add(AccountMetas[I]);
+  for LI := 0 to AAccountMetas.Count - 1 do
+    Add(AAccountMetas[LI]);
 end;
 
 end.

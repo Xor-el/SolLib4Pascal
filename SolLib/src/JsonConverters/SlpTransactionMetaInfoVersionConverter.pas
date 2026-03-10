@@ -60,15 +60,15 @@ function TTransactionMetaInfoVersionConverter.ReadJson(const AReader: TJsonReade
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
   I64: Int64;
-  S  : string;
+  LStr: string;
 begin
   SkipPropertyName(AReader);
 
   case AReader.TokenType of
     TJsonToken.&String:
       begin
-        S := AReader.Value.AsString;
-        Exit(TValue.From<string>(S));
+        LStr := AReader.Value.AsString;
+        Exit(TValue.From<string>(LStr));
       end;
 
     TJsonToken.&Integer:
@@ -92,20 +92,20 @@ end;
 procedure TTransactionMetaInfoVersionConverter.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
   const ASerializer: TJsonSerializer);
 var
-  V: TValue;
+  LValue: TValue;
 begin
-  V := AValue.Unwrap();
+  LValue := AValue.Unwrap();
 
-  if V.IsEmpty then
+  if LValue.IsEmpty then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
   // Only accept Delphi string or 32-bit Integer
-  if V.IsType<Integer> or V.IsType<string> then
+  if LValue.IsType<Integer> or LValue.IsType<string> then
   begin
-    WriteTValue(AWriter, ASerializer, V);
+    WriteTValue(AWriter, ASerializer, LValue);
     Exit;
   end;
 

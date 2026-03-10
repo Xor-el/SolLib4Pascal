@@ -34,23 +34,23 @@ type
 
     function GetWasSuccessful: Boolean;
     function GetWasHttpRequestSuccessful: Boolean;
-    procedure SetWasHttpRequestSuccessful(const Value: Boolean);
+    procedure SetWasHttpRequestSuccessful(const AValue: Boolean);
     function GetWasRequestSuccessfullyHandled: Boolean;
-    procedure SetWasRequestSuccessfullyHandled(const Value: Boolean);
+    procedure SetWasRequestSuccessfullyHandled(const AValue: Boolean);
     function GetReason: string;
-    procedure SetReason(const Value: string);
+    procedure SetReason(const AValue: string);
     function GetResult: T;
-    procedure SetResult(const Value: T);
+    procedure SetResult(const AValue: T);
     function GetHttpStatusCode: Integer;
-    procedure SetHttpStatusCode(const Value: Integer);
+    procedure SetHttpStatusCode(const AValue: Integer);
     function GetServerErrorCode: Integer;
-    procedure SetServerErrorCode(const Value: Integer);
+    procedure SetServerErrorCode(const AValue: Integer);
     function GetErrorData: TErrorData;
-    procedure SetErrorData(const Value: TErrorData);
+    procedure SetErrorData(const AValue: TErrorData);
     function GetRawRpcRequest: string;
-    procedure SetRawRpcRequest(const Value: string);
+    procedure SetRawRpcRequest(const AValue: string);
     function GetRawRpcResponse: string;
-    procedure SetRawRpcResponse(const Value: string);
+    procedure SetRawRpcResponse(const AValue: string);
 
     property WasSuccessful: Boolean read GetWasSuccessful;
     property WasHttpRequestSuccessful: Boolean read GetWasHttpRequestSuccessful write SetWasHttpRequestSuccessful;
@@ -82,23 +82,23 @@ type
     // IRequestResult<T> getters/setters
     function GetWasSuccessful: Boolean;
     function GetWasHttpRequestSuccessful: Boolean;
-    procedure SetWasHttpRequestSuccessful(const Value: Boolean);
+    procedure SetWasHttpRequestSuccessful(const AValue: Boolean);
     function GetWasRequestSuccessfullyHandled: Boolean;
-    procedure SetWasRequestSuccessfullyHandled(const Value: Boolean);
+    procedure SetWasRequestSuccessfullyHandled(const AValue: Boolean);
     function GetReason: string;
-    procedure SetReason(const Value: string);
+    procedure SetReason(const AValue: string);
     function GetResult: T;
-    procedure SetResult(const Value: T);
+    procedure SetResult(const AValue: T);
     function GetHttpStatusCode: Integer;
-    procedure SetHttpStatusCode(const Value: Integer);
+    procedure SetHttpStatusCode(const AValue: Integer);
     function GetServerErrorCode: Integer;
-    procedure SetServerErrorCode(const Value: Integer);
+    procedure SetServerErrorCode(const AValue: Integer);
     function GetErrorData: TErrorData;
-    procedure SetErrorData(const Value: TErrorData);
+    procedure SetErrorData(const AValue: TErrorData);
     function GetRawRpcRequest: string;
-    procedure SetRawRpcRequest(const Value: string);
+    procedure SetRawRpcRequest(const AValue: string);
     function GetRawRpcResponse: string;
-    procedure SetRawRpcResponse(const Value: string);
+    procedure SetRawRpcResponse(const AValue: string);
   public
     constructor Create; overload; virtual;
     constructor CreateFromResponse(const AResponse: IHttpApiResponse); overload; virtual;
@@ -160,15 +160,15 @@ end;
 
 destructor TRequestResult<T>.Destroy;
 var
-  V: TValue;
+  LV: TValue;
 begin
  if Assigned(FErrorData) then
    FErrorData.Free;
 
- V := TValue.From<T>(FResult);
+ LV := TValue.From<T>(FResult);
 
- if not V.IsEmpty then
-   TValueUtils.FreeParameter(V);
+ if not LV.IsEmpty then
+   TValueUtils.FreeParameter(LV);
 
   inherited;
 end;
@@ -183,9 +183,9 @@ begin
   Result := FWasHttpRequestSuccessful;
 end;
 
-procedure TRequestResult<T>.SetWasHttpRequestSuccessful(const Value: Boolean);
+procedure TRequestResult<T>.SetWasHttpRequestSuccessful(const AValue: Boolean);
 begin
-  FWasHttpRequestSuccessful := Value;
+  FWasHttpRequestSuccessful := AValue;
 end;
 
 function TRequestResult<T>.GetWasRequestSuccessfullyHandled: Boolean;
@@ -193,9 +193,9 @@ begin
   Result := FWasRequestSuccessfullyHandled;
 end;
 
-procedure TRequestResult<T>.SetWasRequestSuccessfullyHandled(const Value: Boolean);
+procedure TRequestResult<T>.SetWasRequestSuccessfullyHandled(const AValue: Boolean);
 begin
-  FWasRequestSuccessfullyHandled := Value;
+  FWasRequestSuccessfullyHandled := AValue;
 end;
 
 function TRequestResult<T>.GetReason: string;
@@ -203,9 +203,9 @@ begin
   Result := FReason;
 end;
 
-procedure TRequestResult<T>.SetReason(const Value: string);
+procedure TRequestResult<T>.SetReason(const AValue: string);
 begin
-  FReason := Value;
+  FReason := AValue;
 end;
 
 function TRequestResult<T>.GetResult: T;
@@ -213,9 +213,9 @@ begin
   Result := FResult;
 end;
 
-procedure TRequestResult<T>.SetResult(const Value: T);
+procedure TRequestResult<T>.SetResult(const AValue: T);
 begin
-  FResult := Value;
+  FResult := AValue;
 end;
 
 function TRequestResult<T>.GetHttpStatusCode: Integer;
@@ -223,9 +223,9 @@ begin
   Result := FHttpStatusCode;
 end;
 
-procedure TRequestResult<T>.SetHttpStatusCode(const Value: Integer);
+procedure TRequestResult<T>.SetHttpStatusCode(const AValue: Integer);
 begin
-  FHttpStatusCode := Value;
+  FHttpStatusCode := AValue;
 end;
 
 function TRequestResult<T>.GetServerErrorCode: Integer;
@@ -233,9 +233,9 @@ begin
   Result := FServerErrorCode;
 end;
 
-procedure TRequestResult<T>.SetServerErrorCode(const Value: Integer);
+procedure TRequestResult<T>.SetServerErrorCode(const AValue: Integer);
 begin
-  FServerErrorCode := Value;
+  FServerErrorCode := AValue;
 end;
 
 function TRequestResult<T>.GetErrorData: TErrorData;
@@ -243,9 +243,9 @@ begin
   Result := FErrorData;
 end;
 
-procedure TRequestResult<T>.SetErrorData(const Value: TErrorData);
+procedure TRequestResult<T>.SetErrorData(const AValue: TErrorData);
 begin
-  FErrorData := Value;
+  FErrorData := AValue;
 end;
 
 function TRequestResult<T>.GetRawRpcRequest: string;
@@ -253,9 +253,9 @@ begin
   Result := FRawRpcRequest;
 end;
 
-procedure TRequestResult<T>.SetRawRpcRequest(const Value: string);
+procedure TRequestResult<T>.SetRawRpcRequest(const AValue: string);
 begin
-  FRawRpcRequest := Value;
+  FRawRpcRequest := AValue;
 end;
 
 function TRequestResult<T>.GetRawRpcResponse: string;
@@ -263,9 +263,9 @@ begin
   Result := FRawRpcResponse;
 end;
 
-procedure TRequestResult<T>.SetRawRpcResponse(const Value: string);
+procedure TRequestResult<T>.SetRawRpcResponse(const AValue: string);
 begin
-  FRawRpcResponse := Value;
+  FRawRpcResponse := AValue;
 end;
 
 end.

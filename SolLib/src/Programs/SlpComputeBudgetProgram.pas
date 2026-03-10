@@ -317,12 +317,12 @@ end;
 class function TComputeBudgetProgram.RequestHeapFrame(
   const ABytes: UInt32): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
+  LKeys := TList<IAccountMeta>.Create;
   Result := TTransactionInstruction.Create(
     ProgramIdKey.KeyBytes,
-    Keys,
+    LKeys,
     TComputeBudgetProgramData.EncodeRequestHeapFrameData(ABytes)
   );
 end;
@@ -330,12 +330,12 @@ end;
 class function TComputeBudgetProgram.SetComputeUnitLimit(
   const AUnits: UInt64): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
+  LKeys := TList<IAccountMeta>.Create;
   Result := TTransactionInstruction.Create(
     ProgramIdKey.KeyBytes,
-    Keys,
+    LKeys,
     TComputeBudgetProgramData.EncodeSetComputeUnitLimitData(AUnits)
   );
 end;
@@ -343,12 +343,12 @@ end;
 class function TComputeBudgetProgram.SetComputeUnitPrice(
   const AMicroLamports: UInt64): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
+  LKeys := TList<IAccountMeta>.Create;
   Result := TTransactionInstruction.Create(
     ProgramIdKey.KeyBytes,
-    Keys,
+    LKeys,
     TComputeBudgetProgramData.EncodeSetComputeUnitPriceData(AMicroLamports)
   );
 end;
@@ -356,12 +356,12 @@ end;
 class function TComputeBudgetProgram.SetLoadedAccountsDataSizeLimit(
   const ABytes: UInt32): ITransactionInstruction;
 var
-  Keys: TList<IAccountMeta>;
+  LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
+  LKeys := TList<IAccountMeta>.Create;
   Result := TTransactionInstruction.Create(
     ProgramIdKey.KeyBytes,
-    Keys,
+    LKeys,
     TComputeBudgetProgramData.EncodeSetLoadedAccountsDataSizeLimit(ABytes)
   );
 end;
@@ -369,12 +369,12 @@ end;
 class function TComputeBudgetProgram.Decode(
   const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes): IDecodedInstruction;
 var
-  Instruction: Byte;
-  InstructionValue: TComputeBudgetProgramInstructions.TValues;
+  LInstruction: Byte;
+  LInstructionValue: TComputeBudgetProgramInstructions.TValues;
 begin
-  Instruction := TDeserialization.GetU8(AData, TComputeBudgetProgramData.MethodOffset);
+  LInstruction := TDeserialization.GetU8(AData, TComputeBudgetProgramData.MethodOffset);
 
-  if GetEnumName(TypeInfo(TComputeBudgetProgramInstructions.TValues), Instruction) = '' then
+  if GetEnumName(TypeInfo(TComputeBudgetProgramInstructions.TValues), LInstruction) = '' then
   begin
     Result := TDecodedInstruction.Create;
     Result.PublicKey         := ProgramIdKey;
@@ -385,16 +385,16 @@ begin
     Exit;
   end;
 
-  InstructionValue := TComputeBudgetProgramInstructions.TValues(Instruction);
+  LInstructionValue := TComputeBudgetProgramInstructions.TValues(LInstruction);
 
   Result := TDecodedInstruction.Create;
   Result.PublicKey       := ProgramIdKey;
-  Result.InstructionName := TComputeBudgetProgramInstructions.Names[InstructionValue];
+  Result.InstructionName := TComputeBudgetProgramInstructions.Names[LInstructionValue];
   Result.ProgramName     := ProgramName;
   Result.Values          := TDictionary<string, TValue>.Create;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create();
 
-  case InstructionValue of
+  case LInstructionValue of
     TComputeBudgetProgramInstructions.TValues.RequestHeapFrame:
       TComputeBudgetProgramData.DecodeRequestHeapFrameData(Result, AData);
     TComputeBudgetProgramInstructions.TValues.SetComputeUnitLimit:

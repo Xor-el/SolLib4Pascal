@@ -34,17 +34,17 @@ type
     ['{A1F2B3C4-D5E6-47A8-9B0C-1D2E3F4A5B6C}']
 
     function GetKey: string;
-    procedure SetKey(const Value: string);
+    procedure SetKey(const AValue: string);
     function GetKeyBytes: TBytes;
-    procedure SetKeyBytes(const Value: TBytes);
+    procedure SetKeyBytes(const AValue: TBytes);
 
-    function Verify(const &Message, Signature: TBytes): Boolean;
+    function Verify(const AMessage, ASignature: TBytes): Boolean;
     function IsOnCurve: Boolean;
     function IsValid: Boolean;
     function ToBytes: TBytes;
     function Clone: IPublicKey;
 
-    function Equals(const Other: IPublicKey): Boolean;
+    function Equals(const AOther: IPublicKey): Boolean;
     function ToString: string;
 
     /// <summary>
@@ -73,24 +73,24 @@ type
       Ord('r'), Ord('i'), Ord('v'), Ord('e'), Ord('d'), Ord('A'), Ord('d'),
       Ord('d'), Ord('r'), Ord('e'), Ord('s'), Ord('s'));
 
-    class function FastCheck(const Value: string): Boolean; static;
+    class function FastCheck(const AValue: string): Boolean; static;
 
     function GetKey: string;
-    procedure SetKey(const Value: string);
+    procedure SetKey(const AValue: string);
     function GetKeyBytes: TBytes;
-    procedure SetKeyBytes(const Value: TBytes);
+    procedure SetKeyBytes(const AValue: TBytes);
 
     /// <summary>
     /// Verify the signed message.
     /// </summary>
     /// <param name="message">The signed message.</param>
     /// <param name="signature">The signature of the message.</param>
-    function Verify(const &Message, Signature: TBytes): Boolean;
+    function Verify(const AMessage, ASignature: TBytes): Boolean;
 
     function Clone(): IPublicKey;
 
     /// Equality compares public keys.
-    function Equals(const Other: IPublicKey): Boolean; reintroduce;
+    function Equals(const AOther: IPublicKey): Boolean; reintroduce;
 
     /// <summary>
     /// Checks if this object is a valid Ed25519 PublicKey.
@@ -164,8 +164,8 @@ type
     /// <param name="PublicKey">The derived public key, returned as inline out.</param>
     /// <returns>true if it could derive the program address for the given seeds, otherwise false..</returns>
     /// <exception cref="ArgumentException">Throws exception when one of the seeds has an invalid length.</exception>
-    class function TryCreateProgramAddress(const Seeds: TArray<TBytes>;
-      const ProgramId: IPublicKey; out PublicKey: IPublicKey): Boolean; static;
+    class function TryCreateProgramAddress(const ASeeds: TArray<TBytes>;
+      const AProgramId: IPublicKey; out APublicKey: IPublicKey): Boolean; static;
 
     /// <summary>
     /// Attempts to find a program address for the passed seeds and program Id.
@@ -175,8 +175,8 @@ type
     /// <param name="Address">The derived address, returned as inline out.</param>
     /// <param name="Bump">The bump used to derive the address, returned as inline out.</param>
     /// <returns>True whenever the address for a nonce was found, otherwise false.</returns>
-    class function TryFindProgramAddress(const Seeds: TArray<TBytes>;
-      const ProgramId: IPublicKey; out Address: IPublicKey; out Bump: Byte)
+    class function TryFindProgramAddress(const ASeeds: TArray<TBytes>;
+      const AProgramId: IPublicKey; out AAddress: IPublicKey; out ABump: Byte)
       : Boolean; static;
 
     /// <summary>
@@ -188,11 +188,11 @@ type
     /// <param name="PublicKeyOut">The derived public key</param>
     /// <returns>True whenever the address was successfully created, otherwise false.</returns>
     /// <remarks>To fail address creation, means the created address was a PDA.</remarks>
-    class function TryCreateWithSeed(const FromPublicKey: IPublicKey; const Seed: string; const ProgramId: IPublicKey; out PublicKeyOut: IPublicKey): Boolean; static;
+    class function TryCreateWithSeed(const AFromPublicKey: IPublicKey; const ASeed: string; const AProgramId: IPublicKey; out APublicKeyOut: IPublicKey): Boolean; static;
 
-    class function FromString(const S: string): IPublicKey; static;
+    class function FromString(const AStr: string): IPublicKey; static;
 
-    class function FromBytes(const B: TBytes): IPublicKey; static;
+    class function FromBytes(const ABytes: TBytes): IPublicKey; static;
 
   end;
 
@@ -239,9 +239,9 @@ begin
   Result := FKey;
 end;
 
-procedure TPublicKey.SetKey(const Value: string);
+procedure TPublicKey.SetKey(const AValue: string);
 begin
-  FKey := Value;
+  FKey := AValue;
 end;
 
 function TPublicKey.GetKeyBytes: TBytes;
@@ -253,32 +253,32 @@ begin
   Result := FKeyBytes;
 end;
 
-procedure TPublicKey.SetKeyBytes(const Value: TBytes);
+procedure TPublicKey.SetKeyBytes(const AValue: TBytes);
 begin
-  FKeyBytes := Value;
+  FKeyBytes := AValue;
 end;
 
-function TPublicKey.Verify(const &Message, Signature: TBytes): Boolean;
+function TPublicKey.Verify(const AMessage, ASignature: TBytes): Boolean;
 begin
-  Result := TEd25519Crypto.Verify(GetKeyBytes, &Message, Signature);
+  Result := TEd25519Crypto.Verify(GetKeyBytes, AMessage, ASignature);
 end;
 
-function TPublicKey.Equals(const Other: IPublicKey): Boolean;
+function TPublicKey.Equals(const AOther: IPublicKey): Boolean;
 var
-  SelfAsI: IPublicKey;
+  LSelfAsI: IPublicKey;
 begin
-  if Other = nil then
+  if AOther = nil then
     Exit(False);
 
   // 1) Exact same IPublicKey reference?
-  if Supports(Self, IPublicKey, SelfAsI) then
+  if Supports(Self, IPublicKey, LSelfAsI) then
   begin
-   if SelfAsI = Other then
+   if LSelfAsI = AOther then
     Exit(True);
   end;
 
   // 2) Value equality: same key
-  Result := SameStr(SelfAsI.Key, Other.Key);
+  Result := SameStr(LSelfAsI.Key, AOther.Key);
 end;
 
 function TPublicKey.ToString: string;
@@ -304,15 +304,15 @@ end;
 class function TPublicKey.IsValid(const AKey: string;
   AValidateCurve: Boolean): Boolean;
 var
-  Bytes: TBytes;
+  LBytes: TBytes;
 begin
   if AKey = '' then
     Exit(False);
   try
     if not FastCheck(AKey) then
       Exit(False);
-    Bytes := TEncoders.Base58.DecodeData(AKey);
-    Result := IsValid(Bytes, AValidateCurve);
+    LBytes := TEncoders.Base58.DecodeData(AKey);
+    Result := IsValid(LBytes, AValidateCurve);
   except
     Result := False;
   end;
@@ -325,169 +325,169 @@ begin
     (not AValidateCurve or TEd25519Crypto.IsOnCurve(AKey));
 end;
 
-class function TPublicKey.FastCheck(const Value: string): Boolean;
+class function TPublicKey.FastCheck(const AValue: string): Boolean;
 begin
-  Result := TEncoders.Base58.IsValid(Value);
+  Result := TEncoders.Base58.IsValid(AValue);
 end;
 
-class function TPublicKey.TryCreateProgramAddress(const Seeds: TArray<TBytes>;
-  const ProgramId: IPublicKey; out PublicKey: IPublicKey): Boolean;
+class function TPublicKey.TryCreateProgramAddress(const ASeeds: TArray<TBytes>;
+  const AProgramId: IPublicKey; out APublicKey: IPublicKey): Boolean;
 var
-  MS: TMemoryStream;
-  Seed, Hash, Buf: TBytes;
+  LMS: TMemoryStream;
+  LSeed, LHash, LBuf: TBytes;
 begin
-  PublicKey := nil;
+  APublicKey := nil;
 
-  MS := TMemoryStream.Create();
+  LMS := TMemoryStream.Create();
   try
-    MS.Position := 0;
+    LMS.Position := 0;
     // Validate seeds length constraint
-    for Seed in Seeds do
+    for LSeed in ASeeds do
     begin
-      if Length(Seed) > PublicKeyLength then
+      if Length(LSeed) > PublicKeyLength then
         raise EArgumentException.Create('max seed length exceeded, seeds');
 
-      if Length(Seed) > 0 then
-        MS.WriteBuffer(Seed[0], Length(Seed));
+      if Length(LSeed) > 0 then
+        LMS.WriteBuffer(LSeed[0], Length(LSeed));
     end;
 
     // programId bytes
-    if Length(ProgramId.KeyBytes) > 0 then
-      MS.WriteBuffer(ProgramId.KeyBytes[0], Length(ProgramId.KeyBytes));
+    if Length(AProgramId.KeyBytes) > 0 then
+      LMS.WriteBuffer(AProgramId.KeyBytes[0], Length(AProgramId.KeyBytes));
 
     // "ProgramDerivedAddress"
-    MS.WriteBuffer(ProgramDerivedAddressBytes[0],
+    LMS.WriteBuffer(ProgramDerivedAddressBytes[0],
       Length(ProgramDerivedAddressBytes));
 
     // read stream into bytes
-    SetLength(Buf, MS.Size);
-    if MS.Size > 0 then
+    SetLength(LBuf, LMS.Size);
+    if LMS.Size > 0 then
     begin
-      MS.Position := 0;
-      MS.ReadBuffer(Buf[0], MS.Size);
+      LMS.Position := 0;
+      LMS.ReadBuffer(LBuf[0], LMS.Size);
     end;
 
-    Hash := TSHA256.HashData(Buf);
+    LHash := TSHA256.HashData(LBuf);
   finally
-    MS.Free;
+    LMS.Free;
   end;
 
-  if TEd25519Crypto.IsOnCurve(Hash) then
+  if TEd25519Crypto.IsOnCurve(LHash) then
   begin
-    PublicKey := nil;
+    APublicKey := nil;
     Exit(False);
   end;
 
-  PublicKey := TPublicKey.Create(Hash);
+  APublicKey := TPublicKey.Create(LHash);
   Result := True;
 end;
 
-class function TPublicKey.TryFindProgramAddress(const Seeds: TArray<TBytes>;
-  const ProgramId: IPublicKey; out Address: IPublicKey; out Bump: Byte)
+class function TPublicKey.TryFindProgramAddress(const ASeeds: TArray<TBytes>;
+  const AProgramId: IPublicKey; out AAddress: IPublicKey; out ABump: Byte)
   : Boolean;
 var
-  SeedBump: Byte;
-  Buf: TList<TBytes>;
-  AllSeeds: TArray<TBytes>;
-  BumpArr: TBytes;
-  Ok: Boolean;
-  DerivedAddress: IPublicKey;
+  LSeedBump: Byte;
+  LBuf: TList<TBytes>;
+  LAllSeeds: TArray<TBytes>;
+  LBumpArr: TBytes;
+  LOk: Boolean;
+  LDerivedAddress: IPublicKey;
 begin
-  SeedBump := 255;
-  Address := nil;
-  Bump := 0;
+  LSeedBump := 255;
+  AAddress := nil;
+  ABump := 0;
 
-  Buf := TList<TBytes>.Create;
+  LBuf := TList<TBytes>.Create;
   try
     // copy initial seeds
-    Buf.AddRange(Seeds);
+    LBuf.AddRange(ASeeds);
 
-    SetLength(BumpArr, 1);
-    Buf.Add(BumpArr);
-    AllSeeds := Buf.ToArray;
+    SetLength(LBumpArr, 1);
+    LBuf.Add(LBumpArr);
+    LAllSeeds := LBuf.ToArray;
 
-    while SeedBump <> 0 do
+    while LSeedBump <> 0 do
     begin
-      BumpArr[0] := SeedBump;
+      LBumpArr[0] := LSeedBump;
 
-      Ok := TryCreateProgramAddress(AllSeeds, ProgramId, DerivedAddress);
-      if Ok then
+      LOk := TryCreateProgramAddress(LAllSeeds, AProgramId, LDerivedAddress);
+      if LOk then
       begin
-        Address := DerivedAddress;
-        Bump := SeedBump;
+        AAddress := LDerivedAddress;
+        ABump := LSeedBump;
         Exit(True);
       end;
 
-      Dec(SeedBump);
+      Dec(LSeedBump);
     end;
 
     // not found
-    Address := nil;
-    Bump := 0;
+    AAddress := nil;
+    ABump := 0;
     Result := False;
   finally
-    Buf.Free;
+    LBuf.Free;
   end;
 end;
 
-class function TPublicKey.TryCreateWithSeed(const FromPublicKey: IPublicKey; const Seed: string; const ProgramId: IPublicKey; out PublicKeyOut: IPublicKey): Boolean;
+class function TPublicKey.TryCreateWithSeed(const AFromPublicKey: IPublicKey; const ASeed: string; const AProgramId: IPublicKey; out APublicKeyOut: IPublicKey): Boolean;
 var
-  MS: TMemoryStream;
-  Seeds, Slice, Hash, Utf8: TBytes;
-  L: Integer;
+  LMS: TMemoryStream;
+  LSeeds, LSlice, LHash, LUtf8: TBytes;
+  LLen: Integer;
 begin
-  PublicKeyOut := nil;
+  APublicKeyOut := nil;
 
-  MS := TMemoryStream.Create;
+  LMS := TMemoryStream.Create;
   try
-    MS.Position := 0;
+    LMS.Position := 0;
     // seeds = fromPublicKey || UTF8(seed) || programId
-    if Length(FromPublicKey.KeyBytes) > 0 then
-      MS.WriteBuffer(FromPublicKey.KeyBytes[0], Length(FromPublicKey.KeyBytes));
+    if Length(AFromPublicKey.KeyBytes) > 0 then
+      LMS.WriteBuffer(AFromPublicKey.KeyBytes[0], Length(AFromPublicKey.KeyBytes));
 
-    Utf8 := TEncoding.UTF8.GetBytes(Seed);
-    if Length(Utf8) > 0 then
-      MS.WriteBuffer(Utf8[0], Length(Utf8));
+    LUtf8 := TEncoding.UTF8.GetBytes(ASeed);
+    if Length(LUtf8) > 0 then
+      LMS.WriteBuffer(LUtf8[0], Length(LUtf8));
 
-    if Length(ProgramId.KeyBytes) > 0 then
-      MS.WriteBuffer(ProgramId.KeyBytes[0], Length(ProgramId.KeyBytes));
+    if Length(AProgramId.KeyBytes) > 0 then
+      LMS.WriteBuffer(AProgramId.KeyBytes[0], Length(AProgramId.KeyBytes));
 
-    SetLength(Seeds, MS.Size);
-    if MS.Size > 0 then
+    SetLength(LSeeds, LMS.Size);
+    if LMS.Size > 0 then
     begin
-      MS.Position := 0;
-      MS.ReadBuffer(Seeds[0], MS.Size);
+      LMS.Position := 0;
+      LMS.ReadBuffer(LSeeds[0], LMS.Size);
     end;
   finally
-    MS.Free;
+    LMS.Free;
   end;
 
   // if seeds ends with "ProgramDerivedAddress", fail (PDA)
-  L := Length(Seeds);
-  if L >= Length(ProgramDerivedAddressBytes) then
+  LLen := Length(LSeeds);
+  if LLen >= Length(ProgramDerivedAddressBytes) then
   begin
-    Slice := TArrayUtils.Slice<Byte>(Seeds, L - Length(ProgramDerivedAddressBytes));
+    LSlice := TArrayUtils.Slice<Byte>(LSeeds, LLen - Length(ProgramDerivedAddressBytes));
 
-    if Length(Slice) <> Length(ProgramDerivedAddressBytes) then
+    if Length(LSlice) <> Length(ProgramDerivedAddressBytes) then
     Exit(False);
 
-    if CompareMem(@Slice[0], @ProgramDerivedAddressBytes[0], Length(Slice)) then
+    if CompareMem(@LSlice[0], @ProgramDerivedAddressBytes[0], Length(LSlice)) then
       Exit(False);
   end;
 
-  Hash := TSHA256.HashData(Seeds);
-  PublicKeyOut := TPublicKey.Create(Hash);
+  LHash := TSHA256.HashData(LSeeds);
+  APublicKeyOut := TPublicKey.Create(LHash);
   Result := True;
 end;
 
-class function TPublicKey.FromString(const S: string): IPublicKey;
+class function TPublicKey.FromString(const AStr: string): IPublicKey;
 begin
-  Result := TPublicKey.Create(S);
+  Result := TPublicKey.Create(AStr);
 end;
 
-class function TPublicKey.FromBytes(const B: TBytes): IPublicKey;
+class function TPublicKey.FromBytes(const ABytes: TBytes): IPublicKey;
 begin
-  Result := TPublicKey.Create(B);
+  Result := TPublicKey.Create(ABytes);
 end;
 
 end.

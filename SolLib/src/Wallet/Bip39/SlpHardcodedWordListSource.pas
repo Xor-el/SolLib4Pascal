@@ -68,23 +68,25 @@ end;
 
 function THardcodedWordlistSource.Load(const AName: string): IInterface;
 var
-  Raw: string;
-  Words: TArray<string>;
-  Space: Char;
+  LRaw: string;
+  LWords: TArray<string>;
+  LSpace: Char;
+  LWordList: IWordList;
 begin
   // Return nil if the name is not found
-  if not FWordLists.TryGetValue(AName, Raw) then
+  if not FWordLists.TryGetValue(AName, LRaw) then
     Exit(nil);
 
   // Split on LF only, exclude empty entries
-  Words := Raw.Split([#10], TStringSplitOptions.ExcludeEmpty);
+  LWords := LRaw.Split([#10], TStringSplitOptions.ExcludeEmpty);
 
   if SameText(AName, 'japanese') then
-    Space := Char($3000) //IDEOGRAPHIC SPACE U+$3000
+    LSpace := Char($3000) //IDEOGRAPHIC SPACE U+$3000
   else
-    Space := Char($0020); //SPACE U+$0020
+    LSpace := Char($0020); //SPACE U+$0020
 
-  Result := TWordList.Create(Words, Space, AName) as IWordList;
+  LWordList := TWordList.Create(LWords, LSpace, AName);
+  Result := LWordList;
 end;
 
 class function THardcodedWordlistSource.LoadAllFromResources(
@@ -101,61 +103,61 @@ const
     'BIP39_SPANISH_WORDLIST'
   );
 var
-  Dict: TDictionary<string, string>;
-  ResName, Key, Raw: string;
+  LDict: TDictionary<string, string>;
+  LResName, LKey, LRaw: string;
 
-  function MakeKeyFromResourceName(const FullName: string): string;
+  function MakeKeyFromResourceName(const AFullName: string): string;
   var
-    S: string;
-    Parts: TArray<string>;
-    I: Integer;
-    Part: string;
+    LStr: string;
+    LParts: TArray<string>;
+    LI: Integer;
+    LPart: string;
   begin
-    S := FullName;
-    S := S.Replace('BIP39_', '', [rfReplaceAll, rfIgnoreCase]);
-    S := S.Replace('_WORDLIST', '', [rfReplaceAll, rfIgnoreCase]);
-    S := S.Trim.ToLower;
+    LStr := AFullName;
+    LStr := LStr.Replace('BIP39_', '', [rfReplaceAll, rfIgnoreCase]);
+    LStr := LStr.Replace('_WORDLIST', '', [rfReplaceAll, rfIgnoreCase]);
+    LStr := LStr.Trim.ToLower;
 
-    Parts := S.Split(['_']);
-    for I := 0 to High(Parts) do
+    LParts := LStr.Split(['_']);
+    for LI := 0 to High(LParts) do
     begin
-      Part := Parts[I];
-      if Part = '' then
+      LPart := LParts[LI];
+      if LPart = '' then
         Continue;
 
-      if Length(Part) = 1 then
-        Part := Part.ToUpper
+      if Length(LPart) = 1 then
+        LPart := LPart.ToUpper
       else
-        Part := Part.Substring(0, 1).ToUpper + Part.Substring(1).ToLower;
+        LPart := LPart.Substring(0, 1).ToUpper + LPart.Substring(1).ToLower;
 
-      Parts[I] := Part;
+      LParts[LI] := LPart;
     end;
 
-    Result := string.Join('_', Parts);
+    Result := string.Join('_', LParts);
   end;
 
 begin
-  Dict := TDictionary<string,string>.Create(TStringComparerFactory.OrdinalIgnoreCase);
+  LDict := TDictionary<string,string>.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
-    for ResName in RESOURCE_NAMES do
+    for LResName in RESOURCE_NAMES do
     begin
       // Skip if resource doesn't exist
-      if not TSlpResourceLoader.Instance.ResourceExists(ResName) then
+      if not TSlpResourceLoader.Instance.ResourceExists(LResName) then
         Continue;
 
       try
-        Raw := TSlpResourceLoader.Instance.LoadAsString(ResName, AEncoding);
-        Key := MakeKeyFromResourceName(ResName);
-        Dict.AddOrSetValue(Key, Raw);
+        LRaw := TSlpResourceLoader.Instance.LoadAsString(LResName, AEncoding);
+        LKey := MakeKeyFromResourceName(LResName);
+        LDict.AddOrSetValue(LKey, LRaw);
       except
         on E: Exception do
           Continue; // Skip on error
       end;
     end;
 
-    Result := Dict;
+    Result := LDict;
   except
-    Dict.Free;
+    LDict.Free;
     raise;
   end;
 end;

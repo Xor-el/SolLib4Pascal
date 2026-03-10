@@ -40,9 +40,9 @@ type
   /// </summary>
   IHashProvider = interface
     ['{768AB7D5-DE28-4E3A-96D6-7F3465D5A5C7}']
-    function SHA256(const Data: TBytes): TBytes;
-    function SHA512(const Data: TBytes): TBytes;
-    function Keccak256(const Data: TBytes): TBytes;
+    function SHA256(const AData: TBytes): TBytes;
+    function SHA512(const AData: TBytes): TBytes;
+    function Keccak256(const AData: TBytes): TBytes;
   end;
 
   /// <summary>
@@ -50,8 +50,8 @@ type
   /// </summary>
   IHmacProvider = interface
     ['{E13418A1-C541-4D0F-AD43-55C37EA6F1D5}']
-    function HmacSHA256(const Key, Data: TBytes): TBytes;
-    function HmacSHA512(const Key, Data: TBytes): TBytes;
+    function HmacSHA256(const AKey, AData: TBytes): TBytes;
+    function HmacSHA512(const AKey, AData: TBytes): TBytes;
   end;
 
   /// <summary>
@@ -59,9 +59,9 @@ type
   /// </summary>
   IKdfProvider = interface
     ['{6825F0B5-3695-40AC-A6E9-29CD9F5F4C27}']
-    function Pbkdf2SHA256(const Password, Salt: TBytes; Iterations, DKLen: Integer): TBytes;
-    function Pbkdf2SHA512(const Password, Salt: TBytes; Iterations, DKLen: Integer): TBytes;
-    function Scrypt(const Password, Salt: TBytes; N, R, P, DKLen: Integer): TBytes;
+    function Pbkdf2SHA256(const APassword, ASalt: TBytes; AIterations, ADKLen: Integer): TBytes;
+    function Pbkdf2SHA512(const APassword, ASalt: TBytes; AIterations, ADKLen: Integer): TBytes;
+    function Scrypt(const APassword, ASalt: TBytes; AN, AR, AP, ADKLen: Integer): TBytes;
   end;
 
   /// <summary>
@@ -69,8 +69,8 @@ type
   /// </summary>
   ICipherProvider = interface
     ['{4AD1E604-A576-47A9-9F5A-4D58EE662AA5}']
-    function AesCtrEncrypt(const Key, IV, Data: TBytes): TBytes;
-    function AesCtrDecrypt(const Key, IV, Data: TBytes): TBytes;
+    function AesCtrEncrypt(const AKey, AIV, AData: TBytes): TBytes;
+    function AesCtrDecrypt(const AKey, AIV, AData: TBytes): TBytes;
   end;
 
   /// <summary>
@@ -78,8 +78,8 @@ type
   /// </summary>
   IRandomProvider = interface
     ['{04233D8D-DCD5-4AE6-BDF0-90247E337832}']
-    function RandomBytes(Size: Integer): TBytes;
-    procedure FillRandom(const Output: TBytes);
+    function RandomBytes(ASize: Integer): TBytes;
+    procedure FillRandom(const AOutput: TBytes);
   end;
 
   /// <summary>
@@ -87,13 +87,13 @@ type
   /// </summary>
   IEd25519Provider = interface
     ['{3EBF4388-1CA6-48A1-ACE5-E4BC27B024B8}']
-    function GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair;
-    function Sign(const SecretKey64, &Message: TBytes): TBytes;
-    function Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean;
+    function GenerateKeyPair(const ASeed32: TBytes): TEd25519KeyPair;
+    function Sign(const ASecretKey64, AMessage: TBytes): TBytes;
+    function Verify(const APublicKey32, AMessage, ASignature64: TBytes): Boolean;
     /// <summary>
     /// Checks whether the PublicKey bytes are on the Ed25519 curve.
     /// </summary>
-    function IsOnCurve(const PublicKey32: TBytes): Boolean;
+    function IsOnCurve(const APublicKey32: TBytes): Boolean;
   end;
 
   /// <summary>
@@ -127,9 +127,9 @@ type
 //   type
 //     TMyCustomHashProvider = class(TInterfacedObject, IHashProvider)
 //     public
-//       function SHA256(const Data: TBytes): TBytes;
-//       function SHA512(const Data: TBytes): TBytes;
-//       function Keccak256(const Data: TBytes): TBytes;
+//       function SHA256(const AData: TBytes): TBytes;
+//       function SHA512(const AData: TBytes): TBytes;
+//       function Keccak256(const AData: TBytes): TBytes;
 //     end;
 //
 //   // At application startup:

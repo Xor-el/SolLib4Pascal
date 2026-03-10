@@ -76,96 +76,96 @@ implementation
 
 procedure TSolanaRpcClientBlockTests.TestGetBlock;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  res : IRequestResult<TBlockInfo>;
-  first: TTransactionMetaInfo;
-  firstTransactionInfo: TTransactionInfo;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TBlockInfo>;
+  LFirst: TTransactionMetaInfo;
+  LFirstTransactionInfo: TTransactionInfo;
 begin
-  responseData := LoadTestData('Blocks/GetBlockResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlock(79662905);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlock(79662905);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(res.Result <> nil, 'Result should not be nil');
-  AssertEquals(2, res.Result.Transactions.Count);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LRes.Result <> nil, 'Result should not be nil');
+  AssertEquals(2, LRes.Result.Transactions.Count);
 
-  AssertEquals(66130135, res.Result.BlockHeight.Value);
-  AssertEquals(1622632900, res.Result.BlockTime);
-  AssertEquals(79662904, res.Result.ParentSlot);
-  AssertEquals('5wLhsKAH9SCPbRZc4qWf3GBiod9CD8sCEZfMiU25qW8', res.Result.Blockhash);
-  AssertEquals('CjJ97j84mUq3o67CEqzEkTifXpHLBCD8GvmfBYLz4Zdg', res.Result.PreviousBlockhash);
+  AssertEquals(66130135, LRes.Result.BlockHeight.Value);
+  AssertEquals(1622632900, LRes.Result.BlockTime);
+  AssertEquals(79662904, LRes.Result.ParentSlot);
+  AssertEquals('5wLhsKAH9SCPbRZc4qWf3GBiod9CD8sCEZfMiU25qW8', LRes.Result.Blockhash);
+  AssertEquals('CjJ97j84mUq3o67CEqzEkTifXpHLBCD8GvmfBYLz4Zdg', LRes.Result.PreviousBlockhash);
 
-  AssertEquals(1, res.Result.Rewards.Count);
-  AssertEquals(1785000, res.Result.Rewards[0].Lamports);
-  AssertEquals(365762267923, res.Result.Rewards[0].PostBalance);
-  AssertEquals('9zkU8suQBdhZVax2DSGNAnyEhEzfEELvA25CJhy5uwnW', res.Result.Rewards[0].Pubkey);
-  AssertEquals(Ord(TRewardType.Fee), Ord(res.Result.Rewards[0].RewardType));
+  AssertEquals(1, LRes.Result.Rewards.Count);
+  AssertEquals(1785000, LRes.Result.Rewards[0].Lamports);
+  AssertEquals(365762267923, LRes.Result.Rewards[0].PostBalance);
+  AssertEquals('9zkU8suQBdhZVax2DSGNAnyEhEzfEELvA25CJhy5uwnW', LRes.Result.Rewards[0].Pubkey);
+  AssertEquals(Ord(TRewardType.Fee), Ord(LRes.Result.Rewards[0].RewardType));
 
-  first := res.Result.Transactions[0];
-  AssertTrue(first.Meta.Error <> nil);
-  AssertEquals(Ord(TTransactionErrorType.InstructionError), Ord(first.Meta.Error.&Type));
-  AssertTrue(first.Meta.Error.InstructionError <> nil);
-  AssertEquals(Ord(TInstructionErrorType.Custom), Ord(first.Meta.Error.InstructionError.&Type));
-  AssertEquals(0, first.Meta.Error.InstructionError.CustomError.Value);
+  LFirst := LRes.Result.Transactions[0];
+  AssertTrue(LFirst.Meta.Error <> nil);
+  AssertEquals(Ord(TTransactionErrorType.InstructionError), Ord(LFirst.Meta.Error.&Type));
+  AssertTrue(LFirst.Meta.Error.InstructionError <> nil);
+  AssertEquals(Ord(TInstructionErrorType.Custom), Ord(LFirst.Meta.Error.InstructionError.&Type));
+  AssertEquals(0, LFirst.Meta.Error.InstructionError.CustomError.Value);
 
-  AssertEquals(5000, first.Meta.Fee);
-  AssertEquals(0, first.Meta.InnerInstructions.Count);
-  AssertEquals(2, Length(first.Meta.LogMessages));
-  AssertEquals(5, Length(first.Meta.PostBalances));
-  AssertEquals(35132731759, first.Meta.PostBalances[0]);
-  AssertEquals(5, Length(first.Meta.PreBalances));
-  AssertEquals(35132736759, first.Meta.PreBalances[0]);
-  AssertEquals(0, first.Meta.PostTokenBalances.Count);
-  AssertEquals(0, first.Meta.PreTokenBalances.Count);
+  AssertEquals(5000, LFirst.Meta.Fee);
+  AssertEquals(0, LFirst.Meta.InnerInstructions.Count);
+  AssertEquals(2, Length(LFirst.Meta.LogMessages));
+  AssertEquals(5, Length(LFirst.Meta.PostBalances));
+  AssertEquals(35132731759, LFirst.Meta.PostBalances[0]);
+  AssertEquals(5, Length(LFirst.Meta.PreBalances));
+  AssertEquals(35132736759, LFirst.Meta.PreBalances[0]);
+  AssertEquals(0, LFirst.Meta.PostTokenBalances.Count);
+  AssertEquals(0, LFirst.Meta.PreTokenBalances.Count);
 
-  firstTransactionInfo := first.Transaction.AsType<TTransactionInfo>;
-  AssertEquals(1, Length(firstTransactionInfo.Signatures));
+  LFirstTransactionInfo := LFirst.Transaction.AsType<TTransactionInfo>;
+  AssertEquals(1, Length(LFirstTransactionInfo.Signatures));
   AssertEquals(
     '2Hh35eZPP1wZLYQ1HHv8PqGoRo73XirJeKFpBVc19msi6qeJHk3yUKqS1viRtqkdb545CerTWeywPFXxjKEhDWTK',
-    firstTransactionInfo.Signatures[0]);
+    LFirstTransactionInfo.Signatures[0]);
 
-  AssertEquals(5, Length(firstTransactionInfo.Message.AccountKeys));
+  AssertEquals(5, Length(LFirstTransactionInfo.Message.AccountKeys));
   AssertEquals('DjuMPGThkGdyk2vDvDDYjTFSyxzTumdapnDNbvVZbYQE',
-    firstTransactionInfo.Message.AccountKeys[0]);
+    LFirstTransactionInfo.Message.AccountKeys[0]);
 
-  AssertEquals(0, firstTransactionInfo.Message.Header.NumReadonlySignedAccounts);
-  AssertEquals(3, firstTransactionInfo.Message.Header.NumReadonlyUnsignedAccounts);
-  AssertEquals(1, firstTransactionInfo.Message.Header.NumRequiredSignatures);
+  AssertEquals(0, LFirstTransactionInfo.Message.Header.NumReadonlySignedAccounts);
+  AssertEquals(3, LFirstTransactionInfo.Message.Header.NumReadonlyUnsignedAccounts);
+  AssertEquals(1, LFirstTransactionInfo.Message.Header.NumRequiredSignatures);
 
-  AssertEquals(1, firstTransactionInfo.Message.Instructions.Count);
-  AssertEquals(4, Length(firstTransactionInfo.Message.Instructions[0].Accounts));
+  AssertEquals(1, LFirstTransactionInfo.Message.Instructions.Count);
+  AssertEquals(4, Length(LFirstTransactionInfo.Message.Instructions[0].Accounts));
   AssertEquals('2ZjTR1vUs2pHXyTLxtFDhN2tsm2HbaH36cAxzJcwaXf8y5jdTESsGNBLFaxGuWENxLa2ZL3cX9foNJcWbRq',
-    firstTransactionInfo.Message.Instructions[0].Data);
-  AssertEquals(4, firstTransactionInfo.Message.Instructions[0].ProgramIdIndex);
+    LFirstTransactionInfo.Message.Instructions[0].Data);
+  AssertEquals(4, LFirstTransactionInfo.Message.Instructions[0].ProgramIdIndex);
 
   AssertEquals('D8qh6AeX4KaTe6ZBpsZDdntTQUyPy7x6Xjp7NnEigCWH',
-    firstTransactionInfo.Message.RecentBlockhash);
+    LFirstTransactionInfo.Message.RecentBlockhash);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockInvalid;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   AssertException(
     procedure
     begin
-      rpcClient.GetBlock(
+      LRpcClient.GetBlock(
         79662905,
         TTransactionDetailsFilterType.Full,
         False,
@@ -180,49 +180,49 @@ end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockProductionNoArgs;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
-  k   : string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TResponseValue<TBlockProductionInfo>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('Blocks/GetBlockProductionNoArgsResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockProductionNoArgsRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockProductionNoArgsResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockProductionNoArgsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockProduction('', TNullable<UInt64>.None, TNullable<UInt64>.None, TCommitment.Finalized);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockProduction('', TNullable<UInt64>.None, TNullable<UInt64>.None, TCommitment.Finalized);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
-  AssertEquals(3, res.Result.Value.ByIdentity.Count);
-  AssertEquals(79580256, res.Result.Value.Range.FirstSlot);
-  AssertEquals(79712285, res.Result.Value.Range.LastSlot);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
+  AssertEquals(3, LRes.Result.Value.ByIdentity.Count);
+  AssertEquals(79580256, LRes.Result.Value.Range.FirstSlot);
+  AssertEquals(79712285, LRes.Result.Value.Range.LastSlot);
 
-  k := '121cur1YFVPZSoKQGNyjNr9sZZRa3eX2bSuYjXHtKD6';
-  AssertTrue(res.Result.Value.ByIdentity.ContainsKey(k));
-  AssertEquals(60, res.Result.Value.ByIdentity[k][0]);
+  LKey := '121cur1YFVPZSoKQGNyjNr9sZZRa3eX2bSuYjXHtKD6';
+  AssertTrue(LRes.Result.Value.ByIdentity.ContainsKey(LKey));
+  AssertEquals(60, LRes.Result.Value.ByIdentity[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockProductionInvalidCommitment;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   AssertException(
     procedure
     begin
-      rpcClient.GetBlockProduction(
+      LRpcClient.GetBlockProduction(
         '',
         TNullable<UInt64>.None,
         1234556
@@ -234,332 +234,332 @@ end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockProductionIdentity;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
-  k   : string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TResponseValue<TBlockProductionInfo>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('Blocks/GetBlockProductionIdentityResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockProductionIdentityRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockProductionIdentityResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockProductionIdentityRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockProduction('Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu',
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockProduction('Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu',
     TNullable<UInt64>.None, TNullable<UInt64>.None, TCommitment.Finalized);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
-  AssertEquals(1, res.Result.Value.ByIdentity.Count);
-  AssertEquals(79580256, res.Result.Value.Range.FirstSlot);
-  AssertEquals(79712285, res.Result.Value.Range.LastSlot);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
+  AssertEquals(1, LRes.Result.Value.ByIdentity.Count);
+  AssertEquals(79580256, LRes.Result.Value.Range.FirstSlot);
+  AssertEquals(79712285, LRes.Result.Value.Range.LastSlot);
 
-  k := 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu';
-  AssertTrue(res.Result.Value.ByIdentity.ContainsKey(k));
-  AssertEquals(96, res.Result.Value.ByIdentity[k][0]);
+  LKey := 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu';
+  AssertTrue(LRes.Result.Value.ByIdentity.ContainsKey(LKey));
+  AssertEquals(96, LRes.Result.Value.ByIdentity[LKey][0]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockProductionRangeStart;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
-  k   : string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TResponseValue<TBlockProductionInfo>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('Blocks/GetBlockProductionRangeStartResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockProductionRangeStartRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockProductionRangeStartResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockProductionRangeStartRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockProduction('', 79714135, TNullable<UInt64>.None, TCommitment.Processed);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockProduction('', 79714135, TNullable<UInt64>.None, TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
-  AssertEquals(35, res.Result.Value.ByIdentity.Count);
-  AssertEquals(79714135, res.Result.Value.Range.FirstSlot);
-  AssertEquals(79714275, res.Result.Value.Range.LastSlot);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
+  AssertEquals(35, LRes.Result.Value.ByIdentity.Count);
+  AssertEquals(79714135, LRes.Result.Value.Range.FirstSlot);
+  AssertEquals(79714275, LRes.Result.Value.Range.LastSlot);
 
-  k := '123vij84ecQEKUvQ7gYMKxKwKF6PbYSzCzzURYA4xULY';
-  AssertTrue(res.Result.Value.ByIdentity.ContainsKey(k));
-  AssertEquals(4, res.Result.Value.ByIdentity[k][0]);
-  AssertEquals(3, res.Result.Value.ByIdentity[k][1]);
+  LKey := '123vij84ecQEKUvQ7gYMKxKwKF6PbYSzCzzURYA4xULY';
+  AssertTrue(LRes.Result.Value.ByIdentity.ContainsKey(LKey));
+  AssertEquals(4, LRes.Result.Value.ByIdentity[LKey][0]);
+  AssertEquals(3, LRes.Result.Value.ByIdentity[LKey][1]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockProductionIdentityRange;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TResponseValue<TBlockProductionInfo>>;
-  k   : string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TResponseValue<TBlockProductionInfo>>;
+  LKey: string;
 begin
-  responseData := LoadTestData('Blocks/GetBlockProductionIdentityRangeResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockProductionIdentityRangeRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockProductionIdentityRangeResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockProductionIdentityRangeRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockProduction('Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu', 79000000, 79500000);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockProduction('Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu', 79000000, 79500000);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
-  AssertEquals(1, res.Result.Value.ByIdentity.Count);
-  AssertEquals(79000000, res.Result.Value.Range.FirstSlot);
-  AssertEquals(79500000, res.Result.Value.Range.LastSlot);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
+  AssertEquals(1, LRes.Result.Value.ByIdentity.Count);
+  AssertEquals(79000000, LRes.Result.Value.Range.FirstSlot);
+  AssertEquals(79500000, LRes.Result.Value.Range.LastSlot);
 
-  k := 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu';
-  AssertTrue(res.Result.Value.ByIdentity.ContainsKey(k));
-  AssertEquals(416, res.Result.Value.ByIdentity[k][0]);
-  AssertEquals(341, res.Result.Value.ByIdentity[k][1]);
+  LKey := 'Bbe9EKucmRtJr2J4dd5Eb5ybQmY7Fm7jYxKXxmmkLFsu';
+  AssertTrue(LRes.Result.Value.ByIdentity.ContainsKey(LKey));
+  AssertEquals(416, LRes.Result.Value.ByIdentity[LKey][0]);
+  AssertEquals(341, LRes.Result.Value.ByIdentity[LKey][1]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetTransaction;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TTransactionMetaSlotInfo>;
-  tmi : TTransactionMetaInfo;
-  tmiTransactionInfo: TTransactionInfo;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TTransactionMetaSlotInfo>;
+  LTmi : TTransactionMetaInfo;
+  LTmiTransactionInfo: TTransactionInfo;
 begin
-  responseData := LoadTestData('Transaction/GetTransactionResponse.json');
-  requestData  := LoadTestData('Transaction/GetTransactionRequest.json');
+  LResponseData := LoadTestData('Transaction/GetTransactionResponse.json');
+  LRequestData  := LoadTestData('Transaction/GetTransactionRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetTransaction(
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetTransaction(
     '5as3w4KMpY23MP5T1nkPVksjXjN7hnjHKqiDxRMxUNcw5XsCGtStayZib1kQdyR2D9w8dR11Ha9Xk38KP3kbAwM1');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
-  AssertEquals(Int64(79700345), res.Result.Slot);
-  AssertEquals(1622655364, res.Result.BlockTime.Value);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
+  AssertEquals(Int64(79700345), LRes.Result.Slot);
+  AssertEquals(1622655364, LRes.Result.BlockTime.Value);
 
-  tmi := res.Result;
-  AssertTrue(tmi.Meta.Error = nil);
-  AssertEquals(5000, tmi.Meta.Fee);
-  AssertEquals(0, tmi.Meta.InnerInstructions.Count);
-  AssertEquals(2, Length(tmi.Meta.LogMessages));
-  AssertEquals(5, Length(tmi.Meta.PostBalances));
-  AssertEquals(395383573380, tmi.Meta.PostBalances[0]);
-  AssertEquals(5, Length(tmi.Meta.PreBalances));
-  AssertEquals(395383578380, tmi.Meta.PreBalances[0]);
-  AssertEquals(0, tmi.Meta.PostTokenBalances.Count);
-  AssertEquals(0, tmi.Meta.PreTokenBalances.Count);
+  LTmi := LRes.Result;
+  AssertTrue(LTmi.Meta.Error = nil);
+  AssertEquals(5000, LTmi.Meta.Fee);
+  AssertEquals(0, LTmi.Meta.InnerInstructions.Count);
+  AssertEquals(2, Length(LTmi.Meta.LogMessages));
+  AssertEquals(5, Length(LTmi.Meta.PostBalances));
+  AssertEquals(395383573380, LTmi.Meta.PostBalances[0]);
+  AssertEquals(5, Length(LTmi.Meta.PreBalances));
+  AssertEquals(395383578380, LTmi.Meta.PreBalances[0]);
+  AssertEquals(0, LTmi.Meta.PostTokenBalances.Count);
+  AssertEquals(0, LTmi.Meta.PreTokenBalances.Count);
 
-  tmiTransactionInfo := tmi.Transaction.AsType<TTransactionInfo>;
-  AssertEquals(1, Length(tmiTransactionInfo.Signatures));
+  LTmiTransactionInfo := LTmi.Transaction.AsType<TTransactionInfo>;
+  AssertEquals(1, Length(LTmiTransactionInfo.Signatures));
   AssertEquals(
     '5as3w4KMpY23MP5T1nkPVksjXjN7hnjHKqiDxRMxUNcw5XsCGtStayZib1kQdyR2D9w8dR11Ha9Xk38KP3kbAwM1',
-    tmiTransactionInfo.Signatures[0]);
+    LTmiTransactionInfo.Signatures[0]);
 
-  AssertEquals(5, Length(tmiTransactionInfo.Message.AccountKeys));
+  AssertEquals(5, Length(LTmiTransactionInfo.Message.AccountKeys));
   AssertEquals(
     'EvVrzsxoj118sxxSTrcnc9u3fRdQfCc7d4gRzzX6TSqj',
-    tmiTransactionInfo.Message.AccountKeys[0]);
+    LTmiTransactionInfo.Message.AccountKeys[0]);
 
-  AssertEquals(0, tmiTransactionInfo.Message.Header.NumReadonlySignedAccounts);
-  AssertEquals(3, tmiTransactionInfo.Message.Header.NumReadonlyUnsignedAccounts);
-  AssertEquals(1, tmiTransactionInfo.Message.Header.NumRequiredSignatures);
+  AssertEquals(0, LTmiTransactionInfo.Message.Header.NumReadonlySignedAccounts);
+  AssertEquals(3, LTmiTransactionInfo.Message.Header.NumReadonlyUnsignedAccounts);
+  AssertEquals(1, LTmiTransactionInfo.Message.Header.NumRequiredSignatures);
 
-  AssertEquals(1, tmiTransactionInfo.Message.Instructions.Count);
-  AssertEquals(4, Length(tmiTransactionInfo.Message.Instructions[0].Accounts));
+  AssertEquals(1, LTmiTransactionInfo.Message.Instructions.Count);
+  AssertEquals(4, Length(LTmiTransactionInfo.Message.Instructions[0].Accounts));
   AssertEquals('2kr3BYaDkghC7rvHsQYnBNoB4dhXrUmzgYMM4kbHSG7ALa3qsMPxfC9cJTFDKyJaC8VYSjrey9pvyRivtESUJrC3qzr89pvS2o6MQ'
     + 'hyRVxmh3raQStxFFYwZ6WyKFNoQXvcchBwy8uQGfhhUqzuLNREwRmZ5U2VgTjFWX8Vikqya6iyzvALQNZEvqz7ZoGEyRtJ6AzNyWbkUyEo63rZ5w3wnxmhr3Uood',
-    tmiTransactionInfo.Message.Instructions[0].Data);
+    LTmiTransactionInfo.Message.Instructions[0].Data);
 
-  AssertEquals(4, tmiTransactionInfo.Message.Instructions[0].ProgramIdIndex);
-  AssertEquals('6XGYfEJ5CGGBA5E8E7Gw4ToyDLDNNAyUCb7CJj1rLk21', tmiTransactionInfo.Message.RecentBlockhash);
+  AssertEquals(4, LTmiTransactionInfo.Message.Instructions[0].ProgramIdIndex);
+  AssertEquals('6XGYfEJ5CGGBA5E8E7Gw4ToyDLDNNAyUCb7CJj1rLk21', LTmiTransactionInfo.Message.RecentBlockhash);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetTransaction2;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TTransactionMetaSlotInfo>;
-  first : TTransactionMetaInfo;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TTransactionMetaSlotInfo>;
+  LFirst : TTransactionMetaInfo;
 begin
-  responseData := LoadTestData('Transaction/GetTransactionResponse2.json');
-  requestData  := LoadTestData('Transaction/GetTransactionRequest2.json');
+  LResponseData := LoadTestData('Transaction/GetTransactionResponse2.json');
+  LRequestData  := LoadTestData('Transaction/GetTransactionRequest2.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetTransaction(
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetTransaction(
     '3Q9mu4ePvtbtQzY1kpGmaViJKyBev6hgUppyXDF9hKgWHHnecwGLE2pSoFvNUF3h7acKyFwWd65bkwr9A1jN2CdT');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
 
-  AssertEquals(132196637, res.Result.Slot);
-  AssertEquals(1651763621, res.Result.BlockTime.Value);
+  AssertEquals(132196637, LRes.Result.Slot);
+  AssertEquals(1651763621, LRes.Result.BlockTime.Value);
 
-  first := res.Result;
+  LFirst := LRes.Result;
 
-  AssertNotNull(first.Meta.Error);
-  AssertEquals(Ord(TTransactionErrorType.InvalidRentPayingAccount), Ord(first.Meta.Error.&Type));
+  AssertNotNull(LFirst.Meta.Error);
+  AssertEquals(Ord(TTransactionErrorType.InvalidRentPayingAccount), Ord(LFirst.Meta.Error.&Type));
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetTransactionVersioned;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TTransactionMetaSlotInfo>;
-  tmi : TTransactionMetaInfo;
-  tmiTransactionInfo: TTransactionInfo;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TTransactionMetaSlotInfo>;
+  LTmi : TTransactionMetaInfo;
+  LTmiTransactionInfo: TTransactionInfo;
 begin
-  responseData := LoadTestData('Transaction/GetTransactionVersionedResponse.json');
-  requestData  := LoadTestData('Transaction/GetTransactionVersionedRequest.json');
+  LResponseData := LoadTestData('Transaction/GetTransactionVersionedResponse.json');
+  LRequestData  := LoadTestData('Transaction/GetTransactionVersionedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   // maxSupportedTransactionVersion = 0
-  res := rpcClient.GetTransaction(
+  LRes := LRpcClient.GetTransaction(
     '2KLm7JmcMgZgNNqmsrp3vX3G7U4wg4JQ4NUydeUWJRQA9nJPkCWsMJGr5V2eQSyKe8Jpztghv6w2kDerJX16MxSz',
     0);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil, 'Result should not be nil');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil, 'Result should not be nil');
 
-  AssertEquals(Int64(255401968), res.Result.Slot);
-  AssertEquals(1710963316, res.Result.BlockTime.Value);
+  AssertEquals(Int64(255401968), LRes.Result.Slot);
+  AssertEquals(1710963316, LRes.Result.BlockTime.Value);
 
-  tmi := res.Result;
+  LTmi := LRes.Result;
 
-  AssertTrue(tmi.Meta.Error = nil, 'Meta.Error should be nil');
+  AssertTrue(LTmi.Meta.Error = nil, 'Meta.Error should be nil');
 
-  AssertEquals(1005001, tmi.Meta.Fee);
-  AssertEquals(2, tmi.Meta.InnerInstructions.Count);
-  AssertEquals(110, Length(tmi.Meta.LogMessages));
-  AssertEquals(43, Length(tmi.Meta.PostBalances));
-  AssertEquals(684571363, tmi.Meta.PostBalances[0]);
-  AssertEquals(43, Length(tmi.Meta.PreBalances));
-  AssertEquals(96756112, tmi.Meta.PreBalances[0]);
-  AssertEquals(13, tmi.Meta.PostTokenBalances.Count);
-  AssertEquals(13, tmi.Meta.PreTokenBalances.Count);
+  AssertEquals(1005001, LTmi.Meta.Fee);
+  AssertEquals(2, LTmi.Meta.InnerInstructions.Count);
+  AssertEquals(110, Length(LTmi.Meta.LogMessages));
+  AssertEquals(43, Length(LTmi.Meta.PostBalances));
+  AssertEquals(684571363, LTmi.Meta.PostBalances[0]);
+  AssertEquals(43, Length(LTmi.Meta.PreBalances));
+  AssertEquals(96756112, LTmi.Meta.PreBalances[0]);
+  AssertEquals(13, LTmi.Meta.PostTokenBalances.Count);
+  AssertEquals(13, LTmi.Meta.PreTokenBalances.Count);
 
-  tmiTransactionInfo := tmi.Transaction.AsType<TTransactionInfo>;
+  LTmiTransactionInfo := LTmi.Transaction.AsType<TTransactionInfo>;
 
-  AssertEquals(1, Length(tmiTransactionInfo.Signatures));
+  AssertEquals(1, Length(LTmiTransactionInfo.Signatures));
   AssertEquals(
     '2KLm7JmcMgZgNNqmsrp3vX3G7U4wg4JQ4NUydeUWJRQA9nJPkCWsMJGr5V2eQSyKe8Jpztghv6w2kDerJX16MxSz',
-    tmiTransactionInfo.Signatures[0]);
+    LTmiTransactionInfo.Signatures[0]);
 
-  AssertEquals(15, Length(tmiTransactionInfo.Message.AccountKeys));
+  AssertEquals(15, Length(LTmiTransactionInfo.Message.AccountKeys));
   AssertEquals(
     '5fVwGG2By5gLcpwH1RsqxYDyMzA5FfDRsRBPEvGDsSNu',
-    tmiTransactionInfo.Message.AccountKeys[0]);
+    LTmiTransactionInfo.Message.AccountKeys[0]);
 
-  AssertEquals(0, tmiTransactionInfo.Message.Header.NumReadonlySignedAccounts);
-  AssertEquals(8, tmiTransactionInfo.Message.Header.NumReadonlyUnsignedAccounts);
-  AssertEquals(1, tmiTransactionInfo.Message.Header.NumRequiredSignatures);
+  AssertEquals(0, LTmiTransactionInfo.Message.Header.NumReadonlySignedAccounts);
+  AssertEquals(8, LTmiTransactionInfo.Message.Header.NumReadonlyUnsignedAccounts);
+  AssertEquals(1, LTmiTransactionInfo.Message.Header.NumRequiredSignatures);
 
-  AssertEquals(6, tmiTransactionInfo.Message.Instructions.Count);
-  AssertEquals(6, Length(tmiTransactionInfo.Message.Instructions[2].Accounts));
-  AssertEquals('3K7fezMZDETh', tmiTransactionInfo.Message.Instructions[1].Data);
+  AssertEquals(6, LTmiTransactionInfo.Message.Instructions.Count);
+  AssertEquals(6, Length(LTmiTransactionInfo.Message.Instructions[2].Accounts));
+  AssertEquals('3K7fezMZDETh', LTmiTransactionInfo.Message.Instructions[1].Data);
 
-  AssertEquals(7, tmiTransactionInfo.Message.Instructions[0].ProgramIdIndex);
+  AssertEquals(7, LTmiTransactionInfo.Message.Instructions[0].ProgramIdIndex);
 
   AssertEquals('AwqZBjWfsFBE1ozAHgp8TkxSz3C82MgtA2JuT43GgVti',
-    tmiTransactionInfo.Message.RecentBlockhash);
+    LTmiTransactionInfo.Message.RecentBlockhash);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetTransactionProcessed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TTransactionMetaSlotInfo>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TTransactionMetaSlotInfo>;
 begin
-  responseData := LoadTestData('Transaction/GetTransactionResponse.json');
-  requestData  := LoadTestData('Transaction/GetTransactionProcessedRequest.json');
+  LResponseData := LoadTestData('Transaction/GetTransactionResponse.json');
+  LRequestData  := LoadTestData('Transaction/GetTransactionProcessedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetTransaction(
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetTransaction(
     '5as3w4KMpY23MP5T1nkPVksjXjN7hnjHKqiDxRMxUNcw5XsCGtStayZib1kQdyR2D9w8dR11Ha9Xk38KP3kbAwM1',
     0, TBinaryEncoding.Json, TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlocks;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TList<UInt64>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TList<UInt64>>;
 begin
-  responseData := LoadTestData('Blocks/GetBlocksResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlocksRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlocksResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlocksRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlocks(79499950, 79500000, TCommitment.Finalized);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlocks(79499950, 79500000, TCommitment.Finalized);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
-  AssertEquals(39, res.Result.Count);
-  AssertEquals(79499950, res.Result[0]);
-  AssertEquals(79500000, res.Result[38]);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
+  AssertEquals(39, LRes.Result.Count);
+  AssertEquals(79499950, LRes.Result[0]);
+  AssertEquals(79500000, LRes.Result[38]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlocksInvalidCommitment;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   AssertException(
     procedure
     begin
-      rpcClient.GetBlocks(
+      LRpcClient.GetBlocks(
         79499950,
         79500000,
         TCommitment.Processed
@@ -571,44 +571,44 @@ end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlocksWithLimit;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TList<UInt64>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TList<UInt64>>;
 begin
-  responseData := LoadTestData('Blocks/GetBlocksWithLimitResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlocksWithLimitRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlocksWithLimitResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlocksWithLimitRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlocksWithLimit(79699950, 2);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlocksWithLimit(79699950, 2);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertTrue(res.Result <> nil);
-  AssertEquals(2, res.Result.Count);
-  AssertEquals(79699950, res.Result[0]);
-  AssertEquals(79699951, res.Result[1]);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertTrue(LRes.Result <> nil);
+  AssertEquals(2, LRes.Result.Count);
+  AssertEquals(79699950, LRes.Result[0]);
+  AssertEquals(79699951, LRes.Result[1]);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlocksWithLimitBadCommitment;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
   AssertException(
     procedure
     begin
-      rpcClient.GetBlocksWithLimit(
+      LRpcClient.GetBlocksWithLimit(
         79699950,
         2,
         TCommitment.Processed
@@ -620,180 +620,180 @@ end;
 
 procedure TSolanaRpcClientBlockTests.TestGetFirstAvailableBlock;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<UInt64>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<UInt64>;
 begin
-  responseData := LoadTestData('Blocks/GetFirstAvailableBlockResponse.json');
-  requestData  := LoadTestData('Blocks/GetFirstAvailableBlockRequest.json');
+  LResponseData := LoadTestData('Blocks/GetFirstAvailableBlockResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetFirstAvailableBlockRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetFirstAvailableBlock;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetFirstAvailableBlock;
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertNotNull(res);
-  AssertEquals(39368303, res.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertNotNull(LRes);
+  AssertEquals(39368303, LRes.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockHeight;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<UInt64>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<UInt64>;
 begin
-  responseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockHeightRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockHeightRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockHeight;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockHeight;
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertNotNull(res);
-  AssertTrue(res.WasSuccessful);
-  AssertEquals(1233, res.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertNotNull(LRes);
+  AssertTrue(LRes.WasSuccessful);
+  AssertEquals(1233, LRes.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockHeightConfirmed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<UInt64>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<UInt64>;
 begin
-  responseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockHeightConfirmedRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockHeightResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockHeightConfirmedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockHeight(TCommitment.Confirmed);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockHeight(TCommitment.Confirmed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertNotNull(res);
-  AssertTrue(res.WasSuccessful);
-  AssertEquals(1233, res.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertNotNull(LRes);
+  AssertTrue(LRes.WasSuccessful);
+  AssertEquals(1233, LRes.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockCommitment;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TBlockCommitment>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TBlockCommitment>;
 begin
-  responseData := LoadTestData('Blocks/GetBlockCommitmentResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockCommitmentRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockCommitmentResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockCommitmentRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockCommitment(78561320);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockCommitment(78561320);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertNotNull(res.Result);
-  AssertTrue(res.WasSuccessful);
-  AssertTrue(res.Result.Commitment = nil);
-  AssertEquals(78380558524696194, res.Result.TotalStake);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertNotNull(LRes.Result);
+  AssertTrue(LRes.WasSuccessful);
+  AssertTrue(LRes.Result.Commitment = nil);
+  AssertEquals(78380558524696194, LRes.Result.TotalStake);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetBlockTime;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<UInt64>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<UInt64>;
 begin
-  responseData := LoadTestData('Blocks/GetBlockTimeResponse.json');
-  requestData  := LoadTestData('Blocks/GetBlockTimeRequest.json');
+  LResponseData := LoadTestData('Blocks/GetBlockTimeResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetBlockTimeRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetBlockTime(78561320);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetBlockTime(78561320);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertNotNull(res);
-  AssertTrue(res.WasSuccessful);
-  AssertEquals(1621971949, res.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertNotNull(LRes);
+  AssertTrue(LRes.WasSuccessful);
+  AssertEquals(1621971949, LRes.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestGetLatestBlockHash;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TResponseValue<TLatestBlockHash>>;
 begin
-  responseData := LoadTestData('Blocks/GetLatestBlockhashResponse.json');
-  requestData  := LoadTestData('Blocks/GetLatestBlockhashRequest.json');
+  LResponseData := LoadTestData('Blocks/GetLatestBlockhashResponse.json');
+  LRequestData  := LoadTestData('Blocks/GetLatestBlockhashRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.GetLatestBlockhash(TCommitment.Finalized);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.GetLatestBlockhash(TCommitment.Finalized);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertNotNull(res.Result);
-  AssertTrue(res.WasSuccessful);
-  AssertEquals(127140942, res.Result.Context.Slot);
-  AssertEquals('DDFfxGAsEVcqNbCLRgvDtzcc2ZxNnqJfQJfMTRhEEPwW', res.Result.Value.Blockhash);
-  AssertEquals(115143990, res.Result.Value.LastValidBlockHeight);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertNotNull(LRes.Result);
+  AssertTrue(LRes.WasSuccessful);
+  AssertEquals(127140942, LRes.Result.Context.Slot);
+  AssertEquals('DDFfxGAsEVcqNbCLRgvDtzcc2ZxNnqJfQJfMTRhEEPwW', LRes.Result.Value.Blockhash);
+  AssertEquals(115143990, LRes.Result.Value.LastValidBlockHeight);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientBlockTests.TestIsBlockhashValid;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient : IHttpApiClient;
-  rpcClient : IRpcClient;
-  res : IRequestResult<TResponseValue<Boolean>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LRes: IRequestResult<TResponseValue<Boolean>>;
 begin
-  responseData := LoadTestData('Blocks/IsBlockhashValidResponse.json');
-  requestData  := LoadTestData('Blocks/IsBlockhashValidRequest.json');
+  LResponseData := LoadTestData('Blocks/IsBlockhashValidResponse.json');
+  LRequestData  := LoadTestData('Blocks/IsBlockhashValidRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient  := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient  := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  res := rpcClient.IsBlockhashValid('DDFfxGAsEVcqNbCLRgvDtzcc2ZxNnqJfQJfMTRhEEPwW');
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LRes := LRpcClient.IsBlockhashValid('DDFfxGAsEVcqNbCLRgvDtzcc2ZxNnqJfQJfMTRhEEPwW');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson);
-  AssertNotNull(res.Result);
-  AssertTrue(res.WasSuccessful);
-  AssertEquals(127140942, res.Result.Context.Slot);
-  AssertTrue(res.Result.Value);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson);
+  AssertNotNull(LRes.Result);
+  AssertTrue(LRes.WasSuccessful);
+  AssertEquals(127140942, LRes.Result.Context.Slot);
+  AssertTrue(LRes.Result.Value);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 initialization

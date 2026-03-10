@@ -57,10 +57,10 @@ type
     function  Success: Integer;
     function  Fail: Integer;
 
-    procedure SetLamports(const V: UInt64);
+    procedure SetLamports(const AValue: UInt64);
     function  Lamports: UInt64;
 
-    procedure AdoptAccounts(const L: TObjectList<TTokenAccount>);
+    procedure AdoptAccounts(const AAccounts: TObjectList<TTokenAccount>);
     function  Accounts: TObjectList<TTokenAccount>;
 
     function  PublicKey: string;
@@ -94,10 +94,10 @@ type
     function  Success: Integer;
     function  Fail: Integer;
 
-    procedure SetLamports(const V: UInt64);
+    procedure SetLamports(const AValue: UInt64);
     function  Lamports: UInt64;
 
-    procedure AdoptAccounts(const L: TObjectList<TTokenAccount>);
+    procedure AdoptAccounts(const AAccounts: TObjectList<TTokenAccount>);
     function  Accounts: TObjectList<TTokenAccount>;
 
     function  PublicKey: string;
@@ -397,9 +397,9 @@ begin
  Result := FFail;
 end;
 
-procedure TTokenWalletLoadCtx.SetLamports(const V: UInt64);
+procedure TTokenWalletLoadCtx.SetLamports(const AValue: UInt64);
 begin
- FLamports := V;
+ FLamports := AValue;
 end;
 
 function  TTokenWalletLoadCtx.Lamports: UInt64;
@@ -407,9 +407,9 @@ begin
  Result := FLamports;
 end;
 
-procedure TTokenWalletLoadCtx.AdoptAccounts(const L: TObjectList<TTokenAccount>);
+procedure TTokenWalletLoadCtx.AdoptAccounts(const AAccounts: TObjectList<TTokenAccount>);
 begin
-  FAccounts := L; // may be nil
+  FAccounts := AAccounts; // may be nil
 end;
 
 function  TTokenWalletLoadCtx.Accounts: TObjectList<TTokenAccount>;
@@ -575,7 +575,7 @@ class function TTokenWallet.Load(
   ACommitment: TCommitment
 ): TFunc<ITokenWallet>;
 var
-  Ctx: ITokenWalletLoadCtx;
+  LCtx: ITokenWalletLoadCtx;
 begin
   if ABatch = nil then
     raise EArgumentNilException.Create('ABatch');
@@ -584,44 +584,44 @@ begin
   if APublicKey = '' then
     raise EArgumentNilException.Create('APublicKey');
 
-  Ctx := TTokenWalletLoadCtx.Create(APublicKey, AMintResolver);
+  LCtx := TTokenWalletLoadCtx.Create(APublicKey, AMintResolver);
 
   // === Enqueue: SOL balance ===
-  ABatch.GetBalance(Ctx.PublicKey, ACommitment,
+  ABatch.GetBalance(LCtx.PublicKey, ACommitment,
     procedure (AResp: TResponseValue<UInt64>; AErr: Exception)
     begin
-      if Assigned(Ctx.Lock) then Ctx.Lock.Acquire;
+      if Assigned(LCtx.Lock) then LCtx.Lock.Acquire;
       try
         if (AErr = nil) and (AResp <> nil) then
         begin
-          Ctx.SetLamports(AResp.Value);
-          Ctx.IncSuccess;
+          LCtx.SetLamports(AResp.Value);
+          LCtx.IncSuccess;
         end
         else
-          Ctx.IncFail;
+          LCtx.IncFail;
       finally
-        if Assigned(Ctx.Lock) then Ctx.Lock.Release;
-        Ctx.WrapUp;
+        if Assigned(LCtx.Lock) then LCtx.Lock.Release;
+        LCtx.WrapUp;
       end;
     end);
 
   // === Enqueue: token accounts ===
-  ABatch.GetTokenAccountsByOwner(Ctx.PublicKey, '', TTokenProgram.ProgramIdKey.Key, AEncoding, ACommitment,
+  ABatch.GetTokenAccountsByOwner(LCtx.PublicKey, '', TTokenProgram.ProgramIdKey.Key, AEncoding, ACommitment,
     procedure (AResp: TResponseValue<TObjectList<TTokenAccount>>; AErr: Exception)
     begin
-      if Assigned(Ctx.Lock) then Ctx.Lock.Acquire;
+      if Assigned(LCtx.Lock) then LCtx.Lock.Acquire;
       try
         if (AErr = nil) and (AResp <> nil) then
         begin
-          Ctx.AdoptAccounts(AResp.Value);
+          LCtx.AdoptAccounts(AResp.Value);
           AResp.Value := nil; // prevent double free
-          Ctx.IncSuccess;
+          LCtx.IncSuccess;
         end
         else
-          Ctx.IncFail;
+          LCtx.IncFail;
       finally
-        if Assigned(Ctx.Lock) then Ctx.Lock.Release;
-        Ctx.WrapUp;
+        if Assigned(LCtx.Lock) then LCtx.Lock.Release;
+        LCtx.WrapUp;
       end;
     end);
 
@@ -629,34 +629,34 @@ begin
   Result :=
     function: ITokenWallet
     var
-      Wallet: TTokenWallet;
-      PkObj : IPublicKey;
-      Done  : Boolean;
+      LWallet: TTokenWallet;
+      LPkObj : IPublicKey;
+      LDone  : Boolean;
     begin
-      Ctx.MarkInvoked;
+      LCtx.MarkInvoked;
 
       // Optional wait:
       // if Assigned(Ctx.Gate) then Ctx.Gate.WaitFor(INFINITE);
 
-      if Assigned(Ctx.Lock) then Ctx.Lock.Acquire;
+      if Assigned(LCtx.Lock) then LCtx.Lock.Acquire;
       try
-        Done := ((Ctx.Success + Ctx.Fail) = 2);
-        if not Done then
+        LDone := ((LCtx.Success + LCtx.Fail) = 2);
+        if not LDone then
           raise EInvalidOpException.Create('Batch not completed. Call after processing responses.');
-        if Ctx.Success <> 2 then
+        if LCtx.Success <> 2 then
           raise Exception.Create('Failed to load TokenWallet via batch.');
       finally
-        if Assigned(Ctx.Lock) then Ctx.Lock.Release;
+        if Assigned(LCtx.Lock) then LCtx.Lock.Release;
       end;
 
-      PkObj  := TPublicKey.Create(Ctx.PublicKey);
-      Wallet := TTokenWallet.Create(Ctx.MintResolver, PkObj);
-      Wallet.FLamports      := Ctx.Lamports;
-      Wallet.FTokenAccounts.Free;
-      Wallet.FTokenAccounts := Ctx.Accounts;
-      Ctx.AdoptAccounts(nil);
+      LPkObj  := TPublicKey.Create(LCtx.PublicKey);
+      LWallet := TTokenWallet.Create(LCtx.MintResolver, LPkObj);
+      LWallet.FLamports      := LCtx.Lamports;
+      LWallet.FTokenAccounts.Free;
+      LWallet.FTokenAccounts := LCtx.Accounts;
+      LCtx.AdoptAccounts(nil);
 
-      Result := Wallet;
+      Result := LWallet;
     end;
 end;
 
@@ -692,7 +692,7 @@ end;
 function TTokenWallet.Balances: TList<ITokenWalletBalance>;
 var
   LMintBalances: TDictionary<string, ITokenWalletBalance>;
-  Pair: TPair<string, ITokenWalletBalance>;
+  LPair: TPair<string, ITokenWalletBalance>;
   LToken: TTokenAccount;
   LMint: string;
   LBal: ITokenWalletBalance;
@@ -737,14 +737,14 @@ begin
 
     Result := TList<ITokenWalletBalance>.Create();
     try
-      for Pair in LMintBalances do
-        Result.Add(Pair.Value);
+      for LPair in LMintBalances do
+        Result.Add(LPair.Value);
 
       Result.Sort(
         TComparer<ITokenWalletBalance>.Construct(
-          function(const A, B: ITokenWalletBalance): Integer
+          function(const ALeft, ARight: ITokenWalletBalance): Integer
           begin
-            Result := CompareText(A.TokenName, B.TokenName);
+            Result := CompareText(ALeft.TokenName, ARight.TokenName);
           end));
     except
       Result.Free;
@@ -802,9 +802,9 @@ begin
 
     LList.Sort(
       TComparer<ITokenWalletAccount>.Construct(
-        function (const A, B: ITokenWalletAccount): Integer
+        function (const ALeft, ARight: ITokenWalletAccount): Integer
         begin
-          Result := CompareText(A.TokenName, B.TokenName);
+          Result := CompareText(ALeft.TokenName, ARight.TokenName);
         end));
 
     Result := TTokenWalletFilterList.Create(LList.ToArray);
@@ -940,9 +940,9 @@ begin
 
   Result := TListUtils.Any<TTokenAccount>(
     FTokenAccounts,
-    function(TokenAcc: TTokenAccount): Boolean
+    function(ATokenAcc: TTokenAccount): Boolean
     begin
-      Result := SameStr(TokenAcc.PublicKey, APubKey);
+      Result := SameStr(ATokenAcc.PublicKey, APubKey);
     end
   );
 end;

@@ -42,9 +42,9 @@ type
     /// <summary>
     /// Resolve a mint public key address into a TokenDef object
     /// </summary>
-    /// <param name="TokenMint">The token mint address</param>
+    /// <param name="ATokenMint">The token mint address</param>
     /// <returns>An instance of the TokenDef containing known info about this token or a constructed unknown entry</returns>
-    function Resolve(const TokenMint: string): ITokenDef;
+    function Resolve(const ATokenMint: string): ITokenDef;
     procedure Add(AToken: ITokenDef); overload;
     procedure Add(ATokenItem: TTokenListItem); overload;
 
@@ -91,11 +91,11 @@ end;
 
 constructor TTokenMintResolver.CreateFromTokenList(ATokenList: TTokenListDoc);
 var
-  Token: TTokenListItem;
+  LToken: TTokenListItem;
 begin
   Create;
-  for Token in ATokenList.Tokens do
-    Add(Token);
+  for LToken in ATokenList.Tokens do
+    Add(LToken);
 end;
 
 destructor TTokenMintResolver.Destroy;
@@ -108,11 +108,11 @@ end;
 
 function TTokenMintResolver.GetKnownTokens: TDictionary<string, ITokenDef>;
 var
-  Token: TPair<string, ITokenDef>;
+  LToken: TPair<string, ITokenDef>;
 begin
   Result := TDictionary<string, ITokenDef>.Create();
-  for Token in FTokens do
-    Result.Add(Token.Key, Token.Value);
+  for LToken in FTokens do
+    Result.Add(LToken.Key, LToken.Value);
 end;
 
 class function TTokenMintResolver.Load: ITokenMintResolver;
@@ -130,51 +130,51 @@ end;
 
 class function TTokenMintResolver.Load(const AUrl: string; const AHttpClient: IHttpApiClient): ITokenMintResolver;
 var
-  Resp: IHttpApiResponse;
+  LResp: IHttpApiResponse;
 begin
   if AHttpClient = nil then
     raise EArgumentNilException.Create('Http');
 
-  Resp := AHttpClient.GetJson(AUrl);
+  LResp := AHttpClient.GetJson(AUrl);
 
-  if not Resp.IsSuccessStatusCode then
+  if not LResp.IsSuccessStatusCode then
     raise ETokenMintResolveException.CreateFmt(
       'Failed to fetch token list. HTTP %d %s',
-      [Resp.StatusCode, Resp.StatusText]
+      [LResp.StatusCode, LResp.StatusText]
     );
 
-  Result := ParseTokenList(Resp.ResponseBody);
+  Result := ParseTokenList(LResp.ResponseBody);
 end;
 
 class function TTokenMintResolver.ParseTokenList(const AJson: string)
   : ITokenMintResolver;
 var
-  TokenList: TTokenListDoc;
+  LTokenList: TTokenListDoc;
 begin
   if AJson = '' then
     raise EArgumentNilException.Create('json');
 
-  TokenList := ParseJsonToTokenListDoc(AJson);
+  LTokenList := ParseJsonToTokenListDoc(AJson);
   try
-    Result := CreateFromTokenList(TokenList);
+    Result := CreateFromTokenList(LTokenList);
   finally
-    TokenList.Free;
+    LTokenList.Free;
   end;
 end;
 
 function TTokenMintResolver.Resolve(const ATokenMint: string): ITokenDef;
 var
-  Token: ITokenDef;
+  LToken: ITokenDef;
 begin
-  if FTokens.TryGetValue(ATokenMint, Token) then
-    Exit(Token)
+  if FTokens.TryGetValue(ATokenMint, LToken) then
+    Exit(LToken)
   else
   begin
     // Create a placeholder "unknown" token
-    Token := TTokenDef.Create(ATokenMint, Format('Unknown %s', [ATokenMint]
+    LToken := TTokenDef.Create(ATokenMint, Format('Unknown %s', [ATokenMint]
       ), '', -1);
-    FTokens.AddOrSetValue(ATokenMint, Token);
-    Result := Token;
+    FTokens.AddOrSetValue(ATokenMint, LToken);
+    Result := LToken;
   end;
 end;
 
@@ -188,37 +188,37 @@ end;
 
 procedure TTokenMintResolver.Add(ATokenItem: TTokenListItem);
 var
-  Token: ITokenDef;
-  LogoUrl, CoinGeckoId, ProjectUrl: string;
-  V: TValue;
+  LToken: ITokenDef;
+  LLogoUrl, LCoinGeckoId, LProjectUrl: string;
+  LV: TValue;
 begin
   if ATokenItem = nil then
     raise EArgumentNilException.Create('tokenItem');
 
-  LogoUrl := ATokenItem.LogoUri;
-  CoinGeckoId := '';
-  ProjectUrl := '';
+  LLogoUrl := ATokenItem.LogoUri;
+  LCoinGeckoId := '';
+  LProjectUrl := '';
 
   if ATokenItem.Extensions = nil then
     Exit;
 
-  if ATokenItem.Extensions.TryGetValue('coingeckoId', V) and V.IsType<string> then
-    CoinGeckoId := V.AsType<string>;
+  if ATokenItem.Extensions.TryGetValue('coingeckoId', LV) and LV.IsType<string> then
+    LCoinGeckoId := LV.AsType<string>;
 
-  if ATokenItem.Extensions.TryGetValue('website', V) and V.IsType<string> then
-    ProjectUrl := V.AsType<string>;
+  if ATokenItem.Extensions.TryGetValue('website', LV) and LV.IsType<string> then
+    LProjectUrl := LV.AsType<string>;
 
-  Token := TTokenDef.Create(
+  LToken := TTokenDef.Create(
     ATokenItem.Address,
     ATokenItem.Name,
     ATokenItem.Symbol,
     ATokenItem.Decimals
   );
-  Token.CoinGeckoId := CoinGeckoId;
-  Token.TokenLogoUrl := LogoUrl;
-  Token.TokenProjectUrl := ProjectUrl;
+  LToken.CoinGeckoId := LCoinGeckoId;
+  LToken.TokenLogoUrl := LLogoUrl;
+  LToken.TokenProjectUrl := LProjectUrl;
 
-  FTokens.AddOrSetValue(Token.TokenMint, Token);
+  FTokens.AddOrSetValue(LToken.TokenMint, LToken);
 end;
 
 

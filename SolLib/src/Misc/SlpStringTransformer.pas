@@ -26,21 +26,21 @@ uses
   System.SysUtils;
 
 type
-  TStringTransform = reference to function(const S: string): string;
+  TStringTransform = reference to function(const AStr: string): string;
 
   TStringTransformer = class sealed
     private
-    class function SeparatedName(const S: string; const Sep: Char): string; static;
+    class function SeparatedName(const AStr: string; const ASep: Char): string; static;
   public
     class function Identity: TStringTransform; static;
-    class function Compose(const A, B: TStringTransform): TStringTransform; static;
-    class function ComposeMany(const Steps: array of TStringTransform): TStringTransform; static;
+    class function Compose(const AFirst, ASecond: TStringTransform): TStringTransform; static;
+    class function ComposeMany(const ASteps: array of TStringTransform): TStringTransform; static;
 
-    class function ToCamel(const S: string): string; static;
-    class function ToPascal(const S: string): string; static;
-    class function ToSnake(const S: string): string; static;
-    class function ToKebab(const S: string): string; static;
-    class function MakeSeparatedNamer(const Sep: Char): TStringTransform; static;
+    class function ToCamel(const AStr: string): string; static;
+    class function ToPascal(const AStr: string): string; static;
+    class function ToSnake(const AStr: string): string; static;
+    class function ToKebab(const AStr: string): string; static;
+    class function MakeSeparatedNamer(const ASep: Char): TStringTransform; static;
     class function MakeAcronymNormalizer: TStringTransform; static;
   end;
 
@@ -91,79 +91,79 @@ implementation
 class function TStringTransformer.Identity: TStringTransform;
 begin
   Result :=
-    function(const S: string): string
+    function(const AStr: string): string
     begin
-      Result := S;
+      Result := AStr;
     end;
 end;
 
-class function TStringTransformer.Compose(const A, B: TStringTransform): TStringTransform;
+class function TStringTransformer.Compose(const AFirst, ASecond: TStringTransform): TStringTransform;
 begin
-  // (A ° B)(S) = B(A(S)) — apply A first, then B
+  // (AFirst ° ASecond)(AStr) = ASecond(AFirst(AStr)) — apply AFirst first, then ASecond
   Result :=
-    function(const S: string): string
+    function(const AStr: string): string
     begin
-      Result := B(A(S));
+      Result := ASecond(AFirst(AStr));
     end;
 end;
 
-class function TStringTransformer.ComposeMany(const Steps: array of TStringTransform): TStringTransform;
+class function TStringTransformer.ComposeMany(const ASteps: array of TStringTransform): TStringTransform;
 var
-  I: Integer;
+  LI: Integer;
 begin
   // Left-to-right: (((Step0 ° Step1) ° Step2) ...)
   Result := Identity();
-  for I := Low(Steps) to High(Steps) do
-    if Assigned(Steps[I]) then
-      Result := Compose(Result, Steps[I]);
+  for LI := Low(ASteps) to High(ASteps) do
+    if Assigned(ASteps[LI]) then
+      Result := Compose(Result, ASteps[LI]);
 end;
 
-class function TStringTransformer.ToCamel(const S: string): string;
+class function TStringTransformer.ToCamel(const AStr: string): string;
 begin
-  Result := S;
+  Result := AStr;
   if Result <> '' then
     Result[1] := Result[1].ToLower;
 end;
 
-class function TStringTransformer.ToPascal(const S: string): string;
+class function TStringTransformer.ToPascal(const AStr: string): string;
 begin
-  Result := S;
+  Result := AStr;
   if Result <> '' then
     Result[1] := Result[1].ToUpper;
 end;
 
-class function TStringTransformer.SeparatedName(const S: string; const Sep: Char): string;
+class function TStringTransformer.SeparatedName(const AStr: string; const ASep: Char): string;
 var
-  I: Integer;
-  C: Char;
+  LI: Integer;
+  LC: Char;
 begin
   Result := '';
-  for I := 1 to Length(S) do
+  for LI := 1 to Length(AStr) do
   begin
-    C := S[I];
-    if (I > 1) and (C.IsUpper) then
-      Result := Result + Sep + C.ToLower
+    LC := AStr[LI];
+    if (LI > 1) and (LC.IsUpper) then
+      Result := Result + ASep + LC.ToLower
     else
-      Result := Result + C.ToLower;
+      Result := Result + LC.ToLower;
   end;
 end;
 
-class function TStringTransformer.ToSnake(const S: string): string;
+class function TStringTransformer.ToSnake(const AStr: string): string;
 begin
-  Result := SeparatedName(S, '_');
+  Result := SeparatedName(AStr, '_');
 end;
 
-class function TStringTransformer.ToKebab(const S: string): string;
+class function TStringTransformer.ToKebab(const AStr: string): string;
 begin
-  Result := SeparatedName(S, '-');
+  Result := SeparatedName(AStr, '-');
 end;
 
-class function TStringTransformer.MakeSeparatedNamer(const Sep: Char): TStringTransform;
+class function TStringTransformer.MakeSeparatedNamer(const ASep: Char): TStringTransform;
 begin
   Result :=
-    function(const S: string): string
+    function(const AStr: string): string
     begin
-      Result := SeparatedName(S, Sep);
+      Result := SeparatedName(AStr, ASep);
     end;
 end;
 
@@ -171,42 +171,42 @@ class function TStringTransformer.MakeAcronymNormalizer: TStringTransform;
 begin
   // Turns HTTPServerError -> HttpServerError; URLPath -> UrlPath; ID -> Id
   Result :=
-    function(const S: string): string
+    function(const AStr: string): string
     var
-      i, L, runStart, runLen: Integer;
-      nextIsLower: Boolean;
+      LI, LLen, LRunStart, LRunLen: Integer;
+      LNextIsLower: Boolean;
     begin
       Result := '';
-      L := Length(S);
-      i := 1;
-      while i <= L do
+      LLen := Length(AStr);
+      LI := 1;
+      while LI <= LLen do
       begin
         // detect an uppercase run
-        if S[i].IsUpper then
+        if AStr[LI].IsUpper then
         begin
-          runStart := i;
-          runLen := 1;
-          while (runStart + runLen <= L) and S[runStart + runLen].IsUpper do
-            Inc(runLen);
+          LRunStart := LI;
+          LRunLen := 1;
+          while (LRunStart + LRunLen <= LLen) and AStr[LRunStart + LRunLen].IsUpper do
+            Inc(LRunLen);
 
-          if runLen >= 2 then
+          if LRunLen >= 2 then
           begin
             // If the char *after* the run is lowercase, back off the last cap:
             // HTTPServer -> run=HTTP, leave 'S' to start next word
-            nextIsLower := (runStart + runLen <= L) and S[runStart + runLen].IsLower;
-            if nextIsLower then
-              Dec(runLen);
+            LNextIsLower := (LRunStart + LRunLen <= LLen) and AStr[LRunStart + LRunLen].IsLower;
+            if LNextIsLower then
+              Dec(LRunLen);
 
             // emit normalized acronym: first upper + rest lower
-            Result := Result + S[runStart] + LowerCase(Copy(S, runStart + 1, runLen - 1));
-            Inc(i, runLen);
+            Result := Result + AStr[LRunStart] + LowerCase(Copy(AStr, LRunStart + 1, LRunLen - 1));
+            Inc(LI, LRunLen);
             Continue;
           end;
           // runLen = 1 -> just fall through and copy as-is
         end;
 
-        Result := Result + S[i];
-        Inc(i);
+        Result := Result + AStr[LI];
+        Inc(LI);
       end;
     end;
 end;
@@ -223,9 +223,9 @@ end;
 class function TCamelCaseTransformProvider.GetTransform: TStringTransform;
 begin
   Result :=
-    function(const S: string): string
+    function(const AStr: string): string
     begin
-      Result := TStringTransformer.ToCamel(S);
+      Result := TStringTransformer.ToCamel(AStr);
     end;
 end;
 
@@ -234,9 +234,9 @@ end;
 class function TPascalCaseTransformProvider.GetTransform: TStringTransform;
 begin
   Result :=
-    function(const S: string): string
+    function(const AStr: string): string
     begin
-      Result := TStringTransformer.ToPascal(S);
+      Result := TStringTransformer.ToPascal(AStr);
     end;
 end;
 

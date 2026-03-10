@@ -37,7 +37,7 @@ type
     /// </summary>
     /// <param name="data">The data to encode.</param>
     /// <returns>The data encoded.</returns>
-    function EncodeData(const data: TBytes): string; overload;
+    function EncodeData(const AData: TBytes): string; overload;
 
     /// <summary>
     /// Encode the data.
@@ -46,21 +46,21 @@ type
     /// <param name="offset">The offset at which to start encoding.</param>
     /// <param name="count">The number of bytes to encode.</param>
     /// <returns>The encoded data.</returns>
-    function EncodeData(const data: TBytes; offset, count: Integer): string; overload;
+    function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string; overload;
 
     /// <summary>
     /// Decode the data.
     /// </summary>
     /// <param name="encoded">The data to decode.</param>
     /// <returns>The decoded data.</returns>
-    function DecodeData(const encoded: string): TBytes;
+    function DecodeData(const AEncoded: string): TBytes;
 
     /// <summary>
     /// Check if the encoded string is valid for this encoding.
     /// </summary>
     /// <param name="encoded">The encoded string to validate.</param>
     /// <returns>True if valid, false otherwise.</returns>
-    function IsValid(const encoded: string): Boolean;
+    function IsValid(const AEncoded: string): Boolean;
   end;
 
   /// <summary>
@@ -73,7 +73,7 @@ type
     /// </summary>
     /// <param name="c">The character.</param>
     /// <returns>True if it is, otherwise false.</returns>
-    class function IsSpace(c: Char): Boolean; static;
+    class function IsSpace(ACh: Char): Boolean; static;
 
     /// <summary>
     /// Initialize the data encoder.
@@ -85,7 +85,7 @@ type
     /// </summary>
     /// <param name="data">The data to encode.</param>
     /// <returns>The data encoded.</returns>
-    function EncodeData(const data: TBytes): string; overload;
+    function EncodeData(const AData: TBytes): string; overload;
 
     /// <summary>
     /// Encode the data.
@@ -94,21 +94,21 @@ type
     /// <param name="offset">The offset at which to start encoding.</param>
     /// <param name="count">The number of bytes to encode.</param>
     /// <returns>The encoded data.</returns>
-    function EncodeData(const data: TBytes; offset, count: Integer): string; overload; virtual; abstract;
+    function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string; overload; virtual; abstract;
 
     /// <summary>
     /// Decode the data.
     /// </summary>
     /// <param name="encoded">The data to decode.</param>
     /// <returns>The decoded data.</returns>
-    function DecodeData(const encoded: string): TBytes; virtual; abstract;
+    function DecodeData(const AEncoded: string): TBytes; virtual; abstract;
 
     /// <summary>
     /// Check if the encoded string is valid for this encoding.
     /// </summary>
     /// <param name="encoded">The encoded string to validate.</param>
     /// <returns>True if valid, false otherwise.</returns>
-    function IsValid(const encoded: string): Boolean; virtual; abstract;
+    function IsValid(const AEncoded: string): Boolean; virtual; abstract;
   end;
 
   /// <summary>
@@ -116,7 +116,7 @@ type
   /// </summary>
   TBase58Encoder = class sealed(TDataEncoder)
   private
-    class function GetAlphaChar(Index: Integer): Char; static;
+    class function GetAlphaChar(AIndex: Integer): Char; static;
   public
     /// <summary>
     /// The base58 characters.
@@ -124,13 +124,13 @@ type
     const PszBase58: string = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
     /// <inheritdoc />
-    function EncodeData(const data: TBytes; offset, count: Integer): string; override;
+    function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string; override;
 
     /// <inheritdoc />
-    function DecodeData(const encoded: string): TBytes; override;
+    function DecodeData(const AEncoded: string): TBytes; override;
 
     /// <inheritdoc />
-    function IsValid(const encoded: string): Boolean; override;
+    function IsValid(const AEncoded: string): Boolean; override;
   end;
 
   /// <summary>
@@ -138,16 +138,16 @@ type
   /// </summary>
   TBase64Encoder = class sealed(TDataEncoder)
   private
-    function ValidateBase64Strict(const S: string): Boolean;
+    function ValidateBase64Strict(const AStr: string): Boolean;
   public
     /// <inheritdoc />
-    function EncodeData(const data: TBytes; offset, count: Integer): string; override;
+    function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string; override;
 
     /// <inheritdoc />
-    function DecodeData(const encoded: string): TBytes; override;
+    function DecodeData(const AEncoded: string): TBytes; override;
 
     /// <inheritdoc />
-    function IsValid(const encoded: string): Boolean; override;
+    function IsValid(const AEncoded: string): Boolean; override;
   end;
 
   /// <summary>
@@ -156,13 +156,13 @@ type
   THexEncoder = class sealed(TDataEncoder)
   public
     /// <inheritdoc />
-    function EncodeData(const data: TBytes; offset, count: Integer): string; override;
+    function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string; override;
 
     /// <inheritdoc />
-    function DecodeData(const encoded: string): TBytes; override;
+    function DecodeData(const AEncoded: string): TBytes; override;
 
     /// <inheritdoc />
-    function IsValid(const encoded: string): Boolean; override;
+    function IsValid(const AEncoded: string): Boolean; override;
   end;
 
   /// <summary>
@@ -173,7 +173,7 @@ type
     /// <summary>
     /// Shared parsing logic for DecodeData and IsValid.
     /// </summary>
-    function TryParse(const encoded: string; out Bytes: TBytes): Boolean;
+    function TryParse(const AEncoded: string; out ABytes: TBytes): Boolean;
   public
     /// <summary>
     /// Formats a byte array into a string in order to be compatible with the original solana-keygen made in rust.
@@ -182,17 +182,17 @@ type
     /// <param name="data">The offset to start from.</param>
     /// <param name="data">The count to process.</param>
     /// <returns>A formatted string.</returns>
-    function EncodeData(const data: TBytes; offset, count: Integer): string; override;
+    function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string; override;
 
     /// <summary>
     /// Formats a string into a byte array in order to be compatible with the original solana-keygen made in rust.
     /// </summary>
     /// <param name="encoded">The string to be formatted.</param>
     /// <returns>A formatted byte array.</returns>
-    function DecodeData(const encoded: string): TBytes; override;
+    function DecodeData(const AEncoded: string): TBytes; override;
 
     /// <inheritdoc />
-    function IsValid(const encoded: string): Boolean; override;
+    function IsValid(const AEncoded: string): Boolean; override;
   end;
 
   /// <summary>
@@ -226,28 +226,28 @@ type
 //   type
 //     TMyCustomBase58Encoder = class(TInterfacedObject, IDataEncoder)
 //     public
-//       function EncodeData(const data: TBytes): string; overload;
-//       function EncodeData(const data: TBytes; offset, count: Integer): string; overload;
-//       function DecodeData(const encoded: string): TBytes;
-//       function IsValid(const encoded: string): Boolean;
+//       function EncodeData(const AData: TBytes): string; overload;
+//       function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string; overload;
+//       function DecodeData(const AEncoded: string): TBytes;
+//       function IsValid(const AEncoded: string): Boolean;
 //     end;
 //
-//   function TMyCustomBase58Encoder.EncodeData(const data: TBytes): string;
+//   function TMyCustomBase58Encoder.EncodeData(const AData: TBytes): string;
 //   begin
 //     Result := EncodeData(data, 0, Length(data));
 //   end;
 //
-//   function TMyCustomBase58Encoder.EncodeData(const data: TBytes; offset, count: Integer): string;
+//   function TMyCustomBase58Encoder.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
 //   begin
 //     // Custom encoding logic here
 //   end;
 //
-//   function TMyCustomBase58Encoder.DecodeData(const encoded: string): TBytes;
+//   function TMyCustomBase58Encoder.DecodeData(const AEncoded: string): TBytes;
 //   begin
 //     // Custom decoding logic here
 //   end;
 //
-//   function TMyCustomBase58Encoder.IsValid(const encoded: string): Boolean;
+//   function TMyCustomBase58Encoder.IsValid(const AEncoded: string): Boolean;
 //   begin
 //     // Custom validation logic here
 //   end;
@@ -288,194 +288,194 @@ begin
   inherited Create;
 end;
 
-class function TDataEncoder.IsSpace(c: Char): Boolean;
+class function TDataEncoder.IsSpace(ACh: Char): Boolean;
 begin
-  case c of
+  case ACh of
     ' ', #9, #10, #11, #12, #13: Exit(True); // space, \t, \n, \v, \f, \r
   end;
   Result := False;
 end;
 
-function TDataEncoder.EncodeData(const data: TBytes): string;
+function TDataEncoder.EncodeData(const AData: TBytes): string;
 begin
-  Result := EncodeData(data, 0, Length(data));
+  Result := EncodeData(AData, 0, Length(AData));
 end;
 
 { TBase58Encoder }
 
-class function TBase58Encoder.GetAlphaChar(Index: Integer): Char;
+class function TBase58Encoder.GetAlphaChar(AIndex: Integer): Char;
 begin
-  // PszBase58 is 1-based when indexed as a Delphi string; Index is 0..57
-  Result := PszBase58[Index + 1];
+  // PszBase58 is 1-based when indexed as a Delphi string; AIndex is 0..57
+  Result := PszBase58[AIndex + 1];
 end;
 
-function TBase58Encoder.EncodeData(const data: TBytes; offset, count: Integer): string;
+function TBase58Encoder.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
 var
-  zeroes, workingLength, size: Integer;
-  b58: TBytes;
-  carry, i, it: Integer;
-  it2, i2: Integer;
-  outLen: Integer;
+  LZeroes, LWorkingLength, LSize: Integer;
+  LB58: TBytes;
+  LCarry, LI, LIt: Integer;
+  LIt2, LI2: Integer;
+  LOutLen: Integer;
 begin
-  if data = nil then
+  if AData = nil then
     raise EArgumentNilException.Create('data');
 
-  if (offset < 0) or (count < 0) or (offset > count) or (count > Length(data)) then
+  if (AOffset < 0) or (ACount < 0) or (AOffset > ACount) or (ACount > Length(AData)) then
     raise ERangeError.Create('Invalid offset/count');
 
-  zeroes := 0;
-  while (offset <> count) and (data[offset] = 0) do
+  LZeroes := 0;
+  while (AOffset <> ACount) and (AData[AOffset] = 0) do
   begin
-    Inc(offset);
-    Inc(zeroes);
+    Inc(AOffset);
+    Inc(LZeroes);
   end;
 
   // Allocate enough space in big-endian base58 representation.
   // log(256) / log(58), rounded up.
-  size := (count - offset) * 138 div 100 + 1;
-  SetLength(b58, size);
+  LSize := (ACount - AOffset) * 138 div 100 + 1;
+  SetLength(LB58, LSize);
 
-  workingLength := 0;
-  while offset <> count do
+  LWorkingLength := 0;
+  while AOffset <> ACount do
   begin
-    carry := data[offset];
-    i := 0;
+    LCarry := AData[AOffset];
+    LI := 0;
 
     // Apply "b58 = b58 * 256 + ch".
-    for it := size - 1 downto 0 do
+    for LIt := LSize - 1 downto 0 do
     begin
-      if (carry <> 0) or (i < workingLength) then
+      if (LCarry <> 0) or (LI < LWorkingLength) then
       begin
-        carry := carry + 256 * b58[it];
-        b58[it] := Byte(carry mod 58);
-        carry := carry div 58;
-        Inc(i);
+        LCarry := LCarry + 256 * LB58[LIt];
+        LB58[LIt] := Byte(LCarry mod 58);
+        LCarry := LCarry div 58;
+        Inc(LI);
       end;
-      if (carry = 0) and (i >= workingLength) then
-        if it < (size - 1) then
+      if (LCarry = 0) and (LI >= LWorkingLength) then
+        if LIt < (LSize - 1) then
           Break;
     end;
 
-    workingLength := i;
-    Inc(offset);
+    LWorkingLength := LI;
+    Inc(AOffset);
   end;
 
   // Skip leading zeroes in
-  it2 := (size - workingLength);
-  while (it2 <> size) and (b58[it2] = 0) do
-    Inc(it2);
+  LIt2 := (LSize - LWorkingLength);
+  while (LIt2 <> LSize) and (LB58[LIt2] = 0) do
+    Inc(LIt2);
 
-  outLen := zeroes + size - it2;
-  SetLength(Result, outLen);
+  LOutLen := LZeroes + LSize - LIt2;
+  SetLength(Result, LOutLen);
 
   // Fill leading zeroes with '1'
-  for i2 := 1 to zeroes do
-    Result[i2] := '1';
+  for LI2 := 1 to LZeroes do
+    Result[LI2] := '1';
 
   // Remaining characters
-  i2 := zeroes + 1;
-  while it2 <> size do
+  LI2 := LZeroes + 1;
+  while LIt2 <> LSize do
   begin
-    Result[i2] := GetAlphaChar(b58[it2]);
-    Inc(i2);
-    Inc(it2);
+    Result[LI2] := GetAlphaChar(LB58[LIt2]);
+    Inc(LI2);
+    Inc(LIt2);
   end;
 end;
 
-function TBase58Encoder.DecodeData(const encoded: string): TBytes;
+function TBase58Encoder.DecodeData(const AEncoded: string): TBytes;
 var
-  psz, zeroes, length, size: Integer;
-  b256: TBytes;
-  carry, i, it: Integer;
-  it2, i2: Integer;
-  ch: Char;
+  LPsz, LZeroes, LLength, LSize: Integer;
+  LB256: TBytes;
+  LCarry, LI, LIt: Integer;
+  LIt2, LI2: Integer;
+  LCh: Char;
 begin
-  if encoded = '' then
+  if AEncoded = '' then
     raise EArgumentException.Create('encoded');
 
-  psz := 1;
-  while (psz <= encoded.Length) and TDataEncoder.IsSpace(encoded[psz]) do
-    Inc(psz);
+  LPsz := 1;
+  while (LPsz <= AEncoded.Length) and TDataEncoder.IsSpace(AEncoded[LPsz]) do
+    Inc(LPsz);
 
-  zeroes := 0;
-  length := 0;
-  while (psz <= encoded.Length) and (encoded[psz] = '1') do
+  LZeroes := 0;
+  LLength := 0;
+  while (LPsz <= AEncoded.Length) and (AEncoded[LPsz] = '1') do
   begin
-    Inc(zeroes);
-    Inc(psz);
+    Inc(LZeroes);
+    Inc(LPsz);
   end;
 
   // Allocate enough space in big-endian base256 representation.
   // log(58) / log(256), rounded up.
-  size := (encoded.Length - (psz - 1)) * 733 div 1000 + 1;
-  SetLength(b256, size);
+  LSize := (AEncoded.Length - (LPsz - 1)) * 733 div 1000 + 1;
+  SetLength(LB256, LSize);
 
   // Process the characters.
-  while (psz <= encoded.Length) and (not TDataEncoder.IsSpace(encoded[psz])) do
+  while (LPsz <= AEncoded.Length) and (not TDataEncoder.IsSpace(AEncoded[LPsz])) do
   begin
-    ch := encoded[psz];
-    carry := MapBase58[Ord(ch) and $FF]; // invalid -> -1
-    if carry = -1 then
+    LCh := AEncoded[LPsz];
+    LCarry := MapBase58[Ord(LCh) and $FF]; // invalid -> -1
+    if LCarry = -1 then
       raise Exception.Create('Invalid base58 data');
 
-    i := 0;
-    for it := size - 1 downto 0 do
+    LI := 0;
+    for LIt := LSize - 1 downto 0 do
     begin
-      if (carry <> 0) or (i < length) then
+      if (LCarry <> 0) or (LI < LLength) then
       begin
-        carry := carry + 58 * b256[it];
-        b256[it] := Byte(carry mod 256);
-        carry := carry div 256;
-        Inc(i);
+        LCarry := LCarry + 58 * LB256[LIt];
+        LB256[LIt] := Byte(LCarry mod 256);
+        LCarry := LCarry div 256;
+        Inc(LI);
       end;
-      if (carry = 0) and (i >= length) then
-        if it < (size - 1) then
+      if (LCarry = 0) and (LI >= LLength) then
+        if LIt < (LSize - 1) then
           Break;
     end;
 
-    length := i;
-    Inc(psz);
+    LLength := LI;
+    Inc(LPsz);
   end;
 
   // Skip trailing spaces.
-  while (psz <= encoded.Length) and TDataEncoder.IsSpace(encoded[psz]) do
-    Inc(psz);
-  if psz <= encoded.Length then
+  while (LPsz <= AEncoded.Length) and TDataEncoder.IsSpace(AEncoded[LPsz]) do
+    Inc(LPsz);
+  if LPsz <= AEncoded.Length then
     raise Exception.Create('Invalid base58 data');
 
   // Skip leading zeroes in b256.
-  it2 := size - length;
+  LIt2 := LSize - LLength;
 
   // Copy result into output vector.
-  SetLength(Result, zeroes + size - it2);
+  SetLength(Result, LZeroes + LSize - LIt2);
 
   // Fill leading zero bytes with 0x00
-  for i2 := 0 to zeroes - 1 do
-    Result[i2] := 0;
+  for LI2 := 0 to LZeroes - 1 do
+    Result[LI2] := 0;
 
   // Copy the rest
-  i2 := zeroes;
-  while it2 <> size do
+  LI2 := LZeroes;
+  while LIt2 <> LSize do
   begin
-    Result[i2] := b256[it2];
-    Inc(i2);
-    Inc(it2);
+    Result[LI2] := LB256[LIt2];
+    Inc(LI2);
+    Inc(LIt2);
   end;
 end;
 
-function TBase58Encoder.IsValid(const encoded: string): Boolean;
+function TBase58Encoder.IsValid(const AEncoded: string): Boolean;
 var
-  i: Integer;
-  c: Char;
+  LI: Integer;
+  LC: Char;
 begin
-  if encoded = '' then
+  if AEncoded = '' then
     Exit(False);
-  for i := 1 to encoded.Length do
+  for LI := 1 to AEncoded.Length do
   begin
-    c := encoded[i];
+    LC := AEncoded[LI];
 
     // reject whitespace and any char not in Base58 map
-    if TDataEncoder.IsSpace(c) or (MapBase58[Ord(c) and $FF] = -1) then
+    if TDataEncoder.IsSpace(LC) or (MapBase58[Ord(LC) and $FF] = -1) then
       Exit(False);
   end;
   Result := True;
@@ -483,158 +483,158 @@ end;
 
 { TBase64Encoder }
 
-function TBase64Encoder.ValidateBase64Strict(const S: string): Boolean;
+function TBase64Encoder.ValidateBase64Strict(const AStr: string): Boolean;
 
-function IsB64Char(const Ch: Char): Boolean; inline;
+function IsB64Char(const ACh: Char): Boolean; inline;
 begin
   Result :=
-    ((Ch >= 'A') and (Ch <= 'Z')) or
-    ((Ch >= 'a') and (Ch <= 'z')) or
-    ((Ch >= '0') and (Ch <= '9')) or
-    (Ch = '+') or (Ch = '/');
+    ((ACh >= 'A') and (ACh <= 'Z')) or
+    ((ACh >= 'a') and (ACh <= 'z')) or
+    ((ACh >= '0') and (ACh <= '9')) or
+    (ACh = '+') or (ACh = '/');
 end;
 
 var
-  L, I, EqPos, PadCount: Integer;
+  LLen, LI, LEqPos, LPadCount: Integer;
 begin
-  L := Length(S);
-  if L = 0 then
+  LLen := Length(AStr);
+  if LLen = 0 then
     Exit(False);
 
   // no whitespace or control chars
-  for I := 1 to L do
-    if S[I] <= #32 then
+  for LI := 1 to LLen do
+    if AStr[LI] <= #32 then
       Exit(False);
 
   // total length must be a multiple of 4 (including padding)
-  if (L and 3) <> 0 then
+  if (LLen and 3) <> 0 then
     Exit(False);
 
   // locate first '=' (padding), if any
-  EqPos := Pos('=', S);
-  if EqPos = 0 then
+  LEqPos := Pos('=', AStr);
+  if LEqPos = 0 then
   begin
     // no padding at all: every char must be a Base64 alphabet char
-    for I := 1 to L do
-      if not IsB64Char(S[I]) then
+    for LI := 1 to LLen do
+      if not IsB64Char(AStr[LI]) then
         Exit(False);
   end
   else
   begin
     // ensure all chars before '=' are valid Base64
-    for I := 1 to EqPos - 1 do
-      if not IsB64Char(S[I]) then
+    for LI := 1 to LEqPos - 1 do
+      if not IsB64Char(AStr[LI]) then
         Exit(False);
 
     // only '=' allowed from first '=' to the end; length of padding must be 1 or 2
-    PadCount := L - EqPos + 1;
-    if (PadCount <> 1) and (PadCount <> 2) then
+    LPadCount := LLen - LEqPos + 1;
+    if (LPadCount <> 1) and (LPadCount <> 2) then
       Exit(False);
 
-    for I := EqPos to L do
-      if S[I] <> '=' then
+    for LI := LEqPos to LLen do
+      if AStr[LI] <> '=' then
         Exit(False);
   end;
   Result := True;
 end;
 
-function TBase64Encoder.DecodeData(const encoded: string): TBytes;
+function TBase64Encoder.DecodeData(const AEncoded: string): TBytes;
 begin
-  if not ValidateBase64Strict(encoded) then
+  if not ValidateBase64Strict(AEncoded) then
     raise Exception.Create('Invalid Base64 data');
-  Result := TNetEncoding.Base64.DecodeStringToBytes(encoded);
+  Result := TNetEncoding.Base64.DecodeStringToBytes(AEncoded);
 end;
 
-function TBase64Encoder.IsValid(const encoded: string): Boolean;
+function TBase64Encoder.IsValid(const AEncoded: string): Boolean;
 begin
-  Result := ValidateBase64Strict(encoded);
+  Result := ValidateBase64Strict(AEncoded);
 end;
 
-function TBase64Encoder.EncodeData(const data: TBytes; offset, count: Integer): string;
+function TBase64Encoder.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
 var
-  Encoder: TBase64Encoding;
+  LEncoder: TBase64Encoding;
 begin
-  Encoder := TBase64Encoding.Create(0); // 0 = No line breaks every 76 characters
+  LEncoder := TBase64Encoding.Create(0); // 0 = No line breaks every 76 characters
   try
-    Result := Encoder.EncodeBytesToString(@data[offset], count);
+    Result := LEncoder.EncodeBytesToString(@AData[AOffset], ACount);
   finally
-    Encoder.Free;
+    LEncoder.Free;
   end;
 end;
 
 { THexEncoder }
 
-function THexEncoder.EncodeData(const data: TBytes; offset, count: Integer): string;
+function THexEncoder.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
 const
   HexChars: array[0..15] of Char = ('0','1','2','3','4','5','6','7',
                                     '8','9','A','B','C','D','E','F');
 var
-  i, j: Integer;
-  b: Byte;
+  LI, LJ: Integer;
+  LB: Byte;
 begin
-  if data = nil then
+  if AData = nil then
     raise EArgumentNilException.Create('data');
 
-  if (offset < 0) or (count < 0) or (offset > count) or (count > Length(data)) then
+  if (AOffset < 0) or (ACount < 0) or (AOffset > ACount) or (ACount > Length(AData)) then
     raise ERangeError.Create('Invalid offset/count');
 
-  SetLength(Result, count * 2);
-  j := 1;
-  for i := offset to count - 1 do
+  SetLength(Result, ACount * 2);
+  LJ := 1;
+  for LI := AOffset to ACount - 1 do
   begin
-    b := data[i];
-    Result[j] := HexChars[b shr 4];
-    Result[j + 1] := HexChars[b and $0F];
-    Inc(j, 2);
+    LB := AData[LI];
+    Result[LJ] := HexChars[LB shr 4];
+    Result[LJ + 1] := HexChars[LB and $0F];
+    Inc(LJ, 2);
   end;
 end;
 
-function THexEncoder.DecodeData(const encoded: string): TBytes;
+function THexEncoder.DecodeData(const AEncoded: string): TBytes;
 var
-  len, i, j: Integer;
-  function HexCharToValue(C: Char): Integer;
+  LLen, LI, LJ: Integer;
+  function HexCharToValue(AChar: Char): Integer;
   begin
-    case C of
-      '0'..'9': Result := Ord(C) - Ord('0');
-      'A'..'F': Result := Ord(C) - Ord('A') + 10;
-      'a'..'f': Result := Ord(C) - Ord('a') + 10;
+    case AChar of
+      '0'..'9': Result := Ord(AChar) - Ord('0');
+      'A'..'F': Result := Ord(AChar) - Ord('A') + 10;
+      'a'..'f': Result := Ord(AChar) - Ord('a') + 10;
     else
-      raise Exception.CreateFmt('Invalid hex character "%s"', [C]);
+      raise Exception.CreateFmt('Invalid hex character "%s"', [AChar]);
     end;
   end;
 begin
-  if encoded = '' then
+  if AEncoded = '' then
     raise EArgumentException.Create('encoded');
 
-  len := encoded.Length;
-  if (len mod 2) <> 0 then
+  LLen := AEncoded.Length;
+  if (LLen mod 2) <> 0 then
     raise Exception.Create('Invalid hex string length (must be even)');
 
-  SetLength(Result, len div 2);
-  j := 0;
-  i := 1;
-  while i <= len do
+  SetLength(Result, LLen div 2);
+  LJ := 0;
+  LI := 1;
+  while LI <= LLen do
   begin
-    Result[j] := (HexCharToValue(encoded[i]) shl 4)
-               or  HexCharToValue(encoded[i + 1]);
-    Inc(j);
-    Inc(i, 2);
+    Result[LJ] := (HexCharToValue(AEncoded[LI]) shl 4)
+               or  HexCharToValue(AEncoded[LI + 1]);
+    Inc(LJ);
+    Inc(LI, 2);
   end;
 end;
 
-function THexEncoder.IsValid(const encoded: string): Boolean;
+function THexEncoder.IsValid(const AEncoded: string): Boolean;
 var
-  len, i: Integer;
-  c: Char;
+  LLen, LI: Integer;
+  LC: Char;
 begin
-  len := Length(encoded);
-  if (len = 0) or ((len mod 2) <> 0) then
+  LLen := Length(AEncoded);
+  if (LLen = 0) or ((LLen mod 2) <> 0) then
     Exit(False);
 
-  for i := 1 to len do
+  for LI := 1 to LLen do
   begin
-    c := encoded[i];
-    case c of
+    LC := AEncoded[LI];
+    case LC of
       '0'..'9', 'A'..'F', 'a'..'f': ; // valid
     else
       Exit(False);
@@ -645,86 +645,86 @@ end;
 
 { TSolanaEncoder }
 
-function TSolanaEncoder.EncodeData(const data: TBytes; offset, count: Integer): string;
+function TSolanaEncoder.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
 var
-  i: Integer;
-  parts: TStringBuilder;
+  LI: Integer;
+  LParts: TStringBuilder;
 begin
-  if data = nil then
+  if AData = nil then
     raise EArgumentNilException.Create('data');
 
-  if (offset < 0) or (count < 0) or (offset + count > Length(data)) then
+  if (AOffset < 0) or (ACount < 0) or (AOffset + ACount > Length(AData)) then
     raise ERangeError.Create('Invalid offset/count');
 
-  parts := TStringBuilder.Create;
+  LParts := TStringBuilder.Create;
   try
-    parts.Append('[');
-    for i := offset to offset + count - 1 do
+    LParts.Append('[');
+    for LI := AOffset to AOffset + ACount - 1 do
     begin
-      parts.Append(data[i].ToString);
-      if i < offset + count - 1 then
-        parts.Append(',');
+      LParts.Append(AData[LI].ToString);
+      if LI < AOffset + ACount - 1 then
+        LParts.Append(',');
     end;
-    parts.Append(']');
-    Result := parts.ToString;
+    LParts.Append(']');
+    Result := LParts.ToString;
   finally
-    parts.Free;
+    LParts.Free;
   end;
 end;
 
-function TSolanaEncoder.TryParse(const encoded: string; out Bytes: TBytes): Boolean;
+function TSolanaEncoder.TryParse(const AEncoded: string; out ABytes: TBytes): Boolean;
 var
-  cleanStr, numStr: string;
-  list: TStringList;
-  i, val: Integer;
+  LCleanStr, LNumStr: string;
+  LList: TStringList;
+  LI, LVal: Integer;
 begin
-  SetLength(Bytes, 0);
+  SetLength(ABytes, 0);
 
-  if encoded = '' then
+  if AEncoded = '' then
     Exit(False);
 
-  cleanStr := Trim(encoded);
-  if (Length(cleanStr) < 2) or (cleanStr[1] <> '[') or (cleanStr[High(cleanStr)] <> ']') then
+  LCleanStr := Trim(AEncoded);
+  if (Length(LCleanStr) < 2) or (LCleanStr[1] <> '[') or (LCleanStr[High(LCleanStr)] <> ']') then
     Exit(False);
 
-  cleanStr := Copy(cleanStr, 2, Length(cleanStr) - 2); // remove [ and ]
+  LCleanStr := Copy(LCleanStr, 2, Length(LCleanStr) - 2); // remove [ and ]
 
-  list := TStringList.Create;
+  LList := TStringList.Create;
   try
-    list.StrictDelimiter := True;
-    list.Delimiter := ',';
-    list.DelimitedText := cleanStr;
+    LList.StrictDelimiter := True;
+    LList.Delimiter := ',';
+    LList.DelimitedText := LCleanStr;
 
-    if list.Count <> 64 then
+    if LList.Count <> 64 then
       Exit(False);
 
-    SetLength(Bytes, list.Count);
-    for i := 0 to list.Count - 1 do
+    SetLength(ABytes, LList.Count);
+    for LI := 0 to LList.Count - 1 do
     begin
-      numStr := Trim(list[i]);
-      if not TryStrToInt(numStr, val) then
+      LNumStr := Trim(LList[LI]);
+      if not TryStrToInt(LNumStr, LVal) then
         Exit(False);
-      if (val < 0) or (val > 255) then
+      if (LVal < 0) or (LVal > 255) then
         Exit(False);
-      Bytes[i] := Byte(val);
+      ABytes[LI] := Byte(LVal);
     end;
     Result := True;
   finally
-    list.Free;
+    LList.Free;
   end;
 end;
 
-function TSolanaEncoder.DecodeData(const encoded: string): TBytes;
+function TSolanaEncoder.DecodeData(const AEncoded: string): TBytes;
 begin
-  if not TryParse(encoded, Result) then
+  if not TryParse(AEncoded, Result) then
     raise EArgumentException.Create('Invalid Solana encoded string');
 end;
 
-function TSolanaEncoder.IsValid(const encoded: string): Boolean;
+function TSolanaEncoder.IsValid(const AEncoded: string): Boolean;
 var
-  Bytes: TBytes;
+  LBytes: TBytes;
 begin
-  Result := TryParse(encoded, Bytes);
+  Result := TryParse(AEncoded, LBytes);
 end;
 
 { TEncoders }

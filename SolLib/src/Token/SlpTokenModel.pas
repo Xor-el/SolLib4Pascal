@@ -88,7 +88,7 @@ implementation
 
 function TTokenListItem.Clone: TTokenListItem;
 var
-  Extension: TPair<string, TValue>;
+  LExtension: TPair<string, TValue>;
   LExtensions: TDictionary<string, TValue>;
 begin
   Result := TTokenListItem.Create;
@@ -100,26 +100,26 @@ begin
 
   LExtensions := TDictionary<string, TValue>.Create();
 
-  for Extension in FExtensions do
-    LExtensions.Add(Extension.Key, Extension.Value.Clone);
+  for LExtension in FExtensions do
+    LExtensions.Add(LExtension.Key, LExtension.Value.Clone);
 
   Result.FExtensions := LExtensions;
 end;
 
 destructor TTokenListItem.Destroy;
 var
-  Pair: TPair<string, TValue>;
-  Obj: TObject;
+  LPair: TPair<string, TValue>;
+  LObj: TObject;
 begin
   if Assigned(FExtensions) then
   begin
-    for Pair in FExtensions do
+    for LPair in FExtensions do
     begin
-     if Pair.Value.IsObject then
+     if LPair.Value.IsObject then
       begin
-        Obj := Pair.Value.AsObject;
-        if Assigned(Obj) then
-          Obj.Free;
+        LObj := LPair.Value.AsObject;
+        if Assigned(LObj) then
+          LObj.Free;
       end;
     end;
     FExtensions.Free;
@@ -132,14 +132,14 @@ end;
 
 function TTokenListDoc.Clone: TTokenListDoc;
 var
- Token: TTokenListItem;
+ LToken: TTokenListItem;
  LTokenList: TObjectList<TTokenListItem>;
 begin
   Result := TTokenListDoc.Create;
   LTokenList := TObjectList<TTokenListItem>.Create(True);
 
-  for Token in FTokens do
-    LTokenList.Add(Token.Clone);
+  for LToken in FTokens do
+    LTokenList.Add(LToken.Clone);
 
   Result.FTokens := LTokenList;
 end;

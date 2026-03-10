@@ -37,7 +37,7 @@ type
     FPosition: Integer;         // insertion cursor (0..Count)
 
     function  GetCount: Integer; inline;
-    class function SwapEndianBytes(const Bytes: TBytes): TBytes; static;
+    class function SwapEndianBytes(const ABytes: TBytes): TBytes; static;
   public
     constructor Create;
     destructor Destroy; override;
@@ -49,16 +49,16 @@ type
     property Count: Integer read GetCount;
 
     /// <summary>Write a single bit at Position; Position advances by 1.</summary>
-    procedure WriteBit(Value: Boolean);
+    procedure WriteBit(AValue: Boolean);
 
     /// <summary>Write all bits from a byte array (after per-byte bit swap).</summary>
-    procedure Write(const Bytes: TBytes); overload;
+    procedure Write(const ABytes: TBytes); overload;
 
     /// <summary>Write first BitCount bits from a byte array (after per-byte bit swap).</summary>
-    procedure Write(const Bytes: TBytes; BitCount: Integer); overload;
+    procedure Write(const ABytes: TBytes; ABitCount: Integer); overload;
 
     /// <summary>Write first BitCount bits from a TBits instance.</summary>
-    procedure Write(const Bits: TBits; BitCount: Integer); overload;
+    procedure Write(const ABits: TBits; ABitCount: Integer); overload;
 
     /// <summary>Export as bytes (packs little-endian bits per byte, then swaps per-byte bit order back).</summary>
     function ToBytes: TBytes;
@@ -70,7 +70,7 @@ type
     function ToIntegers: TArray<Integer>;
 
     /// <summary>Convert any TBits to 11-bit integers.</summary>
-    class function ToIntegersFromBits(const Bits: TBits): TArray<Integer>; static;
+    class function ToIntegersFromBits(const ABits: TBits): TArray<Integer>; static;
 
     /// <summary>Human-readable bit dump with spaces every 8 bits.</summary>
     function ToString: string; override;
@@ -99,177 +99,177 @@ begin
   Result := FValues.Count;
 end;
 
-procedure TBitWriter.WriteBit(Value: Boolean);
+procedure TBitWriter.WriteBit(AValue: Boolean);
 begin
   if (FPosition < 0) or (FPosition > FValues.Count) then
     raise ERangeError.Create('Position out of range');
-  FValues.Insert(FPosition, Value);
+  FValues.Insert(FPosition, AValue);
   Inc(FPosition);
 end;
 
-procedure TBitWriter.Write(const Bytes: TBytes);
+procedure TBitWriter.Write(const ABytes: TBytes);
 begin
-  Write(Bytes, Length(Bytes) * 8);
+  Write(ABytes, Length(ABytes) * 8);
 end;
 
-procedure TBitWriter.Write(const Bits: TBits; BitCount: Integer);
+procedure TBitWriter.Write(const ABits: TBits; ABitCount: Integer);
 var
-  I: Integer;
+  LI: Integer;
 begin
-  if BitCount < 0 then
+  if ABitCount < 0 then
     raise EArgumentException.Create('BitCount must be >= 0');
-  if BitCount > Bits.Size then
+  if ABitCount > ABits.Size then
     raise EArgumentException.Create('BitCount exceeds source bits');
 
-  for I := 0 to BitCount - 1 do
+  for LI := 0 to ABitCount - 1 do
   begin
     if (FPosition < 0) or (FPosition > FValues.Count) then
       raise ERangeError.Create('Position out of range');
-    FValues.Insert(FPosition, Bits[I]);
+    FValues.Insert(FPosition, ABits[LI]);
     Inc(FPosition);
   end;
 end;
 
-procedure TBitWriter.Write(const Bytes: TBytes; BitCount: Integer);
+procedure TBitWriter.Write(const ABytes: TBytes; ABitCount: Integer);
 var
-  Swapped: TBytes;
-  I, BitIdx, Written: Integer;
-  BitVal: Boolean;
+  LSwapped: TBytes;
+  LI, LBitIdx, LWritten: Integer;
+  LBitVal: Boolean;
 begin
-  if BitCount < 0 then
+  if ABitCount < 0 then
     raise EArgumentException.Create('BitCount must be >= 0');
-  if BitCount > Length(Bytes) * 8 then
+  if ABitCount > Length(ABytes) * 8 then
     raise EArgumentException.Create('BitCount exceeds byte array length * 8');
 
-  Swapped := SwapEndianBytes(Bytes);
+  LSwapped := SwapEndianBytes(ABytes);
 
-  Written := 0;
-  for I := 0 to High(Swapped) do
+  LWritten := 0;
+  for LI := 0 to High(LSwapped) do
   begin
-    for BitIdx := 0 to 7 do
+    for LBitIdx := 0 to 7 do
     begin
-      if Written = BitCount then
+      if LWritten = ABitCount then
         Exit;
-      BitVal := ((Swapped[I] shr BitIdx) and 1) = 1; // little-endian bit packing
+      LBitVal := ((LSwapped[LI] shr LBitIdx) and 1) = 1; // little-endian bit packing
       if (FPosition < 0) or (FPosition > FValues.Count) then
         raise ERangeError.Create('Position out of range');
-      FValues.Insert(FPosition, BitVal);
+      FValues.Insert(FPosition, LBitVal);
       Inc(FPosition);
-      Inc(Written);
+      Inc(LWritten);
     end;
   end;
 end;
 
 function TBitWriter.ToBytes: TBytes;
 var
-  ByteLen, I, B, Offs: Integer;
-  Raw: TBytes;
+  LByteLen, LI, LB, LOffs: Integer;
+  LRaw: TBytes;
 begin
   // pack to little-endian in-byte order
-  ByteLen := FValues.Count div 8;
+  LByteLen := FValues.Count div 8;
   if (FValues.Count mod 8) <> 0 then
-    Inc(ByteLen);
-  SetLength(Raw, ByteLen);
+    Inc(LByteLen);
+  SetLength(LRaw, LByteLen);
 
-  for I := 0 to FValues.Count - 1 do
+  for LI := 0 to FValues.Count - 1 do
   begin
-    B    := I div 8;
-    Offs := I mod 8; // bit 0 = LSB
-    if FValues[I] then
-      Raw[B] := Raw[B] or (1 shl Offs);
+    LB    := LI div 8;
+    LOffs := LI mod 8; // bit 0 = LSB
+    if FValues[LI] then
+      LRaw[LB] := LRaw[LB] or (1 shl LOffs);
   end;
 
-  Result := SwapEndianBytes(Raw);
+  Result := SwapEndianBytes(LRaw);
 end;
 
 function TBitWriter.ToBitArray: TBits;
 var
-  I: Integer;
+  LI: Integer;
 begin
   Result := TBits.Create;
   Result.Size := FValues.Count;
-  for I := 0 to FValues.Count - 1 do
-    Result[I] := FValues[I];
+  for LI := 0 to FValues.Count - 1 do
+    Result[LI] := FValues[LI];
 end;
 
 function TBitWriter.ToIntegers: TArray<Integer>;
 var
-  Bits: TBits;
+  LBits: TBits;
 begin
-  Bits := ToBitArray;
+  LBits := ToBitArray;
   try
-    Result := ToIntegersFromBits(Bits);
+    Result := ToIntegersFromBits(LBits);
   finally
-    Bits.Free;
+    LBits.Free;
   end;
 end;
 
-class function TBitWriter.ToIntegersFromBits(const Bits: TBits): TArray<Integer>;
+class function TBitWriter.ToIntegersFromBits(const ABits: TBits): TArray<Integer>;
 var
-  I, GroupVal, TotalBits: Integer;
-  OutList: TList<Integer>;
+  LI, LGroupVal, LTotalBits: Integer;
+  LOutList: TList<Integer>;
 begin
-  TotalBits := Bits.Size;
-  if TotalBits = 0 then
+  LTotalBits := ABits.Size;
+  if LTotalBits = 0 then
     Exit(nil);
 
-  OutList := TList<Integer>.Create;
+  LOutList := TList<Integer>.Create;
   try
-    GroupVal := 0;
-    for I := 0 to TotalBits - 1 do
+    LGroupVal := 0;
+    for LI := 0 to LTotalBits - 1 do
     begin
-      if Bits[I] then
-        GroupVal := GroupVal or (1 shl (10 - (I mod 11)));
+      if ABits[LI] then
+        LGroupVal := LGroupVal or (1 shl (10 - (LI mod 11)));
 
-      if (I mod 11) = 10 then
+      if (LI mod 11) = 10 then
       begin
-        OutList.Add(GroupVal);
-        GroupVal := 0;
+        LOutList.Add(LGroupVal);
+        LGroupVal := 0;
       end;
     end;
 
     // trailing partial group (normally not present in BIP-39, but safe)
-    if (TotalBits mod 11) <> 0 then
-      OutList.Add(GroupVal);
+    if (LTotalBits mod 11) <> 0 then
+      LOutList.Add(LGroupVal);
 
-    Result := OutList.ToArray;
+    Result := LOutList.ToArray;
   finally
-    OutList.Free;
+    LOutList.Free;
   end;
 end;
 
 function TBitWriter.ToString: string;
 var
-  SB: TStringBuilder;
-  I: Integer;
+  LSB: TStringBuilder;
+  LI: Integer;
 begin
-  SB := TStringBuilder.Create(FValues.Count + FValues.Count div 8);
+  LSB := TStringBuilder.Create(FValues.Count + FValues.Count div 8);
   try
-    for I := 0 to FValues.Count - 1 do
+    for LI := 0 to FValues.Count - 1 do
     begin
-      if (I <> 0) and ((I mod 8) = 0) then
-        SB.Append(' ');
-      if FValues[I] then SB.Append('1') else SB.Append('0');
+      if (LI <> 0) and ((LI mod 8) = 0) then
+        LSB.Append(' ');
+      if FValues[LI] then LSB.Append('1') else LSB.Append('0');
     end;
-    Result := SB.ToString;
+    Result := LSB.ToString;
   finally
-    SB.Free;
+    LSB.Free;
   end;
 end;
 
-class function TBitWriter.SwapEndianBytes(const Bytes: TBytes): TBytes;
+class function TBitWriter.SwapEndianBytes(const ABytes: TBytes): TBytes;
 var
-  I, Bit: Integer;
-  B, NewB: Byte;
+  LI, LBit: Integer;
+  LB, LNewB: Byte;
 begin
-  SetLength(Result, Length(Bytes));
-  for I := 0 to High(Bytes) do
+  SetLength(Result, Length(ABytes));
+  for LI := 0 to High(ABytes) do
   begin
-    B := Bytes[I];
-    NewB := 0;
-    for Bit := 0 to 7 do
-      NewB := NewB or (((B shr Bit) and 1) shl (7 - Bit)); // reverse bit order within the byte
-    Result[I] := NewB;
+    LB := ABytes[LI];
+    LNewB := 0;
+    for LBit := 0 to 7 do
+      LNewB := LNewB or (((LB shr LBit) and 1) shl (7 - LBit)); // reverse bit order within the byte
+    Result[LI] := LNewB;
   end;
 end;
 

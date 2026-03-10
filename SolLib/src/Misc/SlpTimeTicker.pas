@@ -105,17 +105,17 @@ end;
 
 procedure TTimeTicker.Execute;
 var
-  NextWake, NowTick: UInt64;
-  WaitMs: Cardinal;
+  LNextWake, LNowTick: UInt64;
+  LWaitMs: Cardinal;
 begin
   // Use monotonic tick to avoid wall-clock jumps
-  NextWake := TThread.GetTickCount;
+  LNextWake := TThread.GetTickCount;
   while not Terminated do
   begin
     if not FEnabled then
     begin
       FGate.WaitFor(100);
-      NextWake := TThread.GetTickCount + FIntervalMs;
+      LNextWake := TThread.GetTickCount + FIntervalMs;
       Continue;
     end;
 
@@ -128,15 +128,15 @@ begin
     end;
 
     // Compute next wait
-    NextWake := NextWake + FIntervalMs;
-    NowTick := TThread.GetTickCount;
-    if NextWake <= NowTick then
-      WaitMs := 0
+    LNextWake := LNextWake + FIntervalMs;
+    LNowTick := TThread.GetTickCount;
+    if LNextWake <= LNowTick then
+      LWaitMs := 0
     else
-      WaitMs := Cardinal(NextWake - NowTick);
+      LWaitMs := Cardinal(LNextWake - LNowTick);
 
     // Wait or wake early if enabled/disabled toggles
-    FGate.WaitFor(WaitMs);
+    FGate.WaitFor(LWaitMs);
   end;
 end;
 

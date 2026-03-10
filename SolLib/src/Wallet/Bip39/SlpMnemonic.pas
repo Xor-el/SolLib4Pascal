@@ -38,7 +38,7 @@ type
   IMnemonic = interface
     ['{38F2E4E6-4D67-4E86-9B0F-6E5B6A7A0E21}']
     function IsValidChecksum: Boolean;
-    function DeriveSeed(const Passphrase: string = ''): TBytes;
+    function DeriveSeed(const APassphrase: string = ''): TBytes;
 
     function GetWordList: IWordList;
     function GetIndices: TArray<Integer>;
@@ -83,7 +83,7 @@ type
     /// </summary>
     function IsValidChecksum: Boolean;
 
-    function DeriveSeed(const Passphrase: string = ''): TBytes;
+    function DeriveSeed(const APassphrase: string = ''): TBytes;
 
     /// <summary>
     /// Generate entropy for the given word count.
@@ -93,15 +93,15 @@ type
     /// <exception cref="ArgumentException">Thrown when the word count is invalid.</exception>
     function GenerateEntropy(AWordCount: TWordCount): TBytes;
 
-    class function CorrectWordCount(MS: Integer): Boolean; static;
-    class function NormalizeUTF8(const S: string): TBytes; static;
+    class function CorrectWordCount(AMS: Integer): Boolean; static;
+    class function NormalizeUTF8(const AStr: string): TBytes; static;
 
     /// <summary>
     /// Generate a mnemonic
     /// </summary>
     /// <param name="AWordList">The word list of the mnemonic.</param>
-    /// <param name="Entropy">The entropy.</param>
-    constructor CreateFromEntropy(AWordList: IWordList; Entropy: TBytes = nil); overload;
+    /// <param name="AEntropy">The entropy.</param>
+    constructor CreateFromEntropy(AWordList: IWordList; AEntropy: TBytes = nil); overload;
 
     class constructor Create;
 
@@ -119,12 +119,12 @@ type
     /// Initialize a mnemonic from the given word list and word count..
     /// </summary>
     /// <param name="AWordList">The word list.</param>
-    /// <param name="WordCount">The word count.</param>
-    constructor Create(AWordList: IWordList; WordCount: TWordCount); overload;
+    /// <param name="AWordCount">The word count.</param>
+    constructor Create(AWordList: IWordList; AWordCount: TWordCount); overload;
 
     function ToString: string; override;
 
-    class function NormalizeString(const S: string): string; static;
+    class function NormalizeString(const AStr: string): string; static;
 
   end;
 
@@ -157,9 +157,9 @@ const
     Char($3000)   // IDEOGRAPHIC SPACE (full-width space)
   );
 var
-  WL: IWordList;
-  WordsSplit: TArray<string>;
-  Sep: string;
+  LWL: IWordList;
+  LWordsSplit: TArray<string>;
+  LSep: string;
 begin
   if AMnemonic = '' then
     raise EArgumentNilException.Create('mnemonic');
@@ -169,124 +169,124 @@ begin
   // Resolve wordlist: auto-detect from sentence, else English
   if AWordList = nil then
   begin
-    WL := TWordList.AutoDetect(FMnemonic);
-    if WL = nil then
-      WL := TWordList.English;
+    LWL := TWordList.AutoDetect(FMnemonic);
+    if LWL = nil then
+      LWL := TWordList.English;
   end
   else
-    WL := AWordList;
+    LWL := AWordList;
 
   // Split using full whitespace list
-  WordsSplit := FMnemonic.Split(WHITESPACE_SEPARATORS, TStringSplitOptions.ExcludeEmpty);
+  LWordsSplit := FMnemonic.Split(WHITESPACE_SEPARATORS, TStringSplitOptions.ExcludeEmpty);
 
   // Normalize using WordList.Spacing
-  Sep := WL.Space;
-  FMnemonic := string.Join(Sep, WordsSplit);
+  LSep := LWL.Space;
+  FMnemonic := string.Join(LSep, LWordsSplit);
 
-  if not CorrectWordCount(Length(WordsSplit)) then
+  if not CorrectWordCount(Length(LWordsSplit)) then
     raise Exception.Create('Word count should be 12,15,18,21 or 24');
 
   // Normalize each word according to WordList rules (WordList.ToIndices may expect normalized strings)
-  FWords := WordsSplit;
-  FWordList := WL;
-  FIndices := WL.ToIndices(FWords);
+  FWords := LWordsSplit;
+  FWordList := LWL;
+  FIndices := LWL.ToIndices(FWords);
 
   FIsValidChecksum := TNullable<Boolean>.None;
 end;
 
-constructor TMnemonic.CreateFromEntropy(AWordList: IWordList; Entropy: TBytes);
+constructor TMnemonic.CreateFromEntropy(AWordList: IWordList; AEntropy: TBytes);
 
-  function JoinInts(const A: TArray<Integer>): string;
+  function JoinInts(const AArr: TArray<Integer>): string;
   var
-    S: TArray<string>;
-    I: Integer;
+    LS: TArray<string>;
+    LI: Integer;
   begin
-    SetLength(S, Length(A));
-    for I := 0 to High(A) do
-      S[I] := A[I].ToString;
-    Result := string.Join(',', S);
+    SetLength(LS, Length(AArr));
+    for LI := 0 to High(AArr) do
+      LS[LI] := AArr[LI].ToString;
+    Result := string.Join(',', LS);
   end;
 
 var
-  WL: IWordList;
-  EntBits: Integer;
-  I, CS: Integer;
-  Checksum: TBytes;
-  Writer: TBitWriter;
+  LWL: IWordList;
+  LEntBits: Integer;
+  LIdx, LCS: Integer;
+  LChecksum: TBytes;
+  LWriter: TBitWriter;
 begin
   // Determine which word list to use
   if AWordList = nil then
-    WL := TWordList.English
+    LWL := TWordList.English
   else
-    WL := AWordList;
+    LWL := AWordList;
 
   // Default entropy if none supplied
-  if Entropy = nil then
-    Entropy := TRandom.RandomBytes(32);
+  if AEntropy = nil then
+    AEntropy := TRandom.RandomBytes(32);
 
-  FWordList := WL;
+  FWordList := LWL;
 
-  EntBits := Length(Entropy) * 8;
+  LEntBits := Length(AEntropy) * 8;
 
   if not TArrayUtils.IndexOf<Integer>(
     FEntArray,
-    function (Value: Integer): Boolean
+    function (AValue: Integer): Boolean
     begin
-      Result := (Value = EntBits);
+      Result := (AValue = LEntBits);
     end,
-    I
+    LIdx
   ) then
     raise EArgumentException.CreateFmt(
       'The length for entropy should be %s bits',
       [JoinInts(FEntArray)]
     );
 
-  CS := FCsArray[I];
+  LCS := FCsArray[LIdx];
 
-  Checksum := TSHA256.HashData(Entropy);
+  LChecksum := TSHA256.HashData(AEntropy);
 
-  // Write entropy || first CS bits of checksum
-  Writer := TBitWriter.Create;
+  // Write entropy || first LCS bits of checksum
+  LWriter := TBitWriter.Create;
   try
-    Writer.Write(Entropy);
-    Writer.Write(Checksum, CS);
-    FIndices := Writer.ToIntegers();
+    LWriter.Write(AEntropy);
+    LWriter.Write(LChecksum, LCS);
+    FIndices := LWriter.ToIntegers();
   finally
-    Writer.Free;
+    LWriter.Free;
   end;
 
-  FWords := WL.GetWordsByIndices(FIndices);
-  FMnemonic := WL.GetSentence(FIndices);
+  FWords := LWL.GetWordsByIndices(FIndices);
+  FMnemonic := LWL.GetSentence(FIndices);
 
   FIsValidChecksum := TNullable<Boolean>.None;
 end;
 
-constructor TMnemonic.Create(AWordList: IWordList; WordCount: TWordCount);
+constructor TMnemonic.Create(AWordList: IWordList; AWordCount: TWordCount);
 begin
-  CreateFromEntropy(AWordList, GenerateEntropy(wordCount));
+  CreateFromEntropy(AWordList, GenerateEntropy(AWordCount));
 end;
 
 function TMnemonic.GenerateEntropy(AWordCount: TWordCount): TBytes;
 var
-  ms, idx: Integer;
+  LMs, LIdx: Integer;
 begin
-  ms := Ord(AWordCount);
+  LMs := Ord(AWordCount);
 
-  if not CorrectWordCount(ms) then
+  if not CorrectWordCount(LMs) then
     raise EArgumentException.Create('Word count should be 12, 15, 18, 21 or 24');
 
   if not TArrayUtils.IndexOf<Integer>(
     FMsArray,
-    function (Value: Integer): Boolean
+    function (AValue: Integer): Boolean
     begin
-      Result := (Value = ms);
+      Result := (AValue = LMs);
     end,
-    idx
+    LIdx
   ) then
     Exit(nil);
 
   // Convert bits -> bytes and generate random entropy
-  Result := TRandom.RandomBytes(FEntArray[idx] div 8);
+  Result := TRandom.RandomBytes(FEntArray[LIdx] div 8);
 end;
 
 
@@ -305,86 +305,86 @@ begin
   Result := FWords;
 end;
 
-class function TMnemonic.CorrectWordCount(MS: Integer): Boolean;
+class function TMnemonic.CorrectWordCount(AMS: Integer): Boolean;
 var
- V: Integer;
+  LV: Integer;
 begin
   Result := False;
-  for V in FMsArray do
-    if V = MS then
+  for LV in FMsArray do
+    if LV = AMS then
       Exit(True);
 end;
 
-class function TMnemonic.NormalizeString(const S: string): string;
+class function TMnemonic.NormalizeString(const AStr: string): string;
 begin
-  Result := TKdTable.NormalizeKd(S);
+  Result := TKdTable.NormalizeKd(AStr);
 end;
 
-class function TMnemonic.NormalizeUTF8(const S: string): TBytes;
+class function TMnemonic.NormalizeUTF8(const AStr: string): TBytes;
 begin
-  Result := TEncoding.UTF8.GetBytes(NormalizeString(S));
+  Result := TEncoding.UTF8.GetBytes(NormalizeString(AStr));
 end;
 
 function TMnemonic.IsValidChecksum: Boolean;
 var
-  I, CS, ENT: Integer;
-  Bits: TBits;
-  Writer: TBitWriter;
-  Entropy, Checksum: TBytes;
-  ExpectedIndices: TArray<Integer>;
+  LI, LCS, LENT: Integer;
+  LBits: TBits;
+  LWriter: TBitWriter;
+  LEntropy, LChecksum: TBytes;
+  LExpectedIndices: TArray<Integer>;
 begin
   if FIsValidChecksum.HasValue then
     Exit(FIsValidChecksum.Value);
 
   if not TArrayUtils.IndexOf<Integer>(
     FMsArray,
-      function(Value: Integer): Boolean
+      function(AValue: Integer): Boolean
       begin
-        Result := Value = Length(FIndices);
+        Result := AValue = Length(FIndices);
       end,
-    I
+    LI
   ) then Exit(False);
 
-  CS  := FCsArray[I];
-  ENT := FEntArray[I];
+  LCS  := FCsArray[LI];
+  LENT := FEntArray[LI];
 
-  Writer := TBitWriter.Create;
+  LWriter := TBitWriter.Create;
   try
-    Bits := TWordList.ToBits(FIndices);
+    LBits := TWordList.ToBits(FIndices);
     try
-      Writer.Write(Bits, ENT);
+      LWriter.Write(LBits, LENT);
     finally
-      Bits.Free;
+      LBits.Free;
     end;
 
-    Entropy := Writer.ToBytes();
-    Checksum := TSHA256.HashData(Entropy);
+    LEntropy := LWriter.ToBytes();
+    LChecksum := TSHA256.HashData(LEntropy);
 
-    Writer.Write(Checksum, CS);
-    ExpectedIndices := Writer.ToIntegers();
+    LWriter.Write(LChecksum, LCS);
+    LExpectedIndices := LWriter.ToIntegers();
   finally
-    Writer.Free;
+    LWriter.Free;
   end;
 
-  FIsValidChecksum := TArrayUtils.AreArraysEqual(ExpectedIndices, FIndices);
+  FIsValidChecksum := TArrayUtils.AreArraysEqual(LExpectedIndices, FIndices);
   Result := FIsValidChecksum.Value;
 end;
 
-function TMnemonic.DeriveSeed(const Passphrase: string): TBytes;
+function TMnemonic.DeriveSeed(const APassphrase: string): TBytes;
 var
-  SaltPrefix: TBytes;
-  SaltTail: TBytes;
-  Salt: TBytes;
-  PW: TBytes;
+  LSaltPrefix: TBytes;
+  LSaltTail: TBytes;
+  LSalt: TBytes;
+  LPW: TBytes;
 begin
   // salt = "mnemonic" || Normalize(passphrase)
-  SaltPrefix := TEncoding.UTF8.GetBytes('mnemonic');
-  SaltTail   := NormalizeUTF8(Passphrase);
-  Salt       := TArrayUtils.Concat<Byte>(SaltPrefix, SaltTail);
+  LSaltPrefix := TEncoding.UTF8.GetBytes('mnemonic');
+  LSaltTail   := NormalizeUTF8(APassphrase);
+  LSalt       := TArrayUtils.Concat<Byte>(LSaltPrefix, LSaltTail);
 
-  PW := NormalizeUTF8(FMnemonic);
+  LPW := NormalizeUTF8(FMnemonic);
 
-  Result := TPbkdf2SHA512.DeriveKey(PW, Salt, 2048, 64);
+  Result := TPbkdf2SHA512.DeriveKey(LPW, LSalt, 2048, 64);
 end;
 
 

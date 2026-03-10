@@ -1723,13 +1723,13 @@ end;
 
 destructor TTokenAccountInfo.Destroy;
 var
-  Obj: TObject;
+  LObj: TObject;
 begin
   if FData.IsObject then
   begin
-    Obj := FData.AsObject;
-    if Assigned(Obj) then
-      Obj.Free;
+    LObj := FData.AsObject;
+    if Assigned(LObj) then
+      LObj.Free;
     FData := TValue.Empty;
   end;
 
@@ -1923,21 +1923,21 @@ end;
 
 destructor TTransactionMetaInfo.Destroy;
 var
-  Obj: TObject;
+  LObj: TObject;
 begin
   if FTransaction.IsObject then
   begin
-    Obj := FTransaction.AsObject;
-    if Assigned(Obj) then
-      Obj.Free;
+    LObj := FTransaction.AsObject;
+    if Assigned(LObj) then
+      LObj.Free;
     FTransaction := TValue.Empty;
   end;
 
   if FVersion.IsObject then
   begin
-    Obj := FVersion.AsObject;
-    if Assigned(Obj) then
-      Obj.Free;
+    LObj := FVersion.AsObject;
+    if Assigned(LObj) then
+      LObj.Free;
     FVersion := TValue.Empty;
   end;
 

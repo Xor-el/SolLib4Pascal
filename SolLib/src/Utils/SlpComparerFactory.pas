@@ -48,13 +48,13 @@ implementation
 class constructor TStringComparerFactory.Create;
 begin
   FOrdinalIgnoreCase := TEqualityComparer<string>.Construct(
-    function(const Left, Right: string): Boolean
+    function(const ALeft, ARight: string): Boolean
     begin
-      Result := SameText(Left, Right);
+      Result := SameText(ALeft, ARight);
     end,
-    function(const Value: string):{$IFDEF FPC}UInt32{$ELSE}Integer{$ENDIF}
+    function(const AValue: string):{$IFDEF FPC}UInt32{$ELSE}Integer{$ENDIF}
     begin
-      Result := THashBobJenkins.GetHashValue(UpperCase(Value));
+      Result := THashBobJenkins.GetHashValue(UpperCase(AValue));
     end
   );
 end;

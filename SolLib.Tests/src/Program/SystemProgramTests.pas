@@ -218,254 +218,254 @@ end;
 
 procedure TSystemProgramTests.TestSystemProgramTransfer;
 var
-  Wallet: IWallet;
-  FromAccount, ToAccount: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet      := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(0);
-  ToAccount   := Wallet.GetAccountByIndex(1);
+  LWallet      := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount   := LWallet.GetAccountByIndex(1);
 
-  Tx := TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 10000000);
+  LTx := TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000);
 
-  AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TransferInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,    Tx.ProgramId, 'ProgramId');
+  AssertEquals(2, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TransferInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,    LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramCreateAccount;
 var
-  Wallet: IWallet;
-  MintAccount, OwnerAccount: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LMintAccount, LOwnerAccount: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet       := TWallet.Create(MnemonicWords);
-  MintAccount  := Wallet.GetAccountByIndex(3);
-  OwnerAccount := Wallet.GetAccountByIndex(4);
+  LWallet       := TWallet.Create(MnemonicWords);
+  LMintAccount  := LWallet.GetAccountByIndex(3);
+  LOwnerAccount := LWallet.GetAccountByIndex(4);
 
-  Tx := TSystemProgram.CreateAccount(
-          OwnerAccount.PublicKey,
-          MintAccount.PublicKey,
+  LTx := TSystemProgram.CreateAccount(
+          LOwnerAccount.PublicKey,
+          LMintAccount.PublicKey,
           BalanceForRentExemption,
           TTokenProgram.TokenAccountDataSize,
           TTokenProgram.ProgramIdKey
        );
 
-  AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(CreateAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,         Tx.ProgramId, 'ProgramId');
+  AssertEquals(2, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(CreateAccountInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,         LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAssign;
 var
-  Wallet: IWallet;
-  Account, NewOwner: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LAccount, LNewOwner: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  Account  := Wallet.GetAccountByIndex(4);
-  NewOwner := Wallet.GetAccountByIndex(5);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LAccount  := LWallet.GetAccountByIndex(4);
+  LNewOwner := LWallet.GetAccountByIndex(5);
 
-  Tx := TSystemProgram.Assign(Account.PublicKey, NewOwner.PublicKey);
+  LTx := TSystemProgram.Assign(LAccount.PublicKey, LNewOwner.PublicKey);
 
-  AssertEquals(1, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(AssignInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,   Tx.ProgramId, 'ProgramId');
+  AssertEquals(1, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(AssignInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,   LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramCreateAccountWithSeed;
 var
-  Wallet: IWallet;
-  BaseAccount, From, ToAcc, Owner: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LBaseAccount, LFrom, LToAcc, LOwner: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet      := TWallet.Create(MnemonicWords);
-  BaseAccount := Wallet.GetAccountByIndex(6);
-  From        := Wallet.GetAccountByIndex(5);
-  ToAcc       := Wallet.GetAccountByIndex(4);
-  Owner       := Wallet.GetAccountByIndex(3);
+  LWallet      := TWallet.Create(MnemonicWords);
+  LBaseAccount := LWallet.GetAccountByIndex(6);
+  LFrom        := LWallet.GetAccountByIndex(5);
+  LToAcc       := LWallet.GetAccountByIndex(4);
+  LOwner       := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.CreateAccountWithSeed(
-          From.PublicKey,
-          ToAcc.PublicKey,
-          BaseAccount.PublicKey,
+  LTx := TSystemProgram.CreateAccountWithSeed(
+          LFrom.PublicKey,
+          LToAcc.PublicKey,
+          LBaseAccount.PublicKey,
           'testSeed',
           1000000,
           1000,
-          Owner.PublicKey
+          LOwner.PublicKey
        );
 
-  AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(CreateAccountWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,                  Tx.ProgramId, 'ProgramId');
+  AssertEquals(3, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(CreateAccountWithSeedInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                  LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAdvanceNonceAccount;
 var
-  Wallet: IWallet;
-  NonceAcc, Owner: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LNonceAcc, LOwner: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  NonceAcc := Wallet.GetAccountByIndex(69);
-  Owner    := Wallet.GetAccountByIndex(3);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LNonceAcc := LWallet.GetAccountByIndex(69);
+  LOwner    := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.AdvanceNonceAccount(NonceAcc.PublicKey, Owner.PublicKey);
+  LTx := TSystemProgram.AdvanceNonceAccount(LNonceAcc.PublicKey, LOwner.PublicKey);
 
-  AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(AdvanceNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,                Tx.ProgramId, 'ProgramId');
+  AssertEquals(3, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(AdvanceNonceAccountInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramWithdrawNonceAccount;
 var
-  Wallet: IWallet;
-  NonceAcc, ToAcc, Owner: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LNonceAcc, LToAcc, LOwner: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  NonceAcc := Wallet.GetAccountByIndex(69);
-  ToAcc    := Wallet.GetAccountByIndex(5);
-  Owner    := Wallet.GetAccountByIndex(3);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LNonceAcc := LWallet.GetAccountByIndex(69);
+  LToAcc    := LWallet.GetAccountByIndex(5);
+  LOwner    := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.WithdrawNonceAccount(
-          NonceAcc.PublicKey,
-          ToAcc.PublicKey,
-          Owner.PublicKey,
+  LTx := TSystemProgram.WithdrawNonceAccount(
+          LNonceAcc.PublicKey,
+          LToAcc.PublicKey,
+          LOwner.PublicKey,
           1000000
        );
 
-  AssertEquals(5, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(WithdrawNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,                 Tx.ProgramId, 'ProgramId');
+  AssertEquals(5, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(WithdrawNonceAccountInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                 LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramInitializeNonceAccount;
 var
-  Wallet: IWallet;
-  NonceAcc, Owner: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LNonceAcc, LOwner: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  NonceAcc := Wallet.GetAccountByIndex(69);
-  Owner    := Wallet.GetAccountByIndex(3);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LNonceAcc := LWallet.GetAccountByIndex(69);
+  LOwner    := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.InitializeNonceAccount(NonceAcc.PublicKey, Owner.PublicKey);
+  LTx := TSystemProgram.InitializeNonceAccount(LNonceAcc.PublicKey, LOwner.PublicKey);
 
-  AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(InitializeNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,                   Tx.ProgramId, 'ProgramId');
+  AssertEquals(3, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(InitializeNonceAccountInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                   LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAuthorizeNonceAccount;
 var
-  Wallet: IWallet;
-  NonceAcc, Owner, NewAuthority: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LNonceAcc, LOwner, LNewAuthority: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet       := TWallet.Create(MnemonicWords);
-  NonceAcc     := Wallet.GetAccountByIndex(69);
-  Owner        := Wallet.GetAccountByIndex(4);
-  NewAuthority := Wallet.GetAccountByIndex(3);
+  LWallet       := TWallet.Create(MnemonicWords);
+  LNonceAcc     := LWallet.GetAccountByIndex(69);
+  LOwner        := LWallet.GetAccountByIndex(4);
+  LNewAuthority := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.AuthorizeNonceAccount(
-          NonceAcc.PublicKey,
-          Owner.PublicKey,
-          NewAuthority.PublicKey
+  LTx := TSystemProgram.AuthorizeNonceAccount(
+          LNonceAcc.PublicKey,
+          LOwner.PublicKey,
+          LNewAuthority.PublicKey
        );
 
-  AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(AuthorizeNonceAccountInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,                  Tx.ProgramId, 'ProgramId');
+  AssertEquals(2, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(AuthorizeNonceAccountInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,                  LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAllocate;
 var
-  Wallet: IWallet;
-  NonceAcc: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LNonceAcc: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  NonceAcc := Wallet.GetAccountByIndex(69);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LNonceAcc := LWallet.GetAccountByIndex(69);
 
-  Tx := TSystemProgram.Allocate(NonceAcc.PublicKey, 1000000);
+  LTx := TSystemProgram.Allocate(LNonceAcc.PublicKey, 1000000);
 
-  AssertEquals(1, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(AllocateInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,     Tx.ProgramId, 'ProgramId');
+  AssertEquals(1, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(AllocateInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,     LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAllocateWithSeed;
 var
-  Wallet: IWallet;
-  BaseAccount, Account, Owner: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LBaseAccount, LAccount, LOwner: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet      := TWallet.Create(MnemonicWords);
-  BaseAccount := Wallet.GetAccountByIndex(6);
-  Account     := Wallet.GetAccountByIndex(5);
-  Owner       := Wallet.GetAccountByIndex(3);
+  LWallet      := TWallet.Create(MnemonicWords);
+  LBaseAccount := LWallet.GetAccountByIndex(6);
+  LAccount     := LWallet.GetAccountByIndex(5);
+  LOwner       := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.AllocateWithSeed(
-          Account.PublicKey,
-          BaseAccount.PublicKey,
+  LTx := TSystemProgram.AllocateWithSeed(
+          LAccount.PublicKey,
+          LBaseAccount.PublicKey,
           'testSeed',
           1000,
-          Owner.PublicKey
+          LOwner.PublicKey
        );
 
-  AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(AllocateWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,             Tx.ProgramId, 'ProgramId');
+  AssertEquals(2, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(AllocateWithSeedInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,             LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramAssignWithSeed;
 var
-  Wallet: IWallet;
-  BaseAccount, Account, Owner: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LBaseAccount, LAccount, LOwner: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet      := TWallet.Create(MnemonicWords);
-  BaseAccount := Wallet.GetAccountByIndex(6);
-  Account     := Wallet.GetAccountByIndex(5);
-  Owner       := Wallet.GetAccountByIndex(3);
+  LWallet      := TWallet.Create(MnemonicWords);
+  LBaseAccount := LWallet.GetAccountByIndex(6);
+  LAccount     := LWallet.GetAccountByIndex(5);
+  LOwner       := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.AssignWithSeed(
-          Account.PublicKey,
-          BaseAccount.PublicKey,
+  LTx := TSystemProgram.AssignWithSeed(
+          LAccount.PublicKey,
+          LBaseAccount.PublicKey,
           'testSeed',
-          Owner.PublicKey
+          LOwner.PublicKey
        );
 
-  AssertEquals(2, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(AssignWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,           Tx.ProgramId, 'ProgramId');
+  AssertEquals(2, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(AssignWithSeedInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,           LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestSystemProgramTransferWithSeed;
 var
-  Wallet: IWallet;
-  BaseAccount, FromAcc, ToAcc, Owner : IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LBaseAccount, LFromAcc, LToAcc, LOwner : IAccount;
+  LTx: ITransactionInstruction;
 begin
-  Wallet      := TWallet.Create(MnemonicWords);
-  BaseAccount := Wallet.GetAccountByIndex(6);
-  FromAcc     := Wallet.GetAccountByIndex(5);
-  ToAcc       := Wallet.GetAccountByIndex(4);
-  Owner       := Wallet.GetAccountByIndex(3);
+  LWallet      := TWallet.Create(MnemonicWords);
+  LBaseAccount := LWallet.GetAccountByIndex(6);
+  LFromAcc     := LWallet.GetAccountByIndex(5);
+  LToAcc       := LWallet.GetAccountByIndex(4);
+  LOwner       := LWallet.GetAccountByIndex(3);
 
-  Tx := TSystemProgram.TransferWithSeed(
-          FromAcc.PublicKey,
-          BaseAccount.PublicKey,
+  LTx := TSystemProgram.TransferWithSeed(
+          LFromAcc.PublicKey,
+          LBaseAccount.PublicKey,
           'testSeed',
-          Owner.PublicKey,
-          ToAcc.PublicKey,
+          LOwner.PublicKey,
+          LToAcc.PublicKey,
           1000000
        );
 
-  AssertEquals(3, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TransferWithSeedInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(SystemProgramIdBytes,             Tx.ProgramId, 'ProgramId');
+  AssertEquals(3, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TransferWithSeedInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(SystemProgramIdBytes,             LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TSystemProgramTests.TestNonceAccountDeserializationException;

@@ -241,18 +241,18 @@ end;
 function TKeyStoreServiceBase<T>.EncryptAndGenerateKeyStore(const APassword: string;
   const APrivateKey: TBytes; const AAddress: string): TKeyStore<T>;
 var
-  KdfParams: T;
+  LKdfParams: T;
 begin
-  KdfParams := GetDefaultParams;
-  Result := EncryptAndGenerateKeyStore(APassword, APrivateKey, AAddress, KdfParams);
+  LKdfParams := GetDefaultParams;
+  Result := EncryptAndGenerateKeyStore(APassword, APrivateKey, AAddress, LKdfParams);
 end;
 
 function TKeyStoreServiceBase<T>.EncryptAndGenerateKeyStore(const APassword: string;
   const APrivateKey: TBytes; const AAddress: string; const AKdfParams: T): TKeyStore<T>;
 var
-  Salt, DerivedKey, CipherKey, IV, CipherText, Mac: TBytes;
-  CryptoInfo: TCryptoInfo<T>;
-  Id: string;
+  LSalt, LDerivedKey, LCipherKey, LIV, LCipherText, LMac: TBytes;
+  LCryptoInfo: TCryptoInfo<T>;
+  LId: string;
 begin
   if APassword = '' then raise EArgumentNilException.Create('password');
   if Length(APrivateKey) = 0 then raise EArgumentNilException.Create('privateKey');
@@ -260,33 +260,33 @@ begin
   if AKdfParams = nil then raise EArgumentNilException.Create('kdfParams');
 
   // Random salt & IV
-  Salt := GenerateRandomSalt;
-  IV   := GenerateRandomInitializationVector;
+  LSalt := GenerateRandomSalt;
+  LIV   := GenerateRandomInitializationVector;
 
   // KDF
-  DerivedKey := GenerateDerivedKey(APassword, Salt, AKdfParams);
+  LDerivedKey := GenerateDerivedKey(APassword, LSalt, AKdfParams);
   // AES-128-CTR cipher key is first 16 bytes of derived key
-  CipherKey  := FKeyStoreCrypto.GenerateCipherKey(DerivedKey);
+  LCipherKey  := FKeyStoreCrypto.GenerateCipherKey(LDerivedKey);
 
   // Encrypt
-  CipherText := GenerateCipher(APrivateKey, IV, CipherKey);
+  LCipherText := GenerateCipher(APrivateKey, LIV, LCipherKey);
 
   // MAC
-  Mac := FKeyStoreCrypto.GenerateMac(DerivedKey, CipherText);
+  LMac := FKeyStoreCrypto.GenerateMac(LDerivedKey, LCipherText);
 
   // Build crypto section (ownership of AKdfParams transfers here)
-  CryptoInfo := TCryptoInfo<T>.Create(GetCipherType, CipherText, IV, Mac, Salt, AKdfParams, GetKdfType);
+  LCryptoInfo := TCryptoInfo<T>.Create(GetCipherType, LCipherText, LIV, LMac, LSalt, AKdfParams, GetKdfType);
 
-  Id := TGuid.NewGuid.ToString();
-  Id := Copy(Id, 2, Length(Id) - 2); // remove { and }
+  LId := TGuid.NewGuid.ToString();
+  LId := Copy(LId, 2, Length(LId) - 2); // remove { and }
 
   // Build keystore
   Result := TKeyStore<T>.Create;
   try
     Result.Version := CurrentVersion;
     Result.Address := AAddress;
-    Result.Id      := Id.ToLower;
-    Result.Crypto  := CryptoInfo;
+    Result.Id      := LId.ToLower;
+    Result.Crypto  := LCryptoInfo;
   except
     Result.Free;
     raise;
@@ -296,38 +296,38 @@ end;
 function TKeyStoreServiceBase<T>.EncryptAndGenerateKeyStoreAsJson(const APassword: string;
   const APrivateKey: TBytes; const AAddress: string): string;
 var
-  KS: TKeyStore<T>;
+  LKeyStore: TKeyStore<T>;
 begin
-  KS := EncryptAndGenerateKeyStore(APassword, APrivateKey, AAddress);
+  LKeyStore := EncryptAndGenerateKeyStore(APassword, APrivateKey, AAddress);
   try
-    Result := SerializeKeyStoreToJson(KS);
+    Result := SerializeKeyStoreToJson(LKeyStore);
   finally
-    KS.Free;
+    LKeyStore.Free;
   end;
 end;
 
 function TKeyStoreServiceBase<T>.EncryptAndGenerateKeyStoreAsJson(const APassword: string;
   const APrivateKey: TBytes; const AAddress: string; const AKdfParams: T): string;
 var
-  KS: TKeyStore<T>;
+  LKeyStore: TKeyStore<T>;
 begin
-  KS := EncryptAndGenerateKeyStore(APassword, APrivateKey, AAddress, AKdfParams);
+  LKeyStore := EncryptAndGenerateKeyStore(APassword, APrivateKey, AAddress, AKdfParams);
   try
-    Result := SerializeKeyStoreToJson(KS);
+    Result := SerializeKeyStoreToJson(LKeyStore);
   finally
-    KS.Free;
+    LKeyStore.Free;
   end;
 end;
 
 function TKeyStoreServiceBase<T>.DecryptKeyStoreFromJson(const APassword, AJson: string): TBytes;
 var
-  KS: TKeyStore<T>;
+  LKeyStore: TKeyStore<T>;
 begin
-  KS := DeserializeKeyStoreFromJson(AJson);
+  LKeyStore := DeserializeKeyStoreFromJson(AJson);
   try
-    Result := DecryptKeyStore(APassword, KS);
+    Result := DecryptKeyStore(APassword, LKeyStore);
   finally
-    KS.Free;
+    LKeyStore.Free;
   end;
 end;
 
@@ -371,26 +371,26 @@ end;
 function TKeyStorePbkdf2Service.DecryptKeyStore(const APassword: string;
   const AKeyStore: TKeyStore<TPbkdf2Params>): TBytes;
 var
-  Mac, IV, CipherText, Salt: TBytes;
-  DkLen: Integer;
+  LMac, LIV, LCipherText, LSalt: TBytes;
+  LDkLen: Integer;
 begin
   if APassword = '' then raise EArgumentNilException.Create('password');
   if AKeyStore = nil then raise EArgumentNilException.Create('keyStore');
 
-  Mac        := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
-  IV         := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
-  CipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
-  Salt       := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
+  LMac        := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
+  LIV         := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
+  LCipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
+  LSalt       := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
 
-  DkLen := AKeyStore.Crypto.KdfParams.DkLen;
+  LDkLen := AKeyStore.Crypto.KdfParams.DkLen;
 
-  if DkLen <= 0 then
+  if LDkLen <= 0 then
     raise EArgumentException.Create('KeyLengthToDerive must be greater than zero');
 
   Result := FKeyStoreCrypto.DecryptPbkdf2Sha256(
-    APassword, Mac, IV, CipherText,
+    APassword, LMac, LIV, LCipherText,
     AKeyStore.Crypto.KdfParams.Count,
-    Salt,
+    LSalt,
     AKeyStore.Crypto.KdfParams.DkLen
   );
 end;
@@ -446,28 +446,28 @@ end;
 function TKeyStoreScryptService.DecryptKeyStore(const APassword: string;
   const AKeyStore: TKeyStore<TScryptParams>): TBytes;
 var
-  Mac, IV, CipherText, Salt: TBytes;
-  DkLen: Integer;
+  LMac, LIV, LCipherText, LSalt: TBytes;
+  LDkLen: Integer;
 begin
   if APassword = '' then raise EArgumentNilException.Create('password');
   if AKeyStore = nil then raise EArgumentNilException.Create('keyStore');
 
-  Mac        := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
-  IV         := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
-  CipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
-  Salt       := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
+  LMac        := TEncoders.Hex.DecodeData(AKeyStore.Crypto.Mac);
+  LIV         := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherParams.Iv);
+  LCipherText := TEncoders.Hex.DecodeData(AKeyStore.Crypto.CipherText);
+  LSalt       := TEncoders.Hex.DecodeData(AKeyStore.Crypto.KdfParams.Salt);
 
-  DkLen := AKeyStore.Crypto.KdfParams.DkLen;
+  LDkLen := AKeyStore.Crypto.KdfParams.DkLen;
 
-  if DkLen <= 0 then
+  if LDkLen <= 0 then
     raise EArgumentException.Create('DkLen must be greater than zero');
 
   Result := FKeyStoreCrypto.DecryptScrypt(
-    APassword, Mac, IV, CipherText,
+    APassword, LMac, LIV, LCipherText,
     AKeyStore.Crypto.KdfParams.N,
     AKeyStore.Crypto.KdfParams.P,
     AKeyStore.Crypto.KdfParams.R,
-    Salt,
+    LSalt,
     AKeyStore.Crypto.KdfParams.DkLen
   );
 end;

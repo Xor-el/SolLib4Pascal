@@ -37,8 +37,8 @@ uses
 type
   TBip39Tests = class(TSolLibWalletTestCase)
   private
-    function BytesToHexLower(const B: TBytes): string;
-    function LoadJsonArrayFromFile(const FileName: string): TJSONArray;
+    function BytesToHexLower(const ABytes: TBytes): string;
+    function LoadJsonArrayFromFile(const AFileName: string): TJSONArray;
 
   published
     procedure CanGenerateMnemonicOfSpecificLength;
@@ -64,125 +64,125 @@ implementation
 
 { TBip39Tests }
 
-function TBip39Tests.BytesToHexLower(const B: TBytes): string;
+function TBip39Tests.BytesToHexLower(const ABytes: TBytes): string;
 begin
-  if Length(B) = 0 then
+  if Length(ABytes) = 0 then
     Exit('');
-  Result := TEncoders.Hex.EncodeData(B).ToLower();
+  Result := TEncoders.Hex.EncodeData(ABytes).ToLower();
 end;
 
-function TBip39Tests.LoadJsonArrayFromFile(const FileName: string): TJSONArray;
+function TBip39Tests.LoadJsonArrayFromFile(const AFileName: string): TJSONArray;
 var
-  Text: string;
-  V: TJSONValue;
+  LText: string;
+  LValue: TJSONValue;
 begin
-  Text := LoadTestData(FileName);
+  LText := LoadTestData(AFileName);
 
-  V := TJSONObject.ParseJSONValue(Text);
-  if not Assigned(V) then
-    raise Exception.CreateFmt('Invalid JSON in resource: %s', [FileName]);
+  LValue := TJSONObject.ParseJSONValue(LText);
+  if not Assigned(LValue) then
+    raise Exception.CreateFmt('Invalid JSON in resource: %s', [AFileName]);
   try
-    if V is TJSONArray then
-      Exit(TJSONArray(V).Clone as TJSONArray) // own a clone
+    if LValue is TJSONArray then
+      Exit(TJSONArray(LValue).Clone as TJSONArray) // own a clone
     else
-      raise Exception.CreateFmt('Expected JSON array in resource: %s', [FileName]);
+      raise Exception.CreateFmt('Expected JSON array in resource: %s', [AFileName]);
   finally
-    V.Free;
+    LValue.Free;
   end;
 end;
 
 procedure TBip39Tests.CanGenerateMnemonicOfSpecificLength;
 var
-  Counts: array[0..4] of TWordCount;
-  I: Integer;
-  M: IMnemonic;
+  LCounts: array[0..4] of TWordCount;
+  LI: Integer;
+  LMnemonic: IMnemonic;
 begin
-  Counts[0] := TWordCount.Twelve;
-  Counts[1] := TWordCount.TwentyFour;
-  Counts[2] := TWordCount.TwentyOne;
-  Counts[3] := TWordCount.Fifteen;
-  Counts[4] := TWordCount.Eighteen;
+  LCounts[0] := TWordCount.Twelve;
+  LCounts[1] := TWordCount.TwentyFour;
+  LCounts[2] := TWordCount.TwentyOne;
+  LCounts[3] := TWordCount.Fifteen;
+  LCounts[4] := TWordCount.Eighteen;
 
-  for I := Low(Counts) to High(Counts) do
+  for LI := Low(LCounts) to High(LCounts) do
   begin
-    M := TMnemonic.Create(TWordList.English, Counts[I]);
-    AssertEquals(Ord(Counts[I]), Length(M.Words));
+    LMnemonic := TMnemonic.Create(TWordList.English, LCounts[LI]);
+    AssertEquals(Ord(LCounts[LI]), Length(LMnemonic.Words));
   end;
 end;
 
 procedure TBip39Tests.CanDetectBadChecksum;
 var
-  M: IMnemonic;
+  LMnemonic: IMnemonic;
 begin
-  M := TMnemonic.Create(
+  LMnemonic := TMnemonic.Create(
     'turtle front uncle idea crush write shrug there lottery flower risk shell',
     TWordList.English
   );
-  AssertTrue(M.IsValidChecksum, 'Checksum should be valid');
+  AssertTrue(LMnemonic.IsValidChecksum, 'Checksum should be valid');
 
-  M := TMnemonic.Create(
+  LMnemonic := TMnemonic.Create(
     'front front uncle idea crush write shrug there lottery flower risk shell',
     TWordList.English
   );
-  AssertFalse(M.IsValidChecksum, 'Checksum should be invalid');
+  AssertFalse(LMnemonic.IsValidChecksum, 'Checksum should be invalid');
 end;
 
 procedure TBip39Tests.CanNormalizeMnemonicString;
 var
-  M1, M2: IMnemonic;
+  LMnemonic1, LMnemonic2: IMnemonic;
 begin
-  M1 := TMnemonic.Create(
+  LMnemonic1 := TMnemonic.Create(
     'turtle front uncle idea crush write shrug there lottery flower risk shell',
     TWordList.English
   );
-  M2 := TMnemonic.Create(
+  LMnemonic2 := TMnemonic.Create(
     'turtle    front	uncle　 idea crush write shrug there lottery flower risk shell',
     TWordList.English
   );
 
-  AssertEquals(M1.ToString, M2.ToString);
+  AssertEquals(LMnemonic1.ToString, LMnemonic2.ToString);
 end;
 
 procedure TBip39Tests.EnglishTest;
 var
-  A: TJSONArray;
-  I: Integer;
-  UnitTest: TJSONArray;
-  MnemonicStr, SeedStr, Derived: string;
-  M: IMnemonic;
+  LArray: TJSONArray;
+  LI: Integer;
+  LUnitTest: TJSONArray;
+  LMnemonicStr, LSeedStr, LDerived: string;
+  LMnemonic: IMnemonic;
 begin
   // Each element is an array: [entropyText, mnemonic, seed]
-  A := LoadJsonArrayFromFile('Bip39Vectors.json');
+  LArray := LoadJsonArrayFromFile('Bip39Vectors.json');
   try
-    for I := 0 to A.Count - 1 do
+    for LI := 0 to LArray.Count - 1 do
     begin
-      UnitTest := A.Items[I] as TJSONArray;
-      MnemonicStr := UnitTest.Items[1].Value;
-      SeedStr     := UnitTest.Items[2].Value;
+      LUnitTest := LArray.Items[LI] as TJSONArray;
+      LMnemonicStr := LUnitTest.Items[1].Value;
+      LSeedStr     := LUnitTest.Items[2].Value;
 
-      M := TMnemonic.Create(MnemonicStr, TWordList.English);
-      AssertTrue(M.IsValidChecksum, 'Checksum should be valid');
-      Derived := BytesToHexLower(M.DeriveSeed('TREZOR'));
-      AssertEquals(SeedStr, Derived);
+      LMnemonic := TMnemonic.Create(LMnemonicStr, TWordList.English);
+      AssertTrue(LMnemonic.IsValidChecksum, 'Checksum should be valid');
+      LDerived := BytesToHexLower(LMnemonic.DeriveSeed('TREZOR'));
+      AssertEquals(LSeedStr, LDerived);
     end;
   finally
-    A.Free;
+    LArray.Free;
   end;
 end;
 
 procedure TBip39Tests.CanReturnTheListOfWords;
 var
-  Lang: IWordList;
-  Words: TArray<string>;
-  W: string;
-  Idx: Integer;
+  LLang: IWordList;
+  LWords: TArray<string>;
+  LWord: string;
+  LIdx: Integer;
 begin
-  Lang := TWordList.English;
-  Words := Lang.GetWords;
-  for W in Words do
+  LLang := TWordList.English;
+  LWords := LLang.GetWords;
+  for LWord in LWords do
   begin
-    AssertTrue(Lang.WordExists(W, Idx), 'Word should exist');
-    AssertTrue(Idx >= 0, 'Index should be non-negative');
+    AssertTrue(LLang.WordExists(LWord, LIdx), 'Word should exist');
+    AssertTrue(LIdx >= 0, 'Index should be non-negative');
   end;
 end;
 
@@ -197,30 +197,30 @@ end;
 
 procedure TBip39Tests.JapaneseTest;
 var
-  A: TJSONArray;
-  I: Integer;
-  Obj: TJSONObject;
-  MnemonicStr, SeedStr, Passphrase, Derived: string;
-  M: IMnemonic;
+  LArray: TJSONArray;
+  LI: Integer;
+  LObj: TJSONObject;
+  LMnemonicStr, LSeedStr, LPassphrase, LDerived: string;
+  LMnemonic: IMnemonic;
 begin
   // Each element is an object: { "mnemonic": "...", "seed": "...", "passphrase": "..." }
-  A := LoadJsonArrayFromFile('Bip39Japanese.json');
+  LArray := LoadJsonArrayFromFile('Bip39Japanese.json');
   try
-    for I := 0 to A.Count - 1 do
+    for LI := 0 to LArray.Count - 1 do
     begin
-      Obj := A.Items[I] as TJSONObject;
-      MnemonicStr := Obj.GetValue('mnemonic').Value;
-      SeedStr     := Obj.GetValue('seed').Value;
-      Passphrase  := Obj.GetValue('passphrase').Value;
+      LObj := LArray.Items[LI] as TJSONObject;
+      LMnemonicStr := LObj.GetValue('mnemonic').Value;
+      LSeedStr     := LObj.GetValue('seed').Value;
+      LPassphrase  := LObj.GetValue('passphrase').Value;
 
-      M := TMnemonic.Create(MnemonicStr, TWordList.Japanese);
-      AssertTrue(M.IsValidChecksum, 'Checksum should be valid');
-      Derived := BytesToHexLower(M.DeriveSeed(Passphrase));
-      AssertEquals(SeedStr, Derived);
-      AssertTrue(M.IsValidChecksum, 'Checksum should still be valid');
+      LMnemonic := TMnemonic.Create(LMnemonicStr, TWordList.Japanese);
+      AssertTrue(LMnemonic.IsValidChecksum, 'Checksum should be valid');
+      LDerived := BytesToHexLower(LMnemonic.DeriveSeed(LPassphrase));
+      AssertEquals(LSeedStr, LDerived);
+      AssertTrue(LMnemonic.IsValidChecksum, 'Checksum should still be valid');
     end;
   finally
-    A.Free;
+    LArray.Free;
   end;
 end;
 

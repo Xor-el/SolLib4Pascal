@@ -206,12 +206,12 @@ end;
 
 destructor TResultWrapper<T, T2>.Destroy;
 var
- V: TValue;
+  LValue: TValue;
 begin
- V := TValue.From<T2>(FParsedResult);
+  LValue := TValue.From<T2>(FParsedResult);
 
- if not V.IsEmpty then
-   TValueUtils.FreeParameter(V);
+  if not LValue.IsEmpty then
+    TValueUtils.FreeParameter(LValue);
 
   inherited;
 end;

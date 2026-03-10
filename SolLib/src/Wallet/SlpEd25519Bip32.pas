@@ -58,29 +58,29 @@ type
   private
     FMasterKey, FChainCode: TBytes;
 
-    class function GetMasterKeyFromSeed(const Seed: TBytes): TKeyChain; static;
-    class function GetChildKeyDerivation(const Key, ChainCode: TBytes;
-      Index: Cardinal): TKeyChain; static;
-    class function HmacSha512(const KeyBuffer, Data: TBytes): TKeyChain; static;
+    class function GetMasterKeyFromSeed(const ASeed: TBytes): TKeyChain; static;
+    class function GetChildKeyDerivation(const AKey, AChainCode: TBytes;
+      AIndex: Cardinal): TKeyChain; static;
+    class function HmacSha512(const AKeyBuffer, AData: TBytes): TKeyChain; static;
     /// <summary>
     /// Checks if the derivation path is valid.
     /// <remarks>Returns true if the path is valid, otherwise false.</remarks>
     /// </summary>
     /// <param name="Path">The derivation path.</param>
     /// <returns>A boolean.</returns>
-    class function IsValidPath(const Path: string): Boolean; static;
-    class function ParseSegments(const Path: string): TArray<UInt32>; static;
+    class function IsValidPath(const APath: string): Boolean; static;
+    class function ParseSegments(const APath: string): TArray<UInt32>; static;
 
   public
     /// <summary>Initialize the ed25519-based SLIP-0010 generator with the passed seed.</summary>
     /// <param name="Seed">The seed bytes.</param>
-    constructor Create(const Seed: TBytes);
+    constructor Create(const ASeed: TBytes);
 
     /// <summary>Derives a child key from the passed derivation path.</summary>
     /// <param name="Path">The derivation path (e.g., m/44'/501'/0'/0'). All segments must be hardened.</param>
     /// <returns>The key and chaincode.</returns>
     /// <exception cref="Exception">Thrown when the derivation path is invalid or out of range.</exception>
-    function DerivePath(const Path: string): TKeyChain;
+    function DerivePath(const APath: string): TKeyChain;
 
     /// <summary>Access the computed master key (IL) after construction.</summary>
     property MasterKey: TBytes read FMasterKey;
@@ -92,165 +92,165 @@ implementation
 
 { TEd25519Bip32 }
 
-constructor TEd25519Bip32.Create(const Seed: TBytes);
+constructor TEd25519Bip32.Create(const ASeed: TBytes);
 var
   MC: TKeyChain;
 begin
   inherited Create;
-  MC := GetMasterKeyFromSeed(Seed);
+  MC := GetMasterKeyFromSeed(ASeed);
   FMasterKey := MC.Key;
   FChainCode := MC.ChainCode;
 end;
 
-class function TEd25519Bip32.GetMasterKeyFromSeed(const Seed: TBytes): TKeyChain;
+class function TEd25519Bip32.GetMasterKeyFromSeed(const ASeed: TBytes): TKeyChain;
 var
-  KeyBuf: TBytes;
+  LKeyBuf: TBytes;
 begin
   // HMAC-SHA512(key = "ed25519 seed", data = seed)
-  KeyBuf := TEncoding.UTF8.GetBytes(Curve);
+  LKeyBuf := TEncoding.UTF8.GetBytes(Curve);
   try
-    Result := HmacSha512(KeyBuf, Seed);
+    Result := HmacSha512(LKeyBuf, ASeed);
   finally
-    if Length(KeyBuf) > 0 then
-      FillChar(KeyBuf[0], Length(KeyBuf), 0);
+    if Length(LKeyBuf) > 0 then
+      FillChar(LKeyBuf[0], Length(LKeyBuf), 0);
   end;
 end;
 
-class function TEd25519Bip32.GetChildKeyDerivation(const Key, ChainCode: TBytes;
-  Index: Cardinal): TKeyChain;
+class function TEd25519Bip32.GetChildKeyDerivation(const AKey, AChainCode: TBytes;
+  AIndex: Cardinal): TKeyChain;
 var
-  Buf: TBytes;
-  Off: Integer;
+  LBuf: TBytes;
+  LOff: Integer;
 begin
   // Data = 0x00 || Key || BigEndian(Index)
-  SetLength(Buf, 1 + Length(Key) + 4);
+  SetLength(LBuf, 1 + Length(AKey) + 4);
   try
-    Buf[0] := 0;
-    if Length(Key) > 0 then
-      TArrayUtils.Copy<Byte>(Key, 0, Buf, 1, Length(Key));
+    LBuf[0] := 0;
+    if Length(AKey) > 0 then
+      TArrayUtils.Copy<Byte>(AKey, 0, LBuf, 1, Length(AKey));
 
-    Off := 1 + Length(Key);
-    // write UInt32 BE at Buf[Off .. Off+3]
-    TBinaryPrimitives.WriteUInt32BigEndian(Buf, Off, Index);
+    LOff := 1 + Length(AKey);
+    // write UInt32 BE at LBuf[LOff .. LOff+3]
+    TBinaryPrimitives.WriteUInt32BigEndian(LBuf, LOff, AIndex);
 
-    Result := HmacSha512(ChainCode, Buf);
+    Result := HmacSha512(AChainCode, LBuf);
   finally
-    if Length(Buf) > 0 then
-      FillChar(Buf[0], Length(Buf), 0);
+    if Length(LBuf) > 0 then
+      FillChar(LBuf[0], Length(LBuf), 0);
   end;
 end;
 
-class function TEd25519Bip32.HmacSha512(const KeyBuffer, Data: TBytes): TKeyChain;
+class function TEd25519Bip32.HmacSha512(const AKeyBuffer, AData: TBytes): TKeyChain;
 var
-  Mac: TBytes;
+  LMac: TBytes;
 begin
-  Mac := THmacSHA512.Compute(KeyBuffer, Data);
+  LMac := THmacSHA512.Compute(AKeyBuffer, AData);
   try
-    if Length(Mac) <> 64 then
+    if Length(LMac) <> 64 then
       raise EInvalidOpException.Create('HMAC-SHA512 returned unexpected length');
 
     SetLength(Result.Key, 32);
     SetLength(Result.ChainCode, 32);
 
-    if Length(Mac) > 0 then
+    if Length(LMac) > 0 then
     begin
-      TArrayUtils.Copy<Byte>(Mac, 0, Result.Key, 0, 32);
-      TArrayUtils.Copy<Byte>(Mac, 32, Result.ChainCode, 0, 32);
+      TArrayUtils.Copy<Byte>(LMac, 0, Result.Key, 0, 32);
+      TArrayUtils.Copy<Byte>(LMac, 32, Result.ChainCode, 0, 32);
     end;
   finally
-    if Length(Mac) > 0 then
-      FillChar(Mac[0], Length(Mac), 0);
+    if Length(LMac) > 0 then
+      FillChar(LMac[0], Length(LMac), 0);
   end;
 end;
 
-class function TEd25519Bip32.IsValidPath(const Path: string): Boolean;
+class function TEd25519Bip32.IsValidPath(const APath: string): Boolean;
 var
-  Clean: string;
-  Parts: TArray<string>;
-  i, j: Integer;
-  s, num: string;
+  LClean: string;
+  LParts: TArray<string>;
+  LI, LJ: Integer;
+  LS, LNum: string;
 begin
   // Normalize trivial whitespace
-  Clean := Trim(Path);
-  if Clean = '' then
+  LClean := Trim(APath);
+  if LClean = '' then
     Exit(False);
 
   // must start with 'm' and have at least one '/'
-  if Clean[1] <> 'm' then
+  if LClean[1] <> 'm' then
     Exit(False);
 
-  Parts := Clean.Split(['/'], TStringSplitOptions.ExcludeEmpty);
-  if Length(Parts) < 2 then
+  LParts := LClean.Split(['/'], TStringSplitOptions.ExcludeEmpty);
+  if Length(LParts) < 2 then
     Exit(False);
-  if Parts[0] <> 'm' then
+  if LParts[0] <> 'm' then
     Exit(False);
 
   // each segment after 'm' must be "<digits>'"
-  for i := 1 to High(Parts) do
+  for LI := 1 to High(LParts) do
   begin
-    s := Parts[i];
-    if s = '' then
+    LS := LParts[LI];
+    if LS = '' then
       Exit(False);
-    if s[Length(s)] <> '''' then
+    if LS[Length(LS)] <> '''' then
       Exit(False);
-    num := Copy(s, 1, Length(s) - 1);
-    if num = '' then
+    LNum := Copy(LS, 1, Length(LS) - 1);
+    if LNum = '' then
       Exit(False);
-    for j := 1 to Length(num) do
-      if (num[j] < '0') or (num[j] > '9') then
+    for LJ := 1 to Length(LNum) do
+      if (LNum[LJ] < '0') or (LNum[LJ] > '9') then
         Exit(False);
   end;
 
   Result := True;
 end;
 
-class function TEd25519Bip32.ParseSegments(const Path: string): TArray<UInt32>;
+class function TEd25519Bip32.ParseSegments(const APath: string): TArray<UInt32>;
 var
-  Parts: TArray<string>;
-  i: Integer;
-  num: string;
-  val64: UInt64;
+  LParts: TArray<string>;
+  LI: Integer;
+  LNum: string;
+  LVal64: UInt64;
 begin
-  Parts := Trim(Path).Split(['/']);
-  SetLength(Result, Length(Parts) - 1);
-  for i := 1 to High(Parts) do
+  LParts := Trim(APath).Split(['/']);
+  SetLength(Result, Length(LParts) - 1);
+  for LI := 1 to High(LParts) do
   begin
     // drop trailing apostrophe
-    num := Copy(Parts[i], 1, Length(Parts[i]) - 1);
+    LNum := Copy(LParts[LI], 1, Length(LParts[LI]) - 1);
 
     try
-      val64 := StrToUInt64(num);
+      LVal64 := StrToUInt64(LNum);
     except
       on E: EConvertError do
-        raise EConvertError.CreateFmt('Invalid derivation index "%s".', [num]);
+        raise EConvertError.CreateFmt('Invalid derivation index "%s".', [LNum]);
     end;
 
     // for hardened Ed25519, raw index must be <= 4294967295
-    if val64 > High(UInt32) then
+    if LVal64 > High(UInt32) then
       raise ERangeError.Create('Derivation index must be <= 4294967295 for hardened Ed25519');
 
-    Result[i - 1] := UInt32(val64);
+    Result[LI - 1] := UInt32(LVal64);
   end;
 end;
 
-function TEd25519Bip32.DerivePath(const Path: string): TKeyChain;
+function TEd25519Bip32.DerivePath(const APath: string): TKeyChain;
 var
-  Segs: TArray<Cardinal>;
-  i: Integer;
-  Cur: TKeyChain;
+  LSegs: TArray<Cardinal>;
+  LI: Integer;
+  LCur: TKeyChain;
 begin
-  if not IsValidPath(Path) then
+  if not IsValidPath(APath) then
     raise Exception.Create('Invalid derivation path');
 
-  Segs := ParseSegments(Path);
+  LSegs := ParseSegments(APath);
 
-  Cur.Key := Copy(FMasterKey);
-  Cur.ChainCode := Copy(FChainCode);
+  LCur.Key := Copy(FMasterKey);
+  LCur.ChainCode := Copy(FChainCode);
 
-  for i := 0 to High(Segs) do
-    Cur := GetChildKeyDerivation(Cur.Key, Cur.ChainCode, Segs[i] + HardenedOffset);
+  for LI := 0 to High(LSegs) do
+    LCur := GetChildKeyDerivation(LCur.Key, LCur.ChainCode, LSegs[LI] + HardenedOffset);
 
-  Result := Cur;
+  Result := LCur;
 end;
 
 end.

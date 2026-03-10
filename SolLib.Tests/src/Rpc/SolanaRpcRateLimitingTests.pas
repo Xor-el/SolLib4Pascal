@@ -44,47 +44,47 @@ implementation
 
 procedure TSolanaRpcRateLimitingTests.TestMaxSpeed_NoLimits;
 var
-  L: IRateLimiter;
-  I: Integer;
+  LLimiter: IRateLimiter;
+  LI: Integer;
 begin
   // Default: no limits -> all fires should pass immediately
-  L := TRateLimiter.CreateDefault;
-  AssertTrue(L.CanFire, 'CanFire should be True initially');
-  for I := 1 to 7 do
-    L.WaitFire;
+  LLimiter := TRateLimiter.CreateDefault;
+  AssertTrue(LLimiter.CanFire, 'CanFire should be True initially');
+  for LI := 1 to 7 do
+    LLimiter.WaitFire;
 end;
 
 procedure TSolanaRpcRateLimitingTests.TestMaxSpeed_WithinLimits;
 var
-  L: IRateLimiter;
-  I: Integer;
+  LLimiter: IRateLimiter;
+  LI: Integer;
 begin
   // High ceiling: effectively unthrottled for a handful of calls
-  L := TRateLimiter.CreateDefault.AllowHits(100).PerSeconds(10);
-  AssertTrue(L.CanFire, 'CanFire should be True initially');
-  for I := 1 to 9 do
-    L.WaitFire;
+  LLimiter := TRateLimiter.CreateDefault.AllowHits(100).PerSeconds(10);
+  AssertTrue(LLimiter.CanFire, 'CanFire should be True initially');
+  for LI := 1 to 9 do
+    LLimiter.WaitFire;
 end;
 
 procedure TSolanaRpcRateLimitingTests.TestTwoHitsPerSecond;
 var
-  L: IRateLimiter;
-  SW: TStopwatch;
-  I: Integer;
-  ElapsedMs: Int64;
+  LLimiter: IRateLimiter;
+  LStopwatch: TStopwatch;
+  LI: Integer;
+  LElapsedMs: Int64;
 begin
   // Strict rate: 2 hits per second
-  L := TRateLimiter.CreateDefault.AllowHits(2).PerSeconds(1);
-  AssertTrue(L.CanFire, 'CanFire should be True initially');
+  LLimiter := TRateLimiter.CreateDefault.AllowHits(2).PerSeconds(1);
+  AssertTrue(LLimiter.CanFire, 'CanFire should be True initially');
 
-  SW := TStopwatch.StartNew;
-  for I := 1 to 7 do
-    L.WaitFire;
-  SW.Stop;
+  LStopwatch := TStopwatch.StartNew;
+  for LI := 1 to 7 do
+    LLimiter.WaitFire;
+  LStopwatch.Stop;
 
-  ElapsedMs := SW.ElapsedMilliseconds;
+  LElapsedMs := LStopwatch.ElapsedMilliseconds;
   // Expect total time > 2000 ms for ~7 fires at 2/sec
-  AssertTrue(ElapsedMs > 2000, Format('ExecTime %dms (expected > 2000ms)', [ElapsedMs]));
+  AssertTrue(LElapsedMs > 2000, Format('ExecTime %dms (expected > 2000ms)', [LElapsedMs]));
 end;
 
 initialization

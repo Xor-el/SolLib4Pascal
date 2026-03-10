@@ -45,48 +45,48 @@ type
 
   TJsonStructuralComparer = class sealed
   private
-    class function ObjectsEqual(const A, B: TJSONObject; const Options: TJsonCompareOptions;
-      const Path: string; const Differences: TList<string>): Boolean; static;
+    class function ObjectsEqual(const ALeft, ARight: TJSONObject; const AOptions: TJsonCompareOptions;
+      const APath: string; const ADifferences: TList<string>): Boolean; static;
 
-    class function ArraysEqual(const A, B: TJSONArray; const Options: TJsonCompareOptions;
-      const Path: string; const Differences: TList<string>): Boolean; static;
+    class function ArraysEqual(const ALeft, ARight: TJSONArray; const AOptions: TJsonCompareOptions;
+      const APath: string; const ADifferences: TList<string>): Boolean; static;
 
-    class function NumbersEqual(const A, B: TJSONNumber; const Options: TJsonCompareOptions;
-      const Path: string; const Differences: TList<string>): Boolean; static;
+    class function NumbersEqual(const ALeft, ARight: TJSONNumber; const AOptions: TJsonCompareOptions;
+      const APath: string; const ADifferences: TList<string>): Boolean; static;
 
-    class function StringsEqual(const A, B: TJSONString; const Options: TJsonCompareOptions;
-      const Path: string; const Differences: TList<string>): Boolean; static;
+    class function StringsEqual(const ALeft, ARight: TJSONString; const AOptions: TJsonCompareOptions;
+      const APath: string; const ADifferences: TList<string>): Boolean; static;
 
-    class function IsJsonNull(const V: TJSONValue): Boolean; static;
-    class function GetJsonBoolean(const V: TJSONValue; out Value: Boolean): Boolean; static;
-    class function Indent(const Options: TJsonCompareOptions; Level: Integer): string; static;
-    class function PathDepth(const Path: string): Integer; static;
+    class function IsJsonNull(const AV: TJSONValue): Boolean; static;
+    class function GetJsonBoolean(const AV: TJSONValue; out AValue: Boolean): Boolean; static;
+    class function Indent(const AOptions: TJsonCompareOptions; ALevel: Integer): string; static;
+    class function PathDepth(const APath: string): Integer; static;
 
-    class function ValuesAreNil(const A, B: TJSONValue; const Options: TJsonCompareOptions;
-      const Path: string; Differences: TList<string>): Boolean; static;
+    class function ValuesAreNil(const ALeft, ARight: TJSONValue; const AOptions: TJsonCompareOptions;
+      const APath: string; ADifferences: TList<string>): Boolean; static;
 
-    class function BooleanValuesAreEqual(const A, B: TJSONValue; const Options: TJsonCompareOptions;
-      const Path: string; Differences: TList<string>): Boolean; static;
+    class function BooleanValuesAreEqual(const ALeft, ARight: TJSONValue; const AOptions: TJsonCompareOptions;
+      const APath: string; ADifferences: TList<string>): Boolean; static;
 
-    class function ValuesHaveTypeMismatch(const A, B: TJSONValue; const Options: TJsonCompareOptions;
-      const Path: string; Differences: TList<string>): Boolean; static;
+    class function ValuesHaveTypeMismatch(const ALeft, ARight: TJSONValue; const AOptions: TJsonCompareOptions;
+      const APath: string; ADifferences: TList<string>): Boolean; static;
 
   public
-    class function AreStructurallyEqual(const JsonA, JsonB: string;
-      const Options: TJsonCompareOptions): Boolean; overload; static;
+    class function AreStructurallyEqual(const AJsonA, AJsonB: string;
+      const AOptions: TJsonCompareOptions): Boolean; overload; static;
 
-    class function AreStructurallyEqual(const A, B: TJSONValue;
-      const Options: TJsonCompareOptions): Boolean; overload; static;
+    class function AreStructurallyEqual(const ALeft, ARight: TJSONValue;
+      const AOptions: TJsonCompareOptions): Boolean; overload; static;
 
-    class function AreStructurallyEqualWithDiff(const JsonA, JsonB: string;
-      const Options: TJsonCompareOptions; Differences: TList<string>): Boolean; overload; static;
+    class function AreStructurallyEqualWithDiff(const AJsonA, AJsonB: string;
+      const AOptions: TJsonCompareOptions; ADifferences: TList<string>): Boolean; overload; static;
 
-    class function AreStructurallyEqualWithDiffString(const JsonA, JsonB: string;
-      const Options: TJsonCompareOptions): string; static;
+    class function AreStructurallyEqualWithDiffString(const AJsonA, AJsonB: string;
+      const AOptions: TJsonCompareOptions): string; static;
 
-    class function AreStructurallyEqualWithDiff(const A, B: TJSONValue;
-      const Options: TJsonCompareOptions; const Path: string;
-      Differences: TList<string>): Boolean; overload; static;
+    class function AreStructurallyEqualWithDiff(const ALeft, ARight: TJSONValue;
+      const AOptions: TJsonCompareOptions; const APath: string;
+      ADifferences: TList<string>): Boolean; overload; static;
   end;
 
 implementation
@@ -114,36 +114,36 @@ end;
 
 { Helpers }
 
-class function TJsonStructuralComparer.Indent(const Options: TJsonCompareOptions; Level: Integer): string;
+class function TJsonStructuralComparer.Indent(const AOptions: TJsonCompareOptions; ALevel: Integer): string;
 begin
-  Result := StringOfChar(' ', Level * Options.Diff.IndentSpaces);
+  Result := StringOfChar(' ', ALevel * AOptions.Diff.IndentSpaces);
 end;
 
-class function TJsonStructuralComparer.PathDepth(const Path: string): Integer;
+class function TJsonStructuralComparer.PathDepth(const APath: string): Integer;
 var
-  I: Integer;
+  LI: Integer;
 begin
   Result := 0;
-  for I := 1 to Length(Path) do
-    if CharInSet(Path[I], ['.', '[']) then
+  for LI := 1 to Length(APath) do
+    if CharInSet(APath[LI], ['.', '[']) then
       Inc(Result);
 end;
 
-class function TJsonStructuralComparer.IsJsonNull(const V: TJSONValue): Boolean;
+class function TJsonStructuralComparer.IsJsonNull(const AV: TJSONValue): Boolean;
 begin
-  Result := (V = nil) or (V is TJSONNull);
+  Result := (AV = nil) or (AV is TJSONNull);
 end;
 
-class function TJsonStructuralComparer.GetJsonBoolean(const V: TJSONValue; out Value: Boolean): Boolean;
+class function TJsonStructuralComparer.GetJsonBoolean(const AV: TJSONValue; out AValue: Boolean): Boolean;
 begin
-  if V is TJSONTrue then
+  if AV is TJSONTrue then
   begin
-    Value := True;
+    AValue := True;
     Exit(True);
   end
-  else if V is TJSONFalse then
+  else if AV is TJSONFalse then
   begin
-    Value := False;
+    AValue := False;
     Exit(True);
   end;
   Result := False;
@@ -151,379 +151,379 @@ end;
 
 { Nil / Boolean / Type checks }
 
-class function TJsonStructuralComparer.ValuesAreNil(const A, B: TJSONValue;
-  const Options: TJsonCompareOptions; const Path: string;
-  Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.ValuesAreNil(const ALeft, ARight: TJSONValue;
+  const AOptions: TJsonCompareOptions; const APath: string;
+  ADifferences: TList<string>): Boolean;
 var
-  Level: Integer;
+  LLevel: Integer;
 begin
-  Level := PathDepth(Path);
-  if IsJsonNull(A) and IsJsonNull(B) then
+  LLevel := PathDepth(APath);
+  if IsJsonNull(ALeft) and IsJsonNull(ARight) then
     Exit(True);
 
-  if IsJsonNull(A) or IsJsonNull(B) then
+  if IsJsonNull(ALeft) or IsJsonNull(ARight) then
   begin
-    if Options.TreatNullAndMissingPropertyAsEqual then
+    if AOptions.TreatNullAndMissingPropertyAsEqual then
       Exit(True);
 
-    if Differences <> nil then
-      Differences.Add(Format('%sOne value is null or missing at %s', [Indent(Options, Level), Path]));
+    if ADifferences <> nil then
+      ADifferences.Add(Format('%sOne value is null or missing at %s', [Indent(AOptions, LLevel), APath]));
     Exit(False);
   end;
 
   Result := False;
 end;
 
-class function TJsonStructuralComparer.BooleanValuesAreEqual(const A, B: TJSONValue;
-  const Options: TJsonCompareOptions; const Path: string;
-  Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.BooleanValuesAreEqual(const ALeft, ARight: TJSONValue;
+  const AOptions: TJsonCompareOptions; const APath: string;
+  ADifferences: TList<string>): Boolean;
 var
-  BA, BB: Boolean;
-  Level: Integer;
-  AIsBool, BIsBool: Boolean;
+  LBoolA, LBoolB: Boolean;
+  LLevel: Integer;
+  LIsBoolA, LIsBoolB: Boolean;
 begin
-  Level := PathDepth(Path);
-  AIsBool := GetJsonBoolean(A, BA);
-  BIsBool := GetJsonBoolean(B, BB);
+  LLevel := PathDepth(APath);
+  LIsBoolA := GetJsonBoolean(ALeft, LBoolA);
+  LIsBoolB := GetJsonBoolean(ARight, LBoolB);
 
-  if not (AIsBool and BIsBool) then
+  if not (LIsBoolA and LIsBoolB) then
     Exit(False);
 
-  Result := BA = BB;
-  if (Differences <> nil) and not Result then
-    Differences.Add(Format('%sBoolean mismatch %s vs %s at %s',
-      [Indent(Options, Level), BoolToStr(BA, True), BoolToStr(BB, True), Path]));
+  Result := LBoolA = LBoolB;
+  if (ADifferences <> nil) and not Result then
+    ADifferences.Add(Format('%sBoolean mismatch %s vs %s at %s',
+      [Indent(AOptions, LLevel), BoolToStr(LBoolA, True), BoolToStr(LBoolB, True), APath]));
 end;
 
-class function TJsonStructuralComparer.ValuesHaveTypeMismatch(const A, B: TJSONValue;
-  const Options: TJsonCompareOptions; const Path: string;
-  Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.ValuesHaveTypeMismatch(const ALeft, ARight: TJSONValue;
+  const AOptions: TJsonCompareOptions; const APath: string;
+  ADifferences: TList<string>): Boolean;
 var
-  Level: Integer;
-  TypeA, TypeB: string;
+  LLevel: Integer;
+  LTypeA, LTypeB: string;
 begin
-  Level := PathDepth(Path);
-  if (A = nil) or (B = nil) then
+  LLevel := PathDepth(APath);
+  if (ALeft = nil) or (ARight = nil) then
     Exit(False);
 
-  if (A is TJSONTrue) or (A is TJSONFalse) then TypeA := 'Boolean'
-  else if A is TJSONNumber then TypeA := 'Number'
-  else if A is TJSONString then TypeA := 'String'
-  else if A is TJSONArray then TypeA := 'Array'
-  else if A is TJSONObject then TypeA := 'Object'
-  else if IsJsonNull(A) then TypeA := 'Null'
-  else TypeA := 'Unknown';
+  if (ALeft is TJSONTrue) or (ALeft is TJSONFalse) then LTypeA := 'Boolean'
+  else if ALeft is TJSONNumber then LTypeA := 'Number'
+  else if ALeft is TJSONString then LTypeA := 'String'
+  else if ALeft is TJSONArray then LTypeA := 'Array'
+  else if ALeft is TJSONObject then LTypeA := 'Object'
+  else if IsJsonNull(ALeft) then LTypeA := 'Null'
+  else LTypeA := 'Unknown';
 
-  if (B is TJSONTrue) or (B is TJSONFalse) then TypeB := 'Boolean'
-  else if B is TJSONNumber then TypeB := 'Number'
-  else if B is TJSONString then TypeB := 'String'
-  else if B is TJSONArray then TypeB := 'Array'
-  else if B is TJSONObject then TypeB := 'Object'
-  else if IsJsonNull(B) then TypeB := 'Null'
-  else TypeB := 'Unknown';
+  if (ARight is TJSONTrue) or (ARight is TJSONFalse) then LTypeB := 'Boolean'
+  else if ARight is TJSONNumber then LTypeB := 'Number'
+  else if ARight is TJSONString then LTypeB := 'String'
+  else if ARight is TJSONArray then LTypeB := 'Array'
+  else if ARight is TJSONObject then LTypeB := 'Object'
+  else if IsJsonNull(ARight) then LTypeB := 'Null'
+  else LTypeB := 'Unknown';
 
-  Result := TypeA <> TypeB;
-  if Result and (Differences <> nil) then
-    Differences.Add(Format('%sType mismatch %s vs %s at %s', [Indent(Options, Level), TypeA, TypeB, Path]));
+  Result := LTypeA <> LTypeB;
+  if Result and (ADifferences <> nil) then
+    ADifferences.Add(Format('%sType mismatch %s vs %s at %s', [Indent(AOptions, LLevel), LTypeA, LTypeB, APath]));
 end;
 
 { Numbers }
 
-class function TJsonStructuralComparer.NumbersEqual(const A, B: TJSONNumber;
-  const Options: TJsonCompareOptions; const Path: string; const Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.NumbersEqual(const ALeft, ARight: TJSONNumber;
+  const AOptions: TJsonCompareOptions; const APath: string; const ADifferences: TList<string>): Boolean;
 var
-  DA, DB: Double;
-  Level: Integer;
+  LDA, LDB: Double;
+  LLevel: Integer;
 begin
-  Level := PathDepth(Path);
-  DA := A.AsDouble;
-  DB := B.AsDouble;
+  LLevel := PathDepth(APath);
+  LDA := ALeft.AsDouble;
+  LDB := ARight.AsDouble;
 
-  if Options.EnableNumericTolerance then
-    Result := SameValue(DA, DB, Options.NumericTolerance)
+  if AOptions.EnableNumericTolerance then
+    Result := SameValue(LDA, LDB, AOptions.NumericTolerance)
   else
-    Result := DA = DB;
+    Result := LDA = LDB;
 
-  if (Differences <> nil) and not Result then
-    Differences.Add(Format('%sNumber mismatch %g vs %g at %s', [Indent(Options, Level), DA, DB, Path]));
+  if (ADifferences <> nil) and not Result then
+    ADifferences.Add(Format('%sNumber mismatch %g vs %g at %s', [Indent(AOptions, LLevel), LDA, LDB, APath]));
 end;
 
 { Strings }
 
-class function TJsonStructuralComparer.StringsEqual(const A, B: TJSONString;
-  const Options: TJsonCompareOptions; const Path: string; const Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.StringsEqual(const ALeft, ARight: TJSONString;
+  const AOptions: TJsonCompareOptions; const APath: string; const ADifferences: TList<string>): Boolean;
 var
-  Level: Integer;
+  LLevel: Integer;
 begin
-  Level := PathDepth(Path);
-  Result := A.Value = B.Value;
-  if (Differences <> nil) and not Result then
-    Differences.Add(Format('%sString mismatch "%s" vs "%s" at %s', [Indent(Options, Level), A.Value, B.Value, Path]));
+  LLevel := PathDepth(APath);
+  Result := ALeft.Value = ARight.Value;
+  if (ADifferences <> nil) and not Result then
+    ADifferences.Add(Format('%sString mismatch "%s" vs "%s" at %s', [Indent(AOptions, LLevel), ALeft.Value, ARight.Value, APath]));
 end;
 
 { Arrays }
 
-class function TJsonStructuralComparer.ArraysEqual(const A, B: TJSONArray;
-  const Options: TJsonCompareOptions; const Path: string; const Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.ArraysEqual(const ALeft, ARight: TJSONArray;
+  const AOptions: TJsonCompareOptions; const APath: string; const ADifferences: TList<string>): Boolean;
 var
-  I, J: Integer;
-  Matched: Boolean;
-  Used: TArray<Boolean>;
-  Level: Integer;
+  LI, LJ: Integer;
+  LMatched: Boolean;
+  LUsed: TArray<Boolean>;
+  LLevel: Integer;
 begin
-  Level := PathDepth(Path);
-  if A.Count <> B.Count then
+  LLevel := PathDepth(APath);
+  if ALeft.Count <> ARight.Count then
   begin
-    if Differences <> nil then
-      Differences.Add(Format('%sArray length mismatch %d vs %d at %s', [Indent(Options, Level), A.Count, B.Count, Path]));
+    if ADifferences <> nil then
+      ADifferences.Add(Format('%sArray length mismatch %d vs %d at %s', [Indent(AOptions, LLevel), ALeft.Count, ARight.Count, APath]));
     Exit(False);
   end;
 
   Result := True;
 
-  if not Options.ArrayOrderAgnostic then
+  if not AOptions.ArrayOrderAgnostic then
   begin
-    for I := 0 to A.Count - 1 do
-      if not AreStructurallyEqualWithDiff(A.Items[I], B.Items[I], Options, Format('%s[%d]', [Path, I]), Differences) then
+    for LI := 0 to ALeft.Count - 1 do
+      if not AreStructurallyEqualWithDiff(ALeft.Items[LI], ARight.Items[LI], AOptions, Format('%s[%d]', [APath, LI]), ADifferences) then
         Result := False;
     Exit;
   end;
 
-  SetLength(Used, B.Count);
-  for I := 0 to A.Count - 1 do
+  SetLength(LUsed, ARight.Count);
+  for LI := 0 to ALeft.Count - 1 do
   begin
-    Matched := False;
-    for J := 0 to B.Count - 1 do
+    LMatched := False;
+    for LJ := 0 to ARight.Count - 1 do
     begin
-      if Used[J] then Continue;
-      if AreStructurallyEqualWithDiff(A.Items[I], B.Items[J], Options, Format('%s[%d]', [Path, I]), nil) then
+      if LUsed[LJ] then Continue;
+      if AreStructurallyEqualWithDiff(ALeft.Items[LI], ARight.Items[LJ], AOptions, Format('%s[%d]', [APath, LI]), nil) then
       begin
-        Used[J] := True;
-        Matched := True;
+        LUsed[LJ] := True;
+        LMatched := True;
         Break;
       end;
     end;
-    if not Matched then
+    if not LMatched then
     begin
       Result := False;
-      if Differences <> nil then
-        Differences.Add(Format('%sNo matching element for %s[%d]', [Indent(Options, Level), Path, I]));
+      if ADifferences <> nil then
+        ADifferences.Add(Format('%sNo matching element for %s[%d]', [Indent(AOptions, LLevel), APath, LI]));
     end;
   end;
 end;
 
 { Objects }
 
-class function TJsonStructuralComparer.ObjectsEqual(const A, B: TJSONObject;
-  const Options: TJsonCompareOptions; const Path: string; const Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.ObjectsEqual(const ALeft, ARight: TJSONObject;
+  const AOptions: TJsonCompareOptions; const APath: string; const ADifferences: TList<string>): Boolean;
 var
-  MapA, MapB: TDictionary<string, TJSONValue>;
-  Pair: TJSONPair;
-  Name: string;
-  Va, Vb: TJSONValue;
-  Level: Integer;
+  LMapA, LMapB: TDictionary<string, TJSONValue>;
+  LPair: TJSONPair;
+  LName: string;
+  LVa, LVb: TJSONValue;
+  LLevel: Integer;
 
-  function KeyOf(const S: string): string;
+  function KeyOf(const AStr: string): string;
   begin
-    if Options.PropertyNameCaseSensitive then
-      Result := S
+    if AOptions.PropertyNameCaseSensitive then
+      Result := AStr
     else
-      Result := UpperCase(S, loInvariantLocale);
+      Result := UpperCase(AStr, loInvariantLocale);
   end;
 
 begin
-  Level := PathDepth(Path);
-  MapA := TDictionary<string, TJSONValue>.Create;
-  MapB := TDictionary<string, TJSONValue>.Create;
+  LLevel := PathDepth(APath);
+  LMapA := TDictionary<string, TJSONValue>.Create;
+  LMapB := TDictionary<string, TJSONValue>.Create;
   try
-    for Pair in A do MapA.AddOrSetValue(KeyOf(Pair.JsonString.Value), Pair.JsonValue);
-    for Pair in B do MapB.AddOrSetValue(KeyOf(Pair.JsonString.Value), Pair.JsonValue);
+    for LPair in ALeft do LMapA.AddOrSetValue(KeyOf(LPair.JsonString.Value), LPair.JsonValue);
+    for LPair in ARight do LMapB.AddOrSetValue(KeyOf(LPair.JsonString.Value), LPair.JsonValue);
 
     Result := True;
 
-    for Name in MapA.Keys do
+    for LName in LMapA.Keys do
     begin
-      if not MapB.TryGetValue(Name, Vb) then
+      if not LMapB.TryGetValue(LName, LVb) then
       begin
-        if not Options.TreatNullAndMissingPropertyAsEqual then
+        if not AOptions.TreatNullAndMissingPropertyAsEqual then
         begin
-          if Differences <> nil then
-            Differences.Add(Format('%sMissing property %s in second JSON', [Indent(Options, Level), Path + '.' + Name]));
+          if ADifferences <> nil then
+            ADifferences.Add(Format('%sMissing property %s in second JSON', [Indent(AOptions, LLevel), APath + '.' + LName]));
           Result := False;
         end;
         Continue;
       end;
 
-      Va := MapA[Name];
-      if not AreStructurallyEqualWithDiff(Va, Vb, Options, Path + '.' + Name, Differences) then
+      LVa := LMapA[LName];
+      if not AreStructurallyEqualWithDiff(LVa, LVb, AOptions, APath + '.' + LName, ADifferences) then
         Result := False;
     end;
 
-    for Name in MapB.Keys do
-      if not MapA.ContainsKey(Name) then
+    for LName in LMapB.Keys do
+      if not LMapA.ContainsKey(LName) then
       begin
-        if not Options.TreatNullAndMissingPropertyAsEqual then
+        if not AOptions.TreatNullAndMissingPropertyAsEqual then
         begin
-          if Differences <> nil then
-            Differences.Add(Format('%sExtra property %s in second JSON', [Indent(Options, Level), Path + '.' + Name]));
+          if ADifferences <> nil then
+            ADifferences.Add(Format('%sExtra property %s in second JSON', [Indent(AOptions, LLevel), APath + '.' + LName]));
           Result := False;
         end;
       end;
 
   finally
-    MapA.Free;
-    MapB.Free;
+    LMapA.Free;
+    LMapB.Free;
   end;
 end;
 
 { Public - string overload that returns boolean only or creates diffs when enabled }
 
 class function TJsonStructuralComparer.AreStructurallyEqual(
-  const JsonA, JsonB: string; const Options: TJsonCompareOptions): Boolean;
+  const AJsonA, AJsonB: string; const AOptions: TJsonCompareOptions): Boolean;
 var
-  VA, VB: TJSONValue;
+  LVA, LVB: TJSONValue;
 begin
   // Fast boolean-only path if diffs disabled: avoid allocating list
-  if not Options.Diff.EnableDiff then
+  if not AOptions.Diff.EnableDiff then
   begin
-    VA := TJSONObject.ParseJSONValue(JsonA);
-    VB := TJSONObject.ParseJSONValue(JsonB);
+    LVA := TJSONObject.ParseJSONValue(AJsonA);
+    LVB := TJSONObject.ParseJSONValue(AJsonB);
     try
-      if (VA = nil) or (VB = nil) then
+      if (LVA = nil) or (LVB = nil) then
         Exit(False);
 
-      Result := AreStructurallyEqualWithDiff(VA, VB, Options, 'Root', nil);
+      Result := AreStructurallyEqualWithDiff(LVA, LVB, AOptions, 'Root', nil);
     finally
-      VA.Free;
-      VB.Free;
+      LVA.Free;
+      LVB.Free;
     end;
     Exit;
   end;
 
   // Diff enabled -> create list, pass it in, then free
-  var LocalDifferences := TList<string>.Create;
+  var LDifferences := TList<string>.Create;
   try
-    VA := TJSONObject.ParseJSONValue(JsonA);
-    VB := TJSONObject.ParseJSONValue(JsonB);
+    LVA := TJSONObject.ParseJSONValue(AJsonA);
+    LVB := TJSONObject.ParseJSONValue(AJsonB);
     try
-      if (VA = nil) or (VB = nil) then
+      if (LVA = nil) or (LVB = nil) then
       begin
-        LocalDifferences.Add('JsonA or JsonB is nil or invalid');
+        LDifferences.Add('JsonA or JsonB is nil or invalid');
         Exit(False);
       end;
-      Result := AreStructurallyEqualWithDiff(VA, VB, Options, 'Root', LocalDifferences);
+      Result := AreStructurallyEqualWithDiff(LVA, LVB, AOptions, 'Root', LDifferences);
     finally
-      VA.Free;
-      VB.Free;
+      LVA.Free;
+      LVB.Free;
     end;
   finally
-    LocalDifferences.Free;
+    LDifferences.Free;
   end;
 end;
 
-class function TJsonStructuralComparer.AreStructurallyEqual(const A, B: TJSONValue;
-  const Options: TJsonCompareOptions): Boolean;
+class function TJsonStructuralComparer.AreStructurallyEqual(const ALeft, ARight: TJSONValue;
+  const AOptions: TJsonCompareOptions): Boolean;
 begin
   // boolean-only overload: callers expect a boolean, we don't create diffs here
-  Result := AreStructurallyEqualWithDiff(A, B, Options, 'Root', nil);
+  Result := AreStructurallyEqualWithDiff(ALeft, ARight, AOptions, 'Root', nil);
 end;
 
 { string overload that returns diffs into caller's list (may be nil) }
 class function TJsonStructuralComparer.AreStructurallyEqualWithDiff(
-  const JsonA, JsonB: string; const Options: TJsonCompareOptions;
-  Differences: TList<string>): Boolean;
+  const AJsonA, AJsonB: string; const AOptions: TJsonCompareOptions;
+  ADifferences: TList<string>): Boolean;
 var
-  VA, VB: TJSONValue;
-  OwnDifferences: TList<string>;
-  UseOwn: Boolean;
-  DiffTarget: TList<string>;
+  LVA, LVB: TJSONValue;
+  LOwnDifferences: TList<string>;
+  LUseOwn: Boolean;
+  LDiffTarget: TList<string>;
 begin
   // If caller passed nil but EnableDiff is True, create a local list so we can still produce diffs.
-  UseOwn := (Differences = nil) and Options.Diff.EnableDiff;
-  if UseOwn then
-    OwnDifferences := TList<string>.Create
+  LUseOwn := (ADifferences = nil) and AOptions.Diff.EnableDiff;
+  if LUseOwn then
+    LOwnDifferences := TList<string>.Create
   else
-    OwnDifferences := nil;
+    LOwnDifferences := nil;
 
-  VA := TJSONObject.ParseJSONValue(JsonA);
-  VB := TJSONObject.ParseJSONValue(JsonB);
+  LVA := TJSONObject.ParseJSONValue(AJsonA);
+  LVB := TJSONObject.ParseJSONValue(AJsonB);
   try
-    if (VA = nil) or (VB = nil) then
+    if (LVA = nil) or (LVB = nil) then
     begin
-      if Options.Diff.EnableDiff then
+      if AOptions.Diff.EnableDiff then
       begin
-        if UseOwn then
-          OwnDifferences.Add('JsonA or JsonB is nil or invalid')
-        else if Differences <> nil then
-          Differences.Add('JsonA or JsonB is nil or invalid');
+        if LUseOwn then
+          LOwnDifferences.Add('JsonA or JsonB is nil or invalid')
+        else if ADifferences <> nil then
+          ADifferences.Add('JsonA or JsonB is nil or invalid');
       end;
       Exit(False);
     end;
 
     // choose which list to pass to deeper comparison
-    if UseOwn then
-      DiffTarget := OwnDifferences
+    if LUseOwn then
+      LDiffTarget := LOwnDifferences
     else
-      DiffTarget := Differences;
+      LDiffTarget := ADifferences;
 
-    Result := AreStructurallyEqualWithDiff(VA, VB, Options, 'Root', DiffTarget);
+    Result := AreStructurallyEqualWithDiff(LVA, LVB, AOptions, 'Root', LDiffTarget);
   finally
-    VA.Free;
-    VB.Free;
-    if UseOwn then
-      OwnDifferences.Free;
+    LVA.Free;
+    LVB.Free;
+    if LUseOwn then
+      LOwnDifferences.Free;
   end;
 end;
 
 class function TJsonStructuralComparer.AreStructurallyEqualWithDiffString(
-  const JsonA, JsonB: string; const Options: TJsonCompareOptions): string;
+  const AJsonA, AJsonB: string; const AOptions: TJsonCompareOptions): string;
 var
-  Diff: TList<string>;
+  LDiff: TList<string>;
 begin
-  if not Options.Diff.EnableDiff then
+  if not AOptions.Diff.EnableDiff then
   begin
-    if AreStructurallyEqual(JsonA, JsonB, Options) then
+    if AreStructurallyEqual(AJsonA, AJsonB, AOptions) then
       Exit('')
     else
       Exit('JSONs differ (diff disabled)');
   end;
 
-  Diff := TList<string>.Create;
+  LDiff := TList<string>.Create;
   try
-    AreStructurallyEqualWithDiff(JsonA, JsonB, Options, Diff);
-    Result := String.Join(Options.Diff.LineBreak, Diff.ToArray);
+    AreStructurallyEqualWithDiff(AJsonA, AJsonB, AOptions, LDiff);
+    Result := String.Join(AOptions.Diff.LineBreak, LDiff.ToArray);
   finally
-    Diff.Free;
+    LDiff.Free;
   end;
 end;
 
-class function TJsonStructuralComparer.AreStructurallyEqualWithDiff(const A, B: TJSONValue;
-  const Options: TJsonCompareOptions; const Path: string;
-  Differences: TList<string>): Boolean;
+class function TJsonStructuralComparer.AreStructurallyEqualWithDiff(const ALeft, ARight: TJSONValue;
+  const AOptions: TJsonCompareOptions; const APath: string;
+  ADifferences: TList<string>): Boolean;
 begin
-  if ValuesAreNil(A, B, Options, Path, Differences) then
+  if ValuesAreNil(ALeft, ARight, AOptions, APath, ADifferences) then
     Exit(True);
 
-  if ValuesHaveTypeMismatch(A, B, Options, Path, Differences) then
+  if ValuesHaveTypeMismatch(ALeft, ARight, AOptions, APath, ADifferences) then
     Exit(False);
 
-  if (A is TJSONTrue) or (A is TJSONFalse) then
-    Exit(BooleanValuesAreEqual(A, B, Options, Path, Differences));
+  if (ALeft is TJSONTrue) or (ALeft is TJSONFalse) then
+    Exit(BooleanValuesAreEqual(ALeft, ARight, AOptions, APath, ADifferences));
 
-  if A is TJSONNumber then
-    Exit(NumbersEqual(TJSONNumber(A), TJSONNumber(B), Options, Path, Differences))
-  else if A is TJSONString then
-    Exit(StringsEqual(TJSONString(A), TJSONString(B), Options, Path, Differences))
-  else if A is TJSONArray then
-    Exit(ArraysEqual(TJSONArray(A), TJSONArray(B), Options, Path, Differences))
-  else if A is TJSONObject then
-    Exit(ObjectsEqual(TJSONObject(A), TJSONObject(B), Options, Path, Differences))
-  else if IsJsonNull(A) and IsJsonNull(B) then
+  if ALeft is TJSONNumber then
+    Exit(NumbersEqual(TJSONNumber(ALeft), TJSONNumber(ARight), AOptions, APath, ADifferences))
+  else if ALeft is TJSONString then
+    Exit(StringsEqual(TJSONString(ALeft), TJSONString(ARight), AOptions, APath, ADifferences))
+  else if ALeft is TJSONArray then
+    Exit(ArraysEqual(TJSONArray(ALeft), TJSONArray(ARight), AOptions, APath, ADifferences))
+  else if ALeft is TJSONObject then
+    Exit(ObjectsEqual(TJSONObject(ALeft), TJSONObject(ARight), AOptions, APath, ADifferences))
+  else if IsJsonNull(ALeft) and IsJsonNull(ARight) then
     Exit(True)
   else
   begin
-    if Differences <> nil then
-      Differences.Add(Format('%sUnknown JSON type mismatch at %s', [Indent(Options, PathDepth(Path)), Path]));
+    if ADifferences <> nil then
+      ADifferences.Add(Format('%sUnknown JSON type mismatch at %s', [Indent(AOptions, PathDepth(APath)), APath]));
     Exit(False);
   end;
 end;

@@ -46,7 +46,7 @@ type
 
 function IsNumericToken(const AToken: TJsonToken): Boolean;
 function GetTypeBounds(const ATypeInfo: PTypeInfo; out AMin, AMax: Double): Boolean;
-function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const V: Double): TValue;
+function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue;
 
 implementation
 
@@ -58,13 +58,13 @@ end;
 function GetTypeBounds(const ATypeInfo: PTypeInfo; out AMin, AMax: Double): Boolean;
 var
   LTypeData: PTypeData;
-  Ctx: TRttiContext;
-  RT : TRttiType;
+  LCtx: TRttiContext;
+  LRT : TRttiType;
 begin
   Result := False;
-  Ctx := TRttiContext.Create;
-  RT := Ctx.GetType(ATypeInfo);
-  case RT.TypeKind of
+  LCtx := TRttiContext.Create;
+  LRT := LCtx.GetType(ATypeInfo);
+  case LRT.TypeKind of
     tkInteger, tkInt64, tkFloat:
       begin
         LTypeData := GetTypeData(ATypeInfo);
@@ -75,90 +75,90 @@ begin
   end;
 end;
 
-function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const V: Double): TValue;
+function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue;
 var
-  W, MinVal, MaxVal: Double;
+  LW, LMinVal, LMaxVal: Double;
 
-  function NaNFix(const X: Double): Double; inline;
+  function NaNFix(const AX: Double): Double; inline;
   begin
-    if IsNan(X) then Result := 0.0 else Result := X;
+    if IsNan(AX) then Result := 0.0 else Result := AX;
   end;
 
 begin
   // Integer/ordinal types: clamp then truncate toward zero
   if ATypeInfo = TypeInfo(Byte) then
   begin
-    MinVal := Byte.MinValue; MaxVal := Byte.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<Byte>(Byte(Trunc(W))));
+    LMinVal := Byte.MinValue; LMaxVal := Byte.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<Byte>(Byte(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(ShortInt) then
   begin
-    MinVal := ShortInt.MinValue; MaxVal := ShortInt.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<ShortInt>(ShortInt(Trunc(W))));
+    LMinVal := ShortInt.MinValue; LMaxVal := ShortInt.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<ShortInt>(ShortInt(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(SmallInt) then
   begin
-    MinVal := SmallInt.MinValue; MaxVal := SmallInt.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<SmallInt>(SmallInt(Trunc(W))));
+    LMinVal := SmallInt.MinValue; LMaxVal := SmallInt.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<SmallInt>(SmallInt(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(Word) then
   begin
-    MinVal := Word.MinValue; MaxVal := Word.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<Word>(Word(Trunc(W))));
+    LMinVal := Word.MinValue; LMaxVal := Word.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<Word>(Word(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(Integer) then
   begin
-    MinVal := Integer.MinValue; MaxVal := Integer.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<Integer>(Integer(Trunc(W))));
+    LMinVal := Integer.MinValue; LMaxVal := Integer.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<Integer>(Integer(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(Cardinal) then
   begin
-    MinVal := Cardinal.MinValue; MaxVal := Cardinal.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<Cardinal>(Cardinal(Trunc(W))));
+    LMinVal := Cardinal.MinValue; LMaxVal := Cardinal.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<Cardinal>(Cardinal(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(Int64) then
   begin
-    MinVal := Int64.MinValue; MaxVal := Int64.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<Int64>(Int64(Trunc(W))));
+    LMinVal := Int64.MinValue; LMaxVal := Int64.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<Int64>(Int64(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(UInt64) then
   begin
-    Exit(TValue.From<UInt64>(TMathUtils.DoubleToUInt64(V)));
+    Exit(TValue.From<UInt64>(TMathUtils.DoubleToUInt64(AValue)));
   end
   else if ATypeInfo = TypeInfo(NativeInt) then
   begin
-    MinVal := NativeInt.MinValue; MaxVal := NativeInt.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<NativeInt>(NativeInt(Trunc(W))));
+    LMinVal := NativeInt.MinValue; LMaxVal := NativeInt.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<NativeInt>(NativeInt(Trunc(LW))));
   end
   else if ATypeInfo = TypeInfo(NativeUInt) then
   begin
-    Exit(TValue.From<UInt64>(TMathUtils.DoubleToNativeUInt(V)));
+    Exit(TValue.From<UInt64>(TMathUtils.DoubleToNativeUInt(AValue)));
   end
   // Floating types: clamp to finite range and preserve fraction
   else if ATypeInfo = TypeInfo(Single) then
   begin
-    MinVal := Single.MinValue; MaxVal := Single.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<Single>(Single(W)));
+    LMinVal := Single.MinValue; LMaxVal := Single.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<Single>(Single(LW)));
   end
   else if ATypeInfo = TypeInfo(Double) then
   begin
-    MinVal := Double.MinValue; MaxVal := Double.MaxValue;
-    W := EnsureRange(NaNFix(V), MinVal, MaxVal);
-    Exit(TValue.From<Double>(NaNFix(W)));
+    LMinVal := Double.MinValue; LMaxVal := Double.MaxValue;
+    LW := EnsureRange(NaNFix(AValue), LMinVal, LMaxVal);
+    Exit(TValue.From<Double>(NaNFix(LW)));
   end
   else
   begin
     // Fallback
-    Exit(TValue.FromVariant(Variant(NaNFix(V))));
+    Exit(TValue.FromVariant(Variant(NaNFix(AValue))));
   end;
 end;
 

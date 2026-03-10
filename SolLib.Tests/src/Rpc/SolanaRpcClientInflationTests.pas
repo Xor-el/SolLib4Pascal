@@ -53,202 +53,202 @@ implementation
 
 procedure TSolanaRpcClientInflationTests.TestGetInflationGovernor;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TInflationGovernor>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TInflationGovernor>;
 begin
-  responseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
-  requestData  := LoadTestData('Inflation/GetInflationGovernorRequest.json');
+  LResponseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
+  LRequestData  := LoadTestData('Inflation/GetInflationGovernorRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetInflationGovernor;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetInflationGovernor;
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil, 'Result should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil, 'Result should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
 
-  AssertEquals(0.05,  result.Result.Foundation);
-  AssertEquals(7,     result.Result.FoundationTerm);
-  AssertEquals(0.15,  result.Result.Initial);
-  AssertEquals(0.15,  result.Result.Taper);
-  AssertEquals(0.015, result.Result.Terminal);
+  AssertEquals(0.05,  LResult.Result.Foundation);
+  AssertEquals(7,     LResult.Result.FoundationTerm);
+  AssertEquals(0.15,  LResult.Result.Initial);
+  AssertEquals(0.15,  LResult.Result.Taper);
+  AssertEquals(0.015, LResult.Result.Terminal);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientInflationTests.TestGetInflationGovernorConfirmed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TInflationGovernor>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TInflationGovernor>;
 begin
-  responseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
-  requestData  := LoadTestData('Inflation/GetInflationGovernorConfirmedRequest.json');
+  LResponseData := LoadTestData('Inflation/GetInflationGovernorResponse.json');
+  LRequestData  := LoadTestData('Inflation/GetInflationGovernorConfirmedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetInflationGovernor(TCommitment.Confirmed);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetInflationGovernor(TCommitment.Confirmed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil, 'Result should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil, 'Result should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
 
-  AssertEquals(0.05,  result.Result.Foundation);
-  AssertEquals(7,     result.Result.FoundationTerm);
-  AssertEquals(0.15,  result.Result.Initial);
-  AssertEquals(0.15,  result.Result.Taper);
-  AssertEquals(0.015, result.Result.Terminal);
+  AssertEquals(0.05,  LResult.Result.Foundation);
+  AssertEquals(7,     LResult.Result.FoundationTerm);
+  AssertEquals(0.15,  LResult.Result.Initial);
+  AssertEquals(0.15,  LResult.Result.Taper);
+  AssertEquals(0.015, LResult.Result.Terminal);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientInflationTests.TestGetInflationRate;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TInflationRate>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TInflationRate>;
 begin
-  responseData := LoadTestData('Inflation/GetInflationRateResponse.json');
-  requestData  := LoadTestData('Inflation/GetInflationRateRequest.json');
+  LResponseData := LoadTestData('Inflation/GetInflationRateResponse.json');
+  LRequestData  := LoadTestData('Inflation/GetInflationRateRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetInflationRate;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetInflationRate;
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil, 'Result should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil, 'Result should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
 
-  AssertEquals(100,   result.Result.Epoch);
-  AssertEquals(0.149, result.Result.Total, 0.0);
-  AssertEquals(0.148, result.Result.Validator, 0.0);
-  AssertEquals(0.001, result.Result.Foundation, 0.0);
+  AssertEquals(100,   LResult.Result.Epoch);
+  AssertEquals(0.149, LResult.Result.Total, 0.0);
+  AssertEquals(0.148, LResult.Result.Validator, 0.0);
+  AssertEquals(0.001, LResult.Result.Foundation, 0.0);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientInflationTests.TestGetInflationReward;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  addrs: TArray<string>;
-  result: IRequestResult<TObjectList<TInflationReward>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LAddrs: TArray<string>;
+  LResult: IRequestResult<TObjectList<TInflationReward>>;
 begin
-  responseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
-  requestData  := LoadTestData('Inflation/GetInflationRewardRequest.json');
+  LResponseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
+  LRequestData  := LoadTestData('Inflation/GetInflationRewardRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  addrs := TArray<string>.Create(
+  LAddrs := TArray<string>.Create(
     '6dmNQ5jwLeLk5REvio1JcMshcbvkYMwy26sJ8pbkvStu',
     'BGsqMegLpV6n6Ve146sSX2dTjUMj3M92HnU8BbNRMhF2'
   );
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetInflationReward(addrs, 2);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetInflationReward(LAddrs, 2);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil, 'Result list should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil, 'Result list should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
 
-  AssertEquals(2, result.Result.Count);
-  AssertEquals(2500,         result.Result[0].Amount);
-  AssertEquals(224,          result.Result[0].EffectiveSlot);
-  AssertEquals(2,            result.Result[0].Epoch);
-  AssertEquals(499999442500, result.Result[0].PostBalance);
-  AssertTrue(result.Result[1] = nil, 'Second item should be nil');
+  AssertEquals(2, LResult.Result.Count);
+  AssertEquals(2500,         LResult.Result[0].Amount);
+  AssertEquals(224,          LResult.Result[0].EffectiveSlot);
+  AssertEquals(2,            LResult.Result[0].Epoch);
+  AssertEquals(499999442500, LResult.Result[0].PostBalance);
+  AssertTrue(LResult.Result[1] = nil, 'Second item should be nil');
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientInflationTests.TestGetInflationRewardProcessed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  addrs: TArray<string>;
-  result: IRequestResult<TObjectList<TInflationReward>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LAddrs: TArray<string>;
+  LResult: IRequestResult<TObjectList<TInflationReward>>;
 begin
-  responseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
-  requestData  := LoadTestData('Inflation/GetInflationRewardProcessedRequest.json');
+  LResponseData := LoadTestData('Inflation/GetInflationRewardResponse.json');
+  LRequestData  := LoadTestData('Inflation/GetInflationRewardProcessedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  addrs := TArray<string>.Create(
+  LAddrs := TArray<string>.Create(
     '6dmNQ5jwLeLk5REvio1JcMshcbvkYMwy26sJ8pbkvStu',
     'BGsqMegLpV6n6Ve146sSX2dTjUMj3M92HnU8BbNRMhF2'
   );
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetInflationReward(addrs, 2, TCommitment.Processed);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetInflationReward(LAddrs, 2, TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil, 'Result list should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil, 'Result list should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
 
-  AssertEquals(2, result.Result.Count);
-  AssertEquals(2500,         result.Result[0].Amount);
-  AssertEquals(224,          result.Result[0].EffectiveSlot);
-  AssertEquals(2,            result.Result[0].Epoch);
-  AssertEquals(499999442500, result.Result[0].PostBalance);
-  AssertTrue(result.Result[1] = nil, 'Second item should be nil');
+  AssertEquals(2, LResult.Result.Count);
+  AssertEquals(2500,         LResult.Result[0].Amount);
+  AssertEquals(224,          LResult.Result[0].EffectiveSlot);
+  AssertEquals(2,            LResult.Result[0].Epoch);
+  AssertEquals(499999442500, LResult.Result[0].PostBalance);
+  AssertTrue(LResult.Result[1] = nil, 'Second item should be nil');
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientInflationTests.TestGetInflationRewardNoEpoch;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  addrs: TArray<string>;
-  result: IRequestResult<TObjectList<TInflationReward>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LAddrs: TArray<string>;
+  LResult: IRequestResult<TObjectList<TInflationReward>>;
 begin
-  responseData := LoadTestData('Inflation/GetInflationRewardNoEpochResponse.json');
-  requestData  := LoadTestData('Inflation/GetInflationRewardNoEpochRequest.json');
+  LResponseData := LoadTestData('Inflation/GetInflationRewardNoEpochResponse.json');
+  LRequestData  := LoadTestData('Inflation/GetInflationRewardNoEpochRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  addrs := TArray<string>.Create(
+  LAddrs := TArray<string>.Create(
     '25xzEf8cqLLEm2wyZTEBtCDchsUFm3SVESjs6eEFHJWe',
     'GPQdoUUDQXM1gWgRVwBbYmDqAgxoZN3bhVeKr1P8jd4c'
   );
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetInflationReward(addrs);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetInflationReward(LAddrs);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil, 'Result list should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil, 'Result list should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
 
-  AssertEquals(2, result.Result.Count);
-  AssertEquals(1758149777313, result.Result[0].Amount);
-  AssertEquals(81216004,      result.Result[0].EffectiveSlot);
-  AssertEquals(187,           result.Result[0].Epoch);
-  AssertEquals(1759149777313, result.Result[0].PostBalance);
-  AssertTrue(result.Result[1] = nil, 'Second item should be nil');
+  AssertEquals(2, LResult.Result.Count);
+  AssertEquals(1758149777313, LResult.Result[0].Amount);
+  AssertEquals(81216004,      LResult.Result[0].EffectiveSlot);
+  AssertEquals(187,           LResult.Result[0].Epoch);
+  AssertEquals(1759149777313, LResult.Result[0].PostBalance);
+  AssertTrue(LResult.Result[1] = nil, 'Second item should be nil');
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 initialization

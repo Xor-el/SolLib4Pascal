@@ -63,28 +63,28 @@ end;
 function TNullableConverter<T>.ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  JV: TJSONValue;
-  Underlying: T;
+  LJV: TJSONValue;
+  LUnderlying: T;
 begin
   if AReader.TokenType = TJsonToken.PropertyName then
     AReader.Read;
 
-  JV := AReader.ReadJsonValue;
+  LJV := AReader.ReadJsonValue;
   try
-    if (JV = nil) or JV.IsKindOfClass(TJSONNull) then
+    if (LJV = nil) or LJV.IsKindOfClass(TJSONNull) then
       Exit(TValue.From<TNullable<T>>(TNullable<T>.None));
 
-    Underlying := ASerializer.Deserialize<T>(JV.ToJSON);
-    Result := TValue.From<TNullable<T>>(TNullable<T>.Some(Underlying));
+    LUnderlying := ASerializer.Deserialize<T>(LJV.ToJSON);
+    Result := TValue.From<TNullable<T>>(TNullable<T>.Some(LUnderlying));
   finally
-    JV.Free;
+    LJV.Free;
   end;
 end;
 
 procedure TNullableConverter<T>.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
   const ASerializer: TJsonSerializer);
 var
-  N: TNullable<T>;
+  LN: TNullable<T>;
 begin
   if AValue.IsEmpty then
   begin
@@ -92,9 +92,9 @@ begin
     Exit;
   end;
 
-  N := AValue.AsType<TNullable<T>>;
-  if N.HasValue then
-    ASerializer.Serialize<T>(AWriter, N.Value)
+  LN := AValue.AsType<TNullable<T>>;
+  if LN.HasValue then
+    ASerializer.Serialize<T>(AWriter, LN.Value)
   else
     AWriter.WriteNull;
 end;

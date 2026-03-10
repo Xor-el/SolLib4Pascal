@@ -360,47 +360,47 @@ end;
 
 class function TBaseClient.DeserializeAccount<T>(const AData: TBytes): T;
 var
-  Ctx      : TRttiContext;
-  TypeT    : TRttiType;
-  InstType : TRttiInstanceType;
-  Meta     : TClass;
-  MetaType : TRttiType;
-  M        : TRttiMethod;
-  Params   : TArray<TRttiParameter>;
-  Ret      : TValue;
-  Arg      : TValue;
+  LCtx      : TRttiContext;
+  LTypeT    : TRttiType;
+  LInstType : TRttiInstanceType;
+  LMeta     : TClass;
+  LMetaType : TRttiType;
+  LMethod   : TRttiMethod;
+  LParams   : TArray<TRttiParameter>;
+  LRet      : TValue;
+  LArg      : TValue;
 begin
   Result := Default(T);
 
-  Ctx := TRttiContext.Create;
+  LCtx := TRttiContext.Create;
   try
-    TypeT := Ctx.GetType(TypeInfo(T));
-    if not (TypeT is TRttiInstanceType) then
+    LTypeT := LCtx.GetType(TypeInfo(T));
+    if not (LTypeT is TRttiInstanceType) then
       raise EInvalidOp.Create('T must be a class type.');
 
-    InstType := TRttiInstanceType(TypeT);
-    Meta     := InstType.MetaclassType;
-    MetaType := Ctx.GetType(Meta);
+    LInstType := TRttiInstanceType(LTypeT);
+    LMeta     := LInstType.MetaclassType;
+    LMetaType := LCtx.GetType(LMeta);
 
     // Find a class function Deserialize(const Bytes: TBytes): <T or descendant>
-    for M in MetaType.GetMethods('Deserialize') do
+    for LMethod in LMetaType.GetMethods('Deserialize') do
     begin
-      if (M.MethodKind = mkClassFunction) then
+      if (LMethod.MethodKind = mkClassFunction) then
       begin
-        Params := M.GetParameters;
-        if (Length(Params) = 1) and (Params[0].ParamType.Handle = TypeInfo(TBytes)) then
+        LParams := LMethod.GetParameters;
+        if (Length(LParams) = 1) and (LParams[0].ParamType.Handle = TypeInfo(TBytes)) then
         begin
-          Arg := TValue.From<TBytes>(AData);
-          Ret := M.Invoke(Meta, [Arg]);
+          LArg := TValue.From<TBytes>(AData);
+          LRet := LMethod.Invoke(LMeta, [LArg]);
 
           // Accept exact T or any descendant; TryAsType avoids hard type-info comparisons
-          if Ret.TryAsType<T>(Result) then
+          if LRet.TryAsType<T>(Result) then
             Exit;
         end;
       end;
     end;
   finally
-    Ctx.Free;
+    LCtx.Free;
   end;
 end;
 
@@ -414,9 +414,9 @@ function TBaseClient.GetProgramAccounts<T>(
 var
   LRes   : IRequestResult<TObjectList<TAccountKeyPair>>;
   LParsed: TObjectList<T>;
-  Pair   : TAccountKeyPair;
-  Bytes  : TBytes;
-  Item   : T;
+  LPair   : TAccountKeyPair;
+  LBytes  : TBytes;
+  LItem   : T;
 begin
   LRes := FRpcClient.GetProgramAccounts(AProgramAddress, ADataSize, ADataSlice, AFilters, TBinaryEncoding.Base64, ACommitment);
 
@@ -425,13 +425,13 @@ begin
 
   LParsed := TObjectList<T>.Create(True);
   try
-    for Pair in LRes.Result do
+    for LPair in LRes.Result do
     begin
-      if (Assigned(Pair.Account.Data)) and (Length(Pair.Account.Data) > 0) then
+      if (Assigned(LPair.Account.Data)) and (Length(LPair.Account.Data) > 0) then
       begin
-        Bytes := TEncoders.Base64.DecodeData(Pair.Account.Data[0]);
-        Item := DeserializeAccount<T>(Bytes);
-        LParsed.Add(Item);
+        LBytes := TEncoders.Base64.DecodeData(LPair.Account.Data[0]);
+        LItem := DeserializeAccount<T>(LBytes);
+        LParsed.Add(LItem);
       end;
     end;
     Result := TProgramAccountsResultWrapper<TObjectList<T>>.Create(LRes, LParsed);
@@ -448,9 +448,9 @@ function TBaseClient.GetMultipleAccounts<T>(
 var
   LRes   : IRequestResult<TResponseValue<TObjectList<TAccountInfo>>>;
   LParsed: TObjectList<T>;
-  Info   : TAccountInfo;
-  Bytes  : TBytes;
-  Item   : T;
+  LInfo   : TAccountInfo;
+  LBytes  : TBytes;
+  LItem   : T;
 begin
   LRes := FRpcClient.GetMultipleAccounts(AAccountAddresses, TBinaryEncoding.Base64, ACommitment);
 
@@ -460,13 +460,13 @@ begin
 
   LParsed := TObjectList<T>.Create(True);
   try
-    for Info in LRes.Result.Value do
+    for LInfo in LRes.Result.Value do
     begin
-      if (Assigned(Info.Data)) and (Length(Info.Data) > 0) then
+      if (Assigned(LInfo.Data)) and (Length(LInfo.Data) > 0) then
       begin
-        Bytes := TEncoders.Base64.DecodeData(Info.Data[0]);
-        Item := DeserializeAccount<T>(Bytes);
-        LParsed.Add(Item);
+        LBytes := TEncoders.Base64.DecodeData(LInfo.Data[0]);
+        LItem := DeserializeAccount<T>(LBytes);
+        LParsed.Add(LItem);
       end;
     end;
     Result := TMultipleAccountsResultWrapper<TObjectList<T>>.Create(LRes, LParsed);
@@ -482,17 +482,17 @@ function TBaseClient.GetAccount<T>(
 ): IAccountResultWrapper<T>;
 var
   LRes  : IRequestResult<TResponseValue<TAccountInfo>>;
-  Bytes : TBytes;
-  Item  : T;
+  LBytes : TBytes;
+  LItem  : T;
 begin
   LRes := FRpcClient.GetAccountInfo(AAccountAddress, TBinaryEncoding.Base64, ACommitment);
 
   if LRes.WasSuccessful and (LRes.Result <> nil) and (LRes.Result.Value <> nil) and
      (Assigned(LRes.Result.Value.Data)) and (Length(LRes.Result.Value.Data) > 0) then
   begin
-    Bytes := TEncoders.Base64.DecodeData(LRes.Result.Value.Data[0]);
-    Item := DeserializeAccount<T>(Bytes);
-    Exit(TAccountResultWrapper<T>.Create(LRes, Item));
+    LBytes := TEncoders.Base64.DecodeData(LRes.Result.Value.Data[0]);
+    LItem := DeserializeAccount<T>(LBytes);
+    Exit(TAccountResultWrapper<T>.Create(LRes, LItem));
   end;
 
   Result := TAccountResultWrapper<T>.Create(LRes);
@@ -606,7 +606,7 @@ var
   LRecent : IRequestResult<TResponseValue<TLatestBlockHash>>;
   LWire   : TBytes;
   LMsg    : IMessage;
-  I       : Integer;
+  LI      : Integer;
   LSig    : TBytes;
 begin
   // 1) Build transaction
@@ -625,9 +625,9 @@ begin
   LWire := LTB.CompileMessage;          // message bytes for signing
   LMsg  := TMessage.Deserialize(LWire); // to inspect header/account keys
 
-  for I := 0 to LMsg.Header.RequiredSignatures - 1 do
+  for LI := 0 to LMsg.Header.RequiredSignatures - 1 do
   begin
-    LSig := ASigningCallback(LWire, LMsg.AccountKeys[I]);
+    LSig := ASigningCallback(LWire, LMsg.AccountKeys[LI]);
     LTB.AddSignature(LSig);
   end;
 

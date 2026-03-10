@@ -33,15 +33,15 @@ type
   IDecodedInstruction = interface
     ['{2A8C4084-8B5E-4A75-8C42-2E6D7B34D7C5}']
     function  GetPublicKey: IPublicKey;
-    procedure SetPublicKey(const Value: IPublicKey);
+    procedure SetPublicKey(const AValue: IPublicKey);
     function  GetProgramName: string;
-    procedure SetProgramName(const Value: string);
+    procedure SetProgramName(const AValue: string);
     function  GetInstructionName: string;
-    procedure SetInstructionName(const Value: string);
+    procedure SetInstructionName(const AValue: string);
     function  GetValues: TDictionary<string, TValue>;
-    procedure SetValues(const Value: TDictionary<string, TValue>);
+    procedure SetValues(const AValue: TDictionary<string, TValue>);
     function  GetInnerInstructions: TList<IDecodedInstruction>;
-    procedure SetInnerInstructions(const Value: TList<IDecodedInstruction>);
+    procedure SetInnerInstructions(const AValue: TList<IDecodedInstruction>);
 
     /// <summary>
     /// The public key of the program.
@@ -88,15 +88,15 @@ type
     FInnerInstructions: TList<IDecodedInstruction>;
 
     function  GetPublicKey: IPublicKey;
-    procedure SetPublicKey(const Value: IPublicKey);
+    procedure SetPublicKey(const AValue: IPublicKey);
     function  GetProgramName: string;
-    procedure SetProgramName(const Value: string);
+    procedure SetProgramName(const AValue: string);
     function  GetInstructionName: string;
-    procedure SetInstructionName(const Value: string);
+    procedure SetInstructionName(const AValue: string);
     function  GetValues: TDictionary<string, TValue>;
-    procedure SetValues(const Value: TDictionary<string, TValue>);
+    procedure SetValues(const AValue: TDictionary<string, TValue>);
     function  GetInnerInstructions: TList<IDecodedInstruction>;
-    procedure SetInnerInstructions(const Value: TList<IDecodedInstruction>);
+    procedure SetInnerInstructions(const AValue: TList<IDecodedInstruction>);
   public
     destructor Destroy; override;
 
@@ -121,9 +121,9 @@ begin
   Result := FPublicKey;
 end;
 
-procedure TDecodedInstruction.SetPublicKey(const Value: IPublicKey);
+procedure TDecodedInstruction.SetPublicKey(const AValue: IPublicKey);
 begin
-  FPublicKey := Value;
+  FPublicKey := AValue;
 end;
 
 function TDecodedInstruction.GetProgramName: string;
@@ -131,9 +131,9 @@ begin
   Result := FProgramName;
 end;
 
-procedure TDecodedInstruction.SetProgramName(const Value: string);
+procedure TDecodedInstruction.SetProgramName(const AValue: string);
 begin
-  FProgramName := Value;
+  FProgramName := AValue;
 end;
 
 function TDecodedInstruction.GetInstructionName: string;
@@ -141,9 +141,9 @@ begin
   Result := FInstructionName;
 end;
 
-procedure TDecodedInstruction.SetInstructionName(const Value: string);
+procedure TDecodedInstruction.SetInstructionName(const AValue: string);
 begin
-  FInstructionName := Value;
+  FInstructionName := AValue;
 end;
 
 function TDecodedInstruction.GetValues: TDictionary<string, TValue>;
@@ -152,9 +152,9 @@ begin
 end;
 
 procedure TDecodedInstruction.SetValues(
-  const Value: TDictionary<string, TValue>);
+  const AValue: TDictionary<string, TValue>);
 begin
-  FValues := Value;
+  FValues := AValue;
 end;
 
 function TDecodedInstruction.GetInnerInstructions: TList<IDecodedInstruction>;
@@ -163,9 +163,9 @@ begin
 end;
 
 procedure TDecodedInstruction.SetInnerInstructions(
-  const Value: TList<IDecodedInstruction>);
+  const AValue: TList<IDecodedInstruction>);
 begin
-  FInnerInstructions := Value;
+  FInnerInstructions := AValue;
 end;
 
 function TDecodedInstruction.ToString: string;
@@ -177,51 +177,51 @@ function TDecodedInstruction.ToStringIdented(AIndent: Integer): string;
 
   function PairToString(const AKey: string; const AVal: TValue): string;
   var
-    SVal: string;
+    LSVal: string;
   begin
     if AVal.IsEmpty then
-      SVal := ''
+      LSVal := ''
     else
-      SVal := AVal.ToStringExtended;
-    Result := Format('[%s, %s]', [AKey, SVal]);
+      LSVal := AVal.ToStringExtended;
+    Result := Format('[%s, %s]', [AKey, LSVal]);
   end;
 
 var
-  Indent: string;
-  KV: TPair<string, TValue>;
-  ValuesJoined: string;
-  First: Boolean;
-  Child: IDecodedInstruction;
-  PubKeyText: string;
+  LIndent: string;
+  LKV: TPair<string, TValue>;
+  LValuesJoined: string;
+  LFirst: Boolean;
+  LChild: IDecodedInstruction;
+  LPubKeyText: string;
 begin
-  Indent := StringOfChar(' ', AIndent * 4);
+  LIndent := StringOfChar(' ', AIndent * 4);
   if FPublicKey <> nil then
-    PubKeyText := FPublicKey.Key
+    LPubKeyText := FPublicKey.Key
   else
-    PubKeyText := '<nil>';
+    LPubKeyText := '<nil>';
 
   // Build joined key/value string
-  ValuesJoined := '';
-  First := True;
-  for KV in FValues do
+  LValuesJoined := '';
+  LFirst := True;
+  for LKV in FValues do
   begin
-    if not First then
-      ValuesJoined := ValuesJoined + ',';
-    ValuesJoined := ValuesJoined + PairToString(KV.Key, KV.Value);
-    First := False;
+    if not LFirst then
+      LValuesJoined := LValuesJoined + ',';
+    LValuesJoined := LValuesJoined + PairToString(LKV.Key, LKV.Value);
+    LFirst := False;
   end;
 
   // Use LF (#10)
   Result := '';
   Result := Result + Format('%s[%d] %s:%s:%s'#10,
-                            [Indent, AIndent, PubKeyText, FProgramName, FInstructionName]);
-  Result := Result + Format('%s[%d] [%s]'#10, [Indent, AIndent, ValuesJoined]);
+                            [LIndent, AIndent, LPubKeyText, FProgramName, FInstructionName]);
+  Result := Result + Format('%s[%d] [%s]'#10, [LIndent, AIndent, LValuesJoined]);
   Result := Result + Format('%s[%d] InnerInstructions (%d)'#10,
-                            [Indent, AIndent, FInnerInstructions.Count]);
+                            [LIndent, AIndent, FInnerInstructions.Count]);
 
   // Append nested inner instructions
-  for Child in FInnerInstructions do
-    Result := Result + Child.ToStringIdented(AIndent + 1);
+  for LChild in FInnerInstructions do
+    Result := Result + LChild.ToStringIdented(AIndent + 1);
 end;
 
 end.

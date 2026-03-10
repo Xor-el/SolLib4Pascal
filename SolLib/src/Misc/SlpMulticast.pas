@@ -109,17 +109,17 @@ end;
 
 procedure TMulticast<THandler>.Remove(const AHandler: THandler);
 var
-  I: Integer;
-  Cmp: IEqualityComparer<THandler>;
+  LI: Integer;
+  LCmp: IEqualityComparer<THandler>;
 begin
   // Remove ONE occurrence from the end
   FLock.Acquire;
   try
-    Cmp := TEqualityComparer<THandler>.Default;
-    for I := FList.Count - 1 downto 0 do
-      if Cmp.Equals(FList[I], AHandler) then
+    LCmp := TEqualityComparer<THandler>.Default;
+    for LI := FList.Count - 1 downto 0 do
+      if LCmp.Equals(FList[LI], AHandler) then
       begin
-        FList.Delete(I);
+        FList.Delete(LI);
         Break;
       end;
   finally
@@ -154,8 +154,8 @@ end;
 
 procedure TMulticast<THandler>.Notify(const AInvoker: TProc<THandler>);
 var
-  Snapshot: TArray<THandler>;
-  H: THandler;
+  LSnapshot: TArray<THandler>;
+  LH: THandler;
 begin
   if not Assigned(AInvoker) then Exit;
 
@@ -163,15 +163,15 @@ begin
   FLock.Acquire;
   try
     if FList.Count = 0 then Exit;
-    Snapshot := FList.ToArray;
+    LSnapshot := FList.ToArray;
   finally
     FLock.Release;
   end;
 
-  for H in Snapshot do
+  for LH in LSnapshot do
   begin
     try
-      AInvoker(H);
+      AInvoker(LH);
     except
       // Swallow to keep multicast robust.
     end;

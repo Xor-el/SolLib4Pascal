@@ -61,13 +61,13 @@ procedure TEd25519Bip32Tests.TestDerivePath_Invalid;
 begin
   AssertException(
     procedure
-    var Ed: TEd25519Bip32;
+    var LEd: TEd25519Bip32;
     begin
-      Ed := TEd25519Bip32.Create(SeedWithoutPassphrase);
+      LEd := TEd25519Bip32.Create(SeedWithoutPassphrase);
       try
-        Ed.DerivePath(InvalidDerivationPath);
+        LEd.DerivePath(InvalidDerivationPath);
       finally
-        Ed.Free;
+        LEd.Free;
       end;
     end,
     Exception

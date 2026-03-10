@@ -67,182 +67,182 @@ implementation
 
 procedure TJsonStructuralComparerTests.Test_IdenticalJson;
 var
-  JsonA, JsonB: string;
+  LJsonA, LJsonB: string;
 begin
-  JsonA := '{"name":"Alice","age":30,"active":true}';
-  JsonB := '{"name":"Alice","age":30,"active":true}';
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, TJsonCompareOptions.Default));
+  LJsonA := '{"name":"Alice","age":30,"active":true}';
+  LJsonB := '{"name":"Alice","age":30,"active":true}';
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, TJsonCompareOptions.Default));
 end;
 
 procedure TJsonStructuralComparerTests.Test_StringMismatch;
 var
-  JsonA, JsonB: string;
-  Differences: TList<string>;
+  LJsonA, LJsonB: string;
+  LDifferences: TList<string>;
 begin
-  JsonA := '{"name":"Alice"}';
-  JsonB := '{"name":"Bob"}';
-  Differences := TList<string>.Create;
+  LJsonA := '{"name":"Alice"}';
+  LJsonB := '{"name":"Bob"}';
+  LDifferences := TList<string>.Create;
   try
-    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(JsonA, JsonB, TJsonCompareOptions.Default, Differences));
-    AssertEquals(1, Differences.Count);
+    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(LJsonA, LJsonB, TJsonCompareOptions.Default, LDifferences));
+    AssertEquals(1, LDifferences.Count);
   finally
-    Differences.Free;
+    LDifferences.Free;
   end;
 end;
 
 procedure TJsonStructuralComparerTests.Test_DifferentNumbers;
 var
-  JsonA, JsonB: string;
-  Options: TJsonCompareOptions;
+  LJsonA, LJsonB: string;
+  LOptions: TJsonCompareOptions;
 begin
-  JsonA := '{"value":1.0}';
-  JsonB := '{"value":1.0000001}';
-  Options := TJsonCompareOptions.Default;
-  Options.EnableNumericTolerance := True;
-  Options.NumericTolerance := 1e-6;
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, Options));
+  LJsonA := '{"value":1.0}';
+  LJsonB := '{"value":1.0000001}';
+  LOptions := TJsonCompareOptions.Default;
+  LOptions.EnableNumericTolerance := True;
+  LOptions.NumericTolerance := 1e-6;
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, LOptions));
 end;
 
 procedure TJsonStructuralComparerTests.Test_BooleanMismatch;
 var
-  JsonA, JsonB: string;
-  Differences: TList<string>;
+  LJsonA, LJsonB: string;
+  LDifferences: TList<string>;
 begin
-  JsonA := '{"active":true}';
-  JsonB := '{"active":false}';
-  Differences := TList<string>.Create;
+  LJsonA := '{"active":true}';
+  LJsonB := '{"active":false}';
+  LDifferences := TList<string>.Create;
   try
-    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(JsonA, JsonB, TJsonCompareOptions.Default, Differences));
-    AssertEquals(1, Differences.Count);
+    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(LJsonA, LJsonB, TJsonCompareOptions.Default, LDifferences));
+    AssertEquals(1, LDifferences.Count);
   finally
-    Differences.Free;
+    LDifferences.Free;
   end;
 end;
 
 procedure TJsonStructuralComparerTests.Test_TypeMismatch;
 var
-  JsonA, JsonB: string;
-  Differences: TList<string>;
+  LJsonA, LJsonB: string;
+  LDifferences: TList<string>;
 begin
-  JsonA := '{"value":123}';
-  JsonB := '{"value":"123"}';
-  Differences := TList<string>.Create;
+  LJsonA := '{"value":123}';
+  LJsonB := '{"value":"123"}';
+  LDifferences := TList<string>.Create;
   try
-    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(JsonA, JsonB, TJsonCompareOptions.Default, Differences));
-    AssertEquals(1, Differences.Count);
+    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(LJsonA, LJsonB, TJsonCompareOptions.Default, LDifferences));
+    AssertEquals(1, LDifferences.Count);
   finally
-    Differences.Free;
+    LDifferences.Free;
   end;
 end;
 
 procedure TJsonStructuralComparerTests.Test_NullAndMissingProperty;
 var
-  JsonA, JsonB: string;
-  Options: TJsonCompareOptions;
+  LJsonA, LJsonB: string;
+  LOptions: TJsonCompareOptions;
 begin
-  JsonA := '{"a":null,"b":2}';
-  JsonB := '{"b":2}';
-  Options := TJsonCompareOptions.Default;
-  Options.TreatNullAndMissingPropertyAsEqual := True;
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, Options));
+  LJsonA := '{"a":null,"b":2}';
+  LJsonB := '{"b":2}';
+  LOptions := TJsonCompareOptions.Default;
+  LOptions.TreatNullAndMissingPropertyAsEqual := True;
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, LOptions));
 end;
 
 { ---------------- Array tests ---------------- }
 
 procedure TJsonStructuralComparerTests.Test_ArrayLengthMismatch;
 var
-  JsonA, JsonB: string;
-  Differences: TList<string>;
+  LJsonA, LJsonB: string;
+  LDifferences: TList<string>;
 begin
-  JsonA := '[1,2,3]';
-  JsonB := '[1,2]';
-  Differences := TList<string>.Create;
+  LJsonA := '[1,2,3]';
+  LJsonB := '[1,2]';
+  LDifferences := TList<string>.Create;
   try
-    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(JsonA, JsonB, TJsonCompareOptions.Default, Differences));
-    AssertEquals(1, Differences.Count);
+    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(LJsonA, LJsonB, TJsonCompareOptions.Default, LDifferences));
+    AssertEquals(1, LDifferences.Count);
   finally
-    Differences.Free;
+    LDifferences.Free;
   end;
 end;
 
 procedure TJsonStructuralComparerTests.Test_ArrayOrderAgnostic;
 var
-  JsonA, JsonB: string;
-  Options: TJsonCompareOptions;
+  LJsonA, LJsonB: string;
+  LOptions: TJsonCompareOptions;
 begin
-  JsonA := '[1,2,3]';
-  JsonB := '[3,2,1]';
-  Options := TJsonCompareOptions.Default;
-  Options.ArrayOrderAgnostic := True;
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, Options));
+  LJsonA := '[1,2,3]';
+  LJsonB := '[3,2,1]';
+  LOptions := TJsonCompareOptions.Default;
+  LOptions.ArrayOrderAgnostic := True;
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, LOptions));
 end;
 
 procedure TJsonStructuralComparerTests.Test_ArrayOrderAgnosticWithDuplicates;
 var
-  JsonA, JsonB: string;
-  Options: TJsonCompareOptions;
+  LJsonA, LJsonB: string;
+  LOptions: TJsonCompareOptions;
 begin
-  JsonA := '[{"id":1},{"id":2},{"id":2},{"id":3}]';
-  JsonB := '[{"id":2},{"id":1},{"id":3},{"id":2}]';
-  Options := TJsonCompareOptions.Default;
-  Options.ArrayOrderAgnostic := True;
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, Options));
+  LJsonA := '[{"id":1},{"id":2},{"id":2},{"id":3}]';
+  LJsonB := '[{"id":2},{"id":1},{"id":3},{"id":2}]';
+  LOptions := TJsonCompareOptions.Default;
+  LOptions.ArrayOrderAgnostic := True;
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, LOptions));
 end;
 
 procedure TJsonStructuralComparerTests.Test_ArrayOfMixedTypes;
 var
-  JsonA, JsonB: string;
+  LJsonA, LJsonB: string;
 begin
-  JsonA := '[1, "text", true, null, {"id":5}]';
-  JsonB := '[1, "text", true, null, {"id":5}]';
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, TJsonCompareOptions.Default));
+  LJsonA := '[1, "text", true, null, {"id":5}]';
+  LJsonB := '[1, "text", true, null, {"id":5}]';
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, TJsonCompareOptions.Default));
 end;
 
 procedure TJsonStructuralComparerTests.Test_NestedArraysAndObjects;
 var
-  JsonA, JsonB: string;
+  LJsonA, LJsonB: string;
 begin
-  JsonA := '{"users":[{"id":1,"tags":["admin","active"]},{"id":2,"tags":[]}] }';
-  JsonB := '{"users":[{"id":1,"tags":["admin","active"]},{"id":2,"tags":[]}] }';
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, TJsonCompareOptions.Default));
+  LJsonA := '{"users":[{"id":1,"tags":["admin","active"]},{"id":2,"tags":[]}] }';
+  LJsonB := '{"users":[{"id":1,"tags":["admin","active"]},{"id":2,"tags":[]}] }';
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, TJsonCompareOptions.Default));
 end;
 
 { ---------------- Nested objects ---------------- }
 
 procedure TJsonStructuralComparerTests.Test_NestedObjects;
 var
-  JsonA, JsonB: string;
+  LJsonA, LJsonB: string;
 begin
-  JsonA := '{"user":{"name":"Alice","stats":{"score":100,"level":5}}}';
-  JsonB := '{"user":{"name":"Alice","stats":{"score":100,"level":5}}}';
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, TJsonCompareOptions.Default));
+  LJsonA := '{"user":{"name":"Alice","stats":{"score":100,"level":5}}}';
+  LJsonB := '{"user":{"name":"Alice","stats":{"score":100,"level":5}}}';
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, TJsonCompareOptions.Default));
 end;
 
 procedure TJsonStructuralComparerTests.Test_DeeplyNestedNullsAndMissing;
 var
-  JsonA, JsonB: string;
-  Options: TJsonCompareOptions;
+  LJsonA, LJsonB: string;
+  LOptions: TJsonCompareOptions;
 begin
-  JsonA := '{"a":null,"b":{"c":null}}';
-  JsonB := '{"b":{}}';
-  Options := TJsonCompareOptions.Default;
-  Options.TreatNullAndMissingPropertyAsEqual := True;
-  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(JsonA, JsonB, Options));
+  LJsonA := '{"a":null,"b":{"c":null}}';
+  LJsonB := '{"b":{}}';
+  LOptions := TJsonCompareOptions.Default;
+  LOptions.TreatNullAndMissingPropertyAsEqual := True;
+  AssertTrue(TJsonStructuralComparer.AreStructurallyEqual(LJsonA, LJsonB, LOptions));
 end;
 
 procedure TJsonStructuralComparerTests.Test_NestedMismatch;
 var
-  JsonA, JsonB: string;
-  Differences: TList<string>;
+  LJsonA, LJsonB: string;
+  LDifferences: TList<string>;
 begin
-  JsonA := '{"user":{"id":1,"tags":["admin","active"]}}';
-  JsonB := '{"user":{"id":2,"tags":["admin","inactive"]}}';
-  Differences := TList<string>.Create;
+  LJsonA := '{"user":{"id":1,"tags":["admin","active"]}}';
+  LJsonB := '{"user":{"id":2,"tags":["admin","inactive"]}}';
+  LDifferences := TList<string>.Create;
   try
-    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(JsonA, JsonB, TJsonCompareOptions.Default, Differences));
-    AssertEquals(2, Differences.Count);
+    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(LJsonA, LJsonB, TJsonCompareOptions.Default, LDifferences));
+    AssertEquals(2, LDifferences.Count);
   finally
-    Differences.Free;
+    LDifferences.Free;
   end;
 end;
 
@@ -250,37 +250,37 @@ end;
 
 procedure TJsonStructuralComparerTests.Test_NumericMismatchWithoutTolerance;
 var
-  JsonA, JsonB: string;
-  Differences: TList<string>;
+  LJsonA, LJsonB: string;
+  LDifferences: TList<string>;
 begin
-  JsonA := '{"score":100.0001}';
-  JsonB := '{"score":100.0}';
-  Differences := TList<string>.Create;
+  LJsonA := '{"score":100.0001}';
+  LJsonB := '{"score":100.0}';
+  LDifferences := TList<string>.Create;
   try
-    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(JsonA, JsonB, TJsonCompareOptions.Default, Differences));
-    AssertEquals(1, Differences.Count);
+    AssertFalse(TJsonStructuralComparer.AreStructurallyEqualWithDiff(LJsonA, LJsonB, TJsonCompareOptions.Default, LDifferences));
+    AssertEquals(1, LDifferences.Count);
   finally
-    Differences.Free;
+    LDifferences.Free;
   end;
 end;
 
 procedure TJsonStructuralComparerTests.Test_NumericMismatchWithTolerance;
 var
-  JsonA, JsonB: string;
-  Options: TJsonCompareOptions;
-  Differences: TList<string>;
+  LJsonA, LJsonB: string;
+  LOptions: TJsonCompareOptions;
+  LDifferences: TList<string>;
 begin
-  JsonA := '{"score":100.000001}';
-  JsonB := '{"score":100.0}';
-  Differences := TList<string>.Create;
-  Options := TJsonCompareOptions.Default;
-  Options.EnableNumericTolerance := True;
-  Options.NumericTolerance := 1e-5;
+  LJsonA := '{"score":100.000001}';
+  LJsonB := '{"score":100.0}';
+  LDifferences := TList<string>.Create;
+  LOptions := TJsonCompareOptions.Default;
+  LOptions.EnableNumericTolerance := True;
+  LOptions.NumericTolerance := 1e-5;
   try
-    AssertTrue(TJsonStructuralComparer.AreStructurallyEqualWithDiff(JsonA, JsonB, Options, Differences));
-    AssertEquals(0, Differences.Count);
+    AssertTrue(TJsonStructuralComparer.AreStructurallyEqualWithDiff(LJsonA, LJsonB, LOptions, LDifferences));
+    AssertEquals(0, LDifferences.Count);
   finally
-    Differences.Free;
+    LDifferences.Free;
   end;
 end;
 
@@ -288,22 +288,22 @@ end;
 
 procedure TJsonStructuralComparerTests.Test_DiffStringOutput;
 var
-  JsonA, JsonB: string;
-  DiffStr: string;
-  Options: TJsonCompareOptions;
+  LJsonA, LJsonB: string;
+  LDiffStr: string;
+  LOptions: TJsonCompareOptions;
 begin
-  JsonA := '{"name":"Alice","score":10}';
-  JsonB := '{"name":"Bob","score":20}';
-  Options := TJsonCompareOptions.Default;
-  Options.Diff.EnableDiff := True;
-  DiffStr := TJsonStructuralComparer.AreStructurallyEqualWithDiffString(JsonA, JsonB, Options);
-  AssertTrue(DiffStr.Contains('String mismatch'));
-  AssertTrue(DiffStr.Contains('Number mismatch'));
+  LJsonA := '{"name":"Alice","score":10}';
+  LJsonB := '{"name":"Bob","score":20}';
+  LOptions := TJsonCompareOptions.Default;
+  LOptions.Diff.EnableDiff := True;
+  LDiffStr := TJsonStructuralComparer.AreStructurallyEqualWithDiffString(LJsonA, LJsonB, LOptions);
+  AssertTrue(LDiffStr.Contains('String mismatch'));
+  AssertTrue(LDiffStr.Contains('Number mismatch'));
 end;
 
 initialization
 {$IFDEF FPC}
-  RegisterTest(TJsonStructuralCompareTests);
+  RegisterTest(TJsonStructuralComparerTests);
 {$ELSE}
   RegisterTest(TJsonStructuralComparerTests.Suite);
 {$ENDIF}

@@ -580,16 +580,16 @@ end;
 class function TSystemProgramData.EncodeCreateAccountWithSeedData(
   const ABaseAccount, AOwner: IPublicKey; const ALamports, ASpace: UInt64; const ASeed: string): TBytes;
 var
- EncodedSeed: TBytes;
+ LEncodedSeed: TBytes;
 begin
-  EncodedSeed := TSerialization.EncodeBincodeString(ASeed);
-  SetLength(Result, 84 + Length(EncodedSeed));
+  LEncodedSeed := TSerialization.EncodeBincodeString(ASeed);
+  SetLength(Result, 84 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.CreateAccountWithSeed), MethodOffset);
   TSerialization.WritePubKey(Result, ABaseAccount, 4);
-  TSerialization.WriteSpan(Result, EncodedSeed, 36);
-  TSerialization.WriteU64(Result, ALamports, 36 + Length(EncodedSeed));
-  TSerialization.WriteU64(Result, ASpace, 44 + Length(EncodedSeed));
-  TSerialization.WritePubKey(Result, AOwner, 52 + Length(EncodedSeed));
+  TSerialization.WriteSpan(Result, LEncodedSeed, 36);
+  TSerialization.WriteU64(Result, ALamports, 36 + Length(LEncodedSeed));
+  TSerialization.WriteU64(Result, ASpace, 44 + Length(LEncodedSeed));
+  TSerialization.WritePubKey(Result, AOwner, 52 + Length(LEncodedSeed));
 end;
 
 class function TSystemProgramData.EncodeAdvanceNonceAccountData: TBytes;
@@ -629,41 +629,41 @@ end;
 class function TSystemProgramData.EncodeAllocateWithSeedData(
   const ABaseAccount, AOwner: IPublicKey; const ASpace: UInt64; const ASeed: string): TBytes;
 var
- EncodedSeed: TBytes;
+ LEncodedSeed: TBytes;
 begin
-  EncodedSeed := TSerialization.EncodeBincodeString(ASeed);
-  SetLength(Result, 76 + Length(EncodedSeed));
+  LEncodedSeed := TSerialization.EncodeBincodeString(ASeed);
+  SetLength(Result, 76 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.AllocateWithSeed), MethodOffset);
   TSerialization.WritePubKey(Result, ABaseAccount, 4);
-  TSerialization.WriteSpan(Result, EncodedSeed, 36);
-  TSerialization.WriteU64(Result, ASpace, 36 + Length(EncodedSeed));
-  TSerialization.WritePubKey(Result, AOwner, 44 + Length(EncodedSeed));
+  TSerialization.WriteSpan(Result, LEncodedSeed, 36);
+  TSerialization.WriteU64(Result, ASpace, 36 + Length(LEncodedSeed));
+  TSerialization.WritePubKey(Result, AOwner, 44 + Length(LEncodedSeed));
 end;
 
 class function TSystemProgramData.EncodeAssignWithSeedData(
   const ABaseAccount: IPublicKey; const ASeed: string; const AOwner: IPublicKey): TBytes;
 var
- EncodedSeed: TBytes;
+ LEncodedSeed: TBytes;
 begin
-  EncodedSeed := TSerialization.EncodeBincodeString(ASeed);
-  SetLength(Result, 68 + Length(EncodedSeed));
+  LEncodedSeed := TSerialization.EncodeBincodeString(ASeed);
+  SetLength(Result, 68 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.AssignWithSeed), MethodOffset);
   TSerialization.WritePubKey(Result, ABaseAccount, 4);
-  TSerialization.WriteSpan(Result, EncodedSeed, 36);
-  TSerialization.WritePubKey(Result, AOwner, 36 + Length(EncodedSeed));
+  TSerialization.WriteSpan(Result, LEncodedSeed, 36);
+  TSerialization.WritePubKey(Result, AOwner, 36 + Length(LEncodedSeed));
 end;
 
 class function TSystemProgramData.EncodeTransferWithSeedData(
   const AOwner: IPublicKey; const ASeed: string; const ALamports: UInt64): TBytes;
 var
- EncodedSeed: TBytes;
+ LEncodedSeed: TBytes;
 begin
-  EncodedSeed := TSerialization.EncodeBincodeString(ASeed);
-  SetLength(Result, 44 + Length(EncodedSeed));
+  LEncodedSeed := TSerialization.EncodeBincodeString(ASeed);
+  SetLength(Result, 44 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.TransferWithSeed), MethodOffset);
   TSerialization.WriteU64(Result, ALamports, 4);
-  TSerialization.WriteSpan(Result, EncodedSeed, 12);
-  TSerialization.WritePubKey(Result, AOwner, 12 + Length(EncodedSeed));
+  TSerialization.WriteSpan(Result, LEncodedSeed, 12);
+  TSerialization.WritePubKey(Result, AOwner, 12 + Length(LEncodedSeed));
 end;
 
 class procedure TSystemProgramData.DecodeCreateAccountData(
@@ -693,16 +693,16 @@ end;
 class procedure TSystemProgramData.DecodeCreateAccountWithSeedData(
   const ADecodedInstruction: IDecodedInstruction; const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
 var
- DecBinCodeData: TDecodedBincodeString;
+ LDecBinCodeData: TDecodedBincodeString;
 begin
   ADecodedInstruction.Values.Add('From Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecodedInstruction.Values.Add('To Account',   TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
   ADecodedInstruction.Values.Add('Base Account', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 4)));
-  DecBinCodeData := TDeserialization.DecodeBincodeString(AData, 36);
-  ADecodedInstruction.Values.Add('Seed',         TValue.From<string>(DecBinCodeData.EncodedString));
-  ADecodedInstruction.Values.Add('Amount',       TValue.From<UInt64>(TDeserialization.GetU64(AData, 36 + DecBinCodeData.Length)));
-  ADecodedInstruction.Values.Add('Space',        TValue.From<UInt64>(TDeserialization.GetU64(AData, 44 + DecBinCodeData.Length)));
-  ADecodedInstruction.Values.Add('Owner',        TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 52 + DecBinCodeData.Length)));
+  LDecBinCodeData := TDeserialization.DecodeBincodeString(AData, 36);
+  ADecodedInstruction.Values.Add('Seed',         TValue.From<string>(LDecBinCodeData.EncodedString));
+  ADecodedInstruction.Values.Add('Amount',       TValue.From<UInt64>(TDeserialization.GetU64(AData, 36 + LDecBinCodeData.Length)));
+  ADecodedInstruction.Values.Add('Space',        TValue.From<UInt64>(TDeserialization.GetU64(AData, 44 + LDecBinCodeData.Length)));
+  ADecodedInstruction.Values.Add('Owner',        TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 52 + LDecBinCodeData.Length)));
 end;
 
 class procedure TSystemProgramData.DecodeAdvanceNonceAccountData(
@@ -746,40 +746,40 @@ end;
 class procedure TSystemProgramData.DecodeAllocateWithSeedData(
   const ADecodedInstruction: IDecodedInstruction; const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
 var
- DecBinCodeData: TDecodedBincodeString;
+ LDecBinCodeData: TDecodedBincodeString;
 begin
   ADecodedInstruction.Values.Add('Account',      TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecodedInstruction.Values.Add('Base Account', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 4)));
-  DecBinCodeData := TDeserialization.DecodeBincodeString(AData, 36);
-  ADecodedInstruction.Values.Add('Seed',         TValue.From<string>(DecBinCodeData.EncodedString));
-  ADecodedInstruction.Values.Add('Space',        TValue.From<UInt64>(TDeserialization.GetU64(AData, 36 + DecBinCodeData.Length)));
-  ADecodedInstruction.Values.Add('Owner',        TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 44 + DecBinCodeData.Length)));
+  LDecBinCodeData := TDeserialization.DecodeBincodeString(AData, 36);
+  ADecodedInstruction.Values.Add('Seed',         TValue.From<string>(LDecBinCodeData.EncodedString));
+  ADecodedInstruction.Values.Add('Space',        TValue.From<UInt64>(TDeserialization.GetU64(AData, 36 + LDecBinCodeData.Length)));
+  ADecodedInstruction.Values.Add('Owner',        TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 44 + LDecBinCodeData.Length)));
 end;
 
 class procedure TSystemProgramData.DecodeAssignWithSeedData(
   const ADecodedInstruction: IDecodedInstruction; const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
 var
- DecBinCodeData: TDecodedBincodeString;
+ LDecBinCodeData: TDecodedBincodeString;
 begin
   ADecodedInstruction.Values.Add('Account',      TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecodedInstruction.Values.Add('Base Account', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 4)));
-  DecBinCodeData := TDeserialization.DecodeBincodeString(AData, 36);
-  ADecodedInstruction.Values.Add('Seed',         TValue.From<string>(DecBinCodeData.EncodedString));
-  ADecodedInstruction.Values.Add('Owner',        TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 36 + DecBinCodeData.Length)));
+  LDecBinCodeData := TDeserialization.DecodeBincodeString(AData, 36);
+  ADecodedInstruction.Values.Add('Seed',         TValue.From<string>(LDecBinCodeData.EncodedString));
+  ADecodedInstruction.Values.Add('Owner',        TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 36 + LDecBinCodeData.Length)));
 end;
 
 class procedure TSystemProgramData.DecodeTransferWithSeedData(
   const ADecodedInstruction: IDecodedInstruction; const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
 var
- DecBinCodeData: TDecodedBincodeString;
+ LDecBinCodeData: TDecodedBincodeString;
 begin
   ADecodedInstruction.Values.Add('From Account',     TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
   ADecodedInstruction.Values.Add('From Base Account',TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
   ADecodedInstruction.Values.Add('To Account',       TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
   ADecodedInstruction.Values.Add('Amount',           TValue.From<UInt64>(TDeserialization.GetU64(AData, 4)));
-  DecBinCodeData := TDeserialization.DecodeBincodeString(AData, 12);
-  ADecodedInstruction.Values.Add('Seed',             TValue.From<string>(DecBinCodeData.EncodedString));
-  ADecodedInstruction.Values.Add('From Owner',       TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 12 + DecBinCodeData.Length)));
+  LDecBinCodeData := TDeserialization.DecodeBincodeString(AData, 12);
+  ADecodedInstruction.Values.Add('Seed',             TValue.From<string>(LDecBinCodeData.EncodedString));
+  ADecodedInstruction.Values.Add('From Owner',       TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 12 + LDecBinCodeData.Length)));
 end;
 
 { TSystemProgram }
@@ -804,166 +804,166 @@ class function TSystemProgram.CreateAccount(
   const ALamports, ASpace: UInt64; const AProgramId: IPublicKey
 ): TTransactionInstruction;
 var
- Keys: TList<IAccountMeta>;
+ LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
+  LKeys := TList<IAccountMeta>.Create;
 
-  Keys.Add(TAccountMeta.Writable(AFromAccount, True));
-  Keys.Add(TAccountMeta.Writable(ANewAccountPublicKey, True));
+  LKeys.Add(TAccountMeta.Writable(AFromAccount, True));
+  LKeys.Add(TAccountMeta.Writable(ANewAccountPublicKey, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeCreateAccountData(AProgramId, ALamports, ASpace));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeCreateAccountData(AProgramId, ALamports, ASpace));
 end;
 
 class function TSystemProgram.Assign(
   const AAccount, AProgramId: IPublicKey
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, True));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeAssignData(AProgramId));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeAssignData(AProgramId));
 end;
 
 class function TSystemProgram.Transfer(
   const AFromPublicKey, AToPublicKey: IPublicKey; const ALamports: UInt64
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AFromPublicKey, True));
-  Keys.Add(TAccountMeta.Writable(AToPublicKey, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AFromPublicKey, True));
+  LKeys.Add(TAccountMeta.Writable(AToPublicKey, False));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeTransferData(ALamports));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeTransferData(ALamports));
 end;
 
 class function TSystemProgram.CreateAccountWithSeed(
   const AFromPublicKey, AToPublicKey, ABaseAccount: IPublicKey;
   const ASeed: string; const ALamports, ASpace: UInt64; const AOwner: IPublicKey
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AFromPublicKey, True));
-  Keys.Add(TAccountMeta.Writable(AToPublicKey, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AFromPublicKey, True));
+  LKeys.Add(TAccountMeta.Writable(AToPublicKey, False));
 
   if not ABaseAccount.Equals(AFromPublicKey) then
-    Keys.Add(TAccountMeta.ReadOnly(ABaseAccount, True));
+    LKeys.Add(TAccountMeta.ReadOnly(ABaseAccount, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeCreateAccountWithSeedData(ABaseAccount, AOwner, ALamports, ASpace, ASeed));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeCreateAccountWithSeedData(ABaseAccount, AOwner, ALamports, ASpace, ASeed));
 end;
 
 class function TSystemProgram.AdvanceNonceAccount(
   const ANonceAccountPublicKey, AAuthorized: IPublicKey
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RecentBlockHashesKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(AAuthorized, True));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RecentBlockHashesKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AAuthorized, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeAdvanceNonceAccountData);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeAdvanceNonceAccountData);
 end;
 
 class function TSystemProgram.WithdrawNonceAccount(
   const ANonceAccountPublicKey, AToPublicKey, AAuthorized: IPublicKey; const ALamports: UInt64
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
-  Keys.Add(TAccountMeta.Writable(AToPublicKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RecentBlockHashesKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(AAuthorized, True));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
+  LKeys.Add(TAccountMeta.Writable(AToPublicKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RecentBlockHashesKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AAuthorized, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeWithdrawNonceAccountData(ALamports));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeWithdrawNonceAccountData(ALamports));
 end;
 
 class function TSystemProgram.InitializeNonceAccount(
   const ANonceAccountPublicKey, AAuthorized: IPublicKey
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RecentBlockHashesKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RecentBlockHashesKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeInitializeNonceAccountData(AAuthorized));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeInitializeNonceAccountData(AAuthorized));
 end;
 
 class function TSystemProgram.AuthorizeNonceAccount(
   const ANonceAccountPublicKey, AAuthorized, ANewAuthority: IPublicKey
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(AAuthorized, True));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(ANonceAccountPublicKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AAuthorized, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeAuthorizeNonceAccountData(ANewAuthority));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeAuthorizeNonceAccountData(ANewAuthority));
 end;
 
 class function TSystemProgram.Allocate(
   const AAccount: IPublicKey; const ASpace: UInt64
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, True));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeAllocateData(ASpace));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeAllocateData(ASpace));
 end;
 
 class function TSystemProgram.AllocateWithSeed(
   const AAccount, ABaseAccount: IPublicKey; const ASeed: string; const ASpace: UInt64; const AOwner: IPublicKey
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys.Add(TAccountMeta.ReadOnly(ABaseAccount, True));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(ABaseAccount, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeAllocateWithSeedData(ABaseAccount, AOwner, ASpace, ASeed));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeAllocateWithSeedData(ABaseAccount, AOwner, ASpace, ASeed));
 end;
 
 class function TSystemProgram.AssignWithSeed(
   const AAccount, ABaseAccount: IPublicKey; const ASeed: string; const AOwner: IPublicKey
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AAccount, False));
-  Keys.Add(TAccountMeta.ReadOnly(ABaseAccount, True));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(ABaseAccount, True));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeAssignWithSeedData(ABaseAccount, ASeed, AOwner));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeAssignWithSeedData(ABaseAccount, ASeed, AOwner));
 end;
 
 class function TSystemProgram.TransferWithSeed(
   const AFromPublicKey, AFromBaseAccount: IPublicKey; const ASeed: string; const AFromOwner, AToPublicKey: IPublicKey; const ALamports: UInt64
 ): TTransactionInstruction;
-var Keys: TList<IAccountMeta>;
+var LKeys: TList<IAccountMeta>;
 begin
-  Keys := TList<IAccountMeta>.Create;
-  Keys.Add(TAccountMeta.Writable(AFromPublicKey, False));
-  Keys.Add(TAccountMeta.ReadOnly(AFromBaseAccount, True));
-  Keys.Add(TAccountMeta.ReadOnly(AToPublicKey, False));
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AFromPublicKey, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AFromBaseAccount, True));
+  LKeys.Add(TAccountMeta.ReadOnly(AToPublicKey, False));
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, Keys, TSystemProgramData.EncodeTransferWithSeedData(AFromOwner, ASeed, ALamports));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TSystemProgramData.EncodeTransferWithSeedData(AFromOwner, ASeed, ALamports));
 end;
 
 class function TSystemProgram.Decode(
   const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes
 ): IDecodedInstruction;
 var
-  Instruction: UInt32;
-  InstructionValue: TSystemProgramInstructions.TValues;
+  LInstruction: UInt32;
+  LInstructionValue: TSystemProgramInstructions.TValues;
 begin
-  Instruction := TDeserialization.GetU32(AData, TSystemProgramData.MethodOffset);
+  LInstruction := TDeserialization.GetU32(AData, TSystemProgramData.MethodOffset);
 
-  if GetEnumName(TypeInfo(TSystemProgramInstructions.TValues), Instruction) = '' then
+  if GetEnumName(TypeInfo(TSystemProgramInstructions.TValues), LInstruction) = '' then
   begin
     Result := TDecodedInstruction.Create;
     Result.PublicKey        := ProgramIdKey;
@@ -974,16 +974,16 @@ begin
     Exit;
   end;
 
-  InstructionValue := TSystemProgramInstructions.TValues(Instruction);
+  LInstructionValue := TSystemProgramInstructions.TValues(LInstruction);
 
   Result := TDecodedInstruction.Create;
   Result.PublicKey := ProgramIdKey;
   Result.ProgramName := ProgramName;
-  Result.InstructionName := TSystemProgramInstructions.Names[InstructionValue];
+  Result.InstructionName := TSystemProgramInstructions.Names[LInstructionValue];
   Result.Values := TDictionary<string, TValue>.Create;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create;
 
-  case InstructionValue of
+  case LInstructionValue of
     TSystemProgramInstructions.TValues.CreateAccount:
       TSystemProgramData.DecodeCreateAccountData(Result, AData, AKeys, AKeyIndices);
     TSystemProgramInstructions.TValues.Assign:

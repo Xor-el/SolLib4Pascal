@@ -146,27 +146,27 @@ end;
 
 procedure TKeysTests.TestPrivateKey;
 var
-  PK: IPrivateKey;
+  LPk: IPrivateKey;
 begin
-  PK := TPrivateKey.Create(PrivateKeyString);
-  AssertEquals(ExpectedPrivateKeyBytes, PK.KeyBytes, 'PrivateKey bytes mismatch');
+  LPk := TPrivateKey.Create(PrivateKeyString);
+  AssertEquals(ExpectedPrivateKeyBytes, LPk.KeyBytes, 'PrivateKey bytes mismatch');
 end;
 
 procedure TKeysTests.TestPrivateKeyToString;
 var
-  PK: IPrivateKey;
+  LPk: IPrivateKey;
 begin
-  PK := TPrivateKey.Create(PrivateKeyBytes);
-  AssertEquals(ExpectedPrivateKey, PK.ToString, 'PrivateKey.Text mismatch');
+  LPk := TPrivateKey.Create(PrivateKeyBytes);
+  AssertEquals(ExpectedPrivateKey, LPk.ToString, 'PrivateKey.Text mismatch');
 end;
 
 procedure TKeysTests.TestInvalidPrivateKeyBytes;
 begin
   AssertException(
     procedure
-    var PK: IPrivateKey;
+    var LPk: IPrivateKey;
     begin
-      PK := TPrivateKey.Create(InvalidPrivateKeyBytes);
+      LPk := TPrivateKey.Create(InvalidPrivateKeyBytes);
     end,
     EArgumentException
   );
@@ -176,10 +176,10 @@ procedure TKeysTests.TestNullPrivateKeyBytes;
 begin
   AssertException(
     procedure
-    var PK: IPrivateKey; Empty: TBytes;
+    var LPk: IPrivateKey; LEmpty: TBytes;
     begin
-      Empty := nil;
-      PK := TPrivateKey.Create(Empty);
+      LEmpty := nil;
+      LPk := TPrivateKey.Create(LEmpty);
     end,
     EArgumentNilException
   );
@@ -189,9 +189,9 @@ procedure TKeysTests.TestEmptyPrivateKeyString;
 begin
   AssertException(
     procedure
-    var PK: IPrivateKey;
+    var LPk: IPrivateKey;
     begin
-      PK := TPrivateKey.Create('');
+      LPk := TPrivateKey.Create('');
     end,
     EArgumentNilException
   );
@@ -199,20 +199,20 @@ end;
 
 procedure TKeysTests.TestPublicKeyToString;
 var
-  PK: IPublicKey;
+  LPk: IPublicKey;
 begin
-  PK := TPublicKey.Create(PublicKeyBytes);
+  LPk := TPublicKey.Create(PublicKeyBytes);
 
-  AssertEquals(PK.Key, PK.ToString, 'PublicKey.ToString mismatch');
+  AssertEquals(LPk.Key, LPk.ToString, 'PublicKey.ToString mismatch');
 end;
 
 procedure TKeysTests.TestInvalidPublicKeyBytes;
 begin
   AssertException(
     procedure
-    var PK: IPublicKey;
+    var LPk: IPublicKey;
     begin
-      PK := TPublicKey.Create(InvalidPublicKeyBytes);
+      LPk := TPublicKey.Create(InvalidPublicKeyBytes);
     end,
     EArgumentException
   );
@@ -222,9 +222,9 @@ procedure TKeysTests.TestNullPublicKeyString;
 begin
   AssertException(
     procedure
-    var PK: IPublicKey;
+    var LPk: IPublicKey;
     begin
-      PK := TPublicKey.Create('');
+      LPk := TPublicKey.Create('');
     end,
     EArgumentNilException
   );
@@ -234,10 +234,10 @@ procedure TKeysTests.TestNullPublicKeyBytes;
 begin
   AssertException(
     procedure
-    var PK: IPublicKey; Empty: TBytes;
+    var LPk: IPublicKey; LEmpty: TBytes;
     begin
-      Empty := nil;
-      PK := TPublicKey.Create(Empty);
+      LEmpty := nil;
+      LPk := TPublicKey.Create(LEmpty);
     end,
     EArgumentNilException
   );
@@ -245,39 +245,39 @@ end;
 
 procedure TKeysTests.TryCreateWithSeed;
 var
-  Success: Boolean;
-  Res, Base, ProgramId: IPublicKey;
+  LSuccess: Boolean;
+  LRes, LBase, LProgramId: IPublicKey;
 begin
-  Res := nil;
-  Base := TPublicKey.Create('11111111111111111111111111111111');
-  ProgramId := TPublicKey.Create('11111111111111111111111111111111');
+  LRes := nil;
+  LBase := TPublicKey.Create('11111111111111111111111111111111');
+  LProgramId := TPublicKey.Create('11111111111111111111111111111111');
 
-  Success := TPublicKey.TryCreateWithSeed(
-    Base,
+  LSuccess := TPublicKey.TryCreateWithSeed(
+    LBase,
     'limber chicken: 4/45',
-    ProgramId,
-    Res
+    LProgramId,
+    LRes
   );
-  AssertTrue(Success, 'TryCreateWithSeed failed');
-  AssertEquals('9h1HyLCW5dZnBVap8C5egQ9Z6pHyjsh5MNy83iPqqRuq', Res.Key);
+  AssertTrue(LSuccess, 'TryCreateWithSeed failed');
+  AssertEquals('9h1HyLCW5dZnBVap8C5egQ9Z6pHyjsh5MNy83iPqqRuq', LRes.Key);
 end;
 
 procedure TKeysTests.TryCreateWithSeed_False;
 var
-  Success: Boolean;
-  Res, Base, ProgramId: IPublicKey;
+  LSuccess: Boolean;
+  LRes, LBase, LProgramId: IPublicKey;
 begin
-  Res := nil;
-  Base := TPublicKey.Create('11111111111111111111111111111111');
-  ProgramId := TPublicKey.Create(TEncoding.UTF8.GetBytes('aaaaaaaaaaaProgramDerivedAddress'));
+  LRes := nil;
+  LBase := TPublicKey.Create('11111111111111111111111111111111');
+  LProgramId := TPublicKey.Create(TEncoding.UTF8.GetBytes('aaaaaaaaaaaProgramDerivedAddress'));
 
-  Success := TPublicKey.TryCreateWithSeed(
-    Base,
+  LSuccess := TPublicKey.TryCreateWithSeed(
+    LBase,
     'limber chicken: 4/45',
-    ProgramId,
-    Res
+    LProgramId,
+    LRes
   );
-  AssertFalse(Success, 'TryCreateWithSeed should fail');
+  AssertFalse(LSuccess, 'TryCreateWithSeed should fail');
 end;
 
 procedure TKeysTests.TestCreateProgramAddressException;
@@ -285,14 +285,14 @@ begin
   AssertException(
     procedure
     var
-      Dummy, Loader: IPublicKey;
+      LDummy, LLoader: IPublicKey;
     begin
-      Dummy := nil;
-      Loader := TPublicKey.Create(LoaderProgramIdStr);
+      LDummy := nil;
+      LLoader := TPublicKey.Create(LoaderProgramIdStr);
       TPublicKey.TryCreateProgramAddress(
         [TEncoding.UTF8.GetBytes('SeedPubey1111111111111111111111111111111111')],
-        Loader,
-        Dummy
+        LLoader,
+        LDummy
       );
     end,
     EArgumentException
@@ -303,52 +303,52 @@ procedure TKeysTests.TestCreateProgramAddress;
 const
   SunSymbol = Char($2609);
 var
-  Loader, PubKey: IPublicKey;
-  Ok: Boolean;
-  B58Seed: TBytes;
+  LLoader, LPubKey: IPublicKey;
+  LOk: Boolean;
+  LB58Seed: TBytes;
 begin
-  Loader := TPublicKey.Create(LoaderProgramIdStr);
-  PubKey := nil;
+  LLoader := TPublicKey.Create(LoaderProgramIdStr);
+  LPubKey := nil;
 
   // 1) Base58-decoded seed
-  B58Seed := TEncoders.Base58.DecodeData('SeedPubey1111111111111111111111111111111111');
-  Ok := TPublicKey.TryCreateProgramAddress([B58Seed], Loader, PubKey);
-  AssertTrue(Ok, 'TryCreateProgramAddress #1 failed');
-  AssertEquals('GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K', PubKey.Key);
-  PubKey := nil;
+  LB58Seed := TEncoders.Base58.DecodeData('SeedPubey1111111111111111111111111111111111');
+  LOk := TPublicKey.TryCreateProgramAddress([LB58Seed], LLoader, LPubKey);
+  AssertTrue(LOk, 'TryCreateProgramAddress #1 failed');
+  AssertEquals('GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K', LPubKey.Key);
+  LPubKey := nil;
 
   // 2) "", 0x01
-  Ok := TPublicKey.TryCreateProgramAddress(
+  LOk := TPublicKey.TryCreateProgramAddress(
     [TEncoding.UTF8.GetBytes(''), TBytes.Create(Byte(1))],
-    Loader,
-    PubKey
+    LLoader,
+    LPubKey
   );
-  AssertTrue(Ok, 'TryCreateProgramAddress #2 failed');
-  AssertEquals('3gF2KMe9KiC6FNVBmfg9i267aMPvK37FewCip4eGBFcT', PubKey.Key);
-  PubKey := nil;
+  AssertTrue(LOk, 'TryCreateProgramAddress #2 failed');
+  AssertEquals('3gF2KMe9KiC6FNVBmfg9i267aMPvK37FewCip4eGBFcT', LPubKey.Key);
+  LPubKey := nil;
 
   // 3) "☉"
-  Ok := TPublicKey.TryCreateProgramAddress([TEncoding.UTF8.GetBytes(SunSymbol)], Loader, PubKey);
-  AssertTrue(Ok, 'TryCreateProgramAddress #3 failed');
-  AssertEquals('7ytmC1nT1xY4RfxCV2ZgyA7UakC93do5ZdyhdF3EtPj7', PubKey.Key);
+  LOk := TPublicKey.TryCreateProgramAddress([TEncoding.UTF8.GetBytes(SunSymbol)], LLoader, LPubKey);
+  AssertTrue(LOk, 'TryCreateProgramAddress #3 failed');
+  AssertEquals('7ytmC1nT1xY4RfxCV2ZgyA7UakC93do5ZdyhdF3EtPj7', LPubKey.Key);
 end;
 
 procedure TKeysTests.TestFindProgramAddress;
 var
-  Loader, Derived, Recreated: IPublicKey;
-  Nonce: Byte;
-  Ok: Boolean;
+  LLoader, LDerived, LRecreated: IPublicKey;
+  LNonce: Byte;
+  LOk: Boolean;
 begin
-  Loader := TPublicKey.Create(LoaderProgramIdStr);
-  Derived := nil;
-  Recreated := nil;
+  LLoader := TPublicKey.Create(LoaderProgramIdStr);
+  LDerived := nil;
+  LRecreated := nil;
 
-  Ok := TPublicKey.TryFindProgramAddress([TEncoding.UTF8.GetBytes('')], Loader, Derived, Nonce);
-  AssertTrue(Ok, 'TryFindProgramAddress failed');
+  LOk := TPublicKey.TryFindProgramAddress([TEncoding.UTF8.GetBytes('')], LLoader, LDerived, LNonce);
+  AssertTrue(LOk, 'TryFindProgramAddress failed');
 
-  Ok := TPublicKey.TryCreateProgramAddress([TEncoding.UTF8.GetBytes(''), TBytes.Create(Nonce)], Loader, Recreated);
-  AssertTrue(Ok, 'TryCreateProgramAddress recreate failed');
-  AssertEquals(Derived.Key, Recreated.Key);
+  LOk := TPublicKey.TryCreateProgramAddress([TEncoding.UTF8.GetBytes(''), TBytes.Create(LNonce)], LLoader, LRecreated);
+  AssertTrue(LOk, 'TryCreateProgramAddress recreate failed');
+  AssertEquals(LDerived.Key, LRecreated.Key);
 end;
 
 procedure TKeysTests.TestIsValid;
@@ -398,9 +398,9 @@ procedure TKeysTests.TestCreateBadPublicKeyFatal_1;
 begin
   AssertException(
     procedure
-    var PK: IPublicKey;
+    var LPk: IPublicKey;
     begin
-      PK := TPublicKey.Create('GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K ');
+      LPk := TPublicKey.Create('GUs5qLUfsEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K ');
     end,
     EArgumentException
   );
@@ -410,9 +410,9 @@ procedure TKeysTests.TestCreateBadPublicKeyFatal_2;
 begin
   AssertException(
     procedure
-    var PK: IPublicKey;
+    var LPk: IPublicKey;
     begin
-      PK := TPublicKey.Create('GUs5qLU&sEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K');
+      LPk := TPublicKey.Create('GUs5qLU&sEHkcMB9T38vjr18ypEhRuNWiePW2LoK4E3K');
     end,
     EArgumentException
   );
@@ -420,82 +420,82 @@ end;
 
 procedure TKeysTests.Equals_PublicKey_ExactSameInterface_ReturnsTrue;
 var
-  A, B: IPublicKey;
+  LA, LB: IPublicKey;
 begin
-  A := TPublicKey.Create(PublicKeyString);
-  B := A; // same interface reference
-  AssertTrue(A.Equals(B), 'Exact same interface reference should be equal');
+  LA := TPublicKey.Create(PublicKeyString);
+  LB := LA; // same interface reference
+  AssertTrue(LA.Equals(LB), 'Exact same interface reference should be equal');
 end;
 
 procedure TKeysTests.Equals_PublicKey_SameKeyDifferentInstances_ReturnsTrue;
 var
-  A, B: IPublicKey;
+  LA, LB: IPublicKey;
 begin
   // Two DISTINCT instances, constructed with the SAME keys
-  A := TPublicKey.Create(PublicKeyString);
-  B := TPublicKey.Create(PublicKeyString);
+  LA := TPublicKey.Create(PublicKeyString);
+  LB := TPublicKey.Create(PublicKeyString);
 
-  AssertTrue(A.Equals(B), 'Equals should be True when public keys are equal');
-  AssertTrue(B.Equals(A), 'Equals should be symmetric when public keys are equal');
+  AssertTrue(LA.Equals(LB), 'Equals should be True when public keys are equal');
+  AssertTrue(LB.Equals(LA), 'Equals should be symmetric when public keys are equal');
 end;
 
 procedure TKeysTests.Equals_PublicKey_DifferentKeys_ReturnsFalse;
 var
-  A, B: IPublicKey;
+  LA, LB: IPublicKey;
 begin
-  A := TPublicKey.Create(PublicKeyString);
-  B := TPublicKey.Create(LoaderProgramIdStr);
+  LA := TPublicKey.Create(PublicKeyString);
+  LB := TPublicKey.Create(LoaderProgramIdStr);
 
-  AssertFalse(A.Equals(B), 'Equals should be False when public keys differ');
-  AssertFalse(B.Equals(A), 'Equals should be symmetric when public keys differ');
+  AssertFalse(LA.Equals(LB), 'Equals should be False when public keys differ');
+  AssertFalse(LB.Equals(LA), 'Equals should be symmetric when public keys differ');
 end;
 
 procedure TKeysTests.Equals_PublicKey_Nil_ReturnsFalse;
 var
-  A: IPublicKey;
+  LA: IPublicKey;
 begin
-  A := TPublicKey.Create(PublicKeyString);
-  AssertFalse(A.Equals(nil), 'Equals(nil) should be False');
+  LA := TPublicKey.Create(PublicKeyString);
+  AssertFalse(LA.Equals(nil), 'Equals(nil) should be False');
 end;
 
 procedure TKeysTests.Equals_PrivateKey_ExactSameInterface_ReturnsTrue;
 var
-  A, B: IPrivateKey;
+  LA, LB: IPrivateKey;
 begin
-  A := TPrivateKey.Create(PrivateKeyString);
-  B := A; // same interface reference
-  AssertTrue(A.Equals(B), 'Exact same interface reference should be equal');
+  LA := TPrivateKey.Create(PrivateKeyString);
+  LB := LA; // same interface reference
+  AssertTrue(LA.Equals(LB), 'Exact same interface reference should be equal');
 end;
 
 procedure TKeysTests.Equals_PrivateKey_SameKeyDifferentInstances_ReturnsTrue;
 var
-  A, B: IPrivateKey;
+  LA, LB: IPrivateKey;
 begin
   // Two DISTINCT instances, constructed with the SAME keys
-  A := TPrivateKey.Create(PrivateKeyString);
-  B := TPrivateKey.Create(PrivateKeyString);
+  LA := TPrivateKey.Create(PrivateKeyString);
+  LB := TPrivateKey.Create(PrivateKeyString);
 
-  AssertTrue(A.Equals(B), 'Equals should be True when private keys are equal');
-  AssertTrue(B.Equals(A), 'Equals should be symmetric when private keys are equal');
+  AssertTrue(LA.Equals(LB), 'Equals should be True when private keys are equal');
+  AssertTrue(LB.Equals(LA), 'Equals should be symmetric when private keys are equal');
 end;
 
 procedure TKeysTests.Equals_PrivateKey_DifferentKeys_ReturnsFalse;
 var
-  A, B: IPrivateKey;
+  LA, LB: IPrivateKey;
 begin
-  A := TPrivateKey.Create(PrivateKeyString);
-  B := TPrivateKey.Create(ExpectedPrivateKey);
+  LA := TPrivateKey.Create(PrivateKeyString);
+  LB := TPrivateKey.Create(ExpectedPrivateKey);
 
-  AssertFalse(A.Equals(B), 'Equals should be False when private keys differ');
-  AssertFalse(B.Equals(A), 'Equals should be symmetric when private keys differ');
+  AssertFalse(LA.Equals(LB), 'Equals should be False when private keys differ');
+  AssertFalse(LB.Equals(LA), 'Equals should be symmetric when private keys differ');
 end;
 
 procedure TKeysTests.Equals_PrivateKey_Nil_ReturnsFalse;
 var
-  A: IPrivateKey;
+  LA: IPrivateKey;
 begin
-  A := TPrivateKey.Create(PrivateKeyString);
-  AssertFalse(A.Equals(nil), 'Equals(nil) should be False');
+  LA := TPrivateKey.Create(PrivateKeyString);
+  AssertFalse(LA.Equals(nil), 'Equals(nil) should be False');
 end;
 
 initialization

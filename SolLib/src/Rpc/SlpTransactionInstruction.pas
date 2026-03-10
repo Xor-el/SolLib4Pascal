@@ -133,7 +133,7 @@ type
     constructor Create(const AProgramIdIndex: Byte;
       const AKeyIndicesCount, AKeyIndices, ADataLength, AData: TBytes);
 
-    class function Deserialize(const Data: TBytes) : TCompiledInstructionDecode; static;
+    class function Deserialize(const AData: TBytes) : TCompiledInstructionDecode; static;
 
   end;
 
@@ -159,32 +159,32 @@ end;
 
 function TTransactionInstruction.Clone: ITransactionInstruction;
 var
-  NewKeys: TList<IAccountMeta>;
-  SrcMeta, DstMeta: IAccountMeta;
+  LNewKeys: TList<IAccountMeta>;
+  LSrcMeta, LDstMeta: IAccountMeta;
 begin
-  NewKeys := nil;
+  LNewKeys := nil;
 
   if Assigned(FKeys) then
   begin
-    NewKeys := TList<IAccountMeta>.Create;
+    LNewKeys := TList<IAccountMeta>.Create;
     try
-      for SrcMeta in FKeys do
+      for LSrcMeta in FKeys do
       begin
-        if Assigned(SrcMeta) then
-          DstMeta := SrcMeta.Clone
+        if Assigned(LSrcMeta) then
+          LDstMeta := LSrcMeta.Clone
         else
-          DstMeta := nil;
-        NewKeys.Add(DstMeta);
+          LDstMeta := nil;
+        LNewKeys.Add(LDstMeta);
       end;
     except
-      NewKeys.Free;
+      LNewKeys.Free;
       raise;
     end;
   end;
 
   Result := Make(
               TArrayUtils.Copy<Byte>(FProgramId),
-              NewKeys,
+              LNewKeys,
               TArrayUtils.Copy<Byte>(FData)
             );
 end;
@@ -275,57 +275,57 @@ begin
             Length(FDataLength) + Length(FData);
 end;
 
-class function TCompiledInstruction.Deserialize(const Data: TBytes): TCompiledInstructionDecode;
+class function TCompiledInstruction.Deserialize(const AData: TBytes): TCompiledInstructionDecode;
 var
-  InstructionLength: Integer;
+  LInstructionLength: Integer;
   LProgramIdIndex: Byte;
-  EncodedKeyIndicesLength: TBytes;
-  KeyIndicesLength, KeyIndicesLengthEncodedLength: Integer;
+  LEncodedKeyIndicesLength: TBytes;
+  LKeyIndicesLength, LKeyIndicesLengthEncodedLength: Integer;
   LKeyIndices: TBytes;
-  EncodedDataLength: TBytes;
-  LDataLength, DataLengthEncodedLength: Integer;
-  InstructionEncodedData: TBytes;
+  LEncodedDataLength: TBytes;
+  LDataLength, LDataLengthEncodedLength: Integer;
+  LInstructionEncodedData: TBytes;
 begin
-  InstructionLength := 0;
+  LInstructionLength := 0;
 
-  LProgramIdIndex := Data[TCompiledInstruction.Layout.ProgramIdIndexOffset];
-  Inc(InstructionLength, 1);
+  LProgramIdIndex := AData[TCompiledInstruction.Layout.ProgramIdIndexOffset];
+  Inc(LInstructionLength, 1);
 
-  EncodedKeyIndicesLength := TArrayUtils.Slice<Byte>(Data, InstructionLength,
+  LEncodedKeyIndicesLength := TArrayUtils.Slice<Byte>(AData, LInstructionLength,
     TShortVectorEncoding.SpanLength);
-  with TShortVectorEncoding.DecodeLength(EncodedKeyIndicesLength) do
+  with TShortVectorEncoding.DecodeLength(LEncodedKeyIndicesLength) do
   begin
-    KeyIndicesLength := Value;
-    KeyIndicesLengthEncodedLength := Length;
+    LKeyIndicesLength := Value;
+    LKeyIndicesLengthEncodedLength := Length;
   end;
-  Inc(InstructionLength, KeyIndicesLengthEncodedLength);
+  Inc(LInstructionLength, LKeyIndicesLengthEncodedLength);
 
-  LKeyIndices := TArrayUtils.Slice<Byte>(Data, InstructionLength, KeyIndicesLength);
-  Inc(InstructionLength, KeyIndicesLength);
+  LKeyIndices := TArrayUtils.Slice<Byte>(AData, LInstructionLength, LKeyIndicesLength);
+  Inc(LInstructionLength, LKeyIndicesLength);
 
-  if Length(Data) > InstructionLength + TShortVectorEncoding.SpanLength then
-    EncodedDataLength := TArrayUtils.Slice<Byte>(Data, InstructionLength, TShortVectorEncoding.SpanLength)
+  if Length(AData) > LInstructionLength + TShortVectorEncoding.SpanLength then
+    LEncodedDataLength := TArrayUtils.Slice<Byte>(AData, LInstructionLength, TShortVectorEncoding.SpanLength)
   else
-    EncodedDataLength := TArrayUtils.Slice<Byte>(Data, InstructionLength, Length(Data) - InstructionLength);
+    LEncodedDataLength := TArrayUtils.Slice<Byte>(AData, LInstructionLength, Length(AData) - LInstructionLength);
 
-  with TShortVectorEncoding.DecodeLength(EncodedDataLength) do
+  with TShortVectorEncoding.DecodeLength(LEncodedDataLength) do
   begin
     LDataLength := Value;
-    DataLengthEncodedLength := Length;
+    LDataLengthEncodedLength := Length;
   end;
-  Inc(InstructionLength, DataLengthEncodedLength);
+  Inc(LInstructionLength, LDataLengthEncodedLength);
 
-  InstructionEncodedData := TArrayUtils.Slice<Byte>(Data, InstructionLength, LDataLength);
-  Inc(InstructionLength, LDataLength);
+  LInstructionEncodedData := TArrayUtils.Slice<Byte>(AData, LInstructionLength, LDataLength);
+  Inc(LInstructionLength, LDataLength);
 
   Result.Instruction := Make(
     LProgramIdIndex,
-    TArrayUtils.Slice<Byte>(EncodedKeyIndicesLength, 0, KeyIndicesLengthEncodedLength),
+    TArrayUtils.Slice<Byte>(LEncodedKeyIndicesLength, 0, LKeyIndicesLengthEncodedLength),
     LKeyIndices,
-    TArrayUtils.Slice<Byte>(EncodedDataLength, 0, DataLengthEncodedLength),
-    InstructionEncodedData
+    TArrayUtils.Slice<Byte>(LEncodedDataLength, 0, LDataLengthEncodedLength),
+    LInstructionEncodedData
   );
-  Result.Length := InstructionLength;
+  Result.Length := LInstructionLength;
 end;
 
 class function TCompiledInstruction.Make(const AProgramIdIndex: Byte;

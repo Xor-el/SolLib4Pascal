@@ -105,7 +105,7 @@ implementation
 constructor ETokenWalletException<T>.Create(const AMessage: string;
   const AFailedResult: IRequestResult<T>);
 begin
-  inherited Create(&Message);
+  inherited Create(AMessage);
   FRequestResult := AFailedResult;
 end;
 

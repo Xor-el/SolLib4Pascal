@@ -59,9 +59,9 @@ type
   /// </summary>
   TDefaultHashProvider = class(TInterfacedObject, IHashProvider)
   public
-    function SHA256(const Data: TBytes): TBytes;
-    function SHA512(const Data: TBytes): TBytes;
-    function Keccak256(const Data: TBytes): TBytes;
+    function SHA256(const AData: TBytes): TBytes;
+    function SHA512(const AData: TBytes): TBytes;
+    function Keccak256(const AData: TBytes): TBytes;
   end;
 
   /// <summary>
@@ -69,8 +69,8 @@ type
   /// </summary>
   TDefaultHmacProvider = class(TInterfacedObject, IHmacProvider)
   public
-    function HmacSHA256(const Key, Data: TBytes): TBytes;
-    function HmacSHA512(const Key, Data: TBytes): TBytes;
+    function HmacSHA256(const AKey, AData: TBytes): TBytes;
+    function HmacSHA512(const AKey, AData: TBytes): TBytes;
   end;
 
   /// <summary>
@@ -78,9 +78,9 @@ type
   /// </summary>
   TDefaultKdfProvider = class(TInterfacedObject, IKdfProvider)
   public
-    function Pbkdf2SHA256(const Password, Salt: TBytes; Iterations, DKLen: Integer): TBytes;
-    function Pbkdf2SHA512(const Password, Salt: TBytes; Iterations, DKLen: Integer): TBytes;
-    function Scrypt(const Password, Salt: TBytes; N, R, P, DKLen: Integer): TBytes;
+    function Pbkdf2SHA256(const APassword, ASalt: TBytes; AIterations, ADKLen: Integer): TBytes;
+    function Pbkdf2SHA512(const APassword, ASalt: TBytes; AIterations, ADKLen: Integer): TBytes;
+    function Scrypt(const APassword, ASalt: TBytes; AN, AR, AP, ADKLen: Integer): TBytes;
   end;
 
   /// <summary>
@@ -88,10 +88,10 @@ type
   /// </summary>
   TDefaultCipherProvider = class(TInterfacedObject, ICipherProvider)
   private
-    procedure ValidateAesKeyIv(const Key, IV: TBytes);
+    procedure ValidateAesKeyIv(const AKey, AIV: TBytes);
   public
-    function AesCtrEncrypt(const Key, IV, Data: TBytes): TBytes;
-    function AesCtrDecrypt(const Key, IV, Data: TBytes): TBytes;
+    function AesCtrEncrypt(const AKey, AIV, AData: TBytes): TBytes;
+    function AesCtrDecrypt(const AKey, AIV, AData: TBytes): TBytes;
   end;
 
   /// <summary>
@@ -102,8 +102,8 @@ type
     class var FSecureRandom: ISecureRandom;
     class constructor Create;
   public
-    function RandomBytes(Size: Integer): TBytes;
-    procedure FillRandom(const Output: TBytes);
+    function RandomBytes(ASize: Integer): TBytes;
+    procedure FillRandom(const AOutput: TBytes);
   end;
 
   /// <summary>
@@ -118,19 +118,19 @@ type
     // SHA-512(seed) with RFC8032 clamping
     // - First 32 bytes = clamped scalar
     // - Next 32 bytes  = prefix
-    class function GetExpandedPrivateKeyFromSeed(const Seed32: TBytes): TBytes; static;
+    class function GetExpandedPrivateKeyFromSeed(const ASeed32: TBytes): TBytes; static;
     // IsOnCurve helpers
-    class function ExpMod(const number, exponent, modulo: TBigInteger): TBigInteger; static;
-    class function Inv(const x: TBigInteger): TBigInteger; static;
-    class function IsEven(const x: TBigInteger): Boolean; static;
-    class function RecoverX(const y: TBigInteger): TBigInteger; static;
-    class function IsOnCurveXY(const x, y: TBigInteger): Boolean; static;
-    class function BigIntFromLEUnsigned(const Key: TBytes): TBigInteger; static;
+    class function ExpMod(const ANumber, AExponent, AModulo: TBigInteger): TBigInteger; static;
+    class function Inv(const AX: TBigInteger): TBigInteger; static;
+    class function IsEven(const AX: TBigInteger): Boolean; static;
+    class function RecoverX(const AY: TBigInteger): TBigInteger; static;
+    class function IsOnCurveXY(const AX, AY: TBigInteger): Boolean; static;
+    class function BigIntFromLEUnsigned(const AKey: TBytes): TBigInteger; static;
   public
-    function GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair;
-    function Sign(const SecretKey64, &Message: TBytes): TBytes;
-    function Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean;
-    function IsOnCurve(const PublicKey32: TBytes): Boolean;
+    function GenerateKeyPair(const ASeed32: TBytes): TEd25519KeyPair;
+    function Sign(const ASecretKey64, AMessage: TBytes): TBytes;
+    function Verify(const APublicKey32, AMessage, ASignature64: TBytes): Boolean;
+    function IsOnCurve(const APublicKey32: TBytes): Boolean;
   end;
 
   /// <summary>
@@ -138,168 +138,170 @@ type
   /// </summary>
   TScryptImpl = class sealed
   strict private
-    class function SingleIterationPbkdf2(const P, S: TBytes; DKLen: Integer): TBytes; static;
-    class procedure BulkCopy(Dst, Src: Pointer; Len: NativeInt); static;
-    class procedure BulkXor(Dst, Src: Pointer; Len: NativeInt); static;
-    class procedure Encode32(P: PByte; X: Cardinal); static;
-    class function Decode32(P: PByte): Cardinal; static;
-    class function RotateLeft32(A: Cardinal; B: Integer): Cardinal; static; inline;
-    class procedure Salsa208(B: PCardinal); static;
-    class procedure BlockMix(Bin, Bout, X: PCardinal; RoundsR: Integer); static;
-    class function Integerify(B: PCardinal; RoundsR: Integer): UInt64; static;
-    class procedure SMix(B: PByte; RoundsR, N: Integer; V, XY: PCardinal); static;
+    class function SingleIterationPbkdf2(const APassword, ASalt: TBytes; DKLen: Integer): TBytes; static;
+    class procedure BulkCopy(ADst, ASrc: Pointer; ALen: NativeInt); static;
+    class procedure BulkXor(ADst, ASrc: Pointer; ALen: NativeInt); static;
+    class procedure Encode32(AP: PByte; AX: Cardinal); static;
+    class function Decode32(AP: PByte): Cardinal; static;
+    class function RotateLeft32(AA: Cardinal; AB: Integer): Cardinal; static; inline;
+    class procedure Salsa208(AB: PCardinal); static;
+    class procedure BlockMix(ABin, ABout, AX: PCardinal; ARoundsR: Integer); static;
+    class function Integerify(AB: PCardinal; ARoundsR: Integer): UInt64; static;
+    class procedure SMix(AB: PByte; ARoundsR, AN: Integer; AV, AXY: PCardinal); static;
   public
-    class function DeriveKey(const Password, Salt: TBytes;
-      N, RoundsR, PCount, DKLen: Integer): TBytes; static;
+    class function DeriveKey(const APassword, ASalt: TBytes;
+      AN, AR, AP, ADKLen: Integer): TBytes; static;
   end;
 
 implementation
 
 { TDefaultHashProvider }
 
-function TDefaultHashProvider.SHA256(const Data: TBytes): TBytes;
+function TDefaultHashProvider.SHA256(const AData: TBytes): TBytes;
 var
-  D: IDigest;
+  LDigest: IDigest;
 begin
-  D := TDigestUtilities.GetDigest('SHA-256');
-  if Length(Data) > 0 then
-    D.BlockUpdate(Data, 0, Length(Data));
-  SetLength(Result, D.GetDigestSize);
-  D.DoFinal(Result, 0);
+  LDigest := TDigestUtilities.GetDigest('SHA-256');
+  if Length(AData) > 0 then
+    LDigest.BlockUpdate(AData, 0, Length(AData));
+  SetLength(Result, LDigest.GetDigestSize);
+  LDigest.DoFinal(Result, 0);
 end;
 
-function TDefaultHashProvider.SHA512(const Data: TBytes): TBytes;
+function TDefaultHashProvider.SHA512(const AData: TBytes): TBytes;
 var
-  D: IDigest;
+  LDigest: IDigest;
 begin
-  D := TDigestUtilities.GetDigest('SHA-512');
-  if Length(Data) > 0 then
-    D.BlockUpdate(Data, 0, Length(Data));
-  SetLength(Result, D.GetDigestSize);
-  D.DoFinal(Result, 0);
+  LDigest := TDigestUtilities.GetDigest('SHA-512');
+  if Length(AData) > 0 then
+    LDigest.BlockUpdate(AData, 0, Length(AData));
+  SetLength(Result, LDigest.GetDigestSize);
+  LDigest.DoFinal(Result, 0);
 end;
 
-function TDefaultHashProvider.Keccak256(const Data: TBytes): TBytes;
+function TDefaultHashProvider.Keccak256(const AData: TBytes): TBytes;
 var
-  D: IDigest;
+  LDigest: IDigest;
 begin
-  D := TDigestUtilities.GetDigest('KECCAK-256');
-  if Length(Data) > 0 then
-    D.BlockUpdate(Data, 0, Length(Data));
-  SetLength(Result, D.GetDigestSize);
-  D.DoFinal(Result, 0);
+  LDigest := TDigestUtilities.GetDigest('KECCAK-256');
+  if Length(AData) > 0 then
+    LDigest.BlockUpdate(AData, 0, Length(AData));
+  SetLength(Result, LDigest.GetDigestSize);
+  LDigest.DoFinal(Result, 0);
 end;
 
 { TDefaultHmacProvider }
 
-function TDefaultHmacProvider.HmacSHA256(const Key, Data: TBytes): TBytes;
+function TDefaultHmacProvider.HmacSHA256(const AKey, AData: TBytes): TBytes;
 var
-  D: IDigest;
-  H: IMac;
-  KP: IKeyParameter;
+  LDigest: IDigest;
+  LMac: IMac;
+  LKeyParam: IKeyParameter;
 begin
-  D := TDigestUtilities.GetDigest('SHA-256');
-  H := THMac.Create(D);
-  KP := TKeyParameter.Create(Key);
-  H.Init(KP);
-  if Length(Data) > 0 then
-    H.BlockUpdate(Data, 0, Length(Data));
-  SetLength(Result, H.GetMacSize);
-  H.DoFinal(Result, 0);
+  LDigest := TDigestUtilities.GetDigest('SHA-256');
+  LMac := THMac.Create(LDigest);
+  LKeyParam := TKeyParameter.Create(AKey);
+  LMac.Init(LKeyParam);
+  if Length(AData) > 0 then
+    LMac.BlockUpdate(AData, 0, Length(AData));
+  SetLength(Result, LMac.GetMacSize);
+  LMac.DoFinal(Result, 0);
 end;
 
-function TDefaultHmacProvider.HmacSHA512(const Key, Data: TBytes): TBytes;
+function TDefaultHmacProvider.HmacSHA512(const AKey, AData: TBytes): TBytes;
 var
-  D: IDigest;
-  H: IMac;
-  KP: IKeyParameter;
+  LDigest: IDigest;
+  LMac: IMac;
+  LKeyParam: IKeyParameter;
 begin
-  D := TDigestUtilities.GetDigest('SHA-512');
-  H := THMac.Create(D);
-  KP := TKeyParameter.Create(Key);
-  H.Init(KP);
-  if Length(Data) > 0 then
-    H.BlockUpdate(Data, 0, Length(Data));
-  SetLength(Result, H.GetMacSize);
-  H.DoFinal(Result, 0);
+  LDigest := TDigestUtilities.GetDigest('SHA-512');
+  LMac := THMac.Create(LDigest);
+  LKeyParam := TKeyParameter.Create(AKey);
+  LMac.Init(LKeyParam);
+  if Length(AData) > 0 then
+    LMac.BlockUpdate(AData, 0, Length(AData));
+  SetLength(Result, LMac.GetMacSize);
+  LMac.DoFinal(Result, 0);
 end;
 
 { TDefaultKdfProvider }
 
-function TDefaultKdfProvider.Pbkdf2SHA256(const Password, Salt: TBytes;
-  Iterations, DKLen: Integer): TBytes;
+function TDefaultKdfProvider.Pbkdf2SHA256(const APassword, ASalt: TBytes;
+  AIterations, ADKLen: Integer): TBytes;
 var
-  Gen: IPkcs5S2ParametersGenerator;
-  Params: ICipherParameters;
-  KeyParam: IKeyParameter;
+  LGen: IPkcs5S2ParametersGenerator;
+  LParams: ICipherParameters;
+  LKeyParam: IKeyParameter;
 begin
-  Gen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-256'));
-  Gen.Init(Password, Salt, Iterations);
-  Params := Gen.GenerateDerivedMacParameters(DKLen * 8);
-  KeyParam := Params as IKeyParameter;
-  Result := KeyParam.GetKey;
+  LGen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-256'));
+  LGen.Init(APassword, ASalt, AIterations);
+  LParams := LGen.GenerateDerivedMacParameters(ADKLen * 8);
+  if not Supports(LParams, IKeyParameter, LKeyParam) then
+    raise EArgumentException.Create('Derived parameters do not support IKeyParameter.');
+  Result := LKeyParam.GetKey;
 end;
 
-function TDefaultKdfProvider.Pbkdf2SHA512(const Password, Salt: TBytes;
-  Iterations, DKLen: Integer): TBytes;
+function TDefaultKdfProvider.Pbkdf2SHA512(const APassword, ASalt: TBytes;
+  AIterations, ADKLen: Integer): TBytes;
 var
-  Gen: IPkcs5S2ParametersGenerator;
-  Params: ICipherParameters;
-  KeyParam: IKeyParameter;
+  LGen: IPkcs5S2ParametersGenerator;
+  LParams: ICipherParameters;
+  LKeyParam: IKeyParameter;
 begin
-  Gen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-512'));
-  Gen.Init(Password, Salt, Iterations);
-  Params := Gen.GenerateDerivedMacParameters(DKLen * 8);
-  KeyParam := Params as IKeyParameter;
-  Result := KeyParam.GetKey;
+  LGen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-512'));
+  LGen.Init(APassword, ASalt, AIterations);
+  LParams := LGen.GenerateDerivedMacParameters(ADKLen * 8);
+  if not Supports(LParams, IKeyParameter, LKeyParam) then
+    raise EArgumentException.Create('Derived parameters do not support IKeyParameter.');
+  Result := LKeyParam.GetKey;
 end;
 
-function TDefaultKdfProvider.Scrypt(const Password, Salt: TBytes;
-  N, R, P, DKLen: Integer): TBytes;
+function TDefaultKdfProvider.Scrypt(const APassword, ASalt: TBytes;
+  AN, AR, AP, ADKLen: Integer): TBytes;
 begin
-  Result := TScryptImpl.DeriveKey(Password, Salt, N, R, P, DKLen);
+  Result := TScryptImpl.DeriveKey(APassword, ASalt, AN, AR, AP, ADKLen);
 end;
 
 { TDefaultCipherProvider }
 
-procedure TDefaultCipherProvider.ValidateAesKeyIv(const Key, IV: TBytes);
+procedure TDefaultCipherProvider.ValidateAesKeyIv(const AKey, AIV: TBytes);
 begin
-  case Length(Key) of
+  case Length(AKey) of
     16, 24, 32: ; // ok
   else
     raise EArgumentException.Create('AES key must be 16, 24, or 32 bytes.');
   end;
 
-  if Length(IV) <> 16 then
+  if Length(AIV) <> 16 then
     raise EArgumentException.Create('AES-CTR IV/nonce must be 16 bytes.');
 end;
 
-function TDefaultCipherProvider.AesCtrEncrypt(const Key, IV, Data: TBytes): TBytes;
+function TDefaultCipherProvider.AesCtrEncrypt(const AKey, AIV, AData: TBytes): TBytes;
 var
-  Cipher: IBufferedCipher;
-  KeyParams: IKeyParameter;
-  KeyParamsWithIV: IParametersWithIV;
+  LCipher: IBufferedCipher;
+  LKeyParams: IKeyParameter;
+  LKeyParamsWithIV: IParametersWithIV;
 begin
-  ValidateAesKeyIv(Key, IV);
-  KeyParams := TParameterUtilities.CreateKeyParameter('AES', Key);
-  KeyParamsWithIV := TParametersWithIV.Create(KeyParams, IV);
-  Cipher := TCipherUtilities.GetCipher('AES/CTR/NoPadding');
-  Cipher.Init(True, KeyParamsWithIV);
-  Result := Cipher.DoFinal(Data);
+  ValidateAesKeyIv(AKey, AIV);
+  LKeyParams := TParameterUtilities.CreateKeyParameter('AES', AKey);
+  LKeyParamsWithIV := TParametersWithIV.Create(LKeyParams, AIV);
+  LCipher := TCipherUtilities.GetCipher('AES/CTR/NoPadding');
+  LCipher.Init(True, LKeyParamsWithIV);
+  Result := LCipher.DoFinal(AData);
 end;
 
-function TDefaultCipherProvider.AesCtrDecrypt(const Key, IV, Data: TBytes): TBytes;
+function TDefaultCipherProvider.AesCtrDecrypt(const AKey, AIV, AData: TBytes): TBytes;
 var
-  Cipher: IBufferedCipher;
-  KeyParams: IKeyParameter;
-  KeyParamsWithIV: IParametersWithIV;
+  LCipher: IBufferedCipher;
+  LKeyParams: IKeyParameter;
+  LKeyParamsWithIV: IParametersWithIV;
 begin
-  ValidateAesKeyIv(Key, IV);
-  KeyParams := TParameterUtilities.CreateKeyParameter('AES', Key);
-  KeyParamsWithIV := TParametersWithIV.Create(KeyParams, IV);
-  Cipher := TCipherUtilities.GetCipher('AES/CTR/NoPadding');
-  Cipher.Init(False, KeyParamsWithIV);
-  Result := Cipher.DoFinal(Data);
+  ValidateAesKeyIv(AKey, AIV);
+  LKeyParams := TParameterUtilities.CreateKeyParameter('AES', AKey);
+  LKeyParamsWithIV := TParametersWithIV.Create(LKeyParams, AIV);
+  LCipher := TCipherUtilities.GetCipher('AES/CTR/NoPadding');
+  LCipher.Init(False, LKeyParamsWithIV);
+  Result := LCipher.DoFinal(AData);
 end;
 
 { TDefaultRandomProvider }
@@ -309,19 +311,19 @@ begin
   FSecureRandom := TSecureRandom.Create;
 end;
 
-function TDefaultRandomProvider.RandomBytes(Size: Integer): TBytes;
+function TDefaultRandomProvider.RandomBytes(ASize: Integer): TBytes;
 begin
-  if Size < 0 then
+  if ASize < 0 then
     raise EArgumentException.Create('Size must be >= 0');
-  SetLength(Result, Size);
-  if Size > 0 then
+  SetLength(Result, ASize);
+  if ASize > 0 then
     FillRandom(Result);
 end;
 
-procedure TDefaultRandomProvider.FillRandom(const Output: TBytes);
+procedure TDefaultRandomProvider.FillRandom(const AOutput: TBytes);
 begin
-  if Length(Output) > 0 then
-    FSecureRandom.NextBytes(Output);
+  if Length(AOutput) > 0 then
+    FSecureRandom.NextBytes(AOutput);
 end;
 
 { TDefaultEd25519Provider }
@@ -331,81 +333,81 @@ begin
   Result := TEd25519.Create;
 end;
 
-function TDefaultEd25519Provider.GenerateKeyPair(const Seed32: TBytes): TEd25519KeyPair;
+function TDefaultEd25519Provider.GenerateKeyPair(const ASeed32: TBytes): TEd25519KeyPair;
 var
-  Priv: IEd25519PrivateKeyParameters;
-  Pub: IEd25519PublicKeyParameters;
-  Pk: TBytes;
+  LPriv: IEd25519PrivateKeyParameters;
+  LPub: IEd25519PublicKeyParameters;
+  LPk: TBytes;
 begin
-  if Length(Seed32) <> 32 then
+  if Length(ASeed32) <> 32 then
     raise EArgumentException.Create('Seed must be exactly 32 bytes');
 
   // Private key from seed
-  Priv := TEd25519PrivateKeyParameters.Create(GetEd25519Instance, Seed32, 0);
+  LPriv := TEd25519PrivateKeyParameters.Create(GetEd25519Instance, ASeed32, 0);
 
   // Derive public key (32 bytes)
-  Pub := Priv.GeneratePublicKey;
-  Pk := Pub.GetEncoded;
+  LPub := LPriv.GeneratePublicKey;
+  LPk := LPub.GetEncoded;
 
   // SecretKey = Seed || PublicKey
   SetLength(Result.SecretKey, 64);
-  if Length(Seed32) > 0 then
-    TArrayUtils.Copy<Byte>(Seed32, 0, Result.SecretKey, 0, 32);
-  if Length(Pk) > 0 then
-    TArrayUtils.Copy<Byte>(Pk, 0, Result.SecretKey, 32, 32);
+  if Length(ASeed32) > 0 then
+    TArrayUtils.Copy<Byte>(ASeed32, 0, Result.SecretKey, 0, 32);
+  if Length(LPk) > 0 then
+    TArrayUtils.Copy<Byte>(LPk, 0, Result.SecretKey, 32, 32);
 
-  Result.PublicKey := Pk;
+  Result.PublicKey := LPk;
 end;
 
-function TDefaultEd25519Provider.Sign(const SecretKey64, &Message: TBytes): TBytes;
+function TDefaultEd25519Provider.Sign(const ASecretKey64, AMessage: TBytes): TBytes;
 var
-  Seed: TBytes;
-  Priv: IEd25519PrivateKeyParameters;
-  Signer: ISigner;
+  LSeed: TBytes;
+  LPriv: IEd25519PrivateKeyParameters;
+  LSigner: ISigner;
 begin
-  if Length(SecretKey64) <> 64 then
+  if Length(ASecretKey64) <> 64 then
     raise EArgumentException.Create('SecretKey must be 64 bytes [Seed||PublicKey]');
 
   // First 32 bytes are the seed
-  SetLength(Seed, 32);
-  TArrayUtils.Copy<Byte>(SecretKey64, 0, Seed, 0, 32);
+  SetLength(LSeed, 32);
+  TArrayUtils.Copy<Byte>(ASecretKey64, 0, LSeed, 0, 32);
 
   // Private key from seed
-  Priv := TEd25519PrivateKeyParameters.Create(GetEd25519Instance, Seed, 0);
+  LPriv := TEd25519PrivateKeyParameters.Create(GetEd25519Instance, LSeed, 0);
 
   // Sign
-  Signer := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
-  Signer.Init(True, Priv);
-  if Length(&Message) > 0 then
-    Signer.BlockUpdate(&Message, 0, Length(&Message));
+  LSigner := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
+  LSigner.Init(True, LPriv);
+  if Length(AMessage) > 0 then
+    LSigner.BlockUpdate(AMessage, 0, Length(AMessage));
 
-  Result := Signer.GenerateSignature; // 64 bytes
+  Result := LSigner.GenerateSignature; // 64 bytes
 end;
 
-function TDefaultEd25519Provider.Verify(const PublicKey32, &Message, Signature64: TBytes): Boolean;
+function TDefaultEd25519Provider.Verify(const APublicKey32, AMessage, ASignature64: TBytes): Boolean;
 var
-  Pub: IEd25519PublicKeyParameters;
-  Verifier: ISigner;
+  LPub: IEd25519PublicKeyParameters;
+  LVerifier: ISigner;
 begin
-  if Length(PublicKey32) <> 32 then
+  if Length(APublicKey32) <> 32 then
     raise EArgumentException.Create('PublicKey must be 32 bytes');
-  if Length(Signature64) <> 64 then
+  if Length(ASignature64) <> 64 then
     raise EArgumentException.Create('Signature must be 64 bytes');
 
-  Pub := TEd25519PublicKeyParameters.Create(PublicKey32, 0);
+  LPub := TEd25519PublicKeyParameters.Create(APublicKey32, 0);
 
-  Verifier := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
-  Verifier.Init(False, Pub);
-  if Length(&Message) > 0 then
-    Verifier.BlockUpdate(&Message, 0, Length(&Message));
+  LVerifier := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
+  LVerifier.Init(False, LPub);
+  if Length(AMessage) > 0 then
+    LVerifier.BlockUpdate(AMessage, 0, Length(AMessage));
 
-  Result := Verifier.VerifySignature(Signature64);
+  Result := LVerifier.VerifySignature(ASignature64);
 end;
 
 class constructor TDefaultEd25519Provider.Create;
-  function BI(const S: string): TBigInteger; inline;
+  function BI(const AStr: string): TBigInteger; inline;
   begin
-    Result := TBigInteger.Create(S);
+    Result := TBigInteger.Create(AStr);
   end;
 begin
   // Prime field order q
@@ -425,18 +427,18 @@ begin
   FEight := TBigInteger.ValueOf(8);
 end;
 
-class function TDefaultEd25519Provider.GetExpandedPrivateKeyFromSeed(const Seed32: TBytes): TBytes;
+class function TDefaultEd25519Provider.GetExpandedPrivateKeyFromSeed(const ASeed32: TBytes): TBytes;
 var
-  D: IDigest;
+  LDigest: IDigest;
 begin
-  if Length(Seed32) <> 32 then
+  if Length(ASeed32) <> 32 then
     raise EArgumentException.Create('Seed must be 32 bytes');
 
   // SHA-512 of seed
-  D := TDigestUtilities.GetDigest('SHA-512');
-  D.BlockUpdate(Seed32, 0, 32);
-  SetLength(Result, D.GetDigestSize);
-  D.DoFinal(Result, 0);
+  LDigest := TDigestUtilities.GetDigest('SHA-512');
+  LDigest.BlockUpdate(ASeed32, 0, 32);
+  SetLength(Result, LDigest.GetDigestSize);
+  LDigest.DoFinal(Result, 0);
 
   if Length(Result) <> 64 then
     raise EInvalidOpException.Create('SHA-512 did not return 64 bytes');
@@ -447,320 +449,321 @@ begin
   Result[31] := Result[31] or $40;
 end;
 
-class function TDefaultEd25519Provider.ExpMod(const number, exponent, modulo: TBigInteger): TBigInteger;
+class function TDefaultEd25519Provider.ExpMod(const ANumber, AExponent, AModulo: TBigInteger): TBigInteger;
 begin
-  Result := number.ModPow(exponent, modulo);
+  Result := ANumber.ModPow(AExponent, AModulo);
 end;
 
-class function TDefaultEd25519Provider.Inv(const x: TBigInteger): TBigInteger;
+class function TDefaultEd25519Provider.Inv(const AX: TBigInteger): TBigInteger;
 begin
   // Fermat: x^(q-2) mod q
-  Result := ExpMod(x, FQm2, FQ);
+  Result := ExpMod(AX, FQm2, FQ);
 end;
 
-class function TDefaultEd25519Provider.IsEven(const x: TBigInteger): Boolean;
+class function TDefaultEd25519Provider.IsEven(const AX: TBigInteger): Boolean;
 begin
-  Result := not x.TestBit(0);
+  Result := not AX.TestBit(0);
 end;
 
-class function TDefaultEd25519Provider.RecoverX(const y: TBigInteger): TBigInteger;
+class function TDefaultEd25519Provider.RecoverX(const AY: TBigInteger): TBigInteger;
 var
-  y2, xx, x, chk: TBigInteger;
+  LY2, LXX, LX, LChk: TBigInteger;
 begin
-  // xx = (y^2 - 1) * inv(d*y^2 + 1) (mod q)
-  y2 := y.Multiply(y);
-  xx := y2.Subtract(TBigInteger.One);
-  xx := xx.Multiply(Inv(FD.Multiply(y2).Add(TBigInteger.One)));
-  xx := xx.&Mod(FQ);
+  // LXX = (y^2 - 1) * inv(d*y^2 + 1) (mod q)
+  LY2 := AY.Multiply(AY);
+  LXX := LY2.Subtract(TBigInteger.One);
+  LXX := LXX.Multiply(Inv(FD.Multiply(LY2).Add(TBigInteger.One)));
+  LXX := LXX.&Mod(FQ);
 
-  // x = xx^((q+3)/8) mod q
-  x := xx.ModPow(FQp3.Divide(FEight), FQ);
+  // LX = LXX^((q+3)/8) mod q
+  LX := LXX.ModPow(FQp3.Divide(FEight), FQ);
 
-  // if (x^2 - xx) mod q != 0 then x = (x * i) mod q
-  chk := x.Multiply(x).Subtract(xx).&Mod(FQ);
-  if not chk.Equals(TBigInteger.Zero) then
-    x := x.Multiply(FI).&Mod(FQ);
+  // if (LX^2 - LXX) mod q != 0 then LX = (LX * i) mod q
+  LChk := LX.Multiply(LX).Subtract(LXX).&Mod(FQ);
+  if not LChk.Equals(TBigInteger.Zero) then
+    LX := LX.Multiply(FI).&Mod(FQ);
 
   // choose the even representative
-  if not IsEven(x) then
-    x := FQ.Subtract(x);
+  if not IsEven(LX) then
+    LX := FQ.Subtract(LX);
 
-  Result := x;
+  Result := LX;
 end;
 
-class function TDefaultEd25519Provider.IsOnCurveXY(const x, y: TBigInteger): Boolean;
+class function TDefaultEd25519Provider.IsOnCurveXY(const AX, AY: TBigInteger): Boolean;
 var
-  xx, yy, dxxyy: TBigInteger;
+  LXX, LYY, LDxxyy: TBigInteger;
 begin
-  // yy - xx - d*yy*xx - 1 == 0 (mod q)
-  xx := x.Multiply(x);
-  yy := y.Multiply(y);
-  dxxyy := FD.Multiply(yy).Multiply(xx);
+  // LYY - LXX - d*LYY*LXX - 1 == 0 (mod q)
+  LXX := AX.Multiply(AX);
+  LYY := AY.Multiply(AY);
+  LDxxyy := FD.Multiply(LYY).Multiply(LXX);
 
-  Result := yy.Subtract(xx).Subtract(dxxyy).Subtract(TBigInteger.One).&Mod(FQ)
+  Result := LYY.Subtract(LXX).Subtract(LDxxyy).Subtract(TBigInteger.One).&Mod(FQ)
     .Equals(TBigInteger.Zero);
 end;
 
-class function TDefaultEd25519Provider.BigIntFromLEUnsigned(const Key: TBytes): TBigInteger;
+class function TDefaultEd25519Provider.BigIntFromLEUnsigned(const AKey: TBytes): TBigInteger;
 var
-  be: TBytes;
-  i, L: Integer;
+  LBe: TBytes;
+  LI, LLen: Integer;
 begin
   // Little-endian unsigned -> big-endian magnitude -> positive BigInteger
-  L := Length(Key);
-  SetLength(be, L);
+  LLen := Length(AKey);
+  SetLength(LBe, LLen);
 
-  for i := 0 to L - 1 do
-    be[i] := Key[L - 1 - i];
+  for LI := 0 to LLen - 1 do
+    LBe[LI] := AKey[LLen - 1 - LI];
   // Use ctor (sign, magnitude) to force positive
-  Result := TBigInteger.Create(1, be);
+  Result := TBigInteger.Create(1, LBe);
 end;
 
-function TDefaultEd25519Provider.IsOnCurve(const PublicKey32: TBytes): Boolean;
+function TDefaultEd25519Provider.IsOnCurve(const APublicKey32: TBytes): Boolean;
 var
-  y, x: TBigInteger;
+  LY, LX: TBigInteger;
 begin
-  if Length(PublicKey32) <> 32 then
+  if Length(APublicKey32) <> 32 then
     raise EArgumentException.Create('PublicKey must be 32 bytes');
 
-  // y = (LE 32 bytes) & (2^255 - 1)
-  y := BigIntFromLEUnsigned(PublicKey32).&And(FUn);
-  x := RecoverX(y);
-  Result := IsOnCurveXY(x, y);
+  // LY = (LE 32 bytes) & (2^255 - 1)
+  LY := BigIntFromLEUnsigned(APublicKey32).&And(FUn);
+  LX := RecoverX(LY);
+  Result := IsOnCurveXY(LX, LY);
 end;
 
 { TScryptImpl }
 
-class function TScryptImpl.SingleIterationPbkdf2(const P, S: TBytes; DKLen: Integer): TBytes;
+class function TScryptImpl.SingleIterationPbkdf2(const APassword, ASalt: TBytes; DKLen: Integer): TBytes;
 var
-  Gen: IPkcs5S2ParametersGenerator;
-  Params: ICipherParameters;
-  KeyParam: IKeyParameter;
+  LGen: IPkcs5S2ParametersGenerator;
+  LParams: ICipherParameters;
+  LKeyParam: IKeyParameter;
 begin
-  Gen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-256'));
-  Gen.Init(P, S, 1);
-  Params := Gen.GenerateDerivedMacParameters(DKLen * 8);
-  KeyParam := Params as IKeyParameter;
-  Result := KeyParam.GetKey;
+  LGen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-256'));
+  LGen.Init(APassword, ASalt, 1);
+  LParams := LGen.GenerateDerivedMacParameters(DKLen * 8);
+  if not Supports(LParams, IKeyParameter, LKeyParam) then
+    raise EArgumentException.Create('Derived parameters do not support IKeyParameter.');
+  Result := LKeyParam.GetKey;
 end;
 
-class procedure TScryptImpl.BulkCopy(Dst, Src: Pointer; Len: NativeInt);
+class procedure TScryptImpl.BulkCopy(ADst, ASrc: Pointer; ALen: NativeInt);
 begin
-  Move(Src^, Dst^, Len);
+  Move(ASrc^, ADst^, ALen);
 end;
 
-class procedure TScryptImpl.BulkXor(Dst, Src: Pointer; Len: NativeInt);
+class procedure TScryptImpl.BulkXor(ADst, ASrc: Pointer; ALen: NativeInt);
 var
-  d, s: PByte;
-  L: NativeInt;
+  LDst, LSrc: PByte;
+  LLen: NativeInt;
 begin
-  d := Dst; s := Src; L := Len;
-  while L >= 8 do
+  LDst := ADst; LSrc := ASrc; LLen := ALen;
+  while LLen >= 8 do
   begin
-    PUInt64(d)^ := PUInt64(d)^ xor PUInt64(s)^;
-    Inc(d, 8); Inc(s, 8); Dec(L, 8);
+    PUInt64(LDst)^ := PUInt64(LDst)^ xor PUInt64(LSrc)^;
+    Inc(LDst, 8); Inc(LSrc, 8); Dec(LLen, 8);
   end;
-  if L >= 4 then
+  if LLen >= 4 then
   begin
-    PCardinal(d)^ := PCardinal(d)^ xor PCardinal(s)^;
-    Inc(d, 4); Inc(s, 4); Dec(L, 4);
+    PCardinal(LDst)^ := PCardinal(LDst)^ xor PCardinal(LSrc)^;
+    Inc(LDst, 4); Inc(LSrc, 4); Dec(LLen, 4);
   end;
-  if L >= 2 then
+  if LLen >= 2 then
   begin
-    PWord(d)^ := PWord(d)^ xor PWord(s)^;
-    Inc(d, 2); Inc(s, 2); Dec(L, 2);
+    PWord(LDst)^ := PWord(LDst)^ xor PWord(LSrc)^;
+    Inc(LDst, 2); Inc(LSrc, 2); Dec(LLen, 2);
   end;
-  if L >= 1 then
-    d^ := d^ xor s^;
+  if LLen >= 1 then
+    LDst^ := LDst^ xor LSrc^;
 end;
 
-class procedure TScryptImpl.Encode32(P: PByte; X: Cardinal);
+class procedure TScryptImpl.Encode32(AP: PByte; AX: Cardinal);
 begin
-  P[0] := Byte(X and $FF);
-  P[1] := Byte((X shr 8) and $FF);
-  P[2] := Byte((X shr 16) and $FF);
-  P[3] := Byte((X shr 24) and $FF);
+  AP[0] := Byte(AX and $FF);
+  AP[1] := Byte((AX shr 8) and $FF);
+  AP[2] := Byte((AX shr 16) and $FF);
+  AP[3] := Byte((AX shr 24) and $FF);
 end;
 
-class function TScryptImpl.Decode32(P: PByte): Cardinal;
+class function TScryptImpl.Decode32(AP: PByte): Cardinal;
 begin
   Result :=
-    Cardinal(P[0]) or
-    (Cardinal(P[1]) shl 8) or
-    (Cardinal(P[2]) shl 16) or
-    (Cardinal(P[3]) shl 24);
+    Cardinal(AP[0]) or
+    (Cardinal(AP[1]) shl 8) or
+    (Cardinal(AP[2]) shl 16) or
+    (Cardinal(AP[3]) shl 24);
 end;
 
-class function TScryptImpl.RotateLeft32(A: Cardinal; B: Integer): Cardinal;
+class function TScryptImpl.RotateLeft32(AA: Cardinal; AB: Integer): Cardinal;
 begin
-  Result := TBits.RotateLeft32(A, B);
+  Result := TBits.RotateLeft32(AA, AB);
 end;
 
-class procedure TScryptImpl.Salsa208(B: PCardinal);
+class procedure TScryptImpl.Salsa208(AB: PCardinal);
 var
-  x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15: Cardinal;
-  i: Integer;
+  LX0,LX1,LX2,LX3,LX4,LX5,LX6,LX7,LX8,LX9,LX10,LX11,LX12,LX13,LX14,LX15: Cardinal;
+  LI: Integer;
 begin
-  x0 := B[0];  x1 := B[1];  x2 := B[2];  x3 := B[3];
-  x4 := B[4];  x5 := B[5];  x6 := B[6];  x7 := B[7];
-  x8 := B[8];  x9 := B[9];  x10 := B[10]; x11 := B[11];
-  x12 := B[12]; x13 := B[13]; x14 := B[14]; x15 := B[15];
+  LX0 := AB[0];  LX1 := AB[1];  LX2 := AB[2];  LX3 := AB[3];
+  LX4 := AB[4];  LX5 := AB[5];  LX6 := AB[6];  LX7 := AB[7];
+  LX8 := AB[8];  LX9 := AB[9];  LX10 := AB[10]; LX11 := AB[11];
+  LX12 := AB[12]; LX13 := AB[13]; LX14 := AB[14]; LX15 := AB[15];
 
-  for i := 0 to 3 do
+  for LI := 0 to 3 do
   begin
     // Operate on columns
-    x4  := x4  xor RotateLeft32(x0 + x12, 7);   x8  := x8  xor RotateLeft32(x4 + x0, 9);
-    x12 := x12 xor RotateLeft32(x8 + x4, 13);   x0  := x0  xor RotateLeft32(x12 + x8, 18);
+    LX4  := LX4  xor RotateLeft32(LX0 + LX12, 7);   LX8  := LX8  xor RotateLeft32(LX4 + LX0, 9);
+    LX12 := LX12 xor RotateLeft32(LX8 + LX4, 13);   LX0  := LX0  xor RotateLeft32(LX12 + LX8, 18);
 
-    x9  := x9  xor RotateLeft32(x5 + x1, 7);    x13 := x13 xor RotateLeft32(x9 + x5, 9);
-    x1  := x1  xor RotateLeft32(x13 + x9, 13);  x5  := x5  xor RotateLeft32(x1 + x13, 18);
+    LX9  := LX9  xor RotateLeft32(LX5 + LX1, 7);    LX13 := LX13 xor RotateLeft32(LX9 + LX5, 9);
+    LX1  := LX1  xor RotateLeft32(LX13 + LX9, 13);  LX5  := LX5  xor RotateLeft32(LX1 + LX13, 18);
 
-    x14 := x14 xor RotateLeft32(x10 + x6, 7);   x2  := x2  xor RotateLeft32(x14 + x10, 9);
-    x6  := x6  xor RotateLeft32(x2 + x14, 13);  x10 := x10 xor RotateLeft32(x6 + x2, 18);
+    LX14 := LX14 xor RotateLeft32(LX10 + LX6, 7);   LX2  := LX2  xor RotateLeft32(LX14 + LX10, 9);
+    LX6  := LX6  xor RotateLeft32(LX2 + LX14, 13);  LX10 := LX10 xor RotateLeft32(LX6 + LX2, 18);
 
-    x3  := x3  xor RotateLeft32(x15 + x11, 7);  x7  := x7  xor RotateLeft32(x3 + x15, 9);
-    x11 := x11 xor RotateLeft32(x7 + x3, 13);   x15 := x15 xor RotateLeft32(x11 + x7, 18);
+    LX3  := LX3  xor RotateLeft32(LX15 + LX11, 7);  LX7  := LX7  xor RotateLeft32(LX3 + LX15, 9);
+    LX11 := LX11 xor RotateLeft32(LX7 + LX3, 13);   LX15 := LX15 xor RotateLeft32(LX11 + LX7, 18);
 
     // Operate on rows
-    x1  := x1  xor RotateLeft32(x0 + x3, 7);    x2  := x2  xor RotateLeft32(x1 + x0, 9);
-    x3  := x3  xor RotateLeft32(x2 + x1, 13);   x0  := x0  xor RotateLeft32(x3 + x2, 18);
+    LX1  := LX1  xor RotateLeft32(LX0 + LX3, 7);    LX2  := LX2  xor RotateLeft32(LX1 + LX0, 9);
+    LX3  := LX3  xor RotateLeft32(LX2 + LX1, 13);   LX0  := LX0  xor RotateLeft32(LX3 + LX2, 18);
 
-    x6  := x6  xor RotateLeft32(x5 + x4, 7);    x7  := x7  xor RotateLeft32(x6 + x5, 9);
-    x4  := x4  xor RotateLeft32(x7 + x6, 13);   x5  := x5  xor RotateLeft32(x4 + x7, 18);
+    LX6  := LX6  xor RotateLeft32(LX5 + LX4, 7);    LX7  := LX7  xor RotateLeft32(LX6 + LX5, 9);
+    LX4  := LX4  xor RotateLeft32(LX7 + LX6, 13);   LX5  := LX5  xor RotateLeft32(LX4 + LX7, 18);
 
-    x11 := x11 xor RotateLeft32(x10 + x9, 7);   x8  := x8  xor RotateLeft32(x11 + x10, 9);
-    x9  := x9  xor RotateLeft32(x8 + x11, 13);  x10 := x10 xor RotateLeft32(x9 + x8, 18);
+    LX11 := LX11 xor RotateLeft32(LX10 + LX9, 7);   LX8  := LX8  xor RotateLeft32(LX11 + LX10, 9);
+    LX9  := LX9  xor RotateLeft32(LX8 + LX11, 13);  LX10 := LX10 xor RotateLeft32(LX9 + LX8, 18);
 
-    x12 := x12 xor RotateLeft32(x15 + x14, 7);  x13 := x13 xor RotateLeft32(x12 + x15, 9);
-    x14 := x14 xor RotateLeft32(x13 + x12, 13); x15 := x15 xor RotateLeft32(x14 + x13, 18);
+    LX12 := LX12 xor RotateLeft32(LX15 + LX14, 7);  LX13 := LX13 xor RotateLeft32(LX12 + LX15, 9);
+    LX14 := LX14 xor RotateLeft32(LX13 + LX12, 13); LX15 := LX15 xor RotateLeft32(LX14 + LX13, 18);
   end;
 
-  B[0]  := B[0]  + x0;   B[1]  := B[1]  + x1;   B[2]  := B[2]  + x2;   B[3]  := B[3]  + x3;
-  B[4]  := B[4]  + x4;   B[5]  := B[5]  + x5;   B[6]  := B[6]  + x6;   B[7]  := B[7]  + x7;
-  B[8]  := B[8]  + x8;   B[9]  := B[9]  + x9;   B[10] := B[10] + x10;  B[11] := B[11] + x11;
-  B[12] := B[12] + x12;  B[13] := B[13] + x13;  B[14] := B[14] + x14;  B[15] := B[15] + x15;
+  AB[0]  := AB[0]  + LX0;   AB[1]  := AB[1]  + LX1;   AB[2]  := AB[2]  + LX2;   AB[3]  := AB[3]  + LX3;
+  AB[4]  := AB[4]  + LX4;   AB[5]  := AB[5]  + LX5;   AB[6]  := AB[6]  + LX6;   AB[7]  := AB[7]  + LX7;
+  AB[8]  := AB[8]  + LX8;   AB[9]  := AB[9]  + LX9;   AB[10] := AB[10] + LX10;  AB[11] := AB[11] + LX11;
+  AB[12] := AB[12] + LX12;  AB[13] := AB[13] + LX13;  AB[14] := AB[14] + LX14;  AB[15] := AB[15] + LX15;
 end;
 
-class procedure TScryptImpl.BlockMix(Bin, Bout, X: PCardinal; RoundsR: Integer);
+class procedure TScryptImpl.BlockMix(ABin, ABout, AX: PCardinal; ARoundsR: Integer);
 var
-  i: Integer;
+  LI: Integer;
 begin
-  // X <- B_{2r-1}
-  BulkCopy(X, @Bin[(2 * RoundsR - 1) * 16], 64);
+  // AX <- B_{2r-1}
+  BulkCopy(AX, @ABin[(2 * ARoundsR - 1) * 16], 64);
 
-  i := 0;
-  while i <= (2 * RoundsR - 1) do
+  LI := 0;
+  while LI <= (2 * ARoundsR - 1) do
   begin
-    // even half (i even)
-    BulkXor(X, @Bin[i * 16], 64);
-    Salsa208(X);
-    // Y_even -> Bout[(i div 2) * 16]
-    BulkCopy(@Bout[(i div 2) * 16], X, 64);
+    // even half (LI even)
+    BulkXor(AX, @ABin[LI * 16], 64);
+    Salsa208(AX);
+    // Y_even -> ABout[(LI div 2) * 16]
+    BulkCopy(@ABout[(LI div 2) * 16], AX, 64);
 
-    Inc(i);
-    if i >= 2 * RoundsR then Break;
+    Inc(LI);
+    if LI >= 2 * ARoundsR then Break;
 
-    // odd half (i odd, i is the next block)
-    BulkXor(X, @Bin[i * 16], 64);
-    Salsa208(X);
-    // Y_odd -> Bout[r*16 + (i div 2) * 16]
-    BulkCopy(@Bout[RoundsR * 16 + (i div 2) * 16], X, 64);
+    // odd half (LI odd, LI is the next block)
+    BulkXor(AX, @ABin[LI * 16], 64);
+    Salsa208(AX);
+    // Y_odd -> ABout[r*16 + (LI div 2) * 16]
+    BulkCopy(@ABout[ARoundsR * 16 + (LI div 2) * 16], AX, 64);
 
-    Inc(i);
+    Inc(LI);
   end;
 end;
 
-class function TScryptImpl.Integerify(B: PCardinal; RoundsR: Integer): UInt64;
+class function TScryptImpl.Integerify(AB: PCardinal; ARoundsR: Integer): UInt64;
 var
-  X: PCardinal;
+  LX: PCardinal;
 begin
-  // X points to the last 64-byte chunk (B_{2r-1})
-  X := PCardinal(PByte(B) + (2 * RoundsR - 1) * 64);
-  Result := (UInt64(X[1]) shl 32) or UInt64(X[0]);
+  // LX points to the last 64-byte chunk (B_{2r-1})
+  LX := PCardinal(PByte(AB) + (2 * ARoundsR - 1) * 64);
+  Result := (UInt64(LX[1]) shl 32) or UInt64(LX[0]);
 end;
 
-class procedure TScryptImpl.SMix(B: PByte; RoundsR, N: Integer; V, XY: PCardinal);
+class procedure TScryptImpl.SMix(AB: PByte; ARoundsR, AN: Integer; AV, AXY: PCardinal);
 var
-  X, Y, Z: PCardinal;
-  i, k: Integer;
-  j, idx: Integer;
+  LX, LY, LZ: PCardinal;
+  LI, LK: Integer;
+  LJ, LIdx: Integer;
 begin
-  X := XY;
-  Y := @XY[32 * RoundsR];
-  Z := @XY[64 * RoundsR];
+  LX := AXY;
+  LY := @AXY[32 * ARoundsR];
+  LZ := @AXY[64 * ARoundsR];
 
-  // 1: X <- B
-  for k := 0 to (32 * RoundsR - 1) do
-    X[k] := Decode32(@B[4 * k]);
+  // 1: LX <- AB
+  for LK := 0 to (32 * ARoundsR - 1) do
+    LX[LK] := Decode32(@AB[4 * LK]);
 
-  // 2: for i = 0..N-1
-  i := 0;
-  while i < N do
+  // 2: for LI = 0..AN-1
+  LI := 0;
+  while LI < AN do
   begin
-    BulkCopy(@V[i * (32 * RoundsR)], X, 128 * RoundsR);
-    BlockMix(X, Y, Z, RoundsR);
+    BulkCopy(@AV[LI * (32 * ARoundsR)], LX, 128 * ARoundsR);
+    BlockMix(LX, LY, LZ, ARoundsR);
 
-    Inc(i);
-    BulkCopy(@V[i * (32 * RoundsR)], Y, 128 * RoundsR);
-    BlockMix(Y, X, Z, RoundsR);
+    Inc(LI);
+    BulkCopy(@AV[LI * (32 * ARoundsR)], LY, 128 * ARoundsR);
+    BlockMix(LY, LX, LZ, ARoundsR);
 
-    Inc(i);
+    Inc(LI);
   end;
 
-  // 6: for i = 0..N-1
-  i := 0;
-  while i < N do
+  // 6: for LI = 0..AN-1
+  LI := 0;
+  while LI < AN do
   begin
-    j := Integer(Integerify(X, RoundsR) and UInt64(N - 1));
-    idx := j * (32 * RoundsR);
-    BulkXor(X, @V[idx], 128 * RoundsR);
-    BlockMix(X, Y, Z, RoundsR);
+    LJ := Integer(Integerify(LX, ARoundsR) and UInt64(AN - 1));
+    LIdx := LJ * (32 * ARoundsR);
+    BulkXor(LX, @AV[LIdx], 128 * ARoundsR);
+    BlockMix(LX, LY, LZ, ARoundsR);
 
-    j := Integer(Integerify(Y, RoundsR) and UInt64(N - 1));
-    idx := j * (32 * RoundsR);
-    BulkXor(Y, @V[idx], 128 * RoundsR);
-    BlockMix(Y, X, Z, RoundsR);
+    LJ := Integer(Integerify(LY, ARoundsR) and UInt64(AN - 1));
+    LIdx := LJ * (32 * ARoundsR);
+    BulkXor(LY, @AV[LIdx], 128 * ARoundsR);
+    BlockMix(LY, LX, LZ, ARoundsR);
 
-    Inc(i, 2);
+    Inc(LI, 2);
   end;
 
-  // 10: B' <- X
-  for k := 0 to (32 * RoundsR - 1) do
-    Encode32(@B[4 * k], X[k]);
+  // 10: B' <- LX
+  for LK := 0 to (32 * ARoundsR - 1) do
+    Encode32(@AB[4 * LK], LX[LK]);
 end;
 
-class function TScryptImpl.DeriveKey(const Password, Salt: TBytes;
-  N, RoundsR, PCount, DKLen: Integer): TBytes;
+class function TScryptImpl.DeriveKey(const APassword, ASalt: TBytes;
+  AN, AR, AP, ADKLen: Integer): TBytes;
 var
-  BA: TBytes;
-  XY: TArray<Cardinal>;
-  V: TArray<Cardinal>;
-  i, BlockLen: Integer;
-  Bi: PByte;
+  LBA: TBytes;
+  LXY: TArray<Cardinal>;
+  LV: TArray<Cardinal>;
+  LI, LBlockLen: Integer;
+  LBi: PByte;
 begin
-  if (N <= 1) or ((N and (N - 1)) <> 0) then
+  if (AN <= 1) or ((AN and (AN - 1)) <> 0) then
     raise EArgumentException.Create('N must be > 1 and a power of 2');
 
-  if (RoundsR <= 0) or (PCount <= 0) then
+  if (AR <= 0) or (AP <= 0) then
     raise EArgumentException.Create('r and p must be > 0');
 
   // 1: B <- PBKDF2(P, S, 1, p*128*r)
-  BlockLen := 128 * RoundsR;
-  BA := SingleIterationPbkdf2(Password, Salt, PCount * BlockLen);
+  LBlockLen := 128 * AR;
+  LBA := SingleIterationPbkdf2(APassword, ASalt, AP * LBlockLen);
 
   // temp buffers
-  SetLength(XY, 32 * RoundsR * 2 + 16);
-  SetLength(V, 32 * RoundsR * N);
+  SetLength(LXY, 32 * AR * 2 + 16);
+  SetLength(LV, 32 * AR * AN);
 
-  // 2: for i = 0..p-1: SMix(B_i, r, N)
-  for i := 0 to PCount - 1 do
+  // 2: for LI = 0..p-1: SMix(B_i, r, N)
+  for LI := 0 to AP - 1 do
   begin
-    Bi := @BA[i * BlockLen];
-    SMix(Bi, RoundsR, N, @V[0], @XY[0]);
+    LBi := @LBA[LI * LBlockLen];
+    SMix(LBi, AR, AN, @LV[0], @LXY[0]);
   end;
 
   // 5: DK <- PBKDF2(P, B, 1, dkLen)
-  Result := SingleIterationPbkdf2(Password, BA, DKLen);
+  Result := SingleIterationPbkdf2(APassword, LBA, ADKLen);
 end;
 
 end.

@@ -65,22 +65,22 @@ type
 
     // Property accessors
     function GetOnConnect: TProc;
-    procedure SetOnConnect(const Value: TProc);
+    procedure SetOnConnect(const AValue: TProc);
 
     function GetOnDisconnect: TProc;
-    procedure SetOnDisconnect(const Value: TProc);
+    procedure SetOnDisconnect(const AValue: TProc);
 
     function GetOnReceiveTextMessage: TProc<string>;
-    procedure SetOnReceiveTextMessage(const Value: TProc<string>);
+    procedure SetOnReceiveTextMessage(const AValue: TProc<string>);
 
     function GetOnReceiveBinaryMessage: TProc<TBytes>;
-    procedure SetOnReceiveBinaryMessage(const Value: TProc<TBytes>);
+    procedure SetOnReceiveBinaryMessage(const AValue: TProc<TBytes>);
 
     function GetOnError: TProc<string>;
-    procedure SetOnError(const Value: TProc<string>);
+    procedure SetOnError(const AValue: TProc<string>);
 
     function GetOnException: TProc<Exception>;
-    procedure SetOnException(const Value: TProc<Exception>);
+    procedure SetOnException(const AValue: TProc<Exception>);
 
     /// <summary>
     /// Invoked when the connection is successfully established.
@@ -138,22 +138,22 @@ type
 
     // Interface property accessors
     function GetOnConnect: TProc;
-    procedure SetOnConnect(const Value: TProc);
+    procedure SetOnConnect(const AValue: TProc);
 
     function GetOnDisconnect: TProc;
-    procedure SetOnDisconnect(const Value: TProc);
+    procedure SetOnDisconnect(const AValue: TProc);
 
     function GetOnReceiveTextMessage: TProc<string>;
-    procedure SetOnReceiveTextMessage(const Value: TProc<string>);
+    procedure SetOnReceiveTextMessage(const AValue: TProc<string>);
 
     function GetOnReceiveBinaryMessage: TProc<TBytes>;
-    procedure SetOnReceiveBinaryMessage(const Value: TProc<TBytes>);
+    procedure SetOnReceiveBinaryMessage(const AValue: TProc<TBytes>);
 
     function GetOnError: TProc<string>;
-    procedure SetOnError(const Value: TProc<string>);
+    procedure SetOnError(const AValue: TProc<string>);
 
     function GetOnException: TProc<Exception>;
-    procedure SetOnException(const Value: TProc<Exception>);
+    procedure SetOnException(const AValue: TProc<Exception>);
 
     function Connected: Boolean;
 
@@ -298,9 +298,9 @@ begin
   Result := FOnConnect;
 end;
 
-procedure TWebSocketApiClient.SetOnConnect(const Value: TProc);
+procedure TWebSocketApiClient.SetOnConnect(const AValue: TProc);
 begin
-  FOnConnect := Value;
+  FOnConnect := AValue;
 end;
 
 function TWebSocketApiClient.GetOnDisconnect: TProc;
@@ -308,9 +308,9 @@ begin
   Result := FOnDisconnect;
 end;
 
-procedure TWebSocketApiClient.SetOnDisconnect(const Value: TProc);
+procedure TWebSocketApiClient.SetOnDisconnect(const AValue: TProc);
 begin
-  FOnDisconnect := Value;
+  FOnDisconnect := AValue;
 end;
 
 function TWebSocketApiClient.GetOnReceiveTextMessage: TProc<string>;
@@ -318,9 +318,9 @@ begin
   Result := FOnReceiveTextMessage;
 end;
 
-procedure TWebSocketApiClient.SetOnReceiveTextMessage(const Value: TProc<string>);
+procedure TWebSocketApiClient.SetOnReceiveTextMessage(const AValue: TProc<string>);
 begin
-  FOnReceiveTextMessage := Value;
+  FOnReceiveTextMessage := AValue;
 end;
 
 function TWebSocketApiClient.GetOnReceiveBinaryMessage: TProc<TBytes>;
@@ -328,9 +328,9 @@ begin
   Result := FOnReceiveBinaryMessage;
 end;
 
-procedure TWebSocketApiClient.SetOnReceiveBinaryMessage(const Value: TProc<TBytes>);
+procedure TWebSocketApiClient.SetOnReceiveBinaryMessage(const AValue: TProc<TBytes>);
 begin
-  FOnReceiveBinaryMessage := Value;
+  FOnReceiveBinaryMessage := AValue;
 end;
 
 function TWebSocketApiClient.GetOnError: TProc<string>;
@@ -338,9 +338,9 @@ begin
   Result := FOnError;
 end;
 
-procedure TWebSocketApiClient.SetOnError(const Value: TProc<string>);
+procedure TWebSocketApiClient.SetOnError(const AValue: TProc<string>);
 begin
-  FOnError := Value;
+  FOnError := AValue;
 end;
 
 function TWebSocketApiClient.GetOnException: TProc<Exception>;
@@ -348,9 +348,9 @@ begin
   Result := FOnException;
 end;
 
-procedure TWebSocketApiClient.SetOnException(const Value: TProc<Exception>);
+procedure TWebSocketApiClient.SetOnException(const AValue: TProc<Exception>);
 begin
-  FOnException := Value;
+  FOnException := AValue;
 end;
 
 end.

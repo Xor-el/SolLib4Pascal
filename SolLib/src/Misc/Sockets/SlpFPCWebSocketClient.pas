@@ -59,22 +59,22 @@ type
     /// <summary>
     /// Triggered when the WebSocket connection is successfully established.
     /// </summary>
-    procedure HandleConnect(Sender: TObject);
+    procedure HandleConnect(ASender: TObject);
 
     /// <summary>
     /// Triggered when the WebSocket connection is closed or disconnected.
     /// </summary>
-    procedure HandleDisconnect(Sender: TObject);
+    procedure HandleDisconnect(ASender: TObject);
 
     /// <summary>
     /// Triggered when a message (text or binary) is received from the WebSocket connection.
     /// </summary>
-    procedure HandleMessageReceived(Sender: TObject; const AMessage: TWSMessage);
+    procedure HandleMessageReceived(ASender: TObject; const AMessage: TWSMessage);
 
     /// <summary>
     /// Triggered when a control frame (ping/pong/close) is received.
     /// </summary>
-    procedure HandleControl(Sender: TObject; AType: TFrameType; const AData: TBytes);
+    procedure HandleControl(ASender: TObject; AType: TFrameType; const AData: TBytes);
 
   public
     constructor Create(const AExisting: TWebsocketClient = nil; const ALogger: ILogger = nil);
@@ -146,23 +146,23 @@ end;
 
 function TFPCWebSocketClientImpl.ParseWebSocketUrl(const AUrl: string): TWebSocketUrlInfo;
 var
-  URI: TURI;
+  LUri: TURI;
 begin
-  URI := ParseURI(AUrl);
+  LUri := ParseURI(AUrl);
 
-  Result.Host := URI.Host;
-  Result.Resource := URI.Path + URI.Document;
+  Result.Host := LUri.Host;
+  Result.Resource := LUri.Path + LUri.Document;
   if Result.Resource = '' then
     Result.Resource := '/';
-  if URI.Params <> '' then
-    Result.Resource := Result.Resource + '?' + URI.Params;
+  if LUri.Params <> '' then
+    Result.Resource := Result.Resource + '?' + LUri.Params;
 
   // Determine SSL based on scheme
-  Result.UseSSL := SameText(URI.Protocol, 'wss');
+  Result.UseSSL := SameText(LUri.Protocol, 'wss');
 
   // Determine port
-  if URI.Port <> 0 then
-    Result.Port := URI.Port
+  if LUri.Port <> 0 then
+    Result.Port := LUri.Port
   else if Result.UseSSL then
     Result.Port := 443
   else
@@ -236,7 +236,7 @@ begin
   FClient.SendData(AData);
 end;
 
-procedure TFPCWebSocketClientImpl.HandleConnect(Sender: TObject);
+procedure TFPCWebSocketClientImpl.HandleConnect(ASender: TObject);
 begin
   if Assigned(FLogger) then
     FLogger.LogInformation('Connected', []);
@@ -247,7 +247,7 @@ begin
   Callbacks.OnConnect();
 end;
 
-procedure TFPCWebSocketClientImpl.HandleDisconnect(Sender: TObject);
+procedure TFPCWebSocketClientImpl.HandleDisconnect(ASender: TObject);
 begin
   if Assigned(FLogger) then
     FLogger.LogInformation('Disconnected', []);
@@ -258,7 +258,7 @@ begin
   Callbacks.OnDisconnect();
 end;
 
-procedure TFPCWebSocketClientImpl.HandleMessageReceived(Sender: TObject;
+procedure TFPCWebSocketClientImpl.HandleMessageReceived(ASender: TObject;
   const AMessage: TWSMessage);
 begin
   if AMessage.IsText then
@@ -279,7 +279,7 @@ begin
   end;
 end;
 
-procedure TFPCWebSocketClientImpl.HandleControl(Sender: TObject;
+procedure TFPCWebSocketClientImpl.HandleControl(ASender: TObject;
   AType: TFrameType; const AData: TBytes);
 begin
   case AType of

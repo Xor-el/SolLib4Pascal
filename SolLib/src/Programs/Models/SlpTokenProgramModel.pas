@@ -398,7 +398,7 @@ end;
 class function TMultiSignatureAccount.Deserialize(
   const AData: TBytes): IMultiSignatureAccount;
 var
-  I: Integer;
+  LI: Integer;
   LSigner: IPublicKey;
 begin
   if Length(AData) <> TLayout.Length then
@@ -409,9 +409,9 @@ begin
 
   Result.Signers := TList<IPublicKey>.Create;
 
-  for I := 0 to MaxSigners - 1 do
+  for LI := 0 to MaxSigners - 1 do
   begin
-    LSigner := TDeserialization.GetPubKey(AData, TLayout.SignersOffset + I * TPublicKey.PublicKeyLength);
+    LSigner := TDeserialization.GetPubKey(AData, TLayout.SignersOffset + LI * TPublicKey.PublicKeyLength);
     if not LSigner.Equals(TSystemProgram.ProgramIdKey) then
       Result.Signers.Add(LSigner);
   end;

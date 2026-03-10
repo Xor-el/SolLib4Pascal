@@ -412,752 +412,752 @@ end;
 
 procedure TTokenProgramTests.TestTransfer;
 var
-  Wallet: IWallet;
-  Owner, Initial, New: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LOwner, LInitial, LNew: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet  := TWallet.Create(MnemonicWords);
-  Owner   := Wallet.GetAccountByIndex(10);
-  Initial := Wallet.GetAccountByIndex(24);
-  New     := Wallet.GetAccountByIndex(26);
+  LWallet  := TWallet.Create(MnemonicWords);
+  LOwner   := LWallet.GetAccountByIndex(10);
+  LInitial := LWallet.GetAccountByIndex(24);
+  LNew     := LWallet.GetAccountByIndex(26);
 
-  TxInstruction := TTokenProgram.Transfer(
-              Initial.PublicKey,
-              New.PublicKey,
+  LTxInstruction := TTokenProgram.Transfer(
+              LInitial.PublicKey,
+              LNew.PublicKey,
               25000,
-              Owner.PublicKey
+              LOwner.PublicKey
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedTransferData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedTransferData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestTransferChecked;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial, New: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial, LNew: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial    := Wallet.GetAccountByIndex(26);
-  New    := Wallet.GetAccountByIndex(27);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial    := LWallet.GetAccountByIndex(26);
+  LNew    := LWallet.GetAccountByIndex(27);
 
-  TxInstruction := TTokenProgram.TransferChecked(
-              Initial.PublicKey,
-              New.PublicKey,
+  LTxInstruction := TTokenProgram.TransferChecked(
+              LInitial.PublicKey,
+              LNew.PublicKey,
               25000,
               2,
-              Owner.PublicKey,
-              Mint.PublicKey
+              LOwner.PublicKey,
+              LMint.PublicKey
             );
 
-  AssertEquals(4, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedTransferCheckedData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(4, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedTransferCheckedData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestTransferCheckedMultiSignature;
 var
-  Wallet  : IWallet;
-  Mint, Owner, Initial, New: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet  : IWallet;
+  LMint, LOwner, LInitial, LNew: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial    := Wallet.GetAccountByIndex(26);
-  New    := Wallet.GetAccountByIndex(27);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial    := LWallet.GetAccountByIndex(26);
+  LNew    := LWallet.GetAccountByIndex(27);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.TransferChecked(
-                Initial.PublicKey, New.PublicKey, 25000, 2, Owner.PublicKey, Mint.PublicKey, Signers.ToArray
+    LTxInstruction := TTokenProgram.TransferChecked(
+                LInitial.PublicKey, LNew.PublicKey, 25000, 2, LOwner.PublicKey, LMint.PublicKey, LSigners.ToArray
               );
 
-    AssertEquals(9, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedTransferCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(9, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedTransferCheckedData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestInitializeAccount;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.InitializeAccount(
-              Initial.PublicKey, Mint.PublicKey, Owner.PublicKey
+  LTxInstruction := TTokenProgram.InitializeAccount(
+              LInitial.PublicKey, LMint.PublicKey, LOwner.PublicKey
             );
 
-  AssertEquals(4, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedInitializeAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(4, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedInitializeAccountData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestInitializeMint;
 var
-  Wallet: IWallet;
-  Mint, Owner: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
 
-  TxInstruction := TTokenProgram.InitializeMint(
-              Mint.PublicKey, 2, Owner.PublicKey, Owner.PublicKey
+  LTxInstruction := TTokenProgram.InitializeMint(
+              LMint.PublicKey, 2, LOwner.PublicKey, LOwner.PublicKey
             );
 
-  AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedInitializeMintData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(2, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedInitializeMintData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestInitializeMultisig;
 var
-  Wallet: IWallet;
-  MultiSig: IAccount;
-  Signers: TList<IPublicKey>;
-  I: Integer;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMultiSig: IAccount;
+  LSigners: TList<IPublicKey>;
+  LI: Integer;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  MultiSig  := Wallet.GetAccountByIndex(420);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMultiSig  := LWallet.GetAccountByIndex(420);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.InitializeMultiSignature(MultiSig.PublicKey, Signers.ToArray, 3);
+    LTxInstruction := TTokenProgram.InitializeMultiSignature(LMultiSig.PublicKey, LSigners.ToArray, 3);
 
-    AssertEquals(7, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedInitializeMultiSignatureData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(7, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedInitializeMultiSignatureData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestMintTo;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.MintTo(
-              Mint.PublicKey, Initial.PublicKey, 25000, Owner.PublicKey
+  LTxInstruction := TTokenProgram.MintTo(
+              LMint.PublicKey, LInitial.PublicKey, 25000, LOwner.PublicKey
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedMintToData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedMintToData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestMintToChecked;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.MintToChecked(
-              Mint.PublicKey, Initial.PublicKey, Owner.PublicKey, 25000, 2
+  LTxInstruction := TTokenProgram.MintToChecked(
+              LMint.PublicKey, LInitial.PublicKey, LOwner.PublicKey, 25000, 2
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedMintToCheckedData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedMintToCheckedData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestMintToCheckedMultiSignature;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  Signers : TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LSigners : TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.MintToChecked(
-                Mint.PublicKey, Initial.PublicKey, Owner.PublicKey, 25000, 2, Signers.ToArray
+    LTxInstruction := TTokenProgram.MintToChecked(
+                LMint.PublicKey, LInitial.PublicKey, LOwner.PublicKey, 25000, 2, LSigners.ToArray
               );
 
-    AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedMintToCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(8, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedMintToCheckedData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestBurn;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.Burn(
-              Initial.PublicKey, Mint.PublicKey, 25000, Owner.PublicKey
+  LTxInstruction := TTokenProgram.Burn(
+              LInitial.PublicKey, LMint.PublicKey, 25000, LOwner.PublicKey
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedBurnData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedBurnData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestBurnChecked;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.BurnChecked(
-              Mint.PublicKey, Initial.PublicKey, Owner.PublicKey, 25000, 2
+  LTxInstruction := TTokenProgram.BurnChecked(
+              LMint.PublicKey, LInitial.PublicKey, LOwner.PublicKey, 25000, 2
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedBurnCheckedData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedBurnCheckedData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestBurnMultiSignature;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  Signers : TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LSigners : TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.Burn(
-                Initial.PublicKey, Mint.PublicKey, 25000, Owner.PublicKey, Signers.ToArray
+    LTxInstruction := TTokenProgram.Burn(
+                LInitial.PublicKey, LMint.PublicKey, 25000, LOwner.PublicKey, LSigners.ToArray
               );
 
-    AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedBurnData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(8, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedBurnData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestBurnCheckedMultiSignature;
 var
-  Wallet: IWallet;
-  Mint, Owner, Initial: IAccount;
-  Signers : TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LMint, LOwner, LInitial: IAccount;
+  LSigners : TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Initial   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LInitial   := LWallet.GetAccountByIndex(22);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.BurnChecked(
-                Mint.PublicKey, Initial.PublicKey, Owner.PublicKey, 25000, 2, Signers.ToArray
+    LTxInstruction := TTokenProgram.BurnChecked(
+                LMint.PublicKey, LInitial.PublicKey, LOwner.PublicKey, 25000, 2, LSigners.ToArray
               );
 
-    AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedBurnCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(8, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedBurnCheckedData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestApprove;
 var
-  Wallet: IWallet;
-  Source, Delegate, Owner: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LSource, LDelegate, LOwner: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  Source   := Wallet.GetAccountByIndex(69);
-  Delegate := Wallet.GetAccountByIndex(420);
-  Owner    := Wallet.GetAccountByIndex(1);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LSource   := LWallet.GetAccountByIndex(69);
+  LDelegate := LWallet.GetAccountByIndex(420);
+  LOwner    := LWallet.GetAccountByIndex(1);
 
-  TxInstruction := TTokenProgram.Approve(
-              Source.PublicKey, Delegate.PublicKey, Owner.PublicKey, 25000
+  LTxInstruction := TTokenProgram.Approve(
+              LSource.PublicKey, LDelegate.PublicKey, LOwner.PublicKey, 25000
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedApproveData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedApproveData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestApproveMultiSignature;
 var
-  Wallet: IWallet;
-  Source, Delegate, Owner: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LSource, LDelegate, LOwner: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Source   := Wallet.GetAccountByIndex(69);
-  Delegate  := Wallet.GetAccountByIndex(420);
-  Owner   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LSource   := LWallet.GetAccountByIndex(69);
+  LDelegate  := LWallet.GetAccountByIndex(420);
+  LOwner   := LWallet.GetAccountByIndex(1);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.Approve(
-                Source.PublicKey, Delegate.PublicKey, Owner.PublicKey, 25000, Signers.ToArray
+    LTxInstruction := TTokenProgram.Approve(
+                LSource.PublicKey, LDelegate.PublicKey, LOwner.PublicKey, 25000, LSigners.ToArray
               );
 
-    AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedApproveData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(8, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedApproveData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestApproveChecked;
 var
-  Wallet: IWallet;
-  Mint: IAccount;
-  Source, Delegate, Owner: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LMint: IAccount;
+  LSource, LDelegate, LOwner: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  Mint     := Wallet.GetAccountByIndex(21);
-  Source   := Wallet.GetAccountByIndex(69);
-  Delegate := Wallet.GetAccountByIndex(420);
-  Owner    := Wallet.GetAccountByIndex(1);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LMint     := LWallet.GetAccountByIndex(21);
+  LSource   := LWallet.GetAccountByIndex(69);
+  LDelegate := LWallet.GetAccountByIndex(420);
+  LOwner    := LWallet.GetAccountByIndex(1);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.ApproveChecked(
-                Source.PublicKey, Delegate.PublicKey, 25000, 2, Owner.PublicKey, Mint.PublicKey, Signers.ToArray
+    LTxInstruction := TTokenProgram.ApproveChecked(
+                LSource.PublicKey, LDelegate.PublicKey, 25000, 2, LOwner.PublicKey, LMint.PublicKey, LSigners.ToArray
               );
 
-    AssertEquals(9, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedApproveCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(9, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedApproveCheckedData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestApproveCheckedMultiSignature;
 var
-  Wallet: IWallet;
-  Mint, Source, Delegate, Owner: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LMint, LSource, LDelegate, LOwner: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint     := Wallet.GetAccountByIndex(21);
-  Source   := Wallet.GetAccountByIndex(69);
-  Delegate  := Wallet.GetAccountByIndex(420);
-  Owner   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint     := LWallet.GetAccountByIndex(21);
+  LSource   := LWallet.GetAccountByIndex(69);
+  LDelegate  := LWallet.GetAccountByIndex(420);
+  LOwner   := LWallet.GetAccountByIndex(1);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.ApproveChecked(
-                Source.PublicKey, Delegate.PublicKey, 25000, 2, Owner.PublicKey, Mint.PublicKey, Signers.ToArray
+    LTxInstruction := TTokenProgram.ApproveChecked(
+                LSource.PublicKey, LDelegate.PublicKey, 25000, 2, LOwner.PublicKey, LMint.PublicKey, LSigners.ToArray
               );
 
-    AssertEquals(9, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedApproveCheckedData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(9, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedApproveCheckedData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestRevoke;
 var
-  Wallet: IWallet;
-  Delegate, Owner: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LDelegate, LOwner: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet   := TWallet.Create(MnemonicWords);
-  Delegate := Wallet.GetAccountByIndex(420);
-  Owner    := Wallet.GetAccountByIndex(1);
+  LWallet   := TWallet.Create(MnemonicWords);
+  LDelegate := LWallet.GetAccountByIndex(420);
+  LOwner    := LWallet.GetAccountByIndex(1);
 
-  TxInstruction := TTokenProgram.Revoke(
-              Delegate.PublicKey, Owner.PublicKey
+  LTxInstruction := TTokenProgram.Revoke(
+              LDelegate.PublicKey, LOwner.PublicKey
             );
 
-  AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedRevokeData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(2, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedRevokeData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestRevokeMultiSignature;
 var
-  Wallet: IWallet;
-  Delegate, Owner: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LDelegate, LOwner: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Delegate  := Wallet.GetAccountByIndex(420);
-  Owner   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LDelegate  := LWallet.GetAccountByIndex(420);
+  LOwner   := LWallet.GetAccountByIndex(1);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.Revoke(
-                Delegate.PublicKey, Owner.PublicKey, Signers.ToArray
+    LTxInstruction := TTokenProgram.Revoke(
+                LDelegate.PublicKey, LOwner.PublicKey, LSigners.ToArray
               );
 
-    AssertEquals(7, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedRevokeData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(7, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedRevokeData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityOwner;
 var
-  Wallet: IWallet;
-  Account, CurrentOwner, NewOwner: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LAccount, LCurrentOwner, LNewOwner: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Account   := Wallet.GetAccountByIndex(1000);
-  CurrentOwner  := Wallet.GetAccountByIndex(1);
-  NewOwner    := Wallet.GetAccountByIndex(2);
+  LWallet := TWallet.Create(MnemonicWords);
+  LAccount   := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner  := LWallet.GetAccountByIndex(1);
+  LNewOwner    := LWallet.GetAccountByIndex(2);
 
-  TxInstruction := TTokenProgram.SetAuthority(
-              Account.PublicKey, TAuthorityType.AccountOwner, CurrentOwner.PublicKey, NewOwner.PublicKey
+  LTxInstruction := TTokenProgram.SetAuthority(
+              LAccount.PublicKey, TAuthorityType.AccountOwner, LCurrentOwner.PublicKey, LNewOwner.PublicKey
             );
 
-  AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedSetAuthorityOwnerData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(2, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityOwnerData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityOwnerMultiSignature;
 var
-  Wallet: IWallet;
-  Account, CurrentOwner, NewOwner: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LAccount, LCurrentOwner, LNewOwner: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Account   := Wallet.GetAccountByIndex(1000);
-  CurrentOwner  := Wallet.GetAccountByIndex(1);
-  NewOwner    := Wallet.GetAccountByIndex(2);
+  LWallet := TWallet.Create(MnemonicWords);
+  LAccount   := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner  := LWallet.GetAccountByIndex(1);
+  LNewOwner    := LWallet.GetAccountByIndex(2);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-  TxInstruction := TTokenProgram.SetAuthority(
-              Account.PublicKey, TAuthorityType.AccountOwner, CurrentOwner.PublicKey, NewOwner.PublicKey, Signers.ToArray
+  LTxInstruction := TTokenProgram.SetAuthority(
+              LAccount.PublicKey, TAuthorityType.AccountOwner, LCurrentOwner.PublicKey, LNewOwner.PublicKey, LSigners.ToArray
             );
 
-  AssertEquals(7, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedSetAuthorityOwnerData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(7, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityOwnerData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityClose;
 var
-  Wallet: IWallet;
-  Account, CurrentOwner, NewOwner: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LAccount, LCurrentOwner, LNewOwner: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Account   := Wallet.GetAccountByIndex(1000);
-  CurrentOwner  := Wallet.GetAccountByIndex(1);
-  NewOwner    := Wallet.GetAccountByIndex(2);
+  LWallet := TWallet.Create(MnemonicWords);
+  LAccount   := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner  := LWallet.GetAccountByIndex(1);
+  LNewOwner    := LWallet.GetAccountByIndex(2);
 
-  TxInstruction := TTokenProgram.SetAuthority(
-              Account.PublicKey, TAuthorityType.CloseAccount, CurrentOwner.PublicKey, NewOwner.PublicKey
+  LTxInstruction := TTokenProgram.SetAuthority(
+              LAccount.PublicKey, TAuthorityType.CloseAccount, LCurrentOwner.PublicKey, LNewOwner.PublicKey
             );
 
-  AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedSetAuthorityCloseData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(2, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityCloseData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityFreeze;
 var
-  Wallet: IWallet;
-  Account, CurrentOwner, NewOwner: IAccount;
-  TxInstruction  : ITransactionInstruction;
+  LWallet: IWallet;
+  LAccount, LCurrentOwner, LNewOwner: IAccount;
+  LTxInstruction  : ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Account   := Wallet.GetAccountByIndex(1000);
-  CurrentOwner  := Wallet.GetAccountByIndex(1);
-  NewOwner    := Wallet.GetAccountByIndex(2);
+  LWallet := TWallet.Create(MnemonicWords);
+  LAccount   := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner  := LWallet.GetAccountByIndex(1);
+  LNewOwner    := LWallet.GetAccountByIndex(2);
 
-  TxInstruction := TTokenProgram.SetAuthority(
-              Account.PublicKey, TAuthorityType.FreezeAccount, CurrentOwner.PublicKey, NewOwner.PublicKey
+  LTxInstruction := TTokenProgram.SetAuthority(
+              LAccount.PublicKey, TAuthorityType.FreezeAccount, LCurrentOwner.PublicKey, LNewOwner.PublicKey
             );
 
-  AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedSetAuthorityFreezeData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(2, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityFreezeData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestSetAuthorityMint;
 var
-  Wallet: IWallet;
-  Account, CurrentOwner, NewOwner: IAccount;
-  TxInstruction  : ITransactionInstruction;
+  LWallet: IWallet;
+  LAccount, LCurrentOwner, LNewOwner: IAccount;
+  LTxInstruction  : ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Account   := Wallet.GetAccountByIndex(1000);
-  CurrentOwner  := Wallet.GetAccountByIndex(1);
-  NewOwner    := Wallet.GetAccountByIndex(2);
+  LWallet := TWallet.Create(MnemonicWords);
+  LAccount   := LWallet.GetAccountByIndex(1000);
+  LCurrentOwner  := LWallet.GetAccountByIndex(1);
+  LNewOwner    := LWallet.GetAccountByIndex(2);
 
-  TxInstruction := TTokenProgram.SetAuthority(
-              Account.PublicKey, TAuthorityType.MintTokens, CurrentOwner.PublicKey, NewOwner.PublicKey
+  LTxInstruction := TTokenProgram.SetAuthority(
+              LAccount.PublicKey, TAuthorityType.MintTokens, LCurrentOwner.PublicKey, LNewOwner.PublicKey
             );
 
-  AssertEquals(2, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedSetAuthorityMintData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(2, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSetAuthorityMintData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestCloseAccount;
 var
-  Wallet: IWallet;
-  Owner, Account: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LOwner, LAccount: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Account   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LAccount   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.CloseAccount(
-              Account.PublicKey, Owner.PublicKey, Owner.PublicKey, TTokenProgram.ProgramIdKey
+  LTxInstruction := TTokenProgram.CloseAccount(
+              LAccount.PublicKey, LOwner.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedCloseAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedCloseAccountData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestCloseAccountMultiSignature;
 var
-  Wallet: IWallet;
-  Owner, Account: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LOwner, LAccount: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Account   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LAccount   := LWallet.GetAccountByIndex(22);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-  TxInstruction := TTokenProgram.CloseAccount(
-              Account.PublicKey, Owner.PublicKey, Owner.PublicKey, TTokenProgram.ProgramIdKey, Signers.ToArray
+  LTxInstruction := TTokenProgram.CloseAccount(
+              LAccount.PublicKey, LOwner.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey, LSigners.ToArray
             );
 
-  AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedCloseAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(8, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedCloseAccountData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestFreezeAccount;
 var
-  Wallet: IWallet;
-  Mint, Owner, Account: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LAccount: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Account   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LAccount   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.FreezeAccount(
-              Account.PublicKey, Mint.PublicKey, Owner.PublicKey, TTokenProgram.ProgramIdKey
+  LTxInstruction := TTokenProgram.FreezeAccount(
+              LAccount.PublicKey, LMint.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedFreezeAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedFreezeAccountData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestFreezeAccountMultiSignature;
 var
-  Wallet: IWallet;
-  Mint, Owner, Account: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LMint, LOwner, LAccount: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Account   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LAccount   := LWallet.GetAccountByIndex(22);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.FreezeAccount(
-                Account.PublicKey, Mint.PublicKey, Owner.PublicKey, TTokenProgram.ProgramIdKey, Signers.ToArray
+    LTxInstruction := TTokenProgram.FreezeAccount(
+                LAccount.PublicKey, LMint.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey, LSigners.ToArray
               );
 
-    AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedFreezeAccountData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(8, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedFreezeAccountData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestThawAccount;
 var
-  Wallet: IWallet;
-  Mint, Owner, Account: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LMint, LOwner, LAccount: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Account   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LAccount   := LWallet.GetAccountByIndex(22);
 
-  TxInstruction := TTokenProgram.ThawAccount(
-              Account.PublicKey, Mint.PublicKey, Owner.PublicKey, TTokenProgram.ProgramIdKey
+  LTxInstruction := TTokenProgram.ThawAccount(
+              LAccount.PublicKey, LMint.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey
             );
 
-  AssertEquals(3, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedThawAccountData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(3, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedThawAccountData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestThawAccountMultiSignature;
 var
-  Wallet: IWallet;
-  Mint, Owner, Account: IAccount;
-  Signers: TList<IPublicKey>;
-  TxInstruction: ITransactionInstruction;
-  I: Integer;
+  LWallet: IWallet;
+  LMint, LOwner, LAccount: IAccount;
+  LSigners: TList<IPublicKey>;
+  LTxInstruction: ITransactionInstruction;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Mint   := Wallet.GetAccountByIndex(21);
-  Owner  := Wallet.GetAccountByIndex(10);
-  Account   := Wallet.GetAccountByIndex(22);
+  LWallet := TWallet.Create(MnemonicWords);
+  LMint   := LWallet.GetAccountByIndex(21);
+  LOwner  := LWallet.GetAccountByIndex(10);
+  LAccount   := LWallet.GetAccountByIndex(22);
 
-  Signers := TList<IPublicKey>.Create;
+  LSigners := TList<IPublicKey>.Create;
   try
-    for I := 0 to 4 do
-      Signers.Add(Wallet.GetAccountByIndex(420 + I).PublicKey);
+    for LI := 0 to 4 do
+      LSigners.Add(LWallet.GetAccountByIndex(420 + LI).PublicKey);
 
-    TxInstruction := TTokenProgram.ThawAccount(
-                Account.PublicKey, Mint.PublicKey, Owner.PublicKey, TTokenProgram.ProgramIdKey, Signers.ToArray
+    LTxInstruction := TTokenProgram.ThawAccount(
+                LAccount.PublicKey, LMint.PublicKey, LOwner.PublicKey, TTokenProgram.ProgramIdKey, LSigners.ToArray
               );
 
-    AssertEquals(8, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-    AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-    AssertEquals(ExpectedThawAccountData, TxInstruction.Data, 'Data mismatch');
+    AssertEquals(8, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+    AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+    AssertEquals(ExpectedThawAccountData, LTxInstruction.Data, 'Data mismatch');
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTokenProgramTests.TestSyncNative;
 var
-  Wallet: IWallet;
-  Account: IAccount;
-  TxInstruction: ITransactionInstruction;
+  LWallet: IWallet;
+  LAccount: IAccount;
+  LTxInstruction: ITransactionInstruction;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Account   := Wallet.GetAccountByIndex(212);
+  LWallet := TWallet.Create(MnemonicWords);
+  LAccount   := LWallet.GetAccountByIndex(212);
 
-  TxInstruction := TTokenProgram.SyncNative(Account.PublicKey);
+  LTxInstruction := TTokenProgram.SyncNative(LAccount.PublicKey);
 
-  AssertEquals(1, TxInstruction.Keys.Count, 'Keys.Count mismatch');
-  AssertEquals(TokenProgramIdBytes, TxInstruction.ProgramId, 'ProgramId mismatch');
-  AssertEquals(ExpectedSyncNativeData, TxInstruction.Data, 'Data mismatch');
+  AssertEquals(1, LTxInstruction.Keys.Count, 'Keys.Count mismatch');
+  AssertEquals(TokenProgramIdBytes, LTxInstruction.ProgramId, 'ProgramId mismatch');
+  AssertEquals(ExpectedSyncNativeData, LTxInstruction.Data, 'Data mismatch');
 end;
 
 procedure TTokenProgramTests.TestInitializeMultisigDecode;
