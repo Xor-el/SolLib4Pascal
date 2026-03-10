@@ -180,12 +180,12 @@ end;
 
 class function TWalletTests.SetupWalletFromMnemonicWords(ASeedMode: TSeedMode): IWallet;
 var
-  WL: IWordList;
+  LWL: IWordList;
 begin
-  WL := TWordList.English;
+  LWL := TWordList.English;
   case ASeedMode of
-    TSeedMode.Bip39:       Result := TWallet.Create(MnemonicWords, WL, Bip39Passphrase, TSeedMode.Bip39);
-    TSeedMode.Ed25519Bip32:Result := TWallet.Create(MnemonicWords, WL);
+    TSeedMode.Bip39: Result := TWallet.Create(MnemonicWords, LWL, Bip39Passphrase, TSeedMode.Bip39);
+    TSeedMode.Ed25519Bip32: Result := TWallet.Create(MnemonicWords, LWL);
   else
     raise EArgumentOutOfRangeException.Create('this should never happen');
   end;
@@ -194,7 +194,7 @@ end;
 class function TWalletTests.SetupWalletFromSeed(ASeedMode: TSeedMode): IWallet;
 begin
   case ASeedMode of
-    TSeedMode.Bip39:        Result := TWallet.Create(SeedWithPassphrase, Bip39Passphrase, TSeedMode.Bip39);
+    TSeedMode.Bip39: Result := TWallet.Create(SeedWithPassphrase, Bip39Passphrase, TSeedMode.Bip39);
     TSeedMode.Ed25519Bip32: Result := TWallet.Create(SeedWithoutPassphrase);
   else
     raise EArgumentOutOfRangeException.Create('this should never happen');
@@ -208,8 +208,8 @@ begin
   LMnemonic := TMnemonic.Create(MnemonicWords);
 
   case ASeedMode of
-    TSeedMode.Bip39:         Result := TWallet.Create(LMnemonic, Bip39Passphrase, TSeedMode.Bip39);
-    TSeedMode.Ed25519Bip32:  Result := TWallet.Create(LMnemonic);
+    TSeedMode.Bip39: Result := TWallet.Create(LMnemonic, Bip39Passphrase, TSeedMode.Bip39);
+    TSeedMode.Ed25519Bip32: Result := TWallet.Create(LMnemonic);
   else
     raise EArgumentOutOfRangeException.Create('this should never happen');
   end;

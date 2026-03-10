@@ -51,7 +51,7 @@ type
   /// Adds value-capture helpers to TJsonReader
   TJsonReaderHelper = class helper for TJsonReader
   private
-    procedure NextSkippingComments(var AR: TJsonReader);
+    procedure NextSkippingComments(var AReader: TJsonReader);
   public
     /// Materialize the current JSON value (recursively) into a TJSONValue.
     /// Consumes the value; leaves the reader positioned at EndObject/EndArray
@@ -150,12 +150,12 @@ end;
 
 { TJsonReaderHelper }
 
-procedure TJsonReaderHelper.NextSkippingComments(var AR: TJsonReader);
+procedure TJsonReaderHelper.NextSkippingComments(var AReader: TJsonReader);
 begin
   repeat
     // Read only if we are not on the very first token of a value
-    if (AR.TokenType = TJsonToken.Comment) then
-      AR.Read
+    if (AReader.TokenType = TJsonToken.Comment) then
+      AReader.Read
     else
       Break;
   until False;
@@ -163,7 +163,7 @@ end;
 
 function TJsonReaderHelper.ReadJsonValue: TJSONValue;
 
-  function ReadValue(var AR: TJsonReader): TJSONValue;
+  function ReadValue(var AReader: TJsonReader): TJSONValue;
   var
     LObj: TJSONObject;
     LArr: TJSONArray;
@@ -172,38 +172,38 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
   begin
 
     // If we hit a comment at value position, advance past it
-    if AR.TokenType = TJsonToken.Comment then
+    if AReader.TokenType = TJsonToken.Comment then
     begin
-      AR.Read;
-      Exit(ReadValue(AR));
+      AReader.Read;
+      Exit(ReadValue(AReader));
     end;
 
-    case AR.TokenType of
+    case AReader.TokenType of
       TJsonToken.StartObject:
         begin
           LObj := TJSONObject.Create;
           try
-            AR.Read; // first property / EndObject / Comment
-            NextSkippingComments(AR); // skip comments before first property
-            while AR.TokenType <> TJsonToken.EndObject do
+            AReader.Read; // first property / EndObject / Comment
+            NextSkippingComments(AReader); // skip comments before first property
+            while AReader.TokenType <> TJsonToken.EndObject do
             begin
               // comments between properties
-              if AR.TokenType = TJsonToken.Comment then
+              if AReader.TokenType = TJsonToken.Comment then
               begin
-                AR.Read;
+                AReader.Read;
                 Continue;
               end;
 
-              if AR.TokenType <> TJsonToken.PropertyName then
+              if AReader.TokenType <> TJsonToken.PropertyName then
                 raise EJsonException.Create('Expected property name');
 
-              LName := AR.Value.AsString;
-              AR.Read; // move to value
-              LV := ReadValue(AR); // recurse value
+              LName := AReader.Value.AsString;
+              AReader.Read; // move to value
+              LV := ReadValue(AReader); // recurse value
               LObj.AddPair(LName, LV);
 
-              AR.Read; // next property / EndObject / Comment
-              NextSkippingComments(AR); // tolerate comments between properties
+              AReader.Read; // next property / EndObject / Comment
+              NextSkippingComments(AReader); // tolerate comments between properties
             end;
             Exit(LObj);
           except
@@ -216,21 +216,21 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
         begin
           LArr := TJSONArray.Create;
           try
-            AR.Read; // first element / EndArray / Comment
-            NextSkippingComments(AR); // skip comments before first element
-            while AR.TokenType <> TJsonToken.EndArray do
+            AReader.Read; // first element / EndArray / Comment
+            NextSkippingComments(AReader); // skip comments before first element
+            while AReader.TokenType <> TJsonToken.EndArray do
             begin
               // comments between elements
-              if AR.TokenType = TJsonToken.Comment then
+              if AReader.TokenType = TJsonToken.Comment then
               begin
-                AR.Read;
+                AReader.Read;
                 Continue;
               end;
 
-              LArr.AddElement(ReadValue(AR)); // recurse element
+              LArr.AddElement(ReadValue(AReader)); // recurse element
 
-              AR.Read; // next element / EndArray / Comment
-              NextSkippingComments(AR); // tolerate comments between elements
+              AReader.Read; // next element / EndArray / Comment
+              NextSkippingComments(AReader); // tolerate comments between elements
             end;
             Exit(LArr);
           except
@@ -240,17 +240,17 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
         end;
 
       TJsonToken.&String:
-        Exit(TJSONString.Create(AR.Value.AsString));
+        Exit(TJSONString.Create(AReader.Value.AsString));
 
       // Use typed accessors for numerics (avoid invalid casts)
       TJsonToken.&Integer:
-        Exit(TJSONNumber.Create(AR.Value.AsInt64));
+        Exit(TJSONNumber.Create(AReader.Value.AsInt64));
 
       TJsonToken.Float:
-        Exit(TJSONNumber.Create(Double(AR.Value.AsExtended)));
+        Exit(TJSONNumber.Create(Double(AReader.Value.AsExtended)));
 
       TJsonToken.Boolean:
-        if AR.Value.AsBoolean then
+        if AReader.Value.AsBoolean then
           Exit(TJSONTrue.Create)
         else
           Exit(TJSONFalse.Create);
@@ -266,7 +266,7 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
 
     else
       raise EJsonException.CreateFmt('Unsupported token %d',
-        [Ord(AR.TokenType)]);
+        [Ord(AReader.TokenType)]);
     end;
   end;
 
@@ -344,39 +344,39 @@ end;
 
 procedure TJsonReaderHelper.SkipValue;
 
-  procedure SkipCurrent(var AR: TJsonReader);
+  procedure SkipCurrent(var AReader: TJsonReader);
   var
     LDepth: Integer;
   begin
     // Skip any leading comments
-    NextSkippingComments(AR);
+    NextSkippingComments(AReader);
 
-    case AR.TokenType of
+    case AReader.TokenType of
       TJsonToken.StartObject, TJsonToken.StartArray:
         begin
           // Walk matching start/end tokens, tolerating comments anywhere.
           LDepth := 0;
           repeat
-            if (AR.TokenType = TJsonToken.StartObject) or
-              (AR.TokenType = TJsonToken.StartArray) then
+            if (AReader.TokenType = TJsonToken.StartObject) or
+              (AReader.TokenType = TJsonToken.StartArray) then
               Inc(LDepth)
-            else if (AR.TokenType = TJsonToken.EndObject) or
-              (AR.TokenType = TJsonToken.EndArray) then
+            else if (AReader.TokenType = TJsonToken.EndObject) or
+              (AReader.TokenType = TJsonToken.EndArray) then
               Dec(LDepth);
 
             if LDepth = 0 then
               Break;
 
-            AR.Read;
-            if AR.TokenType = TJsonToken.Comment then
-              NextSkippingComments(AR);
+            AReader.Read;
+            if AReader.TokenType = TJsonToken.Comment then
+              NextSkippingComments(AReader);
           until False;
         end;
       // primitives (string/number/bool/null) – nothing to do; they are a single token
     else
       // If we're on a comment or unexpected token, advance once
-      if AR.TokenType = TJsonToken.Comment then
-        NextSkippingComments(AR);
+      if AReader.TokenType = TJsonToken.Comment then
+        NextSkippingComments(AReader);
     end;
   end;
 

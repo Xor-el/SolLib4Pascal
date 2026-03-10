@@ -32,16 +32,16 @@ type
     class procedure RequireRange(ACond: Boolean; const AMsg: string); static;
   public
 
-    class function AreArraysEqual(const AFirst, BSecond: TBytes): Boolean; overload; static;
-    class function AreArraysEqual(const AFirst, BSecond: TArray<Integer>): Boolean; overload; static;
+    class function AreArraysEqual(const AFirst, ASecond: TBytes): Boolean; overload; static;
+    class function AreArraysEqual(const AFirst, ASecond: TArray<Integer>): Boolean; overload; static;
 
     /// <summary>Concatenate two arrays of any type T.</summary>
-    class function Concat<T>(const AFirst, BSecond: TArray<T>): TArray<T>; static;
-    class function Slice<T>(const A: TArray<T>; AOffset: Integer): TArray<T>; overload;
+    class function Concat<T>(const AFirst, ASecond: TArray<T>): TArray<T>; static;
+    class function Slice<T>(const AArr: TArray<T>; AOffset: Integer): TArray<T>; overload;
     /// <summary>
-    /// Generic slice: returns A[Offset .. Offset+Count-1], clamped to bounds.
+    /// Generic slice: returns AArr[Offset .. Offset+Count-1], clamped to bounds.
     /// </summary>
-    class function Slice<T>(const A: TArray<T>; AOffset, ACount: Integer): TArray<T>; overload;
+    class function Slice<T>(const AArr: TArray<T>; AOffset, ACount: Integer): TArray<T>; overload;
 
         {==================== COPY (PROCEDURES) ====================}
 
@@ -136,7 +136,7 @@ type
     /// <summary>
     /// Constant-time comparison of two byte arrays (timing-attack resistant).
     /// </summary>
-    class function ConstantTimeEquals(const AFirst, BSecond: TBytes): Boolean; static;
+    class function ConstantTimeEquals(const AFirst, ASecond: TBytes): Boolean; static;
 
     /// <summary>
     /// Securely zero-out a byte array.
@@ -154,57 +154,57 @@ begin
     raise ERangeError.Create(AMsg);
 end;
 
-class function TArrayUtils.AreArraysEqual(const AFirst, BSecond: TBytes): Boolean;
+class function TArrayUtils.AreArraysEqual(const AFirst, ASecond: TBytes): Boolean;
 var
   LLen: Integer;
 begin
-  if Pointer(AFirst) = Pointer(BSecond) then
+  if Pointer(AFirst) = Pointer(ASecond) then
     Exit(True);
   LLen := Length(AFirst);
-  if LLen <> Length(BSecond) then
+  if LLen <> Length(ASecond) then
     Exit(False);
   if LLen = 0 then
     Exit(True);
-  Result := CompareMem(@AFirst[0], @BSecond[0], LLen);
+  Result := CompareMem(@AFirst[0], @ASecond[0], LLen);
 end;
 
-class function TArrayUtils.AreArraysEqual(const AFirst, BSecond: TArray<Integer>): Boolean;
+class function TArrayUtils.AreArraysEqual(const AFirst, ASecond: TArray<Integer>): Boolean;
 var
   LLen: Integer;
 begin
-  if Pointer(AFirst) = Pointer(BSecond) then
+  if Pointer(AFirst) = Pointer(ASecond) then
     Exit(True);
   LLen := Length(AFirst);
-  if LLen <> Length(BSecond) then
+  if LLen <> Length(ASecond) then
     Exit(False);
   if LLen = 0 then
     Exit(True);
-  Result := CompareMem(@AFirst[0], @BSecond[0], LLen * SizeOf(Integer));
+  Result := CompareMem(@AFirst[0], @ASecond[0], LLen * SizeOf(Integer));
 end;
 
-class function TArrayUtils.Concat<T>(const AFirst, BSecond: TArray<T>): TArray<T>;
+class function TArrayUtils.Concat<T>(const AFirst, ASecond: TArray<T>): TArray<T>;
 var
   LLenA, LLenB: Integer;
 begin
   LLenA := Length(AFirst);
-  LLenB := Length(BSecond);
+  LLenB := Length(ASecond);
   SetLength(Result, LLenA + LLenB);
   if LLenA > 0 then
     Copy<T>(AFirst, 0, Result, 0, LLenA);
   if LLenB > 0 then
-    Copy<T>(BSecond, 0, Result, LLenA, LLenB);
+    Copy<T>(ASecond, 0, Result, LLenA, LLenB);
 end;
 
-class function TArrayUtils.Slice<T>(const A: TArray<T>; AOffset: Integer): TArray<T>;
+class function TArrayUtils.Slice<T>(const AArr: TArray<T>; AOffset: Integer): TArray<T>;
 begin
-  Result := Slice<T>(A, AOffset, Length(A) - AOffset);
+  Result := Slice<T>(AArr, AOffset, Length(AArr) - AOffset);
 end;
 
-class function TArrayUtils.Slice<T>(const A: TArray<T>; AOffset, ACount: Integer): TArray<T>;
+class function TArrayUtils.Slice<T>(const AArr: TArray<T>; AOffset, ACount: Integer): TArray<T>;
 var
   LLen, LOffset, LCount: Integer;
 begin
-  LLen := Length(A);
+  LLen := Length(AArr);
   LOffset := AOffset;
   LCount := ACount;
 
@@ -220,7 +220,7 @@ begin
   else if LOffset + LCount > LLen then
     LCount := LLen - LOffset;
 
-  Result := Copy<T>(A, LOffset, LCount);
+  Result := Copy<T>(AArr, LOffset, LCount);
 end;
 
 {==================== COPY (PROCEDURES) ====================}
@@ -426,16 +426,16 @@ begin
   Result := False;
 end;
 
-class function TArrayUtils.ConstantTimeEquals(const AFirst, BSecond: TBytes): Boolean;
+class function TArrayUtils.ConstantTimeEquals(const AFirst, ASecond: TBytes): Boolean;
 var
   LI: Integer;
   LDiff: Byte;
 begin
-  if Length(AFirst) <> Length(BSecond) then
+  if Length(AFirst) <> Length(ASecond) then
     Exit(False);
   LDiff := 0;
   for LI := 0 to High(AFirst) do
-    LDiff := LDiff or (AFirst[LI] xor BSecond[LI]);
+    LDiff := LDiff or (AFirst[LI] xor ASecond[LI]);
   Result := (LDiff = 0);
 end;
 

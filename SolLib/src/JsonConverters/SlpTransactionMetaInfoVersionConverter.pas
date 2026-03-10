@@ -59,7 +59,7 @@ end;
 function TTransactionMetaInfoVersionConverter.ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  I64: Int64;
+  LI64: Int64;
   LStr: string;
 begin
   SkipPropertyName(AReader);
@@ -73,13 +73,13 @@ begin
 
     TJsonToken.&Integer:
       begin
-        I64 := AReader.Value.AsInt64;
+        LI64 := AReader.Value.AsInt64;
         // Must fit in 32-bit Integer
-        if (I64 < Low(Integer)) or (I64 > High(Integer)) then
+        if (LI64 < Low(Integer)) or (LI64 > High(Integer)) then
           raise EJsonSerializationException.CreateFmt(
-            'DynamicTypeConverter: integer value %d out of 32-bit range', [I64]
+            'DynamicTypeConverter: integer value %d out of 32-bit range', [LI64]
           );
-        Exit(TValue.From<Integer>(Integer(I64)));
+        Exit(TValue.From<Integer>(Integer(LI64)));
       end;
   end;
 

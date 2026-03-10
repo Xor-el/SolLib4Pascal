@@ -39,7 +39,7 @@ type
     FHasValue: Boolean;
   public
     class function From(const AKey: string; const AValue: TValue): TKeyValue; static;
-    class function TryMake(const AKey: string; const AValue: TValue; out KV: TKeyValue): Boolean; static;
+    class function TryMake(const AKey: string; const AValue: TValue; out AKeyValue: TKeyValue): Boolean; static;
     class function Make(const AKey: string; const AValue: TValue): TKeyValue; static;
 
     function IsValid: Boolean;
@@ -70,9 +70,9 @@ type
   TParameters = class sealed
     class function IsNullish(const AValue: TValue): Boolean; static;
   public
-    class function Make(const V1: TValue): TList<TValue>; overload; static;
-    class function Make(const V1, V2: TValue): TList<TValue>; overload; static;
-    class function Make(const V1, V2, V3: TValue): TList<TValue>; overload; static;
+    class function Make(const AValue1: TValue): TList<TValue>; overload; static;
+    class function Make(const AValue1, AValue2: TValue): TList<TValue>; overload; static;
+    class function Make(const AValue1, AValue2, AValue3: TValue): TList<TValue>; overload; static;
   end;
 
 implementation
@@ -146,13 +146,13 @@ begin
   Result := FHasValue;
 end;
 
-class function TKeyValue.TryMake(const AKey: string; const AValue: TValue; out KV: TKeyValue): Boolean;
+class function TKeyValue.TryMake(const AKey: string; const AValue: TValue; out AKeyValue: TKeyValue): Boolean;
 begin
   Result := not IsNullishValue(AValue);
   if Result then
-    KV := TKeyValue.From(AKey, AValue)
+    AKeyValue := TKeyValue.From(AKey, AValue)
   else
-    KV := Default(TKeyValue);
+    AKeyValue := Default(TKeyValue);
 end;
 
 class function TKeyValue.Make(const AKey: string; const AValue: TValue): TKeyValue;
@@ -249,25 +249,25 @@ begin
   Result := IsNullishValue(AValue);
 end;
 
-class function TParameters.Make(const V1: TValue): TList<TValue>;
+class function TParameters.Make(const AValue1: TValue): TList<TValue>;
 begin
-  if not IsNullish(V1) then
+  if not IsNullish(AValue1) then
   begin
     Result := TList<TValue>.Create;
-    Result.Add(V1);
+    Result.Add(AValue1);
   end
   else
     Result := nil;
 end;
 
-class function TParameters.Make(const V1, V2: TValue): TList<TValue>;
+class function TParameters.Make(const AValue1, AValue2: TValue): TList<TValue>;
 begin
-  Result := Make(V1);
+  Result := Make(AValue1);
   if not Assigned(Result) then
     Result := TList<TValue>.Create;
 
-  if not IsNullish(V2) then
-    Result.Add(V2);
+  if not IsNullish(AValue2) then
+    Result.Add(AValue2);
 
   if Result.Count = 0 then
   begin
@@ -276,14 +276,14 @@ begin
   end;
 end;
 
-class function TParameters.Make(const V1, V2, V3: TValue): TList<TValue>;
+class function TParameters.Make(const AValue1, AValue2, AValue3: TValue): TList<TValue>;
 begin
-  Result := Make(V1, V2);
+  Result := Make(AValue1, AValue2);
   if not Assigned(Result) then
     Result := TList<TValue>.Create;
 
-  if not IsNullish(V3) then
-    Result.Add(V3);
+  if not IsNullish(AValue3) then
+    Result.Add(AValue3);
 
   if Result.Count = 0 then
   begin

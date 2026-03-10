@@ -59,7 +59,7 @@ var
   LDict: TDictionary<string, TValue>;
   LJV  : TJSONValue;
   LObj : TJSONObject;
-  LP   : TJSONPair;
+  LPair: TJSONPair;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Exit(nil);
@@ -78,8 +78,8 @@ begin
     LObj := TJSONObject(LJV);
     LDict := TDictionary<string, TValue>.Create;
     try
-      for LP in LObj do
-        LDict.Add(LP.JsonString.Value, LP.JsonValue.ToTValue());
+      for LPair in LObj do
+        LDict.Add(LPair.JsonString.Value, LPair.JsonValue.ToTValue());
 
       Result := TValue.From<TDictionary<string, TValue>>(LDict);
     except

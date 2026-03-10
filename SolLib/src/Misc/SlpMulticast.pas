@@ -46,9 +46,9 @@ type
     /// Invoke all subscribers using a user-supplied invoker that knows how to call THandler.
     /// Example:
     ///   Multicast.Notify(
-    ///     procedure(const H: TProc<Integer, string>)
+    ///     procedure(const AHandler: TProc<Integer, string>)
     ///     begin
-    ///       H(42, 'hello');
+    ///       AHandler(42, 'hello');
     ///     end);
     /// </summary>
     procedure Notify(const AInvoker: TProc<THandler>);

@@ -53,18 +53,18 @@ function TJsonRpcBatchResponseItemResultConverter.ReadJson(
   const AReader: TJsonReader; ATypeInf: PTypeInfo; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
 var
-  JV: TJSONValue;
+  LJV: TJSONValue;
 begin
   // Read one JSON value (null/scalar/array/object) and convert into a TValue.
-  JV := AReader.ReadJsonValue;
+  LJV := AReader.ReadJsonValue;
   try
-    if JV = nil then
+    if LJV = nil then
       Exit(TValue.Empty);
 
     // Convert DOM to TValue (primitives/arrays/objects/DOM passthrough)
-    Result := JV.ToTValue();
+    Result := LJV.ToTValue();
   finally
-    JV.Free;
+    LJV.Free;
   end;
 end;
 
