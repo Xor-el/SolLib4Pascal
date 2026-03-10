@@ -73,7 +73,7 @@ begin
   if APrivateKey = '' then
     raise EArgumentNilException.Create('privateKey');
 
-  Result := InitializeWallet(TSolanaCliKeyPairEncoder.DecodeData(APrivateKey), APassphrase);
+  Result := InitializeWallet(TSolanaKeyPairJsonEncoder.DecodeData(APrivateKey), APassphrase);
 end;
 
 function TSolanaKeyStoreService.RestoreKeystoreFromFile(const APath, APassphrase: string): IWallet;
@@ -84,7 +84,7 @@ begin
     raise EArgumentNilException.Create('path');
 
   LJsonText := TIOUtils.ReadAllText(APath, TEncoding.UTF8);
-  Result := InitializeWallet(TSolanaCliKeyPairEncoder.DecodeData(LJsonText), APassphrase);
+  Result := InitializeWallet(TSolanaKeyPairJsonEncoder.DecodeData(LJsonText), APassphrase);
 end;
 
 procedure TSolanaKeyStoreService.SaveKeystore(const APath: string; const AWallet: IWallet);
@@ -96,7 +96,7 @@ begin
   if AWallet = nil then
     raise EArgumentNilException.Create('wallet');
 
-  LSeedString := TSolanaCliKeyPairEncoder.EncodeData(AWallet.Account.PrivateKey.KeyBytes);
+  LSeedString := TSolanaKeyPairJsonEncoder.EncodeData(AWallet.Account.PrivateKey.KeyBytes);
 
   TIOUtils.WriteAllBytes(APath, TEncoding.ASCII.GetBytes(LSeedString));
 end;

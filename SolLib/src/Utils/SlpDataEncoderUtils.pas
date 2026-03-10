@@ -57,7 +57,7 @@ type
   end;
 
   /// <summary>Solana cli keypair array-style encode/decode (static-style)</summary>
-  TSolanaCliKeyPairEncoder = class(TDataEncoderAlgorithm)
+  TSolanaKeyPairJsonEncoder = class(TDataEncoderAlgorithm)
   public
     class function EncodeData(const AData: TBytes): string; override;
     class function DecodeData(const AEncoded: string): TBytes; override;
@@ -117,21 +117,21 @@ begin
   Result := TDataEncoderProviders.Hex.IsValid(AEncoded);
 end;
 
-{ TSolanaCliKeyPairEncoder }
+{ TSolanaKeyPairJsonEncoder }
 
-class function TSolanaCliKeyPairEncoder.EncodeData(const AData: TBytes): string;
+class function TSolanaKeyPairJsonEncoder.EncodeData(const AData: TBytes): string;
 begin
-  Result := TDataEncoderProviders.SolanaCliKeyPair.EncodeData(AData, 0, Length(AData));
+  Result := TDataEncoderProviders.SolanaKeyPairJson.EncodeData(AData, 0, Length(AData));
 end;
 
-class function TSolanaCliKeyPairEncoder.DecodeData(const AEncoded: string): TBytes;
+class function TSolanaKeyPairJsonEncoder.DecodeData(const AEncoded: string): TBytes;
 begin
-  Result := TDataEncoderProviders.SolanaCliKeyPair.DecodeData(AEncoded);
+  Result := TDataEncoderProviders.SolanaKeyPairJson.DecodeData(AEncoded);
 end;
 
-class function TSolanaCliKeyPairEncoder.IsValid(const AEncoded: string): Boolean;
+class function TSolanaKeyPairJsonEncoder.IsValid(const AEncoded: string): Boolean;
 begin
-  Result := TDataEncoderProviders.SolanaCliKeyPair.IsValid(AEncoded);
+  Result := TDataEncoderProviders.SolanaKeyPairJson.IsValid(AEncoded);
 end;
 
 end.

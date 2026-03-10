@@ -22,7 +22,9 @@ unit SlpDefaultDataEncoderProviders;
 interface
 
 uses
-  System.Character,
+{$IFDEF FPC}
+  StrUtils, // FPC needs StrUtils for BinToHex/HexToBin
+{$ENDIF}
   System.SysUtils,
   System.NetEncoding,
   System.Classes,
@@ -31,13 +33,66 @@ uses
 type
   /// <summary>
   /// Default Base58 encoder provider implementation.
+  /// Uses the Bitcoin alphabet: 123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz
   /// </summary>
   TDefaultBase58EncoderProvider = class(TInterfacedObject, IDataEncoderProvider)
   private
-    class function GetAlphaChar(AIndex: Integer): Char; static;
+    const
+      /// <summary>
+      /// Base58 alphabet (Bitcoin).
+      /// </summary>
+      Alphabet: array[0..57] of Char = (
+        '1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G',
+        'H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y',
+        'Z','a','b','c','d','e','f','g','h','i','j','k','m','n','o','p',
+        'q','r','s','t','u','v','w','x','y','z'
+      );
+      /// <summary>
+      /// Reverse lookup: Ord(char) -> Base58 digit value, or -1 if invalid.
+      /// </summary>
+      CharMap: array[0..255] of Integer = (
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1, 0, 1, 2, 3, 4, 5, 6,  7, 8,-1,-1,-1,-1,-1,-1,
+        -1, 9,10,11,12,13,14,15, 16,-1,17,18,19,20,21,-1,
+        22,23,24,25,26,27,28,29, 30,31,32,-1,-1,-1,-1,-1,
+        -1,33,34,35,36,37,38,39, 40,41,42,43,-1,44,45,46,
+        47,48,49,50,51,52,53,54, 55,56,57,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1
+      );
+    /// <summary>
+    /// Core big-number multiply-and-add used by both encode and decode.
+    /// Treats ABuf[0..ASize-1] as a big-endian number in base ADivisor,
+    /// multiplies it by AMultiplier, adds ACarryIn, and stores the result
+    /// back into ABuf. Updates AWorkLen with the number of active digits.
+    /// </summary>
+    class procedure BigNumMultiplyAdd(var ABuf: TBytes; ASize, AMultiplier,
+      ADivisor, ACarryIn: Integer; var AWorkLen: Integer); static;
+    /// <summary>
+    /// Counts leading elements equal to AValue in ABuf[AFrom..ATo-1].
+    /// </summary>
+    class function CountLeadingBytes(const ABuf: TBytes;
+      AFrom, ATo: Integer; AValue: Byte): Integer; static;
+    /// <summary>
+    /// Counts leading occurrences of AChar in AStr[AFrom..ATo-1].
+    /// </summary>
+    class function CountLeadingChars(const AStr: string;
+      AFrom, ATo: Integer; AChar: Char): Integer; static;
+    /// <summary>
+    /// Builds a byte array with ALeadCount leading bytes of ALeadValue
+    /// followed by ABuf[ASrcStart..ASrcStart+ALen-1].
+    /// </summary>
+    class function BuildResult(const ABuf: TBytes; ASrcStart, ALen,
+      ALeadCount: Integer; ALeadValue: Byte): TBytes; static;
   public
-    const PszBase58: string = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-
     function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
     function DecodeData(const AEncoded: string): TBytes;
     function IsValid(const AEncoded: string): Boolean;
@@ -45,6 +100,7 @@ type
 
   /// <summary>
   /// Default Base64 encoder provider implementation.
+  /// Enforces strict validation: no whitespace, correct padding, valid alphabet.
   /// </summary>
   TDefaultBase64EncoderProvider = class(TInterfacedObject, IDataEncoderProvider)
   private
@@ -57,6 +113,7 @@ type
 
   /// <summary>
   /// Default Hex encoder provider implementation.
+  /// Produces uppercase hex. Accepts both upper and lower case on decode/validate.
   /// </summary>
   TDefaultHexEncoderProvider = class(TInterfacedObject, IDataEncoderProvider)
   public
@@ -66,10 +123,13 @@ type
   end;
 
   /// <summary>
-  /// Default Solana (array-style) encoder provider implementation.
+  /// Solana keypair JSON array encoder provider.
+  /// Encodes/decodes the JSON byte array format used by solana-keygen CLI
+  /// keypair files, e.g. [12,45,200,...] (64-byte Ed25519 seed||pubkey).
   /// </summary>
-  TDefaultSolanaCliKeyPairEncoderProvider = class(TInterfacedObject, IDataEncoderProvider)
+  TDefaultSolanaKeyPairJsonEncoderProvider = class(TInterfacedObject, IDataEncoderProvider)
   private
+    const SolanaKeyPairLength = 64;
     function TryParse(const AEncoded: string; out ABytes: TBytes): Boolean;
   public
     function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
@@ -79,186 +139,168 @@ type
 
 implementation
 
-const
-  MapBase58: array[0..255] of Integer = (
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1, 0, 1, 2, 3, 4, 5, 6,  7, 8,-1,-1,-1,-1,-1,-1,
-    -1, 9,10,11,12,13,14,15, 16,-1,17,18,19,20,21,-1,
-    22,23,24,25,26,27,28,29, 30,31,32,-1,-1,-1,-1,-1,
-    -1,33,34,35,36,37,38,39, 40,41,42,43,-1,44,45,46,
-    47,48,49,50,51,52,53,54, 55,56,57,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1
-  );
+{ Shared helper }
 
-{ TDefaultBase58EncoderProvider }
-
-class function TDefaultBase58EncoderProvider.GetAlphaChar(AIndex: Integer): Char;
-begin
-  Result := PszBase58[AIndex + 1];
-end;
-
-function TDefaultBase58EncoderProvider.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
-var
-  LZeroes, LWorkingLength, LSize: Integer;
-  LB58: TBytes;
-  LCarry, LI, LIt: Integer;
-  LIt2, LI2: Integer;
-  LOutLen: Integer;
+/// <summary>
+/// Validates offset/count parameters against a byte array.
+/// Raises EArgumentNilException if AData is nil.
+/// Raises ERangeError if offset/count are out of bounds.
+/// </summary>
+procedure ValidateRange(const AData: TBytes; AOffset, ACount: Integer);
 begin
   if AData = nil then
     raise EArgumentNilException.Create('data');
-
-  if (AOffset < 0) or (ACount < 0) or (AOffset > ACount) or (ACount > Length(AData)) then
+  if (AOffset < 0) or (ACount < 0) or (AOffset + ACount > Length(AData)) then
     raise ERangeError.Create('Invalid offset/count');
+end;
 
-  LZeroes := 0;
-  while (AOffset <> ACount) and (AData[AOffset] = 0) do
+{ TDefaultBase58EncoderProvider }
+
+class procedure TDefaultBase58EncoderProvider.BigNumMultiplyAdd(var ABuf: TBytes;
+  ASize, AMultiplier, ADivisor, ACarryIn: Integer; var AWorkLen: Integer);
+var
+  LCarry, LI, LIt: Integer;
+begin
+  LCarry := ACarryIn;
+  LI := 0;
+  for LIt := ASize - 1 downto 0 do
   begin
-    Inc(AOffset);
-    Inc(LZeroes);
+    if (LCarry = 0) and (LI >= AWorkLen) then
+      if LIt < (ASize - 1) then
+        Break;
+    LCarry := LCarry + AMultiplier * ABuf[LIt];
+    ABuf[LIt] := Byte(LCarry mod ADivisor);
+    LCarry := LCarry div ADivisor;
+    Inc(LI);
   end;
+  AWorkLen := LI;
+end;
 
-  LSize := (ACount - AOffset) * 138 div 100 + 1;
+class function TDefaultBase58EncoderProvider.CountLeadingBytes(const ABuf: TBytes;
+  AFrom, ATo: Integer; AValue: Byte): Integer;
+begin
+  Result := 0;
+  while (AFrom < ATo) and (ABuf[AFrom] = AValue) do
+  begin
+    Inc(AFrom);
+    Inc(Result);
+  end;
+end;
+
+class function TDefaultBase58EncoderProvider.CountLeadingChars(const AStr: string;
+  AFrom, ATo: Integer; AChar: Char): Integer;
+begin
+  Result := 0;
+  while (AFrom < ATo) and (AStr[AFrom] = AChar) do
+  begin
+    Inc(AFrom);
+    Inc(Result);
+  end;
+end;
+
+class function TDefaultBase58EncoderProvider.BuildResult(const ABuf: TBytes;
+  ASrcStart, ALen, ALeadCount: Integer; ALeadValue: Byte): TBytes;
+var
+  LI: Integer;
+begin
+  SetLength(Result, ALeadCount + ALen);
+  for LI := 0 to ALeadCount - 1 do
+    Result[LI] := ALeadValue;
+  if ALen > 0 then
+    Move(ABuf[ASrcStart], Result[ALeadCount], ALen);
+end;
+
+function TDefaultBase58EncoderProvider.EncodeData(const AData: TBytes;
+  AOffset, ACount: Integer): string;
+var
+  LZeroes, LWorkLen, LSize, LStart, LPos, LEnd: Integer;
+  LB58: TBytes;
+begin
+  ValidateRange(AData, AOffset, ACount);
+
+  LEnd := AOffset + ACount;
+  LZeroes := CountLeadingBytes(AData, AOffset, LEnd, 0);
+  Inc(AOffset, LZeroes);
+
+  // log(256)/log(58) ~ 1.3863; 138/100 is a safe integer approximation
+  LSize := (LEnd - AOffset) * 138 div 100 + 1;
   SetLength(LB58, LSize);
 
-  LWorkingLength := 0;
-  while AOffset <> ACount do
+  LWorkLen := 0;
+  while AOffset < LEnd do
   begin
-    LCarry := AData[AOffset];
-    LI := 0;
-
-    for LIt := LSize - 1 downto 0 do
-    begin
-      if (LCarry <> 0) or (LI < LWorkingLength) then
-      begin
-        LCarry := LCarry + 256 * LB58[LIt];
-        LB58[LIt] := Byte(LCarry mod 58);
-        LCarry := LCarry div 58;
-        Inc(LI);
-      end;
-      if (LCarry = 0) and (LI >= LWorkingLength) then
-        if LIt < (LSize - 1) then
-          Break;
-    end;
-
-    LWorkingLength := LI;
+    BigNumMultiplyAdd(LB58, LSize, 256, 58, AData[AOffset], LWorkLen);
     Inc(AOffset);
   end;
 
-  LIt2 := (LSize - LWorkingLength);
-  while (LIt2 <> LSize) and (LB58[LIt2] = 0) do
-    Inc(LIt2);
+  // Skip leading zero digits in the base58 buffer
+  LStart := LSize - LWorkLen;
+  LStart := LStart + CountLeadingBytes(LB58, LStart, LSize, 0);
 
-  LOutLen := LZeroes + LSize - LIt2;
-  SetLength(Result, LOutLen);
-
-  for LI2 := 1 to LZeroes do
-    Result[LI2] := '1';
-
-  LI2 := LZeroes + 1;
-  while LIt2 <> LSize do
+  // Build result: leading '1's + encoded characters
+  SetLength(Result, LZeroes + LSize - LStart);
+  for LPos := 1 to LZeroes do
+    Result[LPos] := '1';
+  LPos := LZeroes + 1;
+  while LStart < LSize do
   begin
-    Result[LI2] := GetAlphaChar(LB58[LIt2]);
-    Inc(LI2);
-    Inc(LIt2);
+    Result[LPos] := Alphabet[LB58[LStart]];
+    Inc(LPos);
+    Inc(LStart);
   end;
 end;
 
 function TDefaultBase58EncoderProvider.DecodeData(const AEncoded: string): TBytes;
 var
-  LPsz, LZeroes, LLength, LSize: Integer;
+  LPos, LEnd, LZeroes, LWorkLen, LSize, LStart, LDigit: Integer;
   LB256: TBytes;
-  LCarry, LI, LIt: Integer;
-  LIt2, LI2: Integer;
-  LCh: Char;
 begin
   if AEncoded = '' then
     raise EArgumentException.Create('encoded');
 
-  LPsz := 1;
-  while (LPsz <= AEncoded.Length) and AEncoded[LPsz].IsWhiteSpace() do
-    Inc(LPsz);
+  LPos := 1;
+  LEnd := Length(AEncoded) + 1;
 
-  LZeroes := 0;
-  LLength := 0;
-  while (LPsz <= AEncoded.Length) and (AEncoded[LPsz] = '1') do
-  begin
-    Inc(LZeroes);
-    Inc(LPsz);
-  end;
+  // Skip leading whitespace
+  while (LPos < LEnd) and (AEncoded[LPos] <= #32) do
+    Inc(LPos);
 
-  LSize := (AEncoded.Length - (LPsz - 1)) * 733 div 1000 + 1;
+  LZeroes := CountLeadingChars(AEncoded, LPos, LEnd, '1');
+  Inc(LPos, LZeroes);
+
+  // log(58)/log(256) ~ 0.7329; 733/1000 is a safe integer approximation
+  LSize := (LEnd - LPos) * 733 div 1000 + 1;
   SetLength(LB256, LSize);
 
-  while (LPsz <= AEncoded.Length) and (not AEncoded[LPsz].IsWhiteSpace()) do
+  LWorkLen := 0;
+  while (LPos < LEnd) and (AEncoded[LPos] > #32) do
   begin
-    LCh := AEncoded[LPsz];
-    LCarry := MapBase58[Ord(LCh) and $FF];
-    if LCarry = -1 then
-      raise Exception.Create('Invalid base58 data');
-
-    LI := 0;
-    for LIt := LSize - 1 downto 0 do
-    begin
-      if (LCarry <> 0) or (LI < LLength) then
-      begin
-        LCarry := LCarry + 58 * LB256[LIt];
-        LB256[LIt] := Byte(LCarry mod 256);
-        LCarry := LCarry div 256;
-        Inc(LI);
-      end;
-      if (LCarry = 0) and (LI >= LLength) then
-        if LIt < (LSize - 1) then
-          Break;
-    end;
-
-    LLength := LI;
-    Inc(LPsz);
+    LDigit := CharMap[Ord(AEncoded[LPos]) and $FF];
+    if LDigit = -1 then
+      raise EArgumentException.Create('Invalid base58 character');
+    BigNumMultiplyAdd(LB256, LSize, 58, 256, LDigit, LWorkLen);
+    Inc(LPos);
   end;
 
-  while (LPsz <= AEncoded.Length) and AEncoded[LPsz].IsWhiteSpace() do
-    Inc(LPsz);
-  if LPsz <= AEncoded.Length then
-    raise Exception.Create('Invalid base58 data');
+  // Skip trailing whitespace; reject if non-whitespace remains
+  while (LPos < LEnd) and (AEncoded[LPos] <= #32) do
+    Inc(LPos);
+  if LPos < LEnd then
+    raise EArgumentException.Create('Invalid base58 character');
 
-  LIt2 := LSize - LLength;
-
-  SetLength(Result, LZeroes + LSize - LIt2);
-
-  for LI2 := 0 to LZeroes - 1 do
-    Result[LI2] := 0;
-
-  LI2 := LZeroes;
-  while LIt2 <> LSize do
-  begin
-    Result[LI2] := LB256[LIt2];
-    Inc(LI2);
-    Inc(LIt2);
-  end;
+  LStart := LSize - LWorkLen;
+  Result := BuildResult(LB256, LStart, LSize - LStart, LZeroes, 0);
 end;
 
 function TDefaultBase58EncoderProvider.IsValid(const AEncoded: string): Boolean;
 var
   LI: Integer;
-  LC: Char;
 begin
   if AEncoded = '' then
     Exit(False);
-  for LI := 1 to AEncoded.Length do
-  begin
-    LC := AEncoded[LI];
-    if LC.IsWhiteSpace() or (MapBase58[Ord(LC) and $FF] = -1) then
+  for LI := 1 to Length(AEncoded) do
+    if CharMap[Ord(AEncoded[LI]) and $FF] = -1 then
       Exit(False);
-  end;
   Result := True;
 end;
 
@@ -266,7 +308,7 @@ end;
 
 function TDefaultBase64EncoderProvider.ValidateBase64Strict(const AStr: string): Boolean;
 
-  function IsB64Char(const ACh: Char): Boolean; inline;
+  function IsB64Char(ACh: Char): Boolean; inline;
   begin
     Result :=
       ((ACh >= 'A') and (ACh <= 'Z')) or
@@ -279,33 +321,32 @@ var
   LLen, LI, LEqPos, LPadCount: Integer;
 begin
   LLen := Length(AStr);
-  if LLen = 0 then
+  if (LLen = 0) or ((LLen and 3) <> 0) then
     Exit(False);
 
+  // Reject any control characters or whitespace
   for LI := 1 to LLen do
     if AStr[LI] <= #32 then
       Exit(False);
 
-  if (LLen and 3) <> 0 then
-    Exit(False);
-
   LEqPos := Pos('=', AStr);
   if LEqPos = 0 then
   begin
+    // No padding: every character must be a valid base64 char
     for LI := 1 to LLen do
       if not IsB64Char(AStr[LI]) then
         Exit(False);
   end
   else
   begin
+    // Characters before padding must be valid
     for LI := 1 to LEqPos - 1 do
       if not IsB64Char(AStr[LI]) then
         Exit(False);
-
+    // Padding must be 1 or 2 '=' chars at the end
     LPadCount := LLen - LEqPos + 1;
-    if (LPadCount <> 1) and (LPadCount <> 2) then
+    if (LPadCount < 1) or (LPadCount > 2) then
       Exit(False);
-
     for LI := LEqPos to LLen do
       if AStr[LI] <> '=' then
         Exit(False);
@@ -313,22 +354,12 @@ begin
   Result := True;
 end;
 
-function TDefaultBase64EncoderProvider.DecodeData(const AEncoded: string): TBytes;
-begin
-  if not ValidateBase64Strict(AEncoded) then
-    raise Exception.Create('Invalid Base64 data');
-  Result := TNetEncoding.Base64.DecodeStringToBytes(AEncoded);
-end;
-
-function TDefaultBase64EncoderProvider.IsValid(const AEncoded: string): Boolean;
-begin
-  Result := ValidateBase64Strict(AEncoded);
-end;
-
-function TDefaultBase64EncoderProvider.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
+function TDefaultBase64EncoderProvider.EncodeData(const AData: TBytes;
+  AOffset, ACount: Integer): string;
 var
   LEncoder: TBase64Encoding;
 begin
+  ValidateRange(AData, AOffset, ACount);
   LEncoder := TBase64Encoding.Create(0);
   try
     Result := LEncoder.EncodeBytesToString(@AData[AOffset], ACount);
@@ -337,145 +368,113 @@ begin
   end;
 end;
 
+function TDefaultBase64EncoderProvider.DecodeData(const AEncoded: string): TBytes;
+begin
+  if not ValidateBase64Strict(AEncoded) then
+    raise EArgumentException.Create('Invalid Base64 data');
+  Result := TNetEncoding.Base64.DecodeStringToBytes(AEncoded);
+end;
+
+function TDefaultBase64EncoderProvider.IsValid(const AEncoded: string): Boolean;
+begin
+  Result := ValidateBase64Strict(AEncoded);
+end;
+
 { TDefaultHexEncoderProvider }
 
-function TDefaultHexEncoderProvider.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
-const
-  HexChars: array[0..15] of Char = ('0','1','2','3','4','5','6','7',
-                                    '8','9','A','B','C','D','E','F');
-var
-  LI, LJ: Integer;
-  LB: Byte;
+function TDefaultHexEncoderProvider.EncodeData(const AData: TBytes;
+  AOffset, ACount: Integer): string;
 begin
-  if AData = nil then
-    raise EArgumentNilException.Create('data');
-
-  if (AOffset < 0) or (ACount < 0) or (AOffset > ACount) or (ACount > Length(AData)) then
-    raise ERangeError.Create('Invalid offset/count');
-
+  ValidateRange(AData, AOffset, ACount);
   SetLength(Result, ACount * 2);
-  LJ := 1;
-  for LI := AOffset to ACount - 1 do
-  begin
-    LB := AData[LI];
-    Result[LJ] := HexChars[LB shr 4];
-    Result[LJ + 1] := HexChars[LB and $0F];
-    Inc(LJ, 2);
-  end;
+  if ACount > 0 then
+    {$IFDEF FPC}StrUtils.{$ENDIF}BinToHex(@AData[AOffset], PChar(Result), ACount);
 end;
 
 function TDefaultHexEncoderProvider.DecodeData(const AEncoded: string): TBytes;
 var
-  LLen, LI, LJ: Integer;
-
-  function HexCharToValue(AChar: Char): Integer;
-  begin
-    case AChar of
-      '0'..'9': Result := Ord(AChar) - Ord('0');
-      'A'..'F': Result := Ord(AChar) - Ord('A') + 10;
-      'a'..'f': Result := Ord(AChar) - Ord('a') + 10;
-    else
-      raise Exception.CreateFmt('Invalid hex character "%s"', [AChar]);
-    end;
-  end;
+  LLen: Integer;
 begin
   if AEncoded = '' then
     raise EArgumentException.Create('encoded');
-
-  LLen := AEncoded.Length;
+  LLen := Length(AEncoded);
   if (LLen mod 2) <> 0 then
-    raise Exception.Create('Invalid hex string length (must be even)');
-
+    raise EArgumentException.Create('Invalid hex string length (must be even)');
   SetLength(Result, LLen div 2);
-  LJ := 0;
-  LI := 1;
-  while LI <= LLen do
-  begin
-    Result[LJ] := (HexCharToValue(AEncoded[LI]) shl 4)
-               or  HexCharToValue(AEncoded[LI + 1]);
-    Inc(LJ);
-    Inc(LI, 2);
-  end;
+  if {$IFDEF FPC}StrUtils.{$ENDIF}HexToBin(PChar(AEncoded), @Result[0], Length(Result)) <> Length(Result) then
+    raise EArgumentException.Create('Invalid hex character in input');
 end;
 
 function TDefaultHexEncoderProvider.IsValid(const AEncoded: string): Boolean;
 var
   LLen, LI: Integer;
-  LC: Char;
 begin
   LLen := Length(AEncoded);
   if (LLen = 0) or ((LLen mod 2) <> 0) then
     Exit(False);
-
   for LI := 1 to LLen do
-  begin
-    LC := AEncoded[LI];
-    case LC of
+    case AEncoded[LI] of
       '0'..'9', 'A'..'F', 'a'..'f': ;
     else
       Exit(False);
     end;
-  end;
   Result := True;
 end;
 
-{ TDefaultSolanaCliKeyPairEncoderProvider }
+{ TDefaultSolanaKeyPairJsonEncoderProvider }
 
-function TDefaultSolanaCliKeyPairEncoderProvider.EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
+function TDefaultSolanaKeyPairJsonEncoderProvider.EncodeData(const AData: TBytes;
+  AOffset, ACount: Integer): string;
 var
-  LI: Integer;
-  LParts: TStringBuilder;
+  LI, LEnd: Integer;
+  LBuilder: TStringBuilder;
 begin
-  if AData = nil then
-    raise EArgumentNilException.Create('data');
-
-  if (AOffset < 0) or (ACount < 0) or (AOffset + ACount > Length(AData)) then
-    raise ERangeError.Create('Invalid offset/count');
-
-  LParts := TStringBuilder.Create;
+  ValidateRange(AData, AOffset, ACount);
+  LEnd := AOffset + ACount;
+  LBuilder := TStringBuilder.Create((ACount * 4) + 2); // pre-size: up to "255," per byte + brackets
   try
-    LParts.Append('[');
-    for LI := AOffset to AOffset + ACount - 1 do
+    LBuilder.Append('[');
+    for LI := AOffset to LEnd - 1 do
     begin
-      LParts.Append(AData[LI].ToString);
-      if LI < AOffset + ACount - 1 then
-        LParts.Append(',');
+      if LI > AOffset then
+        LBuilder.Append(',');
+      LBuilder.Append(AData[LI].ToString);
     end;
-    LParts.Append(']');
-    Result := LParts.ToString;
+    LBuilder.Append(']');
+    Result := LBuilder.ToString;
   finally
-    LParts.Free;
+    LBuilder.Free;
   end;
 end;
 
-function TDefaultSolanaCliKeyPairEncoderProvider.TryParse(const AEncoded: string; out ABytes: TBytes): Boolean;
+function TDefaultSolanaKeyPairJsonEncoderProvider.TryParse(const AEncoded: string;
+  out ABytes: TBytes): Boolean;
 var
-  LCleanStr, LNumStr: string;
+  LTrimmed, LNumStr: string;
   LList: TStringList;
   LI, LVal: Integer;
 begin
   ABytes := nil;
-
   if AEncoded = '' then
     Exit(False);
 
-  LCleanStr := Trim(AEncoded);
-  if (Length(LCleanStr) < 2) or (LCleanStr[1] <> '[') or (LCleanStr[High(LCleanStr)] <> ']') then
+  LTrimmed := Trim(AEncoded);
+  if (Length(LTrimmed) < 2) or (LTrimmed[1] <> '[')
+    or (LTrimmed[Length(LTrimmed)] <> ']') then
     Exit(False);
 
-  LCleanStr := Copy(LCleanStr, 2, Length(LCleanStr) - 2);
-
+  LTrimmed := Copy(LTrimmed, 2, Length(LTrimmed) - 2);
   LList := TStringList.Create;
   try
     LList.StrictDelimiter := True;
     LList.Delimiter := ',';
-    LList.DelimitedText := LCleanStr;
+    LList.DelimitedText := LTrimmed;
 
-    if LList.Count <> 64 then
+    if LList.Count <> SolanaKeyPairLength then
       Exit(False);
 
-    SetLength(ABytes, LList.Count);
-    for LI := 0 to LList.Count - 1 do
+    SetLength(ABytes, SolanaKeyPairLength);
+    for LI := 0 to SolanaKeyPairLength - 1 do
     begin
       LNumStr := Trim(LList[LI]);
       if not TryStrToInt(LNumStr, LVal) then
@@ -490,17 +489,17 @@ begin
   end;
 end;
 
-function TDefaultSolanaCliKeyPairEncoderProvider.DecodeData(const AEncoded: string): TBytes;
+function TDefaultSolanaKeyPairJsonEncoderProvider.DecodeData(const AEncoded: string): TBytes;
 begin
   if not TryParse(AEncoded, Result) then
-    raise EArgumentException.Create('Invalid Solana encoded string');
+    raise EArgumentException.Create('Invalid Solana keypair JSON');
 end;
 
-function TDefaultSolanaCliKeyPairEncoderProvider.IsValid(const AEncoded: string): Boolean;
+function TDefaultSolanaKeyPairJsonEncoderProvider.IsValid(const AEncoded: string): Boolean;
 var
-  LBytes: TBytes;
+  LDummy: TBytes;
 begin
-  Result := TryParse(AEncoded, LBytes);
+  Result := TryParse(AEncoded, LDummy);
 end;
 
 end.

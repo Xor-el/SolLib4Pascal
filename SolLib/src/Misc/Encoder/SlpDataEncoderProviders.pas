@@ -62,13 +62,13 @@ type
     class var FBase58: IDataEncoderProvider;
     class var FBase64: IDataEncoderProvider;
     class var FHex: IDataEncoderProvider;
-    class var FSolanaCliKeyPair: IDataEncoderProvider;
+    class var FSolanaKeyPairJson: IDataEncoderProvider;
     class constructor Create;
   public
     class property Base58: IDataEncoderProvider read FBase58 write FBase58;
     class property Base64: IDataEncoderProvider read FBase64 write FBase64;
     class property Hex: IDataEncoderProvider read FHex write FHex;
-    class property SolanaCliKeyPair: IDataEncoderProvider read FSolanaCliKeyPair write FSolanaCliKeyPair;
+    class property SolanaKeyPairJson: IDataEncoderProvider read FSolanaKeyPairJson write FSolanaKeyPairJson;
   end;
 
 // =============================================================================
@@ -110,7 +110,7 @@ begin
   FBase58 := TDefaultBase58EncoderProvider.Create;
   FBase64 := TDefaultBase64EncoderProvider.Create;
   FHex := TDefaultHexEncoderProvider.Create;
-  FSolanaCliKeyPair := TDefaultSolanaCliKeyPairEncoderProvider.Create;
+  FSolanaKeyPairJson := TDefaultSolanaKeyPairJsonEncoderProvider.Create;
   {$ELSEIF DEFINED(USE_CUSTOM_DATA_ENCODER_PROVIDERS)}
   // User must assign providers before using TDataEncoderProviders
   {$ELSE}

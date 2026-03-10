@@ -95,7 +95,7 @@ begin
   LWallet := TWallet.Create(LMnemonic);
   LSeed := LWallet.DeriveMnemonicSeed;
 
-  Writeln('Seed: ', TSolanaCliKeyPairEncoder.EncodeData(LSeed));
+  Writeln('Seed: ', TSolanaKeyPairJsonEncoder.EncodeData(LSeed));
   Writeln('Address: ', LWallet.Account.PublicKey.Key);
 
   LKeystoreSvc := TSecretKeyStoreService.Create;
@@ -126,7 +126,7 @@ begin
   LRestoredWallet := TWallet.Create(LRestoredMnemonic);
   LRestoredSeed := LRestoredWallet.DeriveMnemonicSeed;
 
-  Writeln('Seed: ', TSolanaCliKeyPairEncoder.EncodeData(LRestoredSeed));
+  Writeln('Seed: ', TSolanaKeyPairJsonEncoder.EncodeData(LRestoredSeed));
 
   // Mimic Sollet key generation and verify the first 10 accounts.
   LOk := True;

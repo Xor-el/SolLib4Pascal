@@ -108,7 +108,7 @@ begin
     begin
       DecodeBase58('invalid');
     end,
-    Exception
+    EArgumentException
   );
 
   // contains non-base58 content mixed with whitespace -> must throw
@@ -117,7 +117,7 @@ begin
     begin
       DecodeBase58(' '#9#10#11#12#13' skip '#13#12#11#10#9' a');
     end,
-    Exception
+    EArgumentException
   );
 
   // only ignorable whitespace around the word "skip"
