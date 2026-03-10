@@ -130,7 +130,7 @@ contains
   SlpTokenWalletRpcProxy in '..\..\Token\SlpTokenWalletRpcProxy.pas',
   SlpWellKnownTokens in '..\..\Token\SlpWellKnownTokens.pas',
   SlpArrayUtils in '..\..\Utils\SlpArrayUtils.pas',
-  SlpComparerFactory in '..\..\Utils\SlpComparerFactory.pas',
+  SlpComparerFactory in '..\..\Misc\SlpComparerFactory.pas',
   SlpCryptoUtils in '..\..\Utils\SlpCryptoUtils.pas',
   SlpIOUtils in '..\..\Utils\SlpIOUtils.pas',
   SlpListUtils in '..\..\Utils\SlpListUtils.pas',
