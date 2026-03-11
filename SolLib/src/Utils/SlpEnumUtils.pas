@@ -131,7 +131,7 @@ class function TEnumUtils.TryGetEnumValue(ATypeInfo: PTypeInfo;
   const AReplacer: TFunc<string, string>): Boolean;
 var
   LProcessed: String;
-  LOrd: LongInt;
+  LOrd: Int32;
 begin
   AResult := 0;
 

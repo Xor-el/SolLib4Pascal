@@ -60,6 +60,7 @@ var
   LRT: TRttiType;
   LAddMethod: TRttiMethod;
   LElemType: PTypeInfo;
+  LGetEnum: TRttiMethod;
 begin
   Result := False;
   if AObj = nil then
@@ -71,10 +72,7 @@ begin
     if LRT = nil then
       Exit;
 
-    // Let TValueUtils do the heavy lifting:
-    // - find Add(...)
-    // - extract ElemType (ignored here, but can be used later if needed)
-    Result := TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType);
+    Result := TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum);
   finally
     LCtx.Free;
   end;
@@ -210,7 +208,6 @@ var
   LRT: TRttiType;
   LAddMethod: TRttiMethod;
   LElemType: PTypeInfo;
-  LInst: TRttiInstanceType;
   LGetEnum: TRttiMethod;
   LEnumVal: TValue;
   LEnumObj: TObject;
@@ -235,16 +232,7 @@ begin
     if LRT = nil then
       Exit;
 
-    // Let the helper detect list-like types and element type
-    if not TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType) then
-      Exit;
-
-    LInst := LRT as TRttiInstanceType;
-    if LInst = nil then
-      Exit;
-
-    LGetEnum := LInst.GetMethod('GetEnumerator');
-    if (LGetEnum = nil) or (Length(LGetEnum.GetParameters) <> 0) then
+    if not TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum) then
       Exit;
 
     // Get the enumerator object
