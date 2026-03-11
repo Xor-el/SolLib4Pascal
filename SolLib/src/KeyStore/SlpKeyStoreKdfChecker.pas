@@ -32,27 +32,15 @@ uses
 
 type
   /// <summary>
-  /// Implements a checker for the <see cref="TKeyStore{TKdfParams}"/>'s <see cref="TKdfType"/>.
+  /// Detects the KDF type from a JSON keystore string.
   /// </summary>
-  TKeyStoreKdfChecker = class
+  TKeyStoreKdfChecker = class sealed
   private
-    /// <summary>
-    /// Get the kdf type string from the json document.
-    /// </summary>
-    /// <param name="ARoot">The parsed JSON root object.</param>
-    /// <returns>The kdf type string.</returns>
-    /// <exception cref="EJsonException">Throws exception when json property <c>crypto</c> or <c>kdf</c> couldn't be found</exception>
     class function GetKdfTypeFromJson(const ARoot: TJSONObject): string; static;
   public
     /// <summary>
-    /// Gets the kdf type from the json keystore.
+    /// Parses the JSON keystore and returns the detected KDF type.
     /// </summary>
-    /// <param name="AJson">The json keystore.</param>
-    /// <returns>The kdf type.</returns>
-    /// <exception cref="EArgumentNilException">Throws exception when <c>json</c> param is null/empty.</exception>
-    /// <exception cref="EJsonParseException">Throws exception when text could not be processed to JSON.</exception>
-    /// <exception cref="EJsonException">Throws exception when <c>kdf</c> json property is <c>null</c>.</exception>
-    /// <exception cref="EInvalidKdfException">Throws exception when the <c>kdf</c> json property has an invalid <see cref="TKdfType"/> value.</exception>
     class function GetKeyStoreKdfType(const AJson: string): TKdfType; static;
   end;
 
@@ -60,24 +48,22 @@ implementation
 
 { TKeyStoreKdfChecker }
 
-class function TKeyStoreKdfChecker.GetKdfTypeFromJson
-  (const ARoot: TJSONObject): string;
+class function TKeyStoreKdfChecker.GetKdfTypeFromJson(const ARoot: TJSONObject): string;
 var
   LCrypto: TJSONObject;
   LKdfVal: TJSONValue;
 begin
-  if (ARoot = nil) then
-    raise EJsonException.Create('could not get crypto params object from json');
+  if ARoot = nil then
+    raise EJsonException.Create('Could not get crypto params from JSON');
 
   if not ARoot.TryGetValue<TJSONObject>('crypto', LCrypto) then
-    raise EJsonException.Create('could not get crypto params object from json');
+    raise EJsonException.Create('Could not get crypto params from JSON');
 
-  LKdfVal := nil;
   if not LCrypto.TryGetValue<TJSONValue>('kdf', LKdfVal) then
-    raise EJsonException.Create('could not get kdf object from json');
+    raise EJsonException.Create('Could not get kdf from JSON');
 
   if (LKdfVal = nil) or (LKdfVal.Value = '') then
-    raise EJsonException.Create('could not get kdf type from json');
+    raise EJsonException.Create('Could not get kdf type from JSON');
 
   Result := LKdfVal.Value;
 end;
@@ -85,34 +71,26 @@ end;
 class function TKeyStoreKdfChecker.GetKeyStoreKdfType(const AJson: string): TKdfType;
 var
   LRootVal: TJSONValue;
-  LRootObj: TJSONObject;
   LKdfStr: string;
-  LIdx: Integer;
 begin
-  if (AJson = '') then
+  if AJson = '' then
     raise EArgumentNilException.Create('json');
 
   LRootVal := TJSONObject.ParseJSONValue(AJson);
   if LRootVal = nil then
-    raise EJsonParseException.Create('could not process json');
-
+    raise EJsonParseException.Create('Could not process JSON');
   try
-    if not(LRootVal is TJSONObject) then
-      raise EJsonSerializationException.Create('could not process json');
+    if not (LRootVal is TJSONObject) then
+      raise EJsonSerializationException.Create('Could not process JSON');
 
-    LRootObj := TJSONObject(LRootVal);
+    LKdfStr := GetKdfTypeFromJson(TJSONObject(LRootVal));
 
-    LKdfStr := GetKdfTypeFromJson(LRootObj);
-
-    LIdx := IndexStr(LKdfStr, [TKeyStorePbkdf2Service.KdfType, TKeyStoreScryptService.KdfType]);
-
-    case LIdx of
+    case IndexStr(LKdfStr, [TKeyStorePbkdf2Service.KdfType, TKeyStoreScryptService.KdfType]) of
       0: Result := TKdfType.Pbkdf2;
       1: Result := TKdfType.Scrypt;
     else
       raise EInvalidKdfException.Create(LKdfStr);
     end;
-
   finally
     LRootVal.Free;
   end;

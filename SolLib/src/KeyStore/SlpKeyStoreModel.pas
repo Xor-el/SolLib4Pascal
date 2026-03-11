@@ -69,7 +69,7 @@ type
     FIv: string;
   public
     constructor Create(const AIV: TBytes); overload;
-  public
+
     [JsonName('iv')]
     property Iv: string read FIv write FIv;
   end;
@@ -86,7 +86,7 @@ type
     constructor Create(const ACipher: string; const ACipherText, AIV, AMac, ASalt: TBytes;
       AKdfParams: TKdfParamsType; const AKdfType: string); overload; virtual;
     destructor Destroy; override;
-  public
+
     [JsonName('cipher')]
     property Cipher: string read FCipher write FCipher;
     [JsonName('ciphertext')]
@@ -109,7 +109,7 @@ type
     FVersion: Integer;
   public
     destructor Destroy; override;
-  public
+
     [JsonName('crypto')]
     property Crypto: TCryptoInfo<TKdfParamsType> read FCrypto write FCrypto;
     [JsonName('id')]
@@ -132,7 +132,8 @@ end;
 
 { TCryptoInfo<T> }
 
-constructor TCryptoInfo<TKdfParamsType>.Create(const ACipher: string; const ACipherText, AIV, AMac, ASalt: TBytes;
+constructor TCryptoInfo<TKdfParamsType>.Create(const ACipher: string;
+  const ACipherText, AIV, AMac, ASalt: TBytes;
   AKdfParams: TKdfParamsType; const AKdfType: string);
 begin
   inherited Create;
@@ -148,9 +149,7 @@ end;
 
 destructor TCryptoInfo<TKdfParamsType>.Destroy;
 begin
- if Assigned(FCipherParams) then
   FCipherParams.Free;
- if Assigned(FKdfParams) then
   FKdfParams.Free;
   inherited;
 end;
@@ -159,7 +158,6 @@ end;
 
 destructor TKeyStore<TKdfParamsType>.Destroy;
 begin
-if Assigned(FCrypto) then
   FCrypto.Free;
   inherited;
 end;

@@ -29,142 +29,176 @@ uses
 
 type
   /// <summary>
-  /// Web3 Secret Storage helpers
+  /// Web3 Secret Storage helpers.
   /// https://ethereum.org/developers/docs/data-structures-and-encoding/web3-secret-storage/
   /// </summary>
-  TKeyStoreCrypto = class
+  TKeyStoreCrypto = class sealed
   private
-    procedure ValidateMac(const AMac, ACipherText, ADerivedKey: TBytes);
+    const
+      /// <summary>AES-128-CTR key length in bytes.</summary>
+      AesCtrKeyLen = 16;
+      /// <summary>
+      /// Offset into the derived key where the MAC input starts.
+      /// MAC = keccak256( derivedKey[MacKeyOffset .. MacKeyOffset+AesCtrKeyLen-1] || cipherText )
+      /// </summary>
+      MacKeyOffset = 16;
+      /// <summary>Minimum derived key length required (AES key + MAC key).</summary>
+      MinDerivedKeyLen = MacKeyOffset + AesCtrKeyLen; // 32
+
+    class procedure ValidateMac(const AMac, ACipherText, ADerivedKey: TBytes); static;
   public
     // --- KDFs ---
-    function GenerateDerivedScryptKey(const APassword, ASalt: TBytes;
-      const AN, AR, AP, ADKLen: Integer; const ACheckRandN: Boolean = False): TBytes;
 
-    function GeneratePbkdf2Sha256DerivedKey(const APassword: string; const ASalt: TBytes;
-      const ACount, ADKLen: Integer): TBytes;
+    class function GenerateDerivedScryptKey(const APassword, ASalt: TBytes;
+      AN, AR, AP, ADKLen: Integer): TBytes; static;
+
+    class function GeneratePbkdf2Sha256DerivedKey(const APassword: string;
+      const ASalt: TBytes; ACount, ADKLen: Integer): TBytes; static;
 
     // --- Hash/MAC ---
-    function CalculateKeccakHash(const AValue: TBytes): TBytes;
-    function GenerateMac(const ADerivedKey, ACipherText: TBytes): TBytes;
+
+    class function CalculateKeccakHash(const AValue: TBytes): TBytes; static;
+    class function GenerateMac(const ADerivedKey, ACipherText: TBytes): TBytes; static;
 
     // --- AES-CTR ---
-    function GenerateCipherKey(const ADerivedKey: TBytes): TBytes; // first 16 bytes of derived key
-    function GenerateAesCtrCipher(const AIV, AEncryptKey, AInput: TBytes): TBytes;
+
+    /// <summary>Extracts the first 16 bytes of the derived key for AES-128-CTR.</summary>
+    class function GenerateCipherKey(const ADerivedKey: TBytes): TBytes; static;
+    class function GenerateAesCtrCipher(const AIV, AEncryptKey, AInput: TBytes): TBytes; static;
 
     // --- Decrypt paths (with MAC validation) ---
-    function DecryptScrypt(const APassword: string; const AMac, AIV, ACipherText: TBytes;
-      const AN, AP, AR: Integer; const ASalt: TBytes; const ADKLen: Integer): TBytes;
 
-    function DecryptPbkdf2Sha256(const APassword: string; const AMac, AIV, ACipherText: TBytes;
-      const ACount: Integer; const ASalt: TBytes; const ADKLen: Integer): TBytes;
+    class function DecryptScrypt(const APassword: string; const AMac, AIV,
+      ACipherText: TBytes; AN, AR, AP: Integer; const ASalt: TBytes;
+      ADKLen: Integer): TBytes; static;
 
-    function Decrypt(const AMac, AIV, ACipherText, ADerivedKey: TBytes): TBytes;
+    class function DecryptPbkdf2Sha256(const APassword: string; const AMac, AIV,
+      ACipherText: TBytes; ACount: Integer; const ASalt: TBytes;
+      ADKLen: Integer): TBytes; static;
+
+    class function Decrypt(const AMac, AIV, ACipherText, ADerivedKey: TBytes): TBytes; static;
 
     // --- Util ---
-    function GetPasswordAsBytes(const APassword: string): TBytes;
+
+    class function GetPasswordAsBytes(const APassword: string): TBytes; static;
   end;
 
 implementation
 
 { TKeyStoreCrypto }
 
-function TKeyStoreCrypto.CalculateKeccakHash(const AValue: TBytes): TBytes;
+class function TKeyStoreCrypto.CalculateKeccakHash(const AValue: TBytes): TBytes;
 begin
   Result := TKECCAK256.HashData(AValue);
 end;
 
-function TKeyStoreCrypto.Decrypt(const AMac, AIV, ACipherText, ADerivedKey: TBytes): TBytes;
+class function TKeyStoreCrypto.Decrypt(const AMac, AIV, ACipherText,
+  ADerivedKey: TBytes): TBytes;
 var
   LEncryptKey: TBytes;
 begin
-  // Validate MAC before decryption
   ValidateMac(AMac, ACipherText, ADerivedKey);
-
-  // AES-CTR key = first 16 bytes of derived key
   LEncryptKey := GenerateCipherKey(ADerivedKey);
-
-  // CTR is symmetric; for clarity we call Decrypt
-  Result := TAesCtr.Decrypt(LEncryptKey, AIV, ACipherText);
+  try
+    Result := TAesCtr.Decrypt(LEncryptKey, AIV, ACipherText);
+  finally
+    TArrayUtils.Fill<Byte>(LEncryptKey);
+  end;
 end;
 
-function TKeyStoreCrypto.DecryptPbkdf2Sha256(const APassword: string; const AMac, AIV,
-  ACipherText: TBytes; const ACount: Integer; const ASalt: TBytes; const ADKLen: Integer): TBytes;
+class function TKeyStoreCrypto.DecryptPbkdf2Sha256(const APassword: string;
+  const AMac, AIV, ACipherText: TBytes; ACount: Integer; const ASalt: TBytes;
+  ADKLen: Integer): TBytes;
 var
   LDerivedKey: TBytes;
 begin
   LDerivedKey := GeneratePbkdf2Sha256DerivedKey(APassword, ASalt, ACount, ADKLen);
-  Result := Decrypt(AMac, AIV, ACipherText, LDerivedKey);
+  try
+    Result := Decrypt(AMac, AIV, ACipherText, LDerivedKey);
+  finally
+    TArrayUtils.Fill<Byte>(LDerivedKey);
+  end;
 end;
 
-function TKeyStoreCrypto.DecryptScrypt(const APassword: string; const AMac, AIV,
-  ACipherText: TBytes; const AN, AP, AR: Integer; const ASalt: TBytes; const ADKLen: Integer): TBytes;
+class function TKeyStoreCrypto.DecryptScrypt(const APassword: string;
+  const AMac, AIV, ACipherText: TBytes; AN, AR, AP: Integer;
+  const ASalt: TBytes; ADKLen: Integer): TBytes;
 var
   LDerivedKey, LPwdBytes: TBytes;
 begin
   LPwdBytes := GetPasswordAsBytes(APassword);
-  LDerivedKey := GenerateDerivedScryptKey(LPwdBytes, ASalt, AN, AR, AP, ADKLen, False);
-  Result := Decrypt(AMac, AIV, ACipherText, LDerivedKey);
+  try
+    LDerivedKey := GenerateDerivedScryptKey(LPwdBytes, ASalt, AN, AR, AP, ADKLen);
+    try
+      Result := Decrypt(AMac, AIV, ACipherText, LDerivedKey);
+    finally
+      TArrayUtils.Fill<Byte>(LDerivedKey);
+    end;
+  finally
+    TArrayUtils.Fill<Byte>(LPwdBytes);
+  end;
 end;
 
-function TKeyStoreCrypto.GenerateAesCtrCipher(const AIV, AEncryptKey, AInput: TBytes): TBytes;
+class function TKeyStoreCrypto.GenerateAesCtrCipher(const AIV, AEncryptKey,
+  AInput: TBytes): TBytes;
 begin
   Result := TAesCtr.Encrypt(AEncryptKey, AIV, AInput);
 end;
 
-function TKeyStoreCrypto.GenerateCipherKey(const ADerivedKey: TBytes): TBytes;
-const
-  KeyLen = 16;
+class function TKeyStoreCrypto.GenerateCipherKey(const ADerivedKey: TBytes): TBytes;
 begin
-  if Length(ADerivedKey) < KeyLen then
-    raise EArgumentException.Create('Derived key too short for AES-CTR (need >= 16 bytes).');
-  SetLength(Result, KeyLen);
-  if KeyLen > 0 then
-    TArrayUtils.Copy<Byte>(ADerivedKey, 0, Result, 0, KeyLen);
+  if Length(ADerivedKey) < AesCtrKeyLen then
+    raise EArgumentException.Create('Derived key too short for AES-128-CTR');
+  SetLength(Result, AesCtrKeyLen);
+  Move(ADerivedKey[0], Result[0], AesCtrKeyLen);
 end;
 
-function TKeyStoreCrypto.GenerateDerivedScryptKey(const APassword, ASalt: TBytes;
-  const AN, AR, AP, ADKLen: Integer; const ACheckRandN: Boolean): TBytes;
+class function TKeyStoreCrypto.GenerateDerivedScryptKey(const APassword, ASalt: TBytes;
+  AN, AR, AP, ADKLen: Integer): TBytes;
 begin
-  if ACheckRandN then
-  begin
-    if (AR = 1) and (AN >= 65536) then
-      raise EArgumentException.Create('Cost parameter N must be > 1 and < 65536.');
-  end;
-
   Result := TScrypt.DeriveKey(APassword, ASalt, AN, AR, AP, ADKLen);
 end;
 
-function TKeyStoreCrypto.GenerateMac(const ADerivedKey, ACipherText: TBytes): TBytes;
+class function TKeyStoreCrypto.GenerateMac(const ADerivedKey, ACipherText: TBytes): TBytes;
 var
   LBuf: TBytes;
-  LTailLen: Integer;
 begin
+  if Length(ADerivedKey) < MinDerivedKeyLen then
+    raise EArgumentException.Create('Derived key too short for MAC generation');
+
   // MAC = keccak256( derivedKey[16..31] || cipherText )
-  LTailLen := 16;
-  SetLength(LBuf, LTailLen + Length(ACipherText));
-
-  TArrayUtils.Copy<Byte>(ADerivedKey, 16, LBuf, 0, LTailLen);
-  if Length(ACipherText) > 0 then
-    TArrayUtils.Copy<Byte>(ACipherText, 0, LBuf, LTailLen, Length(ACipherText));
-
-  Result := CalculateKeccakHash(LBuf);
+  SetLength(LBuf, AesCtrKeyLen + Length(ACipherText));
+  try
+    Move(ADerivedKey[MacKeyOffset], LBuf[0], AesCtrKeyLen);
+    if Length(ACipherText) > 0 then
+      Move(ACipherText[0], LBuf[AesCtrKeyLen], Length(ACipherText));
+    Result := CalculateKeccakHash(LBuf);
+  finally
+    TArrayUtils.Fill<Byte>(LBuf);
+  end;
 end;
 
-function TKeyStoreCrypto.GeneratePbkdf2Sha256DerivedKey(const APassword: string;
-  const ASalt: TBytes; const ACount, ADKLen: Integer): TBytes;
+class function TKeyStoreCrypto.GeneratePbkdf2Sha256DerivedKey(
+  const APassword: string; const ASalt: TBytes;
+  ACount, ADKLen: Integer): TBytes;
 var
   LPwd: TBytes;
 begin
   LPwd := GetPasswordAsBytes(APassword);
-  Result := TPbkdf2SHA256.DeriveKey(LPwd, ASalt, ACount, ADKLen);
+  try
+    Result := TPbkdf2SHA256.DeriveKey(LPwd, ASalt, ACount, ADKLen);
+  finally
+    TArrayUtils.Fill<Byte>(LPwd);
+  end;
 end;
 
-function TKeyStoreCrypto.GetPasswordAsBytes(const APassword: string): TBytes;
+class function TKeyStoreCrypto.GetPasswordAsBytes(const APassword: string): TBytes;
 begin
   Result := TEncoding.UTF8.GetBytes(APassword);
 end;
 
-procedure TKeyStoreCrypto.ValidateMac(const AMac, ACipherText, ADerivedKey: TBytes);
+class procedure TKeyStoreCrypto.ValidateMac(const AMac, ACipherText,
+  ADerivedKey: TBytes);
 var
   LGeneratedMac: TBytes;
 begin
@@ -176,10 +210,13 @@ begin
     raise EArgumentNilException.Create('ADerivedKey');
 
   LGeneratedMac := GenerateMac(ADerivedKey, ACipherText);
-  if not TArrayUtils.ConstantTimeEquals(LGeneratedMac, AMac) then
-    raise EDecryptionException.Create(
-      'Cannot derive the same MAC from cipher and derived key.'
-    );
+  try
+    if not TArrayUtils.ConstantTimeEquals(LGeneratedMac, AMac) then
+      raise EDecryptionException.Create(
+        'Cannot derive the same MAC from cipher and derived key.');
+  finally
+    TArrayUtils.Fill<Byte>(LGeneratedMac);
+  end;
 end;
 
 end.
