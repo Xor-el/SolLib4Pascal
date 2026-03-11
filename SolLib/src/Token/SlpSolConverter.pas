@@ -28,22 +28,32 @@ uses
 
 type
   /// <summary>
-  /// class for conversion between SOL and Lamports.
+  /// Conversion between SOL and Lamports.
+  /// 1 SOL = 10^9 Lamports.
   /// </summary>
-  TSolConverter = class
-  public
+  TSolConverter = class sealed
+  private
     /// <summary>
-    /// Number of Lamports per SOL.
+    /// Safely converts a Double to UInt64 after rounding.
+    /// Raises EConvertError for NaN, Infinity, negative values,
+    /// or values exceeding High(UInt64).
     /// </summary>
-    const LAMPORTS_PER_SOL = 1000000000; // 10^9 lamports per SOL
+    class function RoundToUInt64(const AValue: Double): UInt64; static;
+  public
+    /// <summary>Number of Lamports per SOL (10^9).</summary>
+    const LamportsPerSol: UInt64 = 1000000000;
 
     /// <summary>
-    /// Convert Lamports value into SOL double value.
+    /// Convert a Lamports value to SOL.
+    /// The result has at most 9 meaningful decimal digits (lamport precision).
     /// </summary>
     class function ConvertToSol(const ALamports: UInt64): Double; static;
 
     /// <summary>
-    /// Convert a SOL double value into Lamports (UInt64) value.
+    /// Convert a SOL value to Lamports.
+    /// The Double is multiplied by 10^9, rounded to the nearest integer,
+    /// then validated and converted to UInt64.
+    /// Raises EConvertError for NaN, Infinity, negative, or out-of-range values.
     /// </summary>
     class function ConvertToLamports(const ASol: Double): UInt64; static;
   end;
@@ -52,26 +62,31 @@ implementation
 
 { TSolConverter }
 
+class function TSolConverter.RoundToUInt64(const AValue: Double): UInt64;
+var
+  LRounded: Double;
+begin
+  if IsNan(AValue) or IsInfinite(AValue) then
+    raise EConvertError.Create('Invalid floating-point value');
+  if AValue < 0 then
+    raise EConvertError.Create('Value must be non-negative');
+
+  LRounded := Round(AValue);
+
+  if LRounded > High(UInt64) then
+    raise EConvertError.Create('Value exceeds UInt64 range');
+
+  Result := TMathUtils.DoubleToUInt64(LRounded);
+end;
+
 class function TSolConverter.ConvertToSol(const ALamports: UInt64): Double;
 begin
-  Result := SimpleRoundTo(ALamports / LAMPORTS_PER_SOL, -9);
+  Result := ALamports / LamportsPerSol;
 end;
 
 class function TSolConverter.ConvertToLamports(const ASol: Double): UInt64;
-function DoubleToUInt64Safe(const AD: Double): UInt64;
 begin
-  if IsNan(AD) or IsInfinite(AD) then
-    raise EConvertError.Create('Invalid floating-point value');
-
-  if (Frac(AD) <> 0) or (AD < 0) or (AD > High(UInt64)) then
-    raise EConvertError.Create('Cannot convert without loss');
-
-  Result := TMathUtils.DoubleToUInt64(AD);//UInt64(Round(D));
-end;
-
-begin
-  Result := DoubleToUInt64Safe(ASol * LAMPORTS_PER_SOL);
+  Result := RoundToUInt64(ASol * LamportsPerSol);
 end;
 
 end.
-

@@ -163,11 +163,11 @@ begin
     Exit(LCaptured[0]);
 
   Result :=
-    function(const AStr: string): string
+    function(const AInput: string): string
     var
       LJ: Integer;
     begin
-      Result := AStr;
+      Result := AInput;
       for LJ := 0 to High(LCaptured) do
         Result := LCaptured[LJ](Result);
     end;
