@@ -50,10 +50,24 @@ type
   end;
 
   /// <summary>
-  /// Specifies how enum values should be transformed during JSON serialization.
-  /// A caller may pass a single pre-composed Provider, a Naming Policy, or both.
-  /// If both are supplied, the Provider is applied first, then the Policy.
+  /// Configures how enum identifiers are transformed to/from JSON strings
+  /// by <see cref="TJsonStringEnumConverter"/>.
+  /// Accepts a Naming Policy, a Transform Provider, or both (Provider first, then Policy).
   /// </summary>
+  /// <remarks>
+  /// <para><b>Resolution hierarchy (highest priority first):</b></para>
+  /// <para>1. Property-level [JsonStringEnum] -- placed on a published property.
+  ///    Creates a dedicated converter with IgnoreTypeAttributes = True,
+  ///    so the type-level attribute on the enum is bypassed.</para>
+  /// <para>2. Type-level [JsonStringEnum] -- placed on the enum type itself.
+  ///    Used by the converter's ResolveTransform when IgnoreTypeAttributes is False.</para>
+  /// <para>3. Converter default -- the transform supplied via the converter's constructor
+  ///    (e.g. when registered in the serializer's Converters list).</para>
+  /// <para>4. Raw identifier -- if no transform is resolved, the Delphi enum name is used as-is.</para>
+  /// <para>Note: this attribute configures the <i>transform</i> only.
+  ///    Which <i>converter</i> handles a value is determined separately by the
+  ///    Delphi RTL ([JsonConverter] attribute or the serializer's Converters list).</para>
+  /// </remarks>
   JsonStringEnumAttribute = class(TCustomAttribute)
   private
     FPolicy: TJsonNamingPolicy;

@@ -36,7 +36,7 @@ uses
   SlpValueHelpers in '..\..\SolLib\src\Helpers\SlpValueHelpers.pas',
   SlpBaseJsonConverter in '..\..\SolLib\src\JsonConverters\SlpBaseJsonConverter.pas',
   SlpAccountDataConverter in '..\..\SolLib\src\JsonConverters\SlpAccountDataConverter.pas',
-  SlpObjectOrStringArrayConverter  in '..\..\SolLib\src\JsonConverters\SlpObjectOrStringArrayConverter.pas',
+  SlpObjectOrStringArrayConverter in '..\..\SolLib\src\JsonConverters\SlpObjectOrStringArrayConverter.pas',
   SlpEncodingConverter in '..\..\SolLib\src\JsonConverters\SlpEncodingConverter.pas',
   SlpJsonListConverter in '..\..\SolLib\src\JsonConverters\SlpJsonListConverter.pas',
   SlpBaseJsonBatchConverter in '..\..\SolLib\src\JsonConverters\SlpBaseJsonBatchConverter.pas',
@@ -206,7 +206,8 @@ uses
   AddressLookupTableProgramTests in '..\src\Program\AddressLookupTableProgramTests.pas',
   BPFLoaderProgramTests in '..\src\Program\BPFLoaderProgramTests.pas',
   TokenSwapProgramTests in '..\src\Program\TokenSwapProgramTests.pas',
-  JsonConverterTests in '..\src\JsonConverter\JsonConverterTests.pas';
+  JsonConverterTests in '..\src\JsonConverter\JsonConverterTests.pas',
+  SlpStringTransformerTests in '..\src\Misc\SlpStringTransformerTests.pas';
 
 begin
 

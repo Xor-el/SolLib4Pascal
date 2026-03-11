@@ -191,18 +191,27 @@ class function TStringTransformer.SeparatedName(const AInput: string; ASeparator
 var
   LI, LLen: Integer;
   LC: Char;
+  LPrevUpper, LNextLower: Boolean;
   LBuilder: TStringBuilder;
 begin
   LLen := Length(AInput);
   if LLen = 0 then
     Exit('');
-  LBuilder := TStringBuilder.Create(LLen + (LLen div 4)); // room for separators
+
+  LBuilder := TStringBuilder.Create(LLen + (LLen div 4));
   try
     for LI := 1 to LLen do
     begin
       LC := AInput[LI];
       if (LI > 1) and IsAsciiUpper(LC) then
-        LBuilder.Append(ASeparator);
+      begin
+        LPrevUpper := IsAsciiUpper(AInput[LI - 1]);
+        LNextLower := (LI < LLen) and IsAsciiLower(AInput[LI + 1]);
+        // Insert separator at camelCase boundary (lower->Upper)
+        // or at acronym-to-word boundary (Upper before UpperLower, e.g. HTTPServer -> HTTP_Server)
+        if (not LPrevUpper) or LNextLower then
+          LBuilder.Append(ASeparator);
+      end;
       LBuilder.Append(ToAsciiLower(LC));
     end;
     Result := LBuilder.ToString;

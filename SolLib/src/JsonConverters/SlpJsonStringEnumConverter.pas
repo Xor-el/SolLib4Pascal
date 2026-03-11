@@ -37,17 +37,28 @@ uses
   SlpBaseJsonConverter;
 
 type
-  /// Enum <-> string converter honoring attribute and/or ctor-provided transformer(s).
-  /// Resolution order:
-  ///   - If not IgnoreTypeAttributes and the enum type has our attribute:
-  ///       * Provider-only     -> use Provider.GetTransform
-  ///       * Policy-only       -> use Policy transform
-  ///       * Both              -> Provider THEN Policy
-  ///   - Else use this converter’s own default (built by its constructor):
-  ///       * Provider-only     -> use Provider.GetTransform
-  ///       * Policy-only       -> use Policy transform
-  ///       * Both              -> Provider THEN Policy
-  ///       * Neither           -> no transform (raw enum identifier)
+  /// <summary>
+  /// Enum-to-string converter that transforms Delphi enum identifiers
+  /// using a JsonStringEnumAttribute or a constructor-supplied default.
+  /// </summary>
+  /// <remarks>
+  /// <para><b>Overall precedence (property > type > serializer list):</b></para>
+  /// <para>When [JsonStringEnum] is placed on a property, the contract resolver
+  ///    creates a dedicated instance of this converter whose own default is the
+  ///    property attribute's config, with IgnoreTypeAttributes = True so the
+  ///    type-level attribute is bypassed. When placed on the enum type, the
+  ///    global converter from the serializer's Converters list picks it up
+  ///    via ResolveTransform.</para>
+  /// <para><b>Internal transform resolution (first match wins):</b></para>
+  /// <para>1. Type-level [JsonStringEnum] attribute on the enum (skipped when
+  ///    IgnoreTypeAttributes = True).</para>
+  /// <para>2. Converter's own default transform (set by the constructor):
+  ///    Policy-only, Provider-only, or Provider then Policy.</para>
+  /// <para>3. No transform: the raw Delphi enum identifier is used as-is.</para>
+  /// <para><b>ReadJson fallback:</b> during deserialization, if the transformed
+  ///    name does not match, the converter also tries the raw Delphi identifier
+  ///    before raising an exception.</para>
+  /// </remarks>
   TJsonStringEnumConverter = class(TBaseJsonConverter)
   private
     // Single resolved default for this converter instance (nil = no transform)
@@ -96,6 +107,10 @@ type
     /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer); override;
 
+    /// <summary>
+    /// When True, enum-type-level JsonStringEnumAttribute attributes are ignored
+    /// and the converter falls back to its own default transform (set via constructor).
+    /// </summary>
     property IgnoreTypeAttributes: Boolean read FIgnoreTypeAttributes write FIgnoreTypeAttributes;
   end;
 
