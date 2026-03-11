@@ -70,7 +70,7 @@ begin
         LEd.Free;
       end;
     end,
-    Exception
+    EArgumentException
   );
 end;
 

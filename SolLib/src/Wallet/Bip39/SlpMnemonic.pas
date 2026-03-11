@@ -34,7 +34,6 @@ uses
   SlpSolLibTypes;
 
 type
-
   IMnemonic = interface
     ['{38F2E4E6-4D67-4E86-9B0F-6E5B6A7A0E21}']
     function IsValidChecksum: Boolean;
@@ -51,122 +50,153 @@ type
     property Words: TArray<string> read GetWords;
   end;
 
-
-
   TMnemonic = class(TInterfacedObject, IMnemonic)
   private
-    FWordList: IWordList;
-    FIndices: TArray<Integer>;
-    FWords: TArray<string>;
-    FMnemonic: string;
-    FIsValidChecksum: TNullable<Boolean>;
+    type
+      /// <summary>
+      /// Encapsulates the relationship between word count, checksum bits,
+      /// and entropy bits for a single BIP39 strength level.
+      /// </summary>
+      TMnemonicSpec = record
+        WordCount: Integer;
+        ChecksumBits: Integer;
+        EntropyBits: Integer;
+      end;
 
-    /// <summary>
-    /// The word count array.
-    /// </summary>
-    class var FMsArray: TArray<Integer>;
-    /// <summary>
-    /// The bit count array.
-    /// </summary>
-    class var FCsArray: TArray<Integer>;
-    /// <summary>
-    /// The entropy value array.
-    /// </summary>
-    class var FEntArray: TArray<Integer>;
+    const
+      /// <summary>
+      /// BIP39 strength levels: 12/15/18/21/24 words.
+      /// Word count = (entropy + checksum) / 11, where checksum = entropy / 32.
+      /// </summary>
+      Specs: array[0..4] of TMnemonicSpec = (
+        (WordCount: 12; ChecksumBits: 4; EntropyBits: 128),
+        (WordCount: 15; ChecksumBits: 5; EntropyBits: 160),
+        (WordCount: 18; ChecksumBits: 6; EntropyBits: 192),
+        (WordCount: 21; ChecksumBits: 7; EntropyBits: 224),
+        (WordCount: 24; ChecksumBits: 8; EntropyBits: 256)
+      );
+
+      /// <summary>Whitespace characters used to split mnemonic sentences.</summary>
+      WhitespaceSeparators: array[0..12] of Char = (
+        Char($0009),  // TAB
+        Char($000A),  // LF
+        Char($000B),  // VT
+        Char($000C),  // FF
+        Char($000D),  // CR
+        Char($0020),  // SPACE
+        Char($00A0),  // NBSP
+        Char($0085),  // NEL
+        Char($1680),  // OGHAM SPACE MARK
+        Char($2000),  // EN QUAD
+        Char($2001),  // EM QUAD
+        Char($2002),  // EN SPACE
+        Char($3000)   // IDEOGRAPHIC SPACE
+      );
+
+      /// <summary>PBKDF2 iteration count for seed derivation (BIP39).</summary>
+      SeedIterations = 2048;
+      /// <summary>Derived seed length in bytes (BIP39).</summary>
+      SeedLength = 64;
+
+    var
+      FWordList: IWordList;
+      FIndices: TArray<Integer>;
+      FWords: TArray<string>;
+      FMnemonic: string;
+      FIsValidChecksum: TNullable<Boolean>;
 
     function GetWordList: IWordList;
     function GetIndices: TArray<Integer>;
     function GetWords: TArray<string>;
-
-    /// <summary>
-    /// Whether the checksum of the mnemonic is valid.
-    /// </summary>
     function IsValidChecksum: Boolean;
-
     function DeriveSeed(const APassphrase: string = ''): TBytes;
 
     /// <summary>
-    /// Generate entropy for the given word count.
+    /// Finds the TMnemonicSpec matching the given word count.
+    /// Returns True if found, with ASpec set accordingly.
     /// </summary>
-    /// <param name="AWordCount"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException">Thrown when the word count is invalid.</exception>
-    function GenerateEntropy(AWordCount: TWordCount): TBytes;
-
-    class function CorrectWordCount(AMS: Integer): Boolean; static;
-    class function NormalizeUTF8(const AStr: string): TBytes; static;
+    class function TryFindSpec(AWordCount: Integer; out ASpec: TMnemonicSpec): Boolean; static;
 
     /// <summary>
-    /// Generate a mnemonic
+    /// Finds the TMnemonicSpec matching the given entropy bit length.
+    /// Returns True if found, with ASpec set accordingly.
     /// </summary>
-    /// <param name="AWordList">The word list of the mnemonic.</param>
-    /// <param name="AEntropy">The entropy.</param>
+    class function TryFindSpecByEntropy(AEntropyBits: Integer; out ASpec: TMnemonicSpec): Boolean; static;
+
+    /// <summary>
+    /// Returns the NFKD-normalized UTF-8 encoding of AInput.
+    /// </summary>
+    class function NormalizeUTF8(const AInput: string): TBytes; static;
+
+    /// <summary>Generate entropy for the given word count.</summary>
+    class function GenerateEntropy(AWordCount: TWordCount): TBytes; static;
+
+    /// <summary>Generate a mnemonic from entropy.</summary>
     constructor CreateFromEntropy(AWordList: IWordList; AEntropy: TBytes = nil); overload;
-
-    class constructor Create;
-
   public
-   /// <summary>
-   /// Initialize a mnemonic from the given string and wordList type.
-   /// </summary>
-   /// <param name="AMnemonic">The mnemonic string.</param>
-   /// <param name="AWordList">The word list type.</param>
-   /// <exception cref="ArgumentNilException">Thrown when the mnemonic string is nil.</exception>
-   /// <exception cref="Exception">Thrown when the word count of the mnemonic is invalid.</exception>
+    /// <summary>
+    /// Initialize a mnemonic from the given string and optional wordlist.
+    /// Auto-detects language if AWordList is nil.
+    /// </summary>
     constructor Create(const AMnemonic: string; AWordList: IWordList = nil); overload;
 
     /// <summary>
-    /// Initialize a mnemonic from the given word list and word count..
+    /// Generate a new mnemonic with the given word list and word count.
     /// </summary>
-    /// <param name="AWordList">The word list.</param>
-    /// <param name="AWordCount">The word count.</param>
     constructor Create(AWordList: IWordList; AWordCount: TWordCount); overload;
 
     function ToString: string; override;
 
-    class function NormalizeString(const AStr: string): string; static;
-
+    /// <summary>NFKD normalization of the input string.</summary>
+    class function NormalizeString(const AInput: string): string; static;
   end;
 
 implementation
 
 { TMnemonic }
 
-class constructor TMnemonic.Create;
+class function TMnemonic.TryFindSpec(AWordCount: Integer;
+  out ASpec: TMnemonicSpec): Boolean;
+var
+  LI: Integer;
 begin
-  FMsArray := TArray<Integer>.Create(12, 15, 18, 21, 24);
-  FCsArray := TArray<Integer>.Create(4, 5, 6, 7, 8);
-  FEntArray := TArray<Integer>.Create(128, 160, 192, 224, 256);
+  for LI := Low(Specs) to High(Specs) do
+    if Specs[LI].WordCount = AWordCount then
+    begin
+      ASpec := Specs[LI];
+      Exit(True);
+    end;
+  ASpec := Default(TMnemonicSpec);
+  Result := False;
+end;
+
+class function TMnemonic.TryFindSpecByEntropy(AEntropyBits: Integer;
+  out ASpec: TMnemonicSpec): Boolean;
+var
+  LI: Integer;
+begin
+  for LI := Low(Specs) to High(Specs) do
+    if Specs[LI].EntropyBits = AEntropyBits then
+    begin
+      ASpec := Specs[LI];
+      Exit(True);
+    end;
+  ASpec := Default(TMnemonicSpec);
+  Result := False;
 end;
 
 constructor TMnemonic.Create(const AMnemonic: string; AWordList: IWordList);
-const
-  WHITESPACE_SEPARATORS: array[0..12] of Char = (
-    Char($0009),  // TAB
-    Char($000A),  // LF (Line Feed)
-    Char($000B),  // VT (Vertical Tab)
-    Char($000C),  // FF (Form Feed)
-    Char($000D),  // CR (Carriage Return)
-    Char($0020),  // SPACE
-    Char($00A0),  // NBSP (Non-Breaking Space)
-    Char($0085),  // NEL (Next Line)
-    Char($1680),  // OGHAM SPACE MARK
-    Char($2000),  // EN QUAD
-    Char($2001),  // EM QUAD
-    Char($2002),  // EN SPACE
-    Char($3000)   // IDEOGRAPHIC SPACE (full-width space)
-  );
 var
   LWL: IWordList;
   LWordsSplit: TArray<string>;
-  LSep: string;
+  LSpec: TMnemonicSpec;
 begin
   if AMnemonic = '' then
     raise EArgumentNilException.Create('mnemonic');
 
   FMnemonic := Trim(AMnemonic);
 
-  // Resolve wordlist: auto-detect from sentence, else English
+  // Resolve wordlist: auto-detect from sentence, fallback to English
   if AWordList = nil then
   begin
     LWL := TWordList.AutoDetect(FMnemonic);
@@ -176,80 +206,47 @@ begin
   else
     LWL := AWordList;
 
-  // Split using full whitespace list
-  LWordsSplit := FMnemonic.Split(WHITESPACE_SEPARATORS, TStringSplitOptions.ExcludeEmpty);
+  // Split on all recognized whitespace
+  LWordsSplit := FMnemonic.Split(WhitespaceSeparators, TStringSplitOptions.ExcludeEmpty);
 
-  // Normalize using WordList.Spacing
-  LSep := LWL.Space;
-  FMnemonic := string.Join(LSep, LWordsSplit);
+  if not TryFindSpec(Length(LWordsSplit), LSpec) then
+    raise EArgumentException.Create('Word count should be 12, 15, 18, 21 or 24');
 
-  if not CorrectWordCount(Length(LWordsSplit)) then
-    raise Exception.Create('Word count should be 12,15,18,21 or 24');
-
-  // Normalize each word according to WordList rules (WordList.ToIndices may expect normalized strings)
+  // Re-join with the wordlist's canonical separator
+  FMnemonic := string.Join(LWL.Space, LWordsSplit);
   FWords := LWordsSplit;
   FWordList := LWL;
   FIndices := LWL.ToIndices(FWords);
-
   FIsValidChecksum := TNullable<Boolean>.None;
 end;
 
 constructor TMnemonic.CreateFromEntropy(AWordList: IWordList; AEntropy: TBytes);
-
-  function JoinInts(const AArr: TArray<Integer>): string;
-  var
-    LS: TArray<string>;
-    LI: Integer;
-  begin
-    SetLength(LS, Length(AArr));
-    for LI := 0 to High(AArr) do
-      LS[LI] := AArr[LI].ToString;
-    Result := string.Join(',', LS);
-  end;
-
 var
   LWL: IWordList;
-  LEntBits: Integer;
-  LIdx, LCS: Integer;
+  LSpec: TMnemonicSpec;
   LChecksum: TBytes;
   LWriter: TBitWriter;
 begin
-  // Determine which word list to use
   if AWordList = nil then
     LWL := TWordList.English
   else
     LWL := AWordList;
 
-  // Default entropy if none supplied
   if AEntropy = nil then
     AEntropy := TRandom.RandomBytes(32);
 
+  if not TryFindSpecByEntropy(Length(AEntropy) * 8, LSpec) then
+    raise EArgumentException.Create(
+      'Entropy length should be 128, 160, 192, 224 or 256 bits');
+
   FWordList := LWL;
-
-  LEntBits := Length(AEntropy) * 8;
-
-  if not TArrayUtils.IndexOf<Integer>(
-    FEntArray,
-    function (AValue: Integer): Boolean
-    begin
-      Result := (AValue = LEntBits);
-    end,
-    LIdx
-  ) then
-    raise EArgumentException.CreateFmt(
-      'The length for entropy should be %s bits',
-      [JoinInts(FEntArray)]
-    );
-
-  LCS := FCsArray[LIdx];
 
   LChecksum := TSHA256.HashData(AEntropy);
 
-  // Write entropy || first LCS bits of checksum
   LWriter := TBitWriter.Create;
   try
     LWriter.Write(AEntropy);
-    LWriter.Write(LChecksum, LCS);
+    LWriter.Write(LChecksum, LSpec.ChecksumBits);
     FIndices := LWriter.ToIntegers();
   finally
     LWriter.Free;
@@ -257,7 +254,6 @@ begin
 
   FWords := LWL.GetWordsByIndices(FIndices);
   FMnemonic := LWL.GetSentence(FIndices);
-
   FIsValidChecksum := TNullable<Boolean>.None;
 end;
 
@@ -266,29 +262,14 @@ begin
   CreateFromEntropy(AWordList, GenerateEntropy(AWordCount));
 end;
 
-function TMnemonic.GenerateEntropy(AWordCount: TWordCount): TBytes;
+class function TMnemonic.GenerateEntropy(AWordCount: TWordCount): TBytes;
 var
-  LMs, LIdx: Integer;
+  LSpec: TMnemonicSpec;
 begin
-  LMs := Ord(AWordCount);
-
-  if not CorrectWordCount(LMs) then
+  if not TryFindSpec(Ord(AWordCount), LSpec) then
     raise EArgumentException.Create('Word count should be 12, 15, 18, 21 or 24');
-
-  if not TArrayUtils.IndexOf<Integer>(
-    FMsArray,
-    function (AValue: Integer): Boolean
-    begin
-      Result := (AValue = LMs);
-    end,
-    LIdx
-  ) then
-    Exit(nil);
-
-  // Convert bits -> bytes and generate random entropy
-  Result := TRandom.RandomBytes(FEntArray[LIdx] div 8);
+  Result := TRandom.RandomBytes(LSpec.EntropyBits div 8);
 end;
-
 
 function TMnemonic.GetIndices: TArray<Integer>;
 begin
@@ -305,29 +286,19 @@ begin
   Result := FWords;
 end;
 
-class function TMnemonic.CorrectWordCount(AMS: Integer): Boolean;
-var
-  LV: Integer;
+class function TMnemonic.NormalizeString(const AInput: string): string;
 begin
-  Result := False;
-  for LV in FMsArray do
-    if LV = AMS then
-      Exit(True);
+  Result := TKdTable.NormalizeKd(AInput);
 end;
 
-class function TMnemonic.NormalizeString(const AStr: string): string;
+class function TMnemonic.NormalizeUTF8(const AInput: string): TBytes;
 begin
-  Result := TKdTable.NormalizeKd(AStr);
-end;
-
-class function TMnemonic.NormalizeUTF8(const AStr: string): TBytes;
-begin
-  Result := TEncoding.UTF8.GetBytes(NormalizeString(AStr));
+  Result := TEncoding.UTF8.GetBytes(NormalizeString(AInput));
 end;
 
 function TMnemonic.IsValidChecksum: Boolean;
 var
-  LI, LCS, LENT: Integer;
+  LSpec: TMnemonicSpec;
   LBits: TBits;
   LWriter: TBitWriter;
   LEntropy, LChecksum: TBytes;
@@ -336,23 +307,17 @@ begin
   if FIsValidChecksum.HasValue then
     Exit(FIsValidChecksum.Value);
 
-  if not TArrayUtils.IndexOf<Integer>(
-    FMsArray,
-      function(AValue: Integer): Boolean
-      begin
-        Result := AValue = Length(FIndices);
-      end,
-    LI
-  ) then Exit(False);
-
-  LCS := FCsArray[LI];
-  LENT := FEntArray[LI];
+  if not TryFindSpec(Length(FIndices), LSpec) then
+  begin
+    FIsValidChecksum := False;
+    Exit(False);
+  end;
 
   LWriter := TBitWriter.Create;
   try
     LBits := TWordList.ToBits(FIndices);
     try
-      LWriter.Write(LBits, LENT);
+      LWriter.Write(LBits, LSpec.EntropyBits);
     finally
       LBits.Free;
     end;
@@ -360,7 +325,7 @@ begin
     LEntropy := LWriter.ToBytes();
     LChecksum := TSHA256.HashData(LEntropy);
 
-    LWriter.Write(LChecksum, LCS);
+    LWriter.Write(LChecksum, LSpec.ChecksumBits);
     LExpectedIndices := LWriter.ToIntegers();
   finally
     LWriter.Free;
@@ -372,21 +337,16 @@ end;
 
 function TMnemonic.DeriveSeed(const APassphrase: string): TBytes;
 var
-  LSaltPrefix: TBytes;
-  LSaltTail: TBytes;
-  LSalt: TBytes;
-  LPW: TBytes;
+  LSalt, LPW: TBytes;
 begin
-  // salt = "mnemonic" || Normalize(passphrase)
-  LSaltPrefix := TEncoding.UTF8.GetBytes('mnemonic');
-  LSaltTail := NormalizeUTF8(APassphrase);
-  LSalt := TArrayUtils.Concat<Byte>(LSaltPrefix, LSaltTail);
-
   LPW := NormalizeUTF8(FMnemonic);
-
-  Result := TPbkdf2SHA512.DeriveKey(LPW, LSalt, 2048, 64);
+  // salt = "mnemonic" || NFKD(passphrase)
+  LSalt := TArrayUtils.Concat<Byte>(
+    TEncoding.UTF8.GetBytes('mnemonic'),
+    NormalizeUTF8(APassphrase)
+  );
+  Result := TPbkdf2SHA512.DeriveKey(LPW, LSalt, SeedIterations, SeedLength);
 end;
-
 
 function TMnemonic.ToString: string;
 begin
@@ -394,6 +354,3 @@ begin
 end;
 
 end.
-
-
-
