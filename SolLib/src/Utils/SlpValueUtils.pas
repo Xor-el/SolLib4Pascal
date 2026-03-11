@@ -54,6 +54,8 @@ type
     class function ExtractPairKV(const APairValue: TValue; out AKey, AVal: TValue;
       const ACtx: TRttiContext): Boolean; static;
 
+    class procedure SafeCast(var AValue: TValue; ATargetTypeInfo: PTypeInfo); static;
+
     { assign/clone primitives }
     class procedure AssignObjectProps(ADstObj: TObject; const ASrcObj: TObject;
       const ADstType: TRttiType; const ACtx: TRttiContext); static;
@@ -508,6 +510,13 @@ begin
   end;
 end;
 
+class procedure TValueUtils.SafeCast(var AValue: TValue; ATargetTypeInfo: PTypeInfo);
+begin
+  if Assigned(ATargetTypeInfo) and (ATargetTypeInfo <> TypeInfo(TValue)) and
+     (not AValue.IsEmpty) and (AValue.TypeInfo <> ATargetTypeInfo) then
+    AValue := AValue.Cast(ATargetTypeInfo);
+end;
+
 {=== Assign / Clone primitives ===}
 
 class procedure TValueUtils.AssignListLike(ADstList: TObject; const ASrcList: TObject;
@@ -531,8 +540,7 @@ begin
     begin
       LCur := LEnumInfo.GetCurrentValue;
       LToAdd := CloneValue(LCur, ACtx);
-      if Assigned(LElemTI) and (not LToAdd.IsEmpty) and (LToAdd.TypeInfo <> LElemTI) then
-        LToAdd := LToAdd.Cast(LElemTI);
+      SafeCast(LToAdd, LElemTI);
       LAddM.Invoke(ADstList, [LToAdd]);
     end;
   finally
@@ -565,10 +573,8 @@ begin
       LCK := CloneValue(LK, ACtx);
       LCV := CloneValue(LV, ACtx);
 
-      if Assigned(LKeyTI) and (not LCK.IsEmpty) and (LCK.TypeInfo <> LKeyTI) then
-        LCK := LCK.Cast(LKeyTI);
-      if Assigned(LValTI) and (not LCV.IsEmpty) and (LCV.TypeInfo <> LValTI) then
-        LCV := LCV.Cast(LValTI);
+      SafeCast(LCK, LKeyTI);
+      SafeCast(LCV, LValTI);
 
       LAddM.Invoke(ADstDict, [LCK, LCV]);
     end;
@@ -604,13 +610,10 @@ begin
     LElem := ASrc.GetArrayElement(LI);
     LCloned := CloneValue(LElem, ACtx);
 
-    if Assigned(LElemTI) then
-    begin
-      if LCloned.IsEmpty then
-        LCloned := TypedNil(LElemTI)
-      else if LCloned.TypeInfo <> LElemTI then
-        LCloned := LCloned.Cast(LElemTI);
-    end;
+    if Assigned(LElemTI) and LCloned.IsEmpty then
+      LCloned := TypedNil(LElemTI)
+    else
+      SafeCast(LCloned, LElemTI);
 
     LTemp[LI] := LCloned;
   end;
@@ -920,6 +923,7 @@ class procedure TValueUtils.AssignValue(var ADest: TValue; const ASrc: TValue;
   const ACtx: TRttiContext);
 var
   LDstType: TRttiType;
+  LDstTI: PTypeInfo;
 begin
   if ASrc.IsEmpty then Exit;
 
@@ -940,10 +944,11 @@ begin
       ADest := CloneDynArray(ASrc, ADest.TypeInfo, ACtx);
 
   else
-    if (not ASrc.IsEmpty) and (ASrc.TypeInfo <> ADest.TypeInfo) then
-      ADest := ASrc.Cast(ADest.TypeInfo)
-    else
+    begin
+      LDstTI := ADest.TypeInfo;
       ADest := ASrc;
+      SafeCast(ADest, LDstTI);
+    end;
   end;
 end;
 
@@ -967,7 +972,7 @@ end;
 
 class function TValueUtils.UnwrapValue(const AValue: TValue): TValue;
 const
-  MAX_UNWRAPS = 4;
+  MAX_UNWRAPS = 1;
 var
   LCur: TValue;
   LGuard: Integer;
