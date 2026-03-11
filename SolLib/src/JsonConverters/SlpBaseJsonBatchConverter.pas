@@ -38,6 +38,9 @@ type
   /// into a TObjectList-based batch type.
   TBaseJsonBatchConverter = class(TBaseJsonConverter)
   protected
+    /// <summary>
+    /// Deserializes a JSON array into a TObjectList-based batch of TItem instances.
+    /// </summary>
     class function ReadBatchArray<TBatch: class, constructor; TItem: class>(
       const AReader: TJsonReader; const AExistingValue: TValue;
       const ASerializer: TJsonSerializer): TValue; static;

@@ -33,63 +33,70 @@ uses
   SlpJsonKit;
 
 type
-  { Class helper for TJSONValue }
+  /// <summary>Class helper for TJSONValue providing type checks and TValue conversion.</summary>
   TJSONValueHelper = class helper for TJSONValue
   public
-    { True iff Self is assigned and Self.ClassType = AClass (no inheritance). }
+    /// <summary>Returns True when Self is assigned and its class type is exactly AClass (no inheritance).</summary>
     function IsExactClass(AClass: TClass): Boolean; inline;
 
-    { Convenience: mirrors TObject.InheritsFrom for readability at call sites. }
+    /// <summary>Returns True when Self is assigned and its class inherits from AClass.</summary>
     function IsKindOfClass(AClass: TClass): Boolean; inline;
 
-    /// Convert a RTL JSON DOM node into a TValue we store in Result.
-    /// Primitives -> native TValue; objects/arrays -> cloned DOM as TObject.
+    /// <summary>Converts a RTL JSON DOM node into a TValue. Primitives map to native
+    /// TValue types; objects and arrays are deep-cloned and boxed as TObject (caller owns).</summary>
     function ToTValue(): TValue;
   end;
 
 type
-  /// Adds value-capture helpers to TJsonReader
+  /// <summary>Adds value-capture helpers to TJsonReader.</summary>
   TJsonReaderHelper = class helper for TJsonReader
   private
     procedure NextSkippingComments(var AReader: TJsonReader);
   public
-    /// Materialize the current JSON value (recursively) into a TJSONValue.
-    /// Consumes the value; leaves the reader positioned at EndObject/EndArray
-    /// or at the primitive token just read.
+    /// <summary>Materializes the current JSON value (recursively) into a TJSONValue.
+    /// Consumes the value; leaves the reader positioned on the last token of the value.</summary>
     function ReadJsonValue: TJSONValue;
 
-    /// returns False (and V=nil) instead of raising on malformed/unsupported input.
+    /// <summary>Tries to materialize the current JSON value. Returns False (and AValue = nil)
+    /// instead of raising on malformed or unsupported input.</summary>
     function TryReadJsonValue(out AValue: TJSONValue): Boolean;
 
-    /// Reads the next element of the current array (assumes reader is at StartArray on first call,
-    /// or positioned after a previous element). Returns False at EndArray. On True, Elem is assigned.
+    /// <summary>Reads the next element of the current JSON array. Returns False at EndArray.
+    /// On True, AElem is assigned a newly allocated TJSONValue (caller owns).</summary>
     function ReadNextArrayElement(out AElem: TJSONValue): Boolean;
 
-    /// Convenience: materialize the current value as compact JSON text.
+    /// <summary>Materializes the current value as compact JSON text.</summary>
     function ToJson: string;
 
-    /// Skip the current JSON value (recursively), without materializing a DOM.
+    /// <summary>Skips the current JSON value (recursively) without materializing a DOM.</summary>
     procedure SkipValue;
   end;
 
 type
-  /// Helper that writes RTL TJSONValue trees into a TJsonWriter
-  /// while preserving numeric tokens (no unwanted quotes).
+  /// <summary>Writes RTL TJSONValue trees into a TJsonWriter while preserving
+  /// numeric tokens (no unwanted quotes).</summary>
   TJsonWriterHelper = class helper for TJsonWriter
   public
-    /// Write a JSON DOM node (TJSONValue) token-by-token.
+    /// <summary>Writes a JSON DOM node (TJSONValue) token-by-token into the writer.</summary>
     procedure WriteJsonValue(const AJV: TJSONValue);
 
-    /// Convenience: write "Name": <value> where <value> is a TJSONValue.
+    /// <summary>Writes a named JSON property: "AName": AJV.</summary>
     procedure WriteJsonProperty(const AName: string; const AJV: TJSONValue);
   end;
 
+  /// <summary>Maps a TJsonNamingPolicy enum value to its corresponding TStringTransform function.</summary>
   TJsonNamingPolicyHelper = record helper for TJsonNamingPolicy
   public
+    /// <summary>Returns the TStringTransform function for this naming policy.</summary>
     function GetFunc: TStringTransform;
   end;
 
 implementation
+
+const
+  SExpectedPropertyName     = 'Expected property name';
+  SUnexpectedPropertyName   = 'Unexpected PropertyName at value position';
+  SUnsupportedToken         = 'Unsupported token %d';
 
 { TJSONValueHelper }
 
@@ -195,7 +202,7 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
               end;
 
               if AReader.TokenType <> TJsonToken.PropertyName then
-                raise EJsonException.Create('Expected property name');
+                raise EJsonException.Create(SExpectedPropertyName);
 
               LName := AReader.Value.AsString;
               AReader.Read; // move to value
@@ -261,12 +268,10 @@ function TJsonReaderHelper.ReadJsonValue: TJSONValue;
       TJsonToken.PropertyName:
         // PropertyName is only valid inside an object; if we see it here,
         // the caller didn't structure the read loop correctly.
-        raise EJsonException.Create
-          ('Unexpected PropertyName at value position');
+        raise EJsonException.Create(SUnexpectedPropertyName);
 
     else
-      raise EJsonException.CreateFmt('Unsupported token %d',
-        [Ord(AReader.TokenType)]);
+      raise EJsonException.CreateFmt(SUnsupportedToken, [Ord(AReader.TokenType)]);
     end;
   end;
 
@@ -283,8 +288,11 @@ begin
     AValue := ReadJsonValue;
     Result := True;
   except
-    AValue := nil;
-    Result := False;
+    on E: Exception do
+    begin
+      AValue := nil;
+      Result := False;
+    end;
   end;
 end;
 
@@ -374,9 +382,7 @@ procedure TJsonReaderHelper.SkipValue;
         end;
       // primitives (string/number/bool/null) – nothing to do; they are a single token
     else
-      // If we're on a comment or unexpected token, advance once
-      if AReader.TokenType = TJsonToken.Comment then
-        NextSkippingComments(AReader);
+      ;
     end;
   end;
 
@@ -392,13 +398,10 @@ procedure TJsonWriterHelper.WriteJsonValue(const AJV: TJSONValue);
   var
     LI64: Int64;
     LF: Double;
-    LFS: TFormatSettings;
   begin
-    LFS := TFormatSettings.Create;
-    LFS.DecimalSeparator := '.';
     if TryStrToInt64(AStr, LI64) then
       Self.WriteValue(LI64)
-    else if TryStrToFloat(AStr, LF, LFS) then
+    else if TryStrToFloat(AStr, LF, TFormatSettings.Invariant) then
       Self.WriteValue(LF)
     else
       // Extremely large integers that don't fit -> safest fallback as string

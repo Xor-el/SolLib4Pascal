@@ -32,14 +32,27 @@ uses
   SlpEnumUtils,
   SlpValueHelpers,
   SlpRpcEnum,
-  SlpSolLibTypes;
+  SlpSolLibTypes,
+  SlpBaseJsonConverter;
 
 type
-  TEncodingConverter = class(TJsonConverter)
+  /// <summary>
+  /// Converts TBinaryEncoding values to and from their Solana JSON string representations.
+  /// </summary>
+  TEncodingConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInfo matches TBinaryEncoding.
+    /// </summary>
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a TBinaryEncoding value from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+    /// <summary>
+    /// Serializes a TBinaryEncoding value to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;

@@ -30,9 +30,18 @@ uses
   SlpBaseJsonBatchConverter;
 
 type
+  /// <summary>
+  /// JSON converter that deserializes a JSON array into a TJsonRpcBatchResponse.
+  /// </summary>
   TJsonRpcBatchResponseConverter = class(TBaseJsonBatchConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TJsonRpcBatchResponse.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a JSON array of RPC response objects into a TJsonRpcBatchResponse.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;

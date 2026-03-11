@@ -40,7 +40,13 @@ type
   /// Object/Array JSON becomes a cloned TJSONValue wrapped in a TValue (the owner frees it later).
   TTokenListItemExtensionsConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInfo matches TDictionary&lt;string, TValue&gt;.
+    /// </summary>
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a JSON object into a TDictionary&lt;string, TValue&gt; from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;

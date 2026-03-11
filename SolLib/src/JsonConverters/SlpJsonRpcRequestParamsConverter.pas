@@ -35,11 +35,20 @@ uses
   SlpJsonHelpers;
 
 type
+  /// <summary>
+  /// Converts JSON-RPC request params (array or single value) into a TList of TValue.
+  /// </summary>
   TJsonRpcRequestParamsConverter = class(TBaseJsonConverter)
   private
     class function ReadParamsListFromJsonValue(const AJV: TJSONValue): TList<TValue>; static;
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TList of TValue or a subclass thereof.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes JSON-RPC request params from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;

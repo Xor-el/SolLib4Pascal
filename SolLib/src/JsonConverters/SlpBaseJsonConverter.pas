@@ -37,15 +37,27 @@ uses
 type
   TBaseJsonConverter = class abstract(TJsonConverter)
   protected
-    class function LooksLikeList(AObj: TObject): Boolean; static;
-    class function LooksLikeDictionaryWithStringKey(AObj: TObject): Boolean; static;
-    class procedure WriteDictionaryWithStringKey(const AWriter: TJsonWriter;
-      const ASerializer: TJsonSerializer; AObj: TObject); static;
-    class procedure WriteListLike(
-      const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; AObj: TObject); static;
-    class procedure WriteTValue(const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; const AValue: TValue); static;
+    /// <summary>
+    /// If AObj is a string-keyed dictionary, writes it as a JSON object and
+    /// returns True. Returns False without writing anything if it is not.
+    /// </summary>
+    class function TryWriteDictionaryWithStringKey(const AWriter: TJsonWriter;
+      const ASerializer: TJsonSerializer; const AObj: TObject): Boolean; static;
+
+    /// <summary>
+    /// If AObj is a list-like collection, writes it as a JSON array and
+    /// returns True. Returns False without writing anything if it is not.
+    /// </summary>
+    class function TryWriteListLike(const AWriter: TJsonWriter;
+      const ASerializer: TJsonSerializer; const AObj: TObject): Boolean; static;
+
+    class procedure WriteTValue(const AWriter: TJsonWriter;
+      const ASerializer: TJsonSerializer; const AValue: TValue); static;
     class procedure SkipPropertyName(const AReader: TJsonReader); static;
   public
+    /// <summary>
+    /// Serializes the given value to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
@@ -54,66 +66,9 @@ implementation
 
 { TBaseJsonConverter }
 
-class function TBaseJsonConverter.LooksLikeList(AObj: TObject): Boolean;
-var
-  LCtx: TRttiContext;
-  LRT: TRttiType;
-  LAddMethod: TRttiMethod;
-  LElemType: PTypeInfo;
-  LGetEnum: TRttiMethod;
-begin
-  Result := False;
-  if AObj = nil then
-    Exit;
-
-  LCtx := TRttiContext.Create;
-  try
-    LRT := LCtx.GetType(AObj.ClassType);
-    if LRT = nil then
-      Exit;
-
-    Result := TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum);
-  finally
-    LCtx.Free;
-  end;
-end;
-
-class function TBaseJsonConverter.LooksLikeDictionaryWithStringKey(
-  AObj: TObject): Boolean;
-var
-  LCtx: TRttiContext;
-  LRT: TRttiType;
-  LAddMethod: TRttiMethod;
-  LGetEnum: TRttiMethod;
-  LKeyType: PTypeInfo;
-  LValType: PTypeInfo;
-begin
-  Result := False;
-  if AObj = nil then
-    Exit;
-
-  LCtx := TRttiContext.Create;
-  try
-    LRT := LCtx.GetType(AObj.ClassType);
-    if LRT = nil then
-      Exit;
-
-    // Let TValueUtils do the heavy lifting:
-    // - finds Add(...)
-    // - finds GetEnumerator
-    // - gives us KeyType / ValType / GetEnum
-    if not TValueUtils.IsDictionaryLikeType(LRT, LAddMethod, LKeyType, LValType, LGetEnum) then
-      Exit;
-
-    // Now we only care that the key type is string
-    Result := (LKeyType <> nil) and (LKeyType = TypeInfo(string));
-  finally
-    LCtx.Free;
-  end;
-end;
-
-class procedure TBaseJsonConverter.WriteDictionaryWithStringKey(
-  const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; AObj: TObject);
+class function TBaseJsonConverter.TryWriteDictionaryWithStringKey(
+  const AWriter: TJsonWriter; const ASerializer: TJsonSerializer;
+  const AObj: TObject): Boolean;
 var
   LCtx: TRttiContext;
   LRT: TRttiType;
@@ -133,15 +88,9 @@ var
   LKeyCell: TValue;
   LValCell: TValue;
 begin
-  // If the dictionary object itself is nil, write JSON null
+  Result := False;
   if AObj = nil then
-  begin
-    AWriter.WriteNull;
     Exit;
-  end;
-
-  // Otherwise, always emit an object (possibly empty)
-  AWriter.WriteStartObject;
 
   LCtx := TRttiContext.Create;
   try
@@ -149,60 +98,59 @@ begin
     if LRT = nil then
       Exit;
 
-    // Reuse the shared helper: detects Add(Key, Value) and GetEnumerator
     if not TValueUtils.IsDictionaryLikeType(LRT, LAddMethod, LKeyType, LValType, LGetEnum) then
       Exit;
 
-    // This writer is specifically for string-keyed dictionaries
-    if LKeyType <> TypeInfo(string) then
+    if (LKeyType = nil) or (LKeyType <> TypeInfo(string)) then
       Exit;
 
-    // Get the enumerator instance
-    LEnumVal := LGetEnum.Invoke(AObj, []);
-    LEnumObj := LEnumVal.AsObject;
-    if LEnumObj = nil then
-      Exit;
-
+    // Committed to writing a JSON object
+    Result := True;
+    AWriter.WriteStartObject;
+    LEnumObj := nil;
     try
-      LEnumType := LCtx.GetType(LEnumObj.ClassType);
-      if LEnumType = nil then
-        Exit;
-
-      LMoveNext := LEnumType.GetMethod('MoveNext');
-      LCurrentProp := LEnumType.GetProperty('Current');
-      if (LMoveNext = nil) or (LCurrentProp = nil) then
-        Exit;
-
-      LCurrType := LCurrentProp.PropertyType;
-      if (LCurrType = nil) or (LCurrType.TypeKind <> tkRecord) then
-        Exit;
-
-      LKeyField := LCurrType.GetField('Key');
-      LValField := LCurrType.GetField('Value');
-      if (LKeyField = nil) or (LValField = nil) then
-        Exit;
-
-      // Iterate dictionary entries
-      while LMoveNext.Invoke(LEnumObj, []).AsBoolean do
+      LEnumVal := LGetEnum.Invoke(AObj, []);
+      LEnumObj := LEnumVal.AsObject;
+      if LEnumObj <> nil then
       begin
-        LCurr := LCurrentProp.GetValue(LEnumObj);
-        LKeyCell := LKeyField.GetValue(LCurr.GetReferenceToRawData);
-        LValCell := LValField.GetValue(LCurr.GetReferenceToRawData);
-
-        AWriter.WritePropertyName(LKeyCell.AsString);
-        WriteTValue(AWriter, ASerializer, LValCell);
+        LEnumType := LCtx.GetType(LEnumObj.ClassType);
+        if LEnumType <> nil then
+        begin
+          LMoveNext := LEnumType.GetMethod('MoveNext');
+          LCurrentProp := LEnumType.GetProperty('Current');
+          if (LMoveNext <> nil) and (LCurrentProp <> nil) then
+          begin
+            LCurrType := LCurrentProp.PropertyType;
+            if (LCurrType <> nil) and (LCurrType.TypeKind = tkRecord) then
+            begin
+              LKeyField := LCurrType.GetField('Key');
+              LValField := LCurrType.GetField('Value');
+              if (LKeyField <> nil) and (LValField <> nil) then
+              begin
+                while LMoveNext.Invoke(LEnumObj, []).AsBoolean do
+                begin
+                  LCurr := LCurrentProp.GetValue(LEnumObj);
+                  LKeyCell := LKeyField.GetValue(LCurr.GetReferenceToRawData);
+                  LValCell := LValField.GetValue(LCurr.GetReferenceToRawData);
+                  AWriter.WritePropertyName(LKeyCell.AsString);
+                  WriteTValue(AWriter, ASerializer, LValCell);
+                end;
+              end;
+            end;
+          end;
+        end;
       end;
     finally
       LEnumObj.Free;
+      AWriter.WriteEndObject;
     end;
   finally
     LCtx.Free;
-    AWriter.WriteEndObject; // ensure the JSON object is always properly closed
   end;
 end;
 
-class procedure TBaseJsonConverter.WriteListLike(
-  const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; AObj: TObject);
+class function TBaseJsonConverter.TryWriteListLike(const AWriter: TJsonWriter;
+  const ASerializer: TJsonSerializer; const AObj: TObject): Boolean;
 var
   LCtx: TRttiContext;
   LRT: TRttiType;
@@ -214,59 +162,56 @@ var
   LEnumType: TRttiType;
   LMoveNext: TRttiMethod;
   LCurrentProp: TRttiProperty;
-
   LCurr: TValue;
 begin
+  Result := False;
   if AObj = nil then
-  begin
-    AWriter.WriteNull;
     Exit;
-  end;
-
-  AWriter.WriteStartArray;
 
   LCtx := TRttiContext.Create;
-  LEnumObj := nil;
   try
     LRT := LCtx.GetType(AObj.ClassType);
-    if LRT = nil then
+    if (LRT = nil) or
+       not TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum) then
       Exit;
 
-    if not TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum) then
-      Exit;
-
-    // Get the enumerator object
-    LEnumVal := LGetEnum.Invoke(AObj, []);
-    LEnumObj := LEnumVal.AsObject;
-    if LEnumObj = nil then
-      Exit;
-
-    LEnumType := LCtx.GetType(LEnumObj.ClassType);
-    if LEnumType = nil then
-      Exit;
-
-    LMoveNext := LEnumType.GetMethod('MoveNext');
-    LCurrentProp := LEnumType.GetProperty('Current');
-    if (LMoveNext = nil) or (LCurrentProp = nil) then
-      Exit;
-
-    // Iterate list elements
-    while LMoveNext.Invoke(LEnumObj, []).AsBoolean do
-    begin
-      LCurr := LCurrentProp.GetValue(LEnumObj);
-      WriteTValue(AWriter, ASerializer, LCurr);
+    // Committed to writing a JSON array
+    Result := True;
+    AWriter.WriteStartArray;
+    LEnumObj := nil;
+    try
+      LEnumVal := LGetEnum.Invoke(AObj, []);
+      LEnumObj := LEnumVal.AsObject;
+      if LEnumObj <> nil then
+      begin
+        LEnumType := LCtx.GetType(LEnumObj.ClassType);
+        if LEnumType <> nil then
+        begin
+          LMoveNext := LEnumType.GetMethod('MoveNext');
+          LCurrentProp := LEnumType.GetProperty('Current');
+          if (LMoveNext <> nil) and (LCurrentProp <> nil) then
+          begin
+            while LMoveNext.Invoke(LEnumObj, []).AsBoolean do
+            begin
+              LCurr := LCurrentProp.GetValue(LEnumObj);
+              WriteTValue(AWriter, ASerializer, LCurr);
+            end;
+          end;
+        end;
+      end;
+    finally
+      LEnumObj.Free;
+      AWriter.WriteEndArray;
     end;
   finally
-    LEnumObj.Free;
     LCtx.Free;
-    AWriter.WriteEndArray; // always close the array, even on early Exit
   end;
 end;
 
 class procedure TBaseJsonConverter.WriteTValue(
   const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; const AValue: TValue);
 
- procedure WriteArray(const AArr: TValue);
+  procedure WriteArray(const AArr: TValue);
   var
     LI, LLen: Integer;
   begin
@@ -310,23 +255,17 @@ begin
           Exit;
         end;
 
-       if LooksLikeDictionaryWithStringKey(LObj) then
-       begin
-         WriteDictionaryWithStringKey(AWriter, ASerializer, LObj);
-         Exit;
-       end;
+        if TryWriteDictionaryWithStringKey(AWriter, ASerializer, LObj) then
+          Exit;
 
-       if LooksLikeList(LObj) then
-       begin
-         WriteListLike(AWriter, ASerializer, LObj);
-         Exit;
-       end;
+        if TryWriteListLike(AWriter, ASerializer, LObj) then
+          Exit;
 
         // Any other object (DTO, record-holder, etc.) -> hand off to serializer
         ASerializer.Serialize(AWriter, LObj);
       end;
   else
-     ASerializer.Serialize(AWriter, LV);
+    ASerializer.Serialize(AWriter, LV);
   end;
 end;
 

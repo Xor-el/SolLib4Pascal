@@ -33,8 +33,14 @@ uses
   SlpRpcModel;
 
 type
+  /// <summary>
+  /// Factory that creates pre-configured lists of JSON converters for RPC serialization.
+  /// </summary>
   TJsonConverterFactory = class
   public
+    /// <summary>
+    /// Creates and returns a list of JSON converters used for Solana RPC message serialization.
+    /// </summary>
     class function GetRpcConverters: TList<TJsonConverter>; static;
   end;
 
@@ -43,31 +49,39 @@ implementation
 { TJsonConverterFactory }
 
 class function TJsonConverterFactory.GetRpcConverters: TList<TJsonConverter>;
+var
+  LConv: TJsonConverter;
 begin
   Result := TList<TJsonConverter>.Create;
+  try
+    // === Enum converters ===
+    Result.Add(TEncodingConverter.Create);
+    Result.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
 
-  // === Enum converters ===
-  Result.Add(TEncodingConverter.Create);
-  Result.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+    // === Basic list converters ===
+    Result.Add(TJsonListConverter<string>.Create);
+    Result.Add(TJsonListConverter<UInt64>.Create);
 
-  // === Basic list converters ===
-  Result.Add(TJsonListConverter<string>.Create);
-  Result.Add(TJsonListConverter<UInt64>.Create);
+    // === PreserveNullOnRead list converters ===
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TClusterNode>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TInflationReward>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TLargeAccount>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TAccountInfo>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TAccountKeyPair>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TPerformanceSample>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TSignatureStatusInfo>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TTokenAccount>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TLargeTokenAccount>.Create);
+    Result.Add(TPreserveNullOnReadJsonObjectListConverter<TPrioritizationFeeItem>.Create);
 
-  // === PreserveNullOnRead list converters ===
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TClusterNode>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TInflationReward>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TLargeAccount>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TAccountInfo>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TAccountKeyPair>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TPerformanceSample>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TSignatureStatusInfo>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TTokenAccount>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TLargeTokenAccount>.Create);
-  Result.Add(TPreserveNullOnReadJsonObjectListConverter<TPrioritizationFeeItem>.Create);
-
-  // === Dictionary converter ===
-  Result.Add(TJsonStringDictionaryConverter<TList<UInt64>>.Create);
+    // === Dictionary converter ===
+    Result.Add(TJsonStringDictionaryConverter<TList<UInt64>>.Create);
+  except
+    for LConv in Result do
+      LConv.Free;
+    Result.Free;
+    raise;
+  end;
 end;
 
 end.

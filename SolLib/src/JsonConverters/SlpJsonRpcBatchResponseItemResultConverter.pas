@@ -33,9 +33,18 @@ uses
   SlpJsonHelpers;
 
 type
+  /// <summary>
+  /// Converts a raw JSON value into a TValue for batch RPC response items.
+  /// </summary>
   TJsonRpcBatchResponseItemResultConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TValue.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a batch RPC response item result from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;

@@ -30,11 +30,13 @@ type
   /// Helper for TValue with utilities such as unboxing nested TValue wrappers.
   TValueHelper = record helper for TValue
   public
-    /// Peel off up to a few layers of TValue->TValue boxing and return the innermost value.
+    /// <summary>Peels off up to a few layers of TValue->TValue boxing and returns the innermost value.</summary>
     function Unwrap: TValue;
 
-    function Clone(): TValue;
+    /// <summary>Returns a deep clone of this value. See TValueUtils.CloneValue.</summary>
+    function Clone: TValue;
 
+    /// <summary>Converts this value to a string, including type-specific formatting. See TValueUtils.ToStringExtended.</summary>
     function ToStringExtended: string;
   end;
 
@@ -49,7 +51,7 @@ end;
 
 function TValueHelper.Clone: TValue;
 begin
-   Result := TValueUtils.CloneValue(Self);
+  Result := TValueUtils.CloneValue(Self);
 end;
 
 function TValueHelper.ToStringExtended: string;

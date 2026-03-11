@@ -33,7 +33,8 @@ uses
   SlpStringTransformer,
   SlpJsonKit,
   SlpRpcEnum,
-  SlpJsonHelpers;
+  SlpJsonHelpers,
+  SlpBaseJsonConverter;
 
 type
   /// Enum <-> string converter honoring attribute and/or ctor-provided transformer(s).
@@ -47,7 +48,7 @@ type
   ///       * Policy-only       -> use Policy transform
   ///       * Both              -> Provider THEN Policy
   ///       * Neither           -> no transform (raw enum identifier)
-  TJsonStringEnumConverter = class(TJsonConverter)
+  TJsonStringEnumConverter = class(TBaseJsonConverter)
   private
     // Single resolved default for this converter instance (nil = no transform)
     FOwnTransform: TStringTransform;
@@ -62,20 +63,37 @@ type
       AProvider: TStringTransformProviderClass;
       const APolicy: TJsonNamingPolicy): TStringTransform; static;
   public
-    // No-op default (no transform unless attribute provides one)
+    /// <summary>
+    /// Creates a converter with no default transform (uses attribute or raw identifier).
+    /// </summary>
     constructor Create; overload;
-    // Policy-only default
+    /// <summary>
+    /// Creates a converter with the specified naming policy as the default transform.
+    /// </summary>
     constructor Create(APolicy: TJsonNamingPolicy); overload;
-    // Provider-only default
+    /// <summary>
+    /// Creates a converter with the specified transform provider as the default transform.
+    /// </summary>
     constructor Create(AProvider: TStringTransformProviderClass); overload;
-    // Both (compose Provider first, then Policy)
+    /// <summary>
+    /// Creates a converter composing the provider then the naming policy as the default transform.
+    /// </summary>
     constructor Create(APolicy: TJsonNamingPolicy; AProvider: TStringTransformProviderClass); overload;
 
+    /// <summary>
+    /// Returns True when ATypeInf is a non-excluded enumeration type.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
 
+    /// <summary>
+    /// Deserializes an enumeration value from a JSON string using the resolved transform.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo; const AExistingValue: TValue;
       const ASerializer: TJsonSerializer): TValue; override;
 
+    /// <summary>
+    /// Serializes an enumeration value to a JSON string using the resolved transform.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer); override;
 
     property IgnoreTypeAttributes: Boolean read FIgnoreTypeAttributes write FIgnoreTypeAttributes;

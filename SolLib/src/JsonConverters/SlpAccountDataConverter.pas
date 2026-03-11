@@ -31,7 +31,8 @@ uses
   System.JSON.Writers,
   System.JSON.Serializers,
   SlpValueHelpers,
-  SlpJsonHelpers;
+  SlpJsonHelpers,
+  SlpBaseJsonConverter;
 
 type
   /// <summary>
@@ -40,12 +41,21 @@ type
   ///   return TArray<string> with [ json, 'jsonParsed' ].
   /// - Otherwise -> raise "Unable to parse account data".
   /// </summary>
-  TAccountDataConverter = class(TJsonConverter)
+  TAccountDataConverter = class(TBaseJsonConverter)
 
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TArray of string.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes account data from a JSON reader (array or object form).
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+    /// <summary>
+    /// Serializes account data to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;

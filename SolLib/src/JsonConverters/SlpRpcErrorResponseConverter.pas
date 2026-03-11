@@ -32,20 +32,35 @@ uses
   System.JSON.Serializers,
   SlpJsonHelpers,
   SlpValueHelpers,
-  SlpNullable;
+  SlpNullable,
+  SlpBaseJsonConverter;
 
 type
   /// <summary>
   /// Converts a JsonRpcErrorResponse from json into its model representation.
   /// </summary>
-  TRpcErrorResponseConverter = class(TJsonConverter)
+  TRpcErrorResponseConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInfo matches TJsonRpcErrorResponse.
+    /// </summary>
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a TJsonRpcErrorResponse from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+    /// <summary>
+    /// Serializes a TJsonRpcErrorResponse to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
+
+const
+  SPropJsonRpc = 'jsonrpc';
+  SPropId      = 'id';
+  SPropError   = 'error';
 
 implementation
 
@@ -67,7 +82,6 @@ var
   LProp: string;
   LJO: TJSONObject;
   LErrorContent: TErrorContent;
-
 begin
   if AReader.TokenType <> TJsonToken.StartObject then
     Exit(nil);
@@ -75,55 +89,54 @@ begin
   AReader.Read;
 
   LErr := TJsonRpcErrorResponse.Create;
-
-  while AReader.TokenType <> TJsonToken.EndObject do
-  begin
-    LProp := AReader.Value.AsString;
-
-    AReader.Read;
-
-    if LProp = 'jsonrpc' then
+  try
+    while AReader.TokenType <> TJsonToken.EndObject do
     begin
-      LErr.Jsonrpc := AReader.Value.AsString;
-    end
-    else if LProp = 'id' then
-    begin
-     if AReader.Value.IsEmpty then
-      LErr.Id := TNullable<Integer>.None
-      else
-      LErr.Id := AReader.Value.AsInteger
-    end
-    else if LProp = 'error' then
-    begin
-      case AReader.TokenType of
-        TJsonToken.&String:
-          LErr.ErrorMessage := AReader.Value.AsString;
+      LProp := AReader.Value.AsString;
 
-        TJsonToken.StartObject:
-          begin
-            LJO := TJSONObject(AReader.ReadJsonValue);
-            try
-              LErrorContent := ASerializer.Deserialize<TErrorContent>(LJO.ToJSON);
-              LErr.Error := LErrorContent;
-            finally
-              LJO.Free;
+      AReader.Read;
+
+      if LProp = SPropJsonRpc then
+        LErr.Jsonrpc := AReader.Value.AsString
+      else if LProp = SPropId then
+      begin
+        if AReader.Value.IsEmpty then
+          LErr.Id := TNullable<Integer>.None
+        else
+          LErr.Id := AReader.Value.AsInteger;
+      end
+      else if LProp = SPropError then
+      begin
+        case AReader.TokenType of
+          TJsonToken.&String:
+            LErr.ErrorMessage := AReader.Value.AsString;
+
+          TJsonToken.StartObject:
+            begin
+              LJO := TJSONObject(AReader.ReadJsonValue);
+              try
+                LErrorContent := ASerializer.Deserialize<TErrorContent>(LJO.ToJSON);
+                LErr.Error := LErrorContent;
+              finally
+                LJO.Free;
+              end;
             end;
-          end;
+        else
+          AReader.Skip();
+        end;
+      end
       else
         AReader.Skip();
-      end;
-    end
-    else
-    begin
-      AReader.Skip();
+
+      AReader.Read;
     end;
 
-    AReader.Read;
+    Result := LErr;
+  except
+    LErr.Free;
+    raise;
   end;
-
-  Result := LErr;
 end;
-
 
 procedure TRpcErrorResponseConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
@@ -143,10 +156,10 @@ begin
 
   AWriter.WriteStartObject;
   try
-    AWriter.WritePropertyName('jsonrpc');
+    AWriter.WritePropertyName(SPropJsonRpc);
     AWriter.WriteValue(LResp.Jsonrpc);
 
-    AWriter.WritePropertyName('error');
+    AWriter.WritePropertyName(SPropError);
     if Assigned(LResp.Error) then
       ASerializer.Serialize(AWriter, LResp.Error)
     else if LResp.ErrorMessage <> '' then
@@ -154,7 +167,7 @@ begin
     else
       AWriter.WriteNull;
 
-    AWriter.WritePropertyName('id');
+    AWriter.WritePropertyName(SPropId);
     if LResp.Id.HasValue then
       AWriter.WriteValue(LResp.Id.Value)
     else

@@ -33,9 +33,18 @@ uses
   SlpMathUtils;
 
 type
+  /// <summary>
+  /// JSON converter that clamps numeric values to the valid range of the target type T during deserialization.
+  /// </summary>
   TJsonClampNumberConverter<T> = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInfo matches an integer or floating-point type.
+    /// </summary>
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a numeric JSON token, clamping the value to the range of the target type.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
@@ -43,8 +52,13 @@ type
   TJsonUInt64ClampNumberConverter = class(TJsonClampNumberConverter<UInt64>)
   end;
 
+/// <summary>
+/// Returns True when the JSON token represents a numeric value (Float or Integer).
+/// </summary>
 function IsNumericToken(const AToken: TJsonToken): Boolean;
-function GetTypeBounds(const ATypeInfo: PTypeInfo; out AMin, AMax: Double): Boolean;
+/// <summary>
+/// Creates a TValue of the type indicated by ATypeInfo from a Double, clamping to the target range.
+/// </summary>
 function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue;
 
 implementation
@@ -52,26 +66,6 @@ implementation
 function IsNumericToken(const AToken: TJsonToken): Boolean;
 begin
   Result := AToken in [TJsonToken.Float, TJsonToken.&Integer];
-end;
-
-function GetTypeBounds(const ATypeInfo: PTypeInfo; out AMin, AMax: Double): Boolean;
-var
-  LTypeData: PTypeData;
-  LCtx: TRttiContext;
-  LRT: TRttiType;
-begin
-  Result := False;
-  LCtx := TRttiContext.Create;
-  LRT := LCtx.GetType(ATypeInfo);
-  case LRT.TypeKind of
-    tkInteger, tkInt64, tkFloat:
-      begin
-        LTypeData := GetTypeData(ATypeInfo);
-        AMin := LTypeData^.MinValue;
-        AMax := LTypeData^.MaxValue;
-        Result := True;
-      end;
-  end;
 end;
 
 function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue;
@@ -179,7 +173,8 @@ begin
   try
     LValue := Double(AReader.Value.AsExtended);
   except
-    Exit(TValue.From<T>(Default(T)));
+    on E: Exception do
+      Exit(TValue.From<T>(Default(T)));
   end;
 
   Result := CreateValueFromDouble(ATypeInfo, LValue);
