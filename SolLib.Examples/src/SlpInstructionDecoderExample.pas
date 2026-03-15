@@ -66,16 +66,16 @@ implementation
 
 procedure TInstructionDecoderFromMessageExample.Run;
 var
-  LWallet     : IWallet;
-  LFrom, LTo  : IAccount;
-  LBlockHash  : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LBuilder    : ITransactionBuilder;
-  LMsgBytes   : TBytes;
+  LWallet: IWallet;
+  LFrom, LTo: IAccount;
+  LBlockHash: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LBuilder: ITransactionBuilder;
+  LMsgBytes: TBytes;
 begin
   // Initialize wallet and accounts
   LWallet := TWallet.Create(MnemonicWords);
-  LFrom   := LWallet.GetAccountByIndex(0);
-  LTo     := LWallet.GetAccountByIndex(8);
+  LFrom := LWallet.GetAccountByIndex(0);
+  LTo := LWallet.GetAccountByIndex(8);
 
   // Fetch recent blockhash
   LBlockHash := TestNetRpcClient.GetLatestBlockHash;
@@ -106,74 +106,74 @@ const
   SLOTS: array[0..1] of UInt64 = (366321180, 366321183);
   VOTE_PROGRAM = 'Vote111111111111111111111111111111111111111';
 var
-  Slot     : UInt64;
-  LBlock   : IRequestResult<TBlockInfo>;
-  TxMeta   : TTransactionMetaInfo;
-  TxInfo   : TTransactionInfo;
-  Msg      : TTransactionContentInfo;
-  InsCount, ProgIdx : Integer;
-  ProgKey  : string;
+  LSlot: UInt64;
+  LBlock: IRequestResult<TBlockInfo>;
+  LTxMeta: TTransactionMetaInfo;
+  LTxInfo: TTransactionInfo;
+  LMsg: TTransactionContentInfo;
+  LInsCount, LProgIdx: Integer;
+  LProgKey: string;
 begin
-  for Slot in SLOTS do
+  for LSlot in SLOTS do
   begin
-    LBlock := TestNetRpcClient.GetBlock(Slot);
+    LBlock := TestNetRpcClient.GetBlock(LSlot);
 
     if (LBlock = nil) or (not LBlock.WasSuccessful) or (LBlock.Result = nil) then
     begin
-      Writeln(Format('Failed to fetch block %d', [Slot]));
+      Writeln(Format('Failed to fetch block %d', [LSlot]));
       Continue;
     end;
 
     // write raw JSON to ./response<slot>.json (if available)
     if LBlock.RawRpcResponse <> '' then
-      TIOUtils.WriteAllText(Format('./response%d.json', [Slot]), LBlock.RawRpcResponse);
+      TIOUtils.WriteAllText(Format('./response%d.json', [LSlot]), LBlock.RawRpcResponse);
 
     Writeln(Format('BlockHash >> %s', [LBlock.Result.Blockhash]));
     Writeln(Format('%s%sDECODING INSTRUCTIONS FROM TRANSACTIONS IN BLOCK %s%s',
       [NEWLINE, DOUBLETAB, LBlock.Result.Blockhash, NEWLINE]));
 
-    for TxMeta in LBlock.Result.Transactions do
+    for LTxMeta in LBlock.Result.Transactions do
     begin
       // inspect raw message
-      TxInfo := TxMeta.Transaction.AsType<TTransactionInfo>;
-      if TxInfo = nil then
+      LTxInfo := LTxMeta.Transaction.AsType<TTransactionInfo>;
+      if LTxInfo = nil then
         Continue;
 
-      Msg := TxInfo.Message;
-      if Msg = nil then
+      LMsg := LTxInfo.Message;
+      if LMsg = nil then
         Continue;
 
-      InsCount := Msg.Instructions.Count;
+      LInsCount := LMsg.Instructions.Count;
 
       // skip pure vote tx: single instruction and its program is vote program
-      if (InsCount = 1) then
+      if (LInsCount = 1) then
       begin
-        ProgIdx := Msg.Instructions[0].ProgramIdIndex;
-        if (ProgIdx >= 0) and (ProgIdx < Length(Msg.AccountKeys)) then
+        LProgIdx := LMsg.Instructions[0].ProgramIdIndex;
+        if (LProgIdx >= 0) and (LProgIdx < Length(LMsg.AccountKeys)) then
         begin
-          ProgKey := Msg.AccountKeys[ProgIdx];
-          if SameStr(ProgKey, VOTE_PROGRAM) then
+          LProgKey := LMsg.AccountKeys[LProgIdx];
+          if SameStr(LProgKey, VOTE_PROGRAM) then
             Continue;
         end;
       end;
 
       // skip if fewer than 2 instructions
-      if InsCount < 2 then
+      if LInsCount < 2 then
         Continue;
 
       // log signature and instruction counts
-      if Length(TxInfo.Signatures) > 0 then
+      if Length(LTxInfo.Signatures) > 0 then
         Writeln(Format('%s%sDECODING INSTRUCTIONS FROM TRANSACTION %s',
-          [NEWLINE, DOUBLETAB, TxInfo.Signatures[0]]));
+          [NEWLINE, DOUBLETAB, LTxInfo.Signatures[0]]));
 
-      Writeln(Format('Instructions: %d', [InsCount]));
-      if (TxMeta.Meta <> nil) and (TxMeta.Meta.InnerInstructions <> nil) then
-        Writeln(Format('InnerInstructions: %d', [TxMeta.Meta.InnerInstructions.Count])
+      Writeln(Format('Instructions: %d', [LInsCount]));
+      if (LTxMeta.Meta <> nil) and (LTxMeta.Meta.InnerInstructions <> nil) then
+        Writeln(Format('InnerInstructions: %d', [LTxMeta.Meta.InnerInstructions.Count])
         )
       else
         Writeln('InnerInstructions: 0');
 
-      DecodeInstructionsFromTransactionMetaInfoAndLog(TxMeta);
+      DecodeInstructionsFromTransactionMetaInfoAndLog(LTxMeta);
     end;
   end;
 end;

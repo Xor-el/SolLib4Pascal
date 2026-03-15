@@ -36,80 +36,80 @@ implementation
 
 class procedure TExampleExplorer.Execute;
 var
-  Ctx        : TRttiContext;
-  Types      : TArray<TRttiType>;
-  Candidates : TList<TRttiInstanceType>;
-  T          : TRttiType;
-  Cls        : TRttiInstanceType;
-  LCtor      : TRttiMethod;
-  Option     : string;
-  Index, I   : Integer;
-  InstValue  : TValue;
-  Obj        : TObject;
-  Example    : IExample;
+  LCtx: TRttiContext;
+  LTypes: TArray<TRttiType>;
+  LCandidates: TList<TRttiInstanceType>;
+  LT: TRttiType;
+  LCls: TRttiInstanceType;
+  LCtor: TRttiMethod;
+  LOption: string;
+  LIndex, LI: Integer;
+  LInstValue: TValue;
+  LObj: TObject;
+  LExample: IExample;
 
 function GetParameterlessConstructor(const AType: TRttiInstanceType): TRttiMethod;
 var
-  M: TRttiMethod;
-  C: TClass;
+  LMethod: TRttiMethod;
+  LC: TClass;
 begin
   Result := nil;
 
   if (AType = nil) or (AType.MetaclassType = nil) then
     Exit;
 
-  C := AType.MetaclassType;
+  LC := AType.MetaclassType;
 
   // Skip the abstract root itself (exact match only)
-  if C = TBaseExample then
+  if LC = TBaseExample then
     Exit;
 
   // Find a public parameterless constructor
-  for M in AType.GetMethods do
-    if M.IsConstructor
-       and (Length(M.GetParameters) = 0)
-       and (M.Visibility in [mvPublic]) then
-      Exit(M);
+  for LMethod in AType.GetMethods do
+    if LMethod.IsConstructor
+       and (Length(LMethod.GetParameters) = 0)
+       and (LMethod.Visibility in [mvPublic]) then
+      Exit(LMethod);
 end;
 
 function ImplementsIExample(const AType: TRttiInstanceType): Boolean;
 var
-  IID: TGUID;
-  C  : TClass;
+  LIID: TGUID;
+  LC: TClass;
 begin
   Result := False;
   if (AType = nil) or (AType.MetaclassType = nil) then Exit;
-  IID := GetTypeData(TypeInfo(IExample))^.Guid;
+  LIID := GetTypeData(TypeInfo(IExample))^.Guid;
 
-  C := AType.MetaclassType;
-  while C <> nil do
+  LC := AType.MetaclassType;
+  while LC <> nil do
   begin
-    if C.GetInterfaceEntry(IID) <> nil then
+    if LC.GetInterfaceEntry(LIID) <> nil then
       Exit(True);
-    C := C.ClassParent;
+    LC := LC.ClassParent;
   end;
 end;
 
 begin
-  Ctx := TRttiContext.Create;
-  Candidates := TList<TRttiInstanceType>.Create;
+  LCtx := TRttiContext.Create;
+  LCandidates := TList<TRttiInstanceType>.Create;
   try
-    Types := Ctx.GetTypes;
+    LTypes := LCtx.GetTypes;
 
-    for T in Types do
-      if (T is TRttiInstanceType) then
+    for LT in LTypes do
+      if (LT is TRttiInstanceType) then
       begin
-        Cls := TRttiInstanceType(T);
+        LCls := TRttiInstanceType(LT);
 
-        if (Cls.MetaclassType.ClassInfo <> nil) and
-           not Cls.MetaclassType.ClassName.StartsWith('@') then
+        if (LCls.MetaclassType.ClassInfo <> nil) and
+           not LCls.MetaclassType.ClassName.StartsWith('@') then
         begin
-          if ((GetParameterlessConstructor(Cls) <> nil) and ImplementsIExample(Cls)) then
-            Candidates.Add(Cls);
+          if ((GetParameterlessConstructor(LCls) <> nil) and ImplementsIExample(LCls)) then
+            LCandidates.Add(LCls);
         end;
       end;
 
-   if Candidates.Count = 0 then
+   if LCandidates.Count = 0 then
     begin
       Writeln('No examples found. Make sure the example units are in the DPR uses list.');
       Exit;
@@ -120,29 +120,29 @@ begin
     begin
       Writeln;
       Writeln('Choose an example to run (type "exit" or "quit" to leave):');
-      for I := 0 to Candidates.Count - 1 do
-        Writeln(I.ToString + ') ' + Candidates[I].MetaclassType.ClassName);
+      for LI := 0 to LCandidates.Count - 1 do
+        Writeln(LI.ToString + ') ' + LCandidates[LI].MetaclassType.ClassName);
 
       Write('> ');
-      Readln(Option);
+      Readln(LOption);
 
-      if SameText(Option, 'exit') or SameText(Option, 'quit') then
+      if SameText(LOption, 'exit') or SameText(LOption, 'quit') then
         Break;
 
-      if TryStrToInt(Option, Index) and (Index >= 0) and (Index < Candidates.Count) then
+      if TryStrToInt(LOption, LIndex) and (LIndex >= 0) and (LIndex < LCandidates.Count) then
       begin
-        Cls := Candidates[Index];
+        LCls := LCandidates[LIndex];
         try
-          LCtor := GetParameterlessConstructor(Cls);
+          LCtor := GetParameterlessConstructor(LCls);
           if LCtor = nil then
             raise Exception.CreateFmt('No parameterless constructor found for %s',
-              [Cls.MetaclassType.ClassName]);
+              [LCls.MetaclassType.ClassName]);
 
-          InstValue := LCtor.Invoke(Cls.MetaclassType, []);
-          Obj := InstValue.AsObject;
+          LInstValue := LCtor.Invoke(LCls.MetaclassType, []);
+          LObj := LInstValue.AsObject;
 
-          if Supports(Obj, IExample, Example) then
-            Example.Run
+          if Supports(LObj, IExample, LExample) then
+            LExample.Run
           else
             Writeln('Selected type does not support IExample at runtime.');
         except
@@ -156,8 +156,8 @@ begin
 
     Writeln('Explorer stopped gracefully.');
   finally
-    Candidates.Free;
-    Ctx.Free;
+    LCandidates.Free;
+    LCtx.Free;
   end;
 end;
 

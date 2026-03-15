@@ -162,56 +162,56 @@ end;
 
 procedure TJsonConverterTests.Test_AccountInfo_DataConverter_Base64_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TAccountInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TAccountInfo;
 begin
-  JsonInput := LoadTestData('AccountInfo_Data_Base64.json');
-  ExpectedJson := JsonInput; // Should match after roundtrip
+  LJsonInput := LoadTestData('AccountInfo_Data_Base64.json');
+  LExpectedJson := LJsonInput; // Should match after roundtrip
   
-  Model := TTestUtils.Deserialize<TAccountInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TAccountInfo>(LJsonInput);
   try
     // Verify data was deserialized (TAccountDataConverter used)
-    AssertTrue(Model.Data <> nil, 'Data should be deserialized');
-    AssertEquals(2, Length(Model.Data), 'Data should have 2 elements');
-    AssertEquals('base64', Model.Data[1], 'Second element should be encoding');
+    AssertTrue(LModel.Data <> nil, 'Data should be deserialized');
+    AssertEquals(2, Length(LModel.Data), 'Data should have 2 elements');
+    AssertEquals('base64', LModel.Data[1], 'Second element should be encoding');
     
     // Roundtrip serialize
-    JsonOutput := TTestUtils.Serialize<TAccountInfo>(Model);
+    LJsonOutput := TTestUtils.Serialize<TAccountInfo>(LModel);
     
     // Validate JSON structure matches
-    AssertJsonMatch(ExpectedJson, JsonOutput, 'Roundtrip JSON should match original');
+    AssertJsonMatch(LExpectedJson, LJsonOutput, 'Roundtrip JSON should match original');
     
     // Verify fields
-    AssertEquals(UInt64(5478840), Model.Lamports);
-    AssertEquals('11111111111111111111111111111111', Model.Owner);
+    AssertEquals(UInt64(5478840), LModel.Lamports);
+    AssertEquals('11111111111111111111111111111111', LModel.Owner);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_AccountInfo_DataConverter_JsonParsed_RoundTrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model, Model2: TAccountInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel, LModel2: TAccountInfo;
 begin
-  JsonInput := LoadTestData('AccountInfo_Data_JsonParsed.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('AccountInfo_Data_JsonParsed.json');
+  LExpectedJson := LJsonInput;
    
-  Model := TTestUtils.Deserialize<TAccountInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TAccountInfo>(LJsonInput);
   try
-    JsonOutput := TTestUtils.Serialize<TAccountInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TAccountInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
     
     // Second roundtrip
-    Model2 := TTestUtils.Deserialize<TAccountInfo>(JsonOutput);
+    LModel2 := TTestUtils.Deserialize<TAccountInfo>(LJsonOutput);
     try
-      AssertEquals(Model.Lamports, Model2.Lamports);
-      AssertEquals(Model.Owner, Model2.Owner);
+      AssertEquals(LModel.Lamports, LModel2.Lamports);
+      AssertEquals(LModel.Owner, LModel2.Owner);
     finally
-      Model2.Free;
+      LModel2.Free;
     end;
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -219,20 +219,20 @@ end;
 
 procedure TJsonConverterTests.Test_AccountInfo_RentEpochClamp_Roundtrip;
 var
-  JsonInput, JsonOutput: string;
-  Model: TAccountInfo;
+  LJsonInput, LJsonOutput: string;
+  LModel: TAccountInfo;
 begin
-  JsonInput := LoadTestData('AccountInfo_Data_Base64.json');
+  LJsonInput := LoadTestData('AccountInfo_Data_Base64.json');
   
-  Model := TTestUtils.Deserialize<TAccountInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TAccountInfo>(LJsonInput);
   try
     // RentEpoch uses TJsonUInt64ClampNumberConverter
-    AssertEquals(UInt64(195), Model.RentEpoch, 'RentEpoch should be clamped correctly');
+    AssertEquals(UInt64(195), LModel.RentEpoch, 'RentEpoch should be clamped correctly');
     
-    JsonOutput := TTestUtils.Serialize<TAccountInfo>(Model);
-    AssertJsonMatch(JsonInput, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TAccountInfo>(LModel);
+    AssertJsonMatch(LJsonInput, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -240,42 +240,42 @@ end;
 
 procedure TJsonConverterTests.Test_TokenBalance_NullableUiAmount_WithValue;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TTokenBalance;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TTokenBalance;
 begin
-  JsonInput := LoadTestData('TokenBalance_WithUiAmount.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('TokenBalance_WithUiAmount.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TTokenBalance>(JsonInput);
+  LModel := TTestUtils.Deserialize<TTokenBalance>(LJsonInput);
   try
     // UiAmount uses TNullableDoubleConverter
-    AssertTrue(Model.UiAmount.HasValue, 'UiAmount should have value');
-    AssertEquals(1.0, Model.UiAmount.Value);
+    AssertTrue(LModel.UiAmount.HasValue, 'UiAmount should have value');
+    AssertEquals(1.0, LModel.UiAmount.Value);
     
-    JsonOutput := TTestUtils.Serialize<TTokenBalance>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TTokenBalance>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_TokenBalance_NullableUiAmount_Null;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TTokenBalance;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TTokenBalance;
 begin
-  JsonInput := LoadTestData('TokenBalance_NullUiAmount.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('TokenBalance_NullUiAmount.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TTokenBalance>(JsonInput);
+  LModel := TTestUtils.Deserialize<TTokenBalance>(LJsonInput);
   try
     // UiAmount should be None/null
-    AssertFalse(Model.UiAmount.HasValue, 'UiAmount should be None');
+    AssertFalse(LModel.UiAmount.HasValue, 'UiAmount should be None');
     
-    JsonOutput := TTestUtils.Serialize<TTokenBalance>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TTokenBalance>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -283,41 +283,41 @@ end;
 
 procedure TJsonConverterTests.Test_BlockInfo_NullableBlockHeight_WithValue;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TBlockInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TBlockInfo;
 begin
-  JsonInput := LoadTestData('BlockInfo_Full.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('BlockInfo_Full.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TBlockInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TBlockInfo>(LJsonInput);
   try
     // BlockHeight uses TNullableUInt64Converter
-    AssertTrue(Model.BlockHeight.HasValue, 'BlockHeight should have value');
-    AssertEquals(UInt64(166500), Model.BlockHeight.Value);
+    AssertTrue(LModel.BlockHeight.HasValue, 'BlockHeight should have value');
+    AssertEquals(UInt64(166500), LModel.BlockHeight.Value);
     
-    JsonOutput := TTestUtils.Serialize<TBlockInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TBlockInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_BlockInfo_NullableBlockHeight_Null;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TBlockInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TBlockInfo;
 begin
-  JsonInput := LoadTestData('BlockInfo_NullBlockHeight.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('BlockInfo_NullBlockHeight.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TBlockInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TBlockInfo>(LJsonInput);
   try
-    AssertFalse(Model.BlockHeight.HasValue, 'BlockHeight should be None');
+    AssertFalse(LModel.BlockHeight.HasValue, 'BlockHeight should be None');
     
-    JsonOutput := TTestUtils.Serialize<TBlockInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TBlockInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -325,42 +325,42 @@ end;
 
 procedure TJsonConverterTests.Test_RpcRequest_ParamsConverter_WithValues;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TJsonRpcRequest;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TJsonRpcRequest;
 begin
-  JsonInput := LoadTestData('RpcRequest_WithParams.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('RpcRequest_WithParams.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TJsonRpcRequest>(JsonInput);
+  LModel := TTestUtils.Deserialize<TJsonRpcRequest>(LJsonInput);
   try
     // Params uses TJsonRpcRequestParamsConverter
-    AssertNotNull(Model.Params, 'Params should exist');
-    AssertEquals(2, Model.Params.Count, 'Should have 2 params');
+    AssertNotNull(LModel.Params, 'Params should exist');
+    AssertEquals(2, LModel.Params.Count, 'Should have 2 params');
     
-    JsonOutput := TTestUtils.Serialize<TJsonRpcRequest>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TJsonRpcRequest>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_RpcRequest_ParamsConverter_EmptyParams;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TJsonRpcRequest;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TJsonRpcRequest;
 begin
-  JsonInput := LoadTestData('RpcRequest_EmptyParams.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('RpcRequest_EmptyParams.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TJsonRpcRequest>(JsonInput);
+  LModel := TTestUtils.Deserialize<TJsonRpcRequest>(LJsonInput);
   try
-    AssertNotNull(Model.Params);
-    AssertEquals(0, Model.Params.Count, 'Params should be empty');
+    AssertNotNull(LModel.Params);
+    AssertEquals(0, LModel.Params.Count, 'Params should be empty');
     
-    JsonOutput := TTestUtils.Serialize<TJsonRpcRequest>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TJsonRpcRequest>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -368,20 +368,20 @@ end;
 
 procedure TJsonConverterTests.Test_RpcBatchRequest_MultipleRequests_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TJsonRpcBatchRequest;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TJsonRpcBatchRequest;
 begin
-  JsonInput := LoadTestData('RpcBatchRequest.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('RpcBatchRequest.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TJsonRpcBatchRequest>(JsonInput);
+  LModel := TTestUtils.Deserialize<TJsonRpcBatchRequest>(LJsonInput);
   try
-    AssertEquals(2, Model.Count, 'Should have 2 requests');
+    AssertEquals(2, LModel.Count, 'Should have 2 requests');
     
-    JsonOutput := TTestUtils.Serialize<TJsonRpcBatchRequest>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TJsonRpcBatchRequest>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -389,28 +389,28 @@ end;
 
 procedure TJsonConverterTests.Test_RpcBatchResponse_MultipleResponses_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TJsonRpcBatchResponse;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TJsonRpcBatchResponse;
 begin
-  JsonInput := LoadTestData('RpcBatchResponse.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('RpcBatchResponse.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TJsonRpcBatchResponse>(JsonInput);
+  LModel := TTestUtils.Deserialize<TJsonRpcBatchResponse>(LJsonInput);
   try
-    AssertEquals(2, Model.Count, 'Should have 2 responses');
+    AssertEquals(2, LModel.Count, 'Should have 2 responses');
     
     // TJsonRpcBatchResponseItemResultConverter - verify Result field is deserialized
-    AssertNotNull(Model[0], 'First response should exist');
-    AssertFalse(Model[0].Result.IsEmpty, 'First response result should be deserialized');
-    AssertEquals(5478840, Model[0].Result.AsInteger, 'First result should be integer');
+    AssertNotNull(LModel[0], 'First response should exist');
+    AssertFalse(LModel[0].Result.IsEmpty, 'First response result should be deserialized');
+    AssertEquals(5478840, LModel[0].Result.AsInteger, 'First result should be integer');
     
-    AssertNotNull(Model[1], 'Second response should exist');
-    AssertFalse(Model[1].Result.IsEmpty, 'Second response result should be deserialized');
+    AssertNotNull(LModel[1], 'Second response should exist');
+    AssertFalse(LModel[1].Result.IsEmpty, 'Second response result should be deserialized');
     
-    JsonOutput := TTestUtils.Serialize<TJsonRpcBatchResponse>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TJsonRpcBatchResponse>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -418,42 +418,42 @@ end;
 
 procedure TJsonConverterTests.Test_RpcErrorResponse_WithMessage_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TJsonRpcErrorResponse;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TJsonRpcErrorResponse;
 begin
-  JsonInput := LoadTestData('RpcError_WithMessage.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('RpcError_WithMessage.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TJsonRpcErrorResponse>(JsonInput);
+  LModel := TTestUtils.Deserialize<TJsonRpcErrorResponse>(LJsonInput);
   try
-    AssertEquals('Invalid params', Model.ErrorMessage);
-    AssertTrue(Model.Id.HasValue);
+    AssertEquals('Invalid params', LModel.ErrorMessage);
+    AssertTrue(LModel.Id.HasValue);
     
-    JsonOutput := TTestUtils.Serialize<TJsonRpcErrorResponse>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TJsonRpcErrorResponse>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_RpcErrorResponse_WithErrorObject_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TJsonRpcErrorResponse;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TJsonRpcErrorResponse;
 begin
-  JsonInput := LoadTestData('RpcError_WithErrorObject.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('RpcError_WithErrorObject.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TJsonRpcErrorResponse>(JsonInput);
+  LModel := TTestUtils.Deserialize<TJsonRpcErrorResponse>(LJsonInput);
   try
-    AssertNotNull(Model.Error);
-    AssertEquals(-32600, Model.Error.Code);
-    AssertNull(Model.Error.Data);
+    AssertNotNull(LModel.Error);
+    AssertEquals(-32600, LModel.Error.Code);
+    AssertNull(LModel.Error.Data);
     
-    JsonOutput := TTestUtils.Serialize<TJsonRpcErrorResponse>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TJsonRpcErrorResponse>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -461,23 +461,23 @@ end;
 
 procedure TJsonConverterTests.Test_TokenListItem_ExtensionsConverter_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TTokenListItem;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TTokenListItem;
 begin
-  JsonInput := LoadTestData('TokenListItem_WithExtensions.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('TokenListItem_WithExtensions.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TTokenListItem>(JsonInput);
+  LModel := TTestUtils.Deserialize<TTokenListItem>(LJsonInput);
   try
     // Extensions uses TTokenListItemExtensionsConverter
-    AssertNotNull(Model.Extensions, 'Extensions should exist');
-    AssertEquals(3, Model.Extensions.Count);
-    AssertEquals('https://solana.com', Model.Extensions['website'].AsString);
+    AssertNotNull(LModel.Extensions, 'Extensions should exist');
+    AssertEquals(3, LModel.Extensions.Count);
+    AssertEquals('https://solana.com', LModel.Extensions['website'].AsString);
     
-    JsonOutput := TTestUtils.Serialize<TTokenListItem>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TTokenListItem>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -485,41 +485,41 @@ end;
 
 procedure TJsonConverterTests.Test_EpochInfo_CompleteModel_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TEpochInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TEpochInfo;
 begin
-  JsonInput := LoadTestData('EpochInfo_Full.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('EpochInfo_Full.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TEpochInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TEpochInfo>(LJsonInput);
   try
-    AssertEquals(UInt64(166598), Model.AbsoluteSlot);
-    AssertEquals(UInt64(27), Model.Epoch);
+    AssertEquals(UInt64(166598), LModel.AbsoluteSlot);
+    AssertEquals(UInt64(27), LModel.Epoch);
     
-    JsonOutput := TTestUtils.Serialize<TEpochInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TEpochInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_RpcResponse_EpochInfo_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TJsonRpcResponse<TEpochInfo>;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TJsonRpcResponse<TEpochInfo>;
 begin
-  JsonInput := LoadTestData('RpcResponse_EpochInfo.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('RpcResponse_EpochInfo.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TJsonRpcResponse<TEpochInfo>>(JsonInput);
+  LModel := TTestUtils.Deserialize<TJsonRpcResponse<TEpochInfo>>(LJsonInput);
   try
-    AssertNotNull(Model.Result);
-    AssertEquals(UInt64(166598), Model.Result.AbsoluteSlot);
+    AssertNotNull(LModel.Result);
+    AssertEquals(UInt64(166598), LModel.Result.AbsoluteSlot);
     
-    JsonOutput := TTestUtils.Serialize<TJsonRpcResponse<TEpochInfo>>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TJsonRpcResponse<TEpochInfo>>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -527,52 +527,52 @@ end;
 
 procedure TJsonConverterTests.Test_TransactionMetaSlotInfo_NullableBlockTime_WithValue;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TTransactionMetaSlotInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TTransactionMetaSlotInfo;
 begin
-  JsonInput := LoadTestData('TransactionMetaSlotInfo_WithBlockTime.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('TransactionMetaSlotInfo_WithBlockTime.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJsonInput);
   try
     // BlockTime uses TNullableInt64Converter
-    AssertTrue(Model.BlockTime.HasValue, 'BlockTime should have value');
-    AssertEquals(Int64(1234567890), Model.BlockTime.Value);
+    AssertTrue(LModel.BlockTime.HasValue, 'BlockTime should have value');
+    AssertEquals(Int64(1234567890), LModel.BlockTime.Value);
     
     // Transaction uses TTransactionMetaInfoTransactionConverter
-    AssertFalse(Model.Transaction.IsEmpty, 'Transaction should be deserialized');
+    AssertFalse(LModel.Transaction.IsEmpty, 'Transaction should be deserialized');
     
     // Version uses TTransactionMetaInfoVersionConverter
-    AssertFalse(Model.Version.IsEmpty, 'Version should be deserialized');
-    AssertEquals('legacy', Model.Version.AsString, 'Version should be "legacy"');
+    AssertFalse(LModel.Version.IsEmpty, 'Version should be deserialized');
+    AssertEquals('legacy', LModel.Version.AsString, 'Version should be "legacy"');
     
     // Meta should be populated
-    AssertNotNull(Model.Meta, 'Meta should exist');
-    AssertEquals(UInt64(5000), Model.Meta.Fee, 'Fee should match');
+    AssertNotNull(LModel.Meta, 'Meta should exist');
+    AssertEquals(UInt64(5000), LModel.Meta.Fee, 'Fee should match');
     
-    JsonOutput := TTestUtils.Serialize<TTransactionMetaSlotInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TTransactionMetaSlotInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_TransactionMetaSlotInfo_NullableBlockTime_Null;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TTransactionMetaSlotInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TTransactionMetaSlotInfo;
 begin
-  JsonInput := LoadTestData('TransactionMetaSlotInfo_NullBlockTime.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('TransactionMetaSlotInfo_NullBlockTime.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJsonInput);
   try
-    AssertFalse(Model.BlockTime.HasValue, 'BlockTime should be None');
+    AssertFalse(LModel.BlockTime.HasValue, 'BlockTime should be None');
     
-    JsonOutput := TTestUtils.Serialize<TTransactionMetaSlotInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TTransactionMetaSlotInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -580,40 +580,40 @@ end;
 
 procedure TJsonConverterTests.Test_SignatureStatusInfo_TransactionError_WithError;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TSignatureStatusInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TSignatureStatusInfo;
 begin
-  JsonInput := LoadTestData('SignatureStatusInfo_WithError.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('SignatureStatusInfo_WithError.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TSignatureStatusInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TSignatureStatusInfo>(LJsonInput);
   try
     // Error uses TTransactionErrorJsonConverter
-    AssertNotNull(Model.Error, 'Error should exist');
+    AssertNotNull(LModel.Error, 'Error should exist');
     
-    JsonOutput := TTestUtils.Serialize<TSignatureStatusInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TSignatureStatusInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
 procedure TJsonConverterTests.Test_SignatureStatusInfo_TransactionError_NoError;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TSignatureStatusInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TSignatureStatusInfo;
 begin
-  JsonInput := LoadTestData('SignatureStatusInfo_NoError.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('SignatureStatusInfo_NoError.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TSignatureStatusInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TSignatureStatusInfo>(LJsonInput);
   try
-    AssertNull(Model.Error, 'Error should be null');
+    AssertNull(LModel.Error, 'Error should be null');
     
-    JsonOutput := TTestUtils.Serialize<TSignatureStatusInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TSignatureStatusInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -621,25 +621,25 @@ end;
 
 procedure TJsonConverterTests.Test_TokenAccountInfo_DataConverter_JsonParsed_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TTokenAccountInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TTokenAccountInfo;
 begin
-  JsonInput := LoadTestData('TokenAccountInfo_ParsedData.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('TokenAccountInfo_ParsedData.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TTokenAccountInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TTokenAccountInfo>(LJsonInput);
   try
     // Data uses TTokenAccountDataConverter
-    AssertFalse(Model.Data.IsEmpty, 'Data should be deserialized');
+    AssertFalse(LModel.Data.IsEmpty, 'Data should be deserialized');
     
-    JsonOutput := TTestUtils.Serialize<TTokenAccountInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TTokenAccountInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
     
     // Verify fields
-    AssertEquals(UInt64(2039280), Model.Lamports);
-    AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', Model.Owner);
+    AssertEquals(UInt64(2039280), LModel.Lamports);
+    AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LModel.Owner);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -647,22 +647,22 @@ end;
 
 procedure TJsonConverterTests.Test_BlockProductionInfo_MapConverter_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Model: TBlockProductionInfo;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LModel: TBlockProductionInfo;
 begin
-  JsonInput := LoadTestData('BlockProductionInfo_ByIdentity.json');
-  ExpectedJson := JsonInput;
+  LJsonInput := LoadTestData('BlockProductionInfo_ByIdentity.json');
+  LExpectedJson := LJsonInput;
   
-  Model := TTestUtils.Deserialize<TBlockProductionInfo>(JsonInput);
+  LModel := TTestUtils.Deserialize<TBlockProductionInfo>(LJsonInput);
   try
     // ByIdentity uses TBlockProductionInfoMapConverter
-    AssertNotNull(Model.ByIdentity, 'ByIdentity should exist');
-    AssertEquals(2, Model.ByIdentity.Count, 'Should have 2 identities');
+    AssertNotNull(LModel.ByIdentity, 'ByIdentity should exist');
+    AssertEquals(2, LModel.ByIdentity.Count, 'Should have 2 identities');
     
-    JsonOutput := TTestUtils.Serialize<TBlockProductionInfo>(Model);
-    AssertJsonMatch(ExpectedJson, JsonOutput);
+    LJsonOutput := TTestUtils.Serialize<TBlockProductionInfo>(LModel);
+    AssertJsonMatch(LExpectedJson, LJsonOutput);
   finally
-    Model.Free;
+    LModel.Free;
   end;
 end;
 
@@ -670,83 +670,83 @@ end;
 
 procedure TJsonConverterTests.Test_JsonStringEnumConverter_Commitment_CamelCase;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Value: TCommitment;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LValue: TCommitment;
 begin
-  JsonInput := LoadTestData('Enum_Commitment_Finalized.json');
-  ExpectedJson := '"finalized"'; // Should be lowercase camelCase
+  LJsonInput := LoadTestData('Enum_Commitment_Finalized.json');
+  LExpectedJson := '"finalized"'; // Should be lowercase camelCase
   
-  Value := TTestUtils.Deserialize<TCommitment>(JsonInput);
-  AssertEquals(Ord(TCommitment.Finalized), Ord(Value), 'Should deserialize to Finalized');
+  LValue := TTestUtils.Deserialize<TCommitment>(LJsonInput);
+  AssertEquals(Ord(TCommitment.Finalized), Ord(LValue), 'Should deserialize to Finalized');
   
-  JsonOutput := TTestUtils.Serialize<TCommitment>(Value);
-  AssertJsonMatch(ExpectedJson, JsonOutput, 'Should serialize to camelCase');
+  LJsonOutput := TTestUtils.Serialize<TCommitment>(LValue);
+  AssertJsonMatch(LExpectedJson, LJsonOutput, 'Should serialize to camelCase');
 end;
 
 procedure TJsonConverterTests.Test_JsonStringEnumConverter_Commitment_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Value1, Value2: TCommitment;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LValue1, LValue2: TCommitment;
 begin
-  JsonInput := LoadTestData('Enum_Commitment_Confirmed.json');
-  ExpectedJson := '"confirmed"';
+  LJsonInput := LoadTestData('Enum_Commitment_Confirmed.json');
+  LExpectedJson := '"confirmed"';
   
-  Value1 := TTestUtils.Deserialize<TCommitment>(JsonInput);
-  AssertEquals(Ord(TCommitment.Confirmed), Ord(Value1));
+  LValue1 := TTestUtils.Deserialize<TCommitment>(LJsonInput);
+  AssertEquals(Ord(TCommitment.Confirmed), Ord(LValue1));
   
-  JsonOutput := TTestUtils.Serialize<TCommitment>(Value1);
-  AssertJsonMatch(ExpectedJson, JsonOutput);
+  LJsonOutput := TTestUtils.Serialize<TCommitment>(LValue1);
+  AssertJsonMatch(LExpectedJson, LJsonOutput);
   
   // Second roundtrip
-  Value2 := TTestUtils.Deserialize<TCommitment>(JsonOutput);
-  AssertEquals(Ord(Value1), Ord(Value2), 'Roundtrip should preserve value');
+  LValue2 := TTestUtils.Deserialize<TCommitment>(LJsonOutput);
+  AssertEquals(Ord(LValue1), Ord(LValue2), 'Roundtrip should preserve value');
 end;
 
 { TEncodingConverter Tests - Direct }
 
 procedure TJsonConverterTests.Test_EncodingConverter_Base64_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Value: TBinaryEncoding;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LValue: TBinaryEncoding;
 begin
-  JsonInput := LoadTestData('Encoding_Base64.json');
-  ExpectedJson := '"base64"';
+  LJsonInput := LoadTestData('Encoding_Base64.json');
+  LExpectedJson := '"base64"';
   
-  Value := TTestUtils.Deserialize<TBinaryEncoding>(JsonInput);
-  AssertEquals(Ord(TBinaryEncoding.Base64), Ord(Value));
+  LValue := TTestUtils.Deserialize<TBinaryEncoding>(LJsonInput);
+  AssertEquals(Ord(TBinaryEncoding.Base64), Ord(LValue));
   
-  JsonOutput := TTestUtils.Serialize<TBinaryEncoding>(Value);
-  AssertJsonMatch(ExpectedJson, JsonOutput);
+  LJsonOutput := TTestUtils.Serialize<TBinaryEncoding>(LValue);
+  AssertJsonMatch(LExpectedJson, LJsonOutput);
 end;
 
 procedure TJsonConverterTests.Test_EncodingConverter_JsonParsed_CamelCase;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Value: TBinaryEncoding;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LValue: TBinaryEncoding;
 begin
-  JsonInput := LoadTestData('Encoding_JsonParsed.json');
-  ExpectedJson := '"jsonParsed"'; // CamelCase conversion
+  LJsonInput := LoadTestData('Encoding_JsonParsed.json');
+  LExpectedJson := '"jsonParsed"'; // CamelCase conversion
   
-  Value := TTestUtils.Deserialize<TBinaryEncoding>(JsonInput);
-  AssertEquals(Ord(TBinaryEncoding.JsonParsed), Ord(Value));
+  LValue := TTestUtils.Deserialize<TBinaryEncoding>(LJsonInput);
+  AssertEquals(Ord(TBinaryEncoding.JsonParsed), Ord(LValue));
   
-  JsonOutput := TTestUtils.Serialize<TBinaryEncoding>(Value);
-  AssertJsonMatch(ExpectedJson, JsonOutput, 'Should convert JsonParsed to camelCase');
+  LJsonOutput := TTestUtils.Serialize<TBinaryEncoding>(LValue);
+  AssertJsonMatch(LExpectedJson, LJsonOutput, 'Should convert JsonParsed to camelCase');
 end;
 
 procedure TJsonConverterTests.Test_EncodingConverter_Base64Zstd_Roundtrip;
 var
-  JsonInput, JsonOutput, ExpectedJson: string;
-  Value: TBinaryEncoding;
+  LJsonInput, LJsonOutput, LExpectedJson: string;
+  LValue: TBinaryEncoding;
 begin
-  JsonInput := LoadTestData('Encoding_Base64Zstd.json');
-  ExpectedJson := '"base64+zstd"'; // Special character handling
+  LJsonInput := LoadTestData('Encoding_Base64Zstd.json');
+  LExpectedJson := '"base64+zstd"'; // Special character handling
   
-  Value := TTestUtils.Deserialize<TBinaryEncoding>(JsonInput);
-  AssertEquals(Ord(TBinaryEncoding.Base64Zstd), Ord(Value));
+  LValue := TTestUtils.Deserialize<TBinaryEncoding>(LJsonInput);
+  AssertEquals(Ord(TBinaryEncoding.Base64Zstd), Ord(LValue));
   
-  JsonOutput := TTestUtils.Serialize<TBinaryEncoding>(Value);
-  AssertJsonMatch(ExpectedJson, JsonOutput, 'Should handle Base64Zstd conversion');
+  LJsonOutput := TTestUtils.Serialize<TBinaryEncoding>(LValue);
+  AssertJsonMatch(LExpectedJson, LJsonOutput, 'Should handle Base64Zstd conversion');
 end;
 
 initialization

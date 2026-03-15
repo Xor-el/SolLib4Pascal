@@ -51,21 +51,21 @@ type
     /// </summary>
     /// <param name="seconds">Window length in seconds.</param>
     /// <returns>The same limiter instance for fluent chaining.</returns>
-    function PerSeconds(seconds: Integer): IRateLimiter;
+    function PerSeconds(ASeconds: Integer): IRateLimiter;
 
     /// <summary>
     /// Sets the sliding-window length in milliseconds for the rate limit.
     /// </summary>
     /// <param name="ms">Window length in milliseconds.</param>
     /// <returns>The same limiter instance for fluent chaining.</returns>
-    function PerMs(ms: Integer): IRateLimiter;
+    function PerMs(AMs: Integer): IRateLimiter;
 
     /// <summary>
     /// Sets how many hits are allowed within the sliding window.
     /// </summary>
     /// <param name="hits">Number of permitted hits within the configured window.</param>
     /// <returns>The same limiter instance for fluent chaining.</returns>
-    function AllowHits(hits: Integer): IRateLimiter;
+    function AllowHits(AHits: Integer): IRateLimiter;
   end;
 
   /// <summary>
@@ -84,7 +84,7 @@ type
     /// <summary>
     /// Computes the earliest UTC time when a new fire is allowed, given a check time.
     /// </summary>
-    function NextFireAllowed(const CheckTimeUtc: TDateTime): TDateTime;
+    function NextFireAllowed(const ACheckTimeUtc: TDateTime): TDateTime;
 
     /// <summary>
     /// Returns the current UTC time.
@@ -96,14 +96,14 @@ type
     /// </summary>
     /// <param name="hits">Number of hits allowed within the window.</param>
     /// <param name="durationMs">Window length in milliseconds (0 means "no window").</param>
-    constructor Create(hits, durationMs: Integer);
+    constructor Create(AHits, ADurationMs: Integer);
     destructor Destroy; override;
 
     /// <summary>
     /// Creates a limiter with the specified <paramref name="hits"/> and <paramref name="durationMs"/>.
     /// </summary>
     /// <returns>An <see cref="IRateLimiter"/> whose lifetime is interface-managed.</returns>
-    class function New(hits, durationMs: Integer): IRateLimiter; static;
+    class function New(AHits, ADurationMs: Integer): IRateLimiter; static;
 
     /// <summary>
     /// Creates a limiter with <c>hits=1</c> and <c>durationMs=0</c> (effectively "no limit").
@@ -117,11 +117,11 @@ type
     /// <inheritdoc/>
     function CanFire: Boolean;
     /// <inheritdoc/>
-    function PerSeconds(seconds: Integer): IRateLimiter;
+    function PerSeconds(ASeconds: Integer): IRateLimiter;
     /// <inheritdoc/>
-    function PerMs(ms: Integer): IRateLimiter;
+    function PerMs(AMs: Integer): IRateLimiter;
     /// <inheritdoc/>
-    function AllowHits(hits: Integer): IRateLimiter;
+    function AllowHits(AHits: Integer): IRateLimiter;
 
     /// <summary>
     /// Debug helper: shows queue size and oldest-hit timestamp (local time).
@@ -133,12 +133,12 @@ implementation
 
 { TRateLimiter }
 
-constructor TRateLimiter.Create(hits, durationMs: Integer);
+constructor TRateLimiter.Create(AHits, ADurationMs: Integer);
 begin
   inherited Create;
-  FHits       := hits;
-  FDurationMs := durationMs;
-  FHitList    := TQueue<TDateTime>.Create;
+  FHits := AHits;
+  FDurationMs := ADurationMs;
+  FHitList := TQueue<TDateTime>.Create;
 end;
 
 destructor TRateLimiter.Destroy;
@@ -147,9 +147,9 @@ begin
   inherited;
 end;
 
-class function TRateLimiter.New(hits, durationMs: Integer): IRateLimiter;
+class function TRateLimiter.New(AHits, ADurationMs: Integer): IRateLimiter;
 begin
-  Result := TRateLimiter.Create(hits, durationMs);
+  Result := TRateLimiter.Create(AHits, ADurationMs);
 end;
 
 class function TRateLimiter.CreateDefault: IRateLimiter;
@@ -164,31 +164,31 @@ end;
 
 function TRateLimiter.CanFire: Boolean;
 var
-  NowUtc, ResumeUtc: TDateTime;
+  LNowUtc, LResumeUtc: TDateTime;
 begin
-  NowUtc   := UtcNow;
-  ResumeUtc := NextFireAllowed(NowUtc);
-  Result   := NowUtc >= ResumeUtc;
+  LNowUtc := UtcNow;
+  LResumeUtc := NextFireAllowed(LNowUtc);
+  Result := LNowUtc >= LResumeUtc;
 end;
 
-function TRateLimiter.NextFireAllowed(const CheckTimeUtc: TDateTime): TDateTime;
+function TRateLimiter.NextFireAllowed(const ACheckTimeUtc: TDateTime): TDateTime;
 var
-  CutOff: TDateTime;
-  DeltaMs: Double;
+  LCutOff: TDateTime;
+  LDeltaMs: Double;
 begin
   // No window => allow immediately
   if FDurationMs = 0 then
-    Exit(CheckTimeUtc);
+    Exit(ACheckTimeUtc);
 
   // Empty queue => allow immediately
   if FHitList.Count = 0 then
-    Exit(CheckTimeUtc);
+    Exit(ACheckTimeUtc);
 
-  CutOff := IncMilliSecond(CheckTimeUtc, Int64(-FDurationMs));
+  LCutOff := IncMilliSecond(ACheckTimeUtc, Int64(-FDurationMs));
   while (FHitList.Count > 0) do
   begin
-    DeltaMs := (FHitList.Peek - CutOff) * MSecsPerDay;
-    if DeltaMs < 0 then
+    LDeltaMs := (FHitList.Peek - LCutOff) * MSecsPerDay;
+    if LDeltaMs < 0 then
       FHitList.Dequeue
     else
       Break;
@@ -197,55 +197,55 @@ begin
   if FHitList.Count >= FHits then
     Result := IncMilliSecond(FHitList.Peek, FDurationMs)
   else
-    Result := CheckTimeUtc;
+    Result := ACheckTimeUtc;
 end;
 
 procedure TRateLimiter.WaitFire;
 var
-  CheckUtc, ResumeUtc: TDateTime;
+  LCheckUtc, LResumeUtc: TDateTime;
 begin
-  CheckUtc  := UtcNow;
-  ResumeUtc := NextFireAllowed(CheckUtc);
+  LCheckUtc := UtcNow;
+  LResumeUtc := NextFireAllowed(LCheckUtc);
 
-  while UtcNow <= ResumeUtc do
+  while UtcNow <= LResumeUtc do
     TThread.Sleep(50);
 
   if FDurationMs > 0 then
     FHitList.Enqueue(UtcNow);
 end;
 
-function TRateLimiter.PerSeconds(seconds: Integer): IRateLimiter;
+function TRateLimiter.PerSeconds(ASeconds: Integer): IRateLimiter;
 begin
-  if seconds < 0 then
+  if ASeconds < 0 then
     raise EArgumentOutOfRangeException.Create('seconds must be >= 0');
-  FDurationMs := seconds * 1000;
+  FDurationMs := ASeconds * 1000;
   Result := Self;
 end;
 
-function TRateLimiter.PerMs(ms: Integer): IRateLimiter;
+function TRateLimiter.PerMs(AMs: Integer): IRateLimiter;
 begin
-  if ms < 0 then
+  if AMs < 0 then
     raise EArgumentOutOfRangeException.Create('ms must be >= 0');
-  FDurationMs := ms;
+  FDurationMs := AMs;
   Result := Self;
 end;
 
-function TRateLimiter.AllowHits(hits: Integer): IRateLimiter;
+function TRateLimiter.AllowHits(AHits: Integer): IRateLimiter;
 begin
-  if hits < 1 then
+  if AHits < 1 then
     raise EArgumentOutOfRangeException.Create('hits must be >= 1');
-  FHits := hits;
+  FHits := AHits;
   Result := Self;
 end;
 
 function TRateLimiter.ToString: string;
 var
-  Head: TDateTime;
+  LHead: TDateTime;
 begin
   if FHitList.Count > 0 then
   begin
-    Head := FHitList.Peek;
-    Result := Format('%d-%s', [FHitList.Count, FormatDateTime('hh:nn:ss.zzz', TTimeZone.Local.ToLocalTime(Head))]);
+    LHead := FHitList.Peek;
+    Result := Format('%d-%s', [FHitList.Count, FormatDateTime('hh:nn:ss.zzz', TTimeZone.Local.ToLocalTime(LHead))]);
   end
   else
     Result := '(empty)';

@@ -36,41 +36,41 @@ type
     const TestnetUrl = 'https://api.testnet.solana.com';
 
     function SetupTest(
-      const ResponseContent: string;
-      StatusCode: Integer = 200;
-      const StatusText: string = ''
+      const AResponseContent: string;
+      AStatusCode: Integer = 200;
+      const AStatusText: string = ''
     ): TMockRpcHttpClient;
 
     function SetupTestForThrow(
-      const StatusText: string = ''
+      const AStatusText: string = ''
     ): TMockRpcHttpClient;
 
-    procedure FinishTest(const Mock: TMockRpcHttpClient; const ExpectedUrl: string; const ExpectedCallCount: Integer = 1);
+    procedure FinishTest(const AMock: TMockRpcHttpClient; const AExpectedUrl: string; const AExpectedCallCount: Integer = 1);
   end;
 
 implementation
 
-function TSolLibRpcHttpMockTestCase.SetupTest(const ResponseContent: string; StatusCode: Integer;
-  const StatusText: string
+function TSolLibRpcHttpMockTestCase.SetupTest(const AResponseContent: string; AStatusCode: Integer;
+  const AStatusText: string
 ): TMockRpcHttpClient;
 begin
-  Result := TMockRpcHttpClient.Create(TestnetUrl, StatusCode, StatusText, ResponseContent);
+  Result := TMockRpcHttpClient.Create(TestnetUrl, AStatusCode, AStatusText, AResponseContent);
 end;
 
-function TSolLibRpcHttpMockTestCase.SetupTestForThrow(const StatusText: string
+function TSolLibRpcHttpMockTestCase.SetupTestForThrow(const AStatusText: string
 ): TMockRpcHttpClient;
 begin
-  Result := TMockRpcHttpClient.CreateForThrow(TestnetUrl, StatusText);
+  Result := TMockRpcHttpClient.CreateForThrow(TestnetUrl, AStatusText);
 end;
 
 procedure TSolLibRpcHttpMockTestCase.FinishTest(
-  const Mock: TMockRpcHttpClient; const ExpectedUrl: string; const ExpectedCallCount: Integer);
+  const AMock: TMockRpcHttpClient; const AExpectedUrl: string; const AExpectedCallCount: Integer);
 begin
-  AssertEquals(ExpectedCallCount, Mock.CallCount,
+  AssertEquals(AExpectedCallCount, AMock.CallCount,
   Format('Exactly %d Hit%s expected',
-    [ExpectedCallCount, IfThen(ExpectedCallCount <> 1, 's', '')]));
+    [AExpectedCallCount, IfThen(AExpectedCallCount <> 1, 's', '')]));
 
-  AssertEquals(TURI.Create(ExpectedUrl).ToString, Mock.LastUrl, 'URL mismatch');
+  AssertEquals(TURI.Create(AExpectedUrl).ToString, AMock.LastUrl, 'URL mismatch');
 end;
 
 end.

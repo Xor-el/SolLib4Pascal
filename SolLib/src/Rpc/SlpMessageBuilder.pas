@@ -23,7 +23,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Generics.Collections,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpShortVectorEncoding,
   SlpPublicKey,
   SlpAccountDomain,
@@ -40,13 +40,13 @@ type
     function GetAccountMetaPublicKeys: TArray<string>;
     function GetInstructions: TList<ITransactionInstruction>;
     function GetRecentBlockHash: string;
-    procedure SetRecentBlockHash(const Value: string);
+    procedure SetRecentBlockHash(const AValue: string);
     function GetNonceInformation: INonceInformation;
-    procedure SetNonceInformation(const Value: INonceInformation);
+    procedure SetNonceInformation(const AValue: INonceInformation);
     function GetPriorityFeesInformation: IPriorityFeesInformation;
-    procedure SetPriorityFeesInformation(const Value: IPriorityFeesInformation);
+    procedure SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
     function GetFeePayer: IPublicKey;
-    procedure SetFeePayer(const Value: IPublicKey);
+    procedure SetFeePayer(const AValue: IPublicKey);
 
     property Instructions: TList<ITransactionInstruction> read GetInstructions;
     property RecentBlockHash: string read GetRecentBlockHash write SetRecentBlockHash;
@@ -57,11 +57,11 @@ type
 
   TMessageBuilder = class(TInterfacedObject, IMessageBuilder)
   private
-    FInstructions      : TList<ITransactionInstruction>;
-    FRecentBlockHash   : string;
-    FNonceInformation  : INonceInformation;
-    FPriorityFeesInformation : IPriorityFeesInformation;
-    FFeePayer          : IPublicKey;
+    FInstructions: TList<ITransactionInstruction>;
+    FRecentBlockHash: string;
+    FNonceInformation: INonceInformation;
+    FPriorityFeesInformation: IPriorityFeesInformation;
+    FFeePayer: IPublicKey;
 
     function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilder;
     function Build: TBytes; virtual;
@@ -69,16 +69,16 @@ type
 
     function GetInstructions: TList<ITransactionInstruction>;
     function GetRecentBlockHash: string;
-    procedure SetRecentBlockHash(const Value: string);
+    procedure SetRecentBlockHash(const AValue: string);
     function GetNonceInformation: INonceInformation;
-    procedure SetNonceInformation(const Value: INonceInformation);
+    procedure SetNonceInformation(const AValue: INonceInformation);
     function GetPriorityFeesInformation: IPriorityFeesInformation;
-    procedure SetPriorityFeesInformation(const Value: IPriorityFeesInformation);
+    procedure SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
     function GetFeePayer: IPublicKey;
-    procedure SetFeePayer(const Value: IPublicKey);
+    procedure SetFeePayer(const AValue: IPublicKey);
   protected
-    FMessageHeader     : IMessageHeader;
-    FAccountKeysList   : TAccountKeysList;
+    FMessageHeader: IMessageHeader;
+    FAccountKeysList: TAccountKeysList;
   const
     BlockHashLength = 32;
     function GetAccountKeysMeta: TList<IAccountMeta>; virtual;
@@ -86,8 +86,8 @@ type
     procedure ApplyNonceInformation;
     procedure ApplyPriorityFeeInformation;
 
-    class function FindAccountIndex(const AccountMetas: TList<IAccountMeta>; const PublicKeyBytes: TBytes): Byte; overload; static;
-    class function FindAccountIndex(const AccountMetas: TList<IAccountMeta>; const PublicKeyBase58: string): Byte; overload; static;
+    class function FindAccountIndex(const AAccountMetas: TList<IAccountMeta>; const APublicKeyBytes: TBytes): Byte; overload; static;
+    class function FindAccountIndex(const AAccountMetas: TList<IAccountMeta>; const APublicKeyBase58: string): Byte; overload; static;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -97,10 +97,10 @@ type
   IVersionedMessageBuilder = interface(IMessageBuilder)
     ['{738D0C34-21BB-428F-BEFF-A9C17E3DA332}']
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
-    procedure SetAddressTableLookups(const Value: TList<IMessageAddressTableLookup>);
+    procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
 
     function GetAccountKeys: TList<IPublicKey>;
-    procedure SetAccountKeys(const Value: TList<IPublicKey>);
+    procedure SetAccountKeys(const AValue: TList<IPublicKey>);
 
     property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
     property AccountKeys: TList<IPublicKey> read GetAccountKeys write SetAccountKeys;
@@ -114,9 +114,9 @@ type
     FAccountKeys: TList<IPublicKey>;
 
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
-    procedure SetAddressTableLookups(const Value: TList<IMessageAddressTableLookup>);
+    procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
     function GetAccountKeys: TList<IPublicKey>;
-    procedure SetAccountKeys(const Value: TList<IPublicKey>);
+    procedure SetAccountKeys(const AValue: TList<IPublicKey>);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -220,20 +220,20 @@ end;
 
 function TMessageBuilder.Build: TBytes;
 var
-  KeysMeta: TList<IAccountMeta>;
-  AccountAddressesLength: TBytes;
-  CompiledInstructionsLength: Integer;
-  CompiledInstructions: TList<ICompiledInstruction>;
-  Instruction: ITransactionInstruction;
-  KeyCount, I: Integer;
-  KeyIndices: TBytes;
-  CompiledInstruction: ICompiledInstruction;
-  AccountKeysBuffer, Buffer: TMemoryStream;
-  InstructionsLength: TBytes;
-  AM: IAccountMeta;
-  MessageBufferSize, AccountKeysBufferSize: Integer;
-  MessageHeaderBytes: TBytes;
-  EncodedRecentBlockhash: TBytes;
+  LKeysMeta: TList<IAccountMeta>;
+  LAccountAddressesLength: TBytes;
+  LCompiledInstructionsLength: Integer;
+  LCompiledInstructions: TList<ICompiledInstruction>;
+  LInstruction: ITransactionInstruction;
+  LKeyCount, LI: Integer;
+  LKeyIndices: TBytes;
+  LCompiledInstruction: ICompiledInstruction;
+  LAccountKeysBuffer, LBuffer: TMemoryStream;
+  LInstructionsLength: TBytes;
+  LAM: IAccountMeta;
+  LMessageBufferSize, LAccountKeysBufferSize: Integer;
+  LMessageHeaderBytes: TBytes;
+  LEncodedRecentBlockhash: TBytes;
   LProgramIdIndex: Byte;
 begin
   if (FRecentBlockHash = '') and (FNonceInformation = nil) then
@@ -248,164 +248,164 @@ begin
 
   FMessageHeader := TMessageHeader.Create;
 
-  KeysMeta := GetAccountKeysMeta;
+  LKeysMeta := GetAccountKeysMeta;
   try
-    AccountAddressesLength := TShortVectorEncoding.EncodeLength(KeysMeta.Count);
-    CompiledInstructionsLength := 0;
-    CompiledInstructions := TList<ICompiledInstruction>.Create;
+    LAccountAddressesLength := TShortVectorEncoding.EncodeLength(LKeysMeta.Count);
+    LCompiledInstructionsLength := 0;
+    LCompiledInstructions := TList<ICompiledInstruction>.Create;
     try
-      for Instruction in FInstructions do
+      for LInstruction in FInstructions do
       begin
-        KeyCount := Instruction.Keys.Count;
-        SetLength(KeyIndices, KeyCount);
-        for I := 0 to KeyCount - 1 do
-          KeyIndices[I] := FindAccountIndex(KeysMeta, Instruction.Keys[I].PublicKey.Key);
+        LKeyCount := LInstruction.Keys.Count;
+        SetLength(LKeyIndices, LKeyCount);
+        for LI := 0 to LKeyCount - 1 do
+          LKeyIndices[LI] := FindAccountIndex(LKeysMeta, LInstruction.Keys[LI].PublicKey.Key);
 
-        CompiledInstruction := TCompiledInstruction.Create(
-          FindAccountIndex(KeysMeta, Instruction.ProgramId),
-          TShortVectorEncoding.EncodeLength(KeyCount),
-          KeyIndices,
-          TShortVectorEncoding.EncodeLength(Length(Instruction.Data)),
-          Instruction.Data
+        LCompiledInstruction := TCompiledInstruction.Create(
+          FindAccountIndex(LKeysMeta, LInstruction.ProgramId),
+          TShortVectorEncoding.EncodeLength(LKeyCount),
+          LKeyIndices,
+          TShortVectorEncoding.EncodeLength(Length(LInstruction.Data)),
+          LInstruction.Data
         );
-        CompiledInstructions.Add(CompiledInstruction);
-        Inc(CompiledInstructionsLength, CompiledInstruction.ItemCount);
+        LCompiledInstructions.Add(LCompiledInstruction);
+        Inc(LCompiledInstructionsLength, LCompiledInstruction.ItemCount);
       end;
 
-      AccountKeysBufferSize := FAccountKeysList.Count * 32;
-      AccountKeysBuffer := TMemoryStream.Create;
+      LAccountKeysBufferSize := FAccountKeysList.Count * 32;
+      LAccountKeysBuffer := TMemoryStream.Create;
       try
-        AccountKeysBuffer.Size := AccountKeysBufferSize;
-        InstructionsLength := TShortVectorEncoding.EncodeLength(CompiledInstructions.Count);
+        LAccountKeysBuffer.Size := LAccountKeysBufferSize;
+        LInstructionsLength := TShortVectorEncoding.EncodeLength(LCompiledInstructions.Count);
 
-        for AM in KeysMeta do
+        for LAM in LKeysMeta do
         begin
-          AccountKeysBuffer.WriteBuffer(AM.PublicKey.KeyBytes[0], Length(AM.PublicKey.KeyBytes));
+          LAccountKeysBuffer.WriteBuffer(LAM.PublicKey.KeyBytes[0], Length(LAM.PublicKey.KeyBytes));
 
-          if AM.IsSigner then
+          if LAM.IsSigner then
           begin
             FMessageHeader.RequiredSignatures := FMessageHeader.RequiredSignatures + 1;
-            if not AM.IsWritable then
+            if not LAM.IsWritable then
               FMessageHeader.ReadOnlySignedAccounts := FMessageHeader.ReadOnlySignedAccounts + 1;
           end
           else
           begin
-            if not AM.IsWritable then
+            if not LAM.IsWritable then
               FMessageHeader.ReadOnlyUnsignedAccounts := FMessageHeader.ReadOnlyUnsignedAccounts + 1;
           end;
         end;
 
-        MessageBufferSize := TMessageHeader.TLayout.HeaderLength + BlockHashLength +
-                             Length(AccountAddressesLength) + Length(InstructionsLength) +
-                             CompiledInstructionsLength + AccountKeysBufferSize;
-        Buffer := TMemoryStream.Create;
+        LMessageBufferSize := TMessageHeader.TLayout.HeaderLength + BlockHashLength +
+                             Length(LAccountAddressesLength) + Length(LInstructionsLength) +
+                             LCompiledInstructionsLength + LAccountKeysBufferSize;
+        LBuffer := TMemoryStream.Create;
         try
-          Buffer.Size := MessageBufferSize;
-          MessageHeaderBytes := FMessageHeader.ToBytes;
+          LBuffer.Size := LMessageBufferSize;
+          LMessageHeaderBytes := FMessageHeader.ToBytes;
 
-          Buffer.WriteBuffer(MessageHeaderBytes[0], Length(MessageHeaderBytes));
-          Buffer.WriteBuffer(AccountAddressesLength[0], Length(AccountAddressesLength));
-          Buffer.WriteBuffer(AccountKeysBuffer.Memory^, AccountKeysBuffer.Size);
-          EncodedRecentBlockhash := TEncoders.Base58.DecodeData(FRecentBlockHash);
-          Buffer.WriteBuffer(EncodedRecentBlockhash[0], Length(EncodedRecentBlockhash));
-          Buffer.WriteBuffer(InstructionsLength[0], Length(InstructionsLength));
+          LBuffer.WriteBuffer(LMessageHeaderBytes[0], Length(LMessageHeaderBytes));
+          LBuffer.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
+          LBuffer.WriteBuffer(LAccountKeysBuffer.Memory^, LAccountKeysBuffer.Size);
+          LEncodedRecentBlockhash := TBase58Encoder.DecodeData(FRecentBlockHash);
+          LBuffer.WriteBuffer(LEncodedRecentBlockhash[0], Length(LEncodedRecentBlockhash));
+          LBuffer.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
 
-          for CompiledInstruction in CompiledInstructions do
+          for LCompiledInstruction in LCompiledInstructions do
           begin
-            LProgramIdIndex := CompiledInstruction.ProgramIdIndex;
+            LProgramIdIndex := LCompiledInstruction.ProgramIdIndex;
 
-            Buffer.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
-            Buffer.WriteBuffer(CompiledInstruction.KeyIndicesCount[0], Length(CompiledInstruction.KeyIndicesCount));
-            Buffer.WriteBuffer(CompiledInstruction.KeyIndices[0], Length(CompiledInstruction.KeyIndices));
-            Buffer.WriteBuffer(CompiledInstruction.DataLength[0], Length(CompiledInstruction.DataLength));
-            Buffer.WriteBuffer(CompiledInstruction.Data[0], Length(CompiledInstruction.Data));
+            LBuffer.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
+            LBuffer.WriteBuffer(LCompiledInstruction.KeyIndicesCount[0], Length(LCompiledInstruction.KeyIndicesCount));
+            LBuffer.WriteBuffer(LCompiledInstruction.KeyIndices[0], Length(LCompiledInstruction.KeyIndices));
+            LBuffer.WriteBuffer(LCompiledInstruction.DataLength[0], Length(LCompiledInstruction.DataLength));
+            LBuffer.WriteBuffer(LCompiledInstruction.Data[0], Length(LCompiledInstruction.Data));
           end;
 
-          SetLength(Result, Buffer.Size);
-          Buffer.Position := 0;
-          Buffer.ReadBuffer(Result[0], Buffer.Size);
+          SetLength(Result, LBuffer.Size);
+          LBuffer.Position := 0;
+          LBuffer.ReadBuffer(Result[0], LBuffer.Size);
         finally
-          Buffer.Free;
+          LBuffer.Free;
         end;
       finally
-        AccountKeysBuffer.Free;
+        LAccountKeysBuffer.Free;
       end;
     finally
-      CompiledInstructions.Free;
+      LCompiledInstructions.Free;
     end;
   finally
-    KeysMeta.Free;
+    LKeysMeta.Free;
   end;
 end;
 
 class function TMessageBuilder.FindAccountIndex(
-  const AccountMetas: TList<IAccountMeta>;
-  const PublicKeyBytes: TBytes): Byte;
+  const AAccountMetas: TList<IAccountMeta>;
+  const APublicKeyBytes: TBytes): Byte;
 var
-  Encoded: string;
+  LEncoded: string;
 begin
-  Encoded := TEncoders.Base58.EncodeData(PublicKeyBytes);
-  Result := FindAccountIndex(AccountMetas, Encoded);
+  LEncoded := TBase58Encoder.EncodeData(APublicKeyBytes);
+  Result := FindAccountIndex(AAccountMetas, LEncoded);
 end;
 
 class function TMessageBuilder.FindAccountIndex(
-  const AccountMetas: TList<IAccountMeta>;
-  const PublicKeyBase58: string): Byte;
+  const AAccountMetas: TList<IAccountMeta>;
+  const APublicKeyBase58: string): Byte;
 var
-  Index: Byte;
+  LIndex: Byte;
 begin
-  for Index := 0 to AccountMetas.Count - 1 do
-    if SameStr(AccountMetas[Index].PublicKey.Key, PublicKeyBase58) then
-      Exit(Index);
-  raise Exception.CreateFmt('Something went wrong encoding this transaction. Account `%s` was not found among list of accounts. Should be impossible.', [PublicKeyBase58]);
+  for LIndex := 0 to AAccountMetas.Count - 1 do
+    if SameStr(AAccountMetas[LIndex].PublicKey.Key, APublicKeyBase58) then
+      Exit(LIndex);
+  raise Exception.CreateFmt('Something went wrong encoding this transaction. Account `%s` was not found among list of accounts. Should be impossible.', [APublicKeyBase58]);
 end;
 
 function TMessageBuilder.GetAccountKeysMeta: TList<IAccountMeta>;
 var
-  KeysList     : TList<IAccountMeta>;
-  FeePayerIndex: Integer;
+  LKeysList: TList<IAccountMeta>;
+  LFeePayerIndex: Integer;
 begin
   Result := TList<IAccountMeta>.Create;
-  KeysList := FAccountKeysList.AccountList;
+  LKeysList := FAccountKeysList.AccountList;
 
   try
     try
-      FeePayerIndex :=
-        TListUtils.FindIndex<IAccountMeta>(KeysList,
-          function(AccMeta: IAccountMeta): Boolean
+      LFeePayerIndex :=
+        TListUtils.FindIndex<IAccountMeta>(LKeysList,
+          function(AAccMeta: IAccountMeta): Boolean
           begin
-            Result := AccMeta.PublicKey.Equals(FFeePayer);
+            Result := AAccMeta.PublicKey.Equals(FFeePayer);
           end);
 
       // Ensure fee payer is first (writable, signer)
-      if FeePayerIndex <> -1 then
-        KeysList.Delete(FeePayerIndex);
+      if LFeePayerIndex <> -1 then
+        LKeysList.Delete(LFeePayerIndex);
 
       Result.Add(TAccountMeta.Writable(FFeePayer, True));
 
       // Append the remaining keys
-      Result.AddRange(KeysList);
+      Result.AddRange(LKeysList);
     except
       Result.Free;
       raise;
     end;
   finally
-    KeysList.Free;
+    LKeysList.Free;
   end;
 end;
 
 function TMessageBuilder.GetAccountMetaPublicKeys: TArray<string>;
 var
-  Metas: TList<IAccountMeta>;
-  I: Integer;
+  LMetas: TList<IAccountMeta>;
+  LI: Integer;
 begin
-  Metas := GetAccountKeysMeta;
+  LMetas := GetAccountKeysMeta;
   try
-    SetLength(Result, Metas.Count);
-    for I := 0 to Metas.Count - 1 do
-      Result[I] := Metas[I].PublicKey.Key;
+    SetLength(Result, LMetas.Count);
+    for LI := 0 to LMetas.Count - 1 do
+      Result[LI] := LMetas[LI].PublicKey.Key;
   finally
-    Metas.Free;
+    LMetas.Free;
   end;
 end;
 
@@ -419,9 +419,9 @@ begin
   Result := FRecentBlockHash;
 end;
 
-procedure TMessageBuilder.SetRecentBlockHash(const Value: string);
+procedure TMessageBuilder.SetRecentBlockHash(const AValue: string);
 begin
-  FRecentBlockHash := Value;
+  FRecentBlockHash := AValue;
 end;
 
 function TMessageBuilder.GetNonceInformation: INonceInformation;
@@ -429,9 +429,9 @@ begin
   Result := FNonceInformation;
 end;
 
-procedure TMessageBuilder.SetNonceInformation(const Value: INonceInformation);
+procedure TMessageBuilder.SetNonceInformation(const AValue: INonceInformation);
 begin
-  FNonceInformation := Value;
+  FNonceInformation := AValue;
 end;
 
 function TMessageBuilder.GetPriorityFeesInformation: IPriorityFeesInformation;
@@ -440,9 +440,9 @@ begin
 end;
 
 procedure TMessageBuilder.SetPriorityFeesInformation(
-  const Value: IPriorityFeesInformation);
+  const AValue: IPriorityFeesInformation);
 begin
-  FPriorityFeesInformation := Value;
+  FPriorityFeesInformation := AValue;
 end;
 
 function TMessageBuilder.GetFeePayer: IPublicKey;
@@ -450,9 +450,9 @@ begin
   Result := FFeePayer;
 end;
 
-procedure TMessageBuilder.SetFeePayer(const Value: IPublicKey);
+procedure TMessageBuilder.SetFeePayer(const AValue: IPublicKey);
 begin
-  FFeePayer := Value;
+  FFeePayer := AValue;
 end;
 
 { TVersionedMessageBuilder }
@@ -478,9 +478,9 @@ begin
   Result := FAddressTableLookups;
 end;
 
-procedure TVersionedMessageBuilder.SetAddressTableLookups(const Value: TList<IMessageAddressTableLookup>);
+procedure TVersionedMessageBuilder.SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
 begin
-  FAddressTableLookups := Value;
+  FAddressTableLookups := AValue;
 end;
 
 function TVersionedMessageBuilder.GetAccountKeys: TList<IPublicKey>;
@@ -488,29 +488,29 @@ begin
   Result := FAccountKeys;
 end;
 
-procedure TVersionedMessageBuilder.SetAccountKeys(const Value: TList<IPublicKey>);
+procedure TVersionedMessageBuilder.SetAccountKeys(const AValue: TList<IPublicKey>);
 begin
-  FAccountKeys := Value;
+  FAccountKeys := AValue;
 end;
 
 function TVersionedMessageBuilder.Build: TBytes;
 var
-  KeysMeta: TList<IAccountMeta>;
-  AccountAddressesLength: TBytes;
-  CompiledInstructionsLength: Integer;
-  CompiledInstructions: TList<ICompiledInstruction>;
-  Instruction: ITransactionInstruction;
-  KeyCount, I: Integer;
-  KeyIndices: TBytes;
-  CompiledInstruction: ICompiledInstruction;
-  AccountKeysBuffer, Buffer: TMemoryStream;
-  InstructionsLength: TBytes;
-  AM: IAccountMeta;
-  MessageBufferSize, AccountKeysBufferSize: Integer;
-  MessageHeaderBytes: TBytes;
-  EncodedRecentBlockhash, ATL: TBytes;
-  VersionPrefix, LProgramIdIndex: Byte;
-  Versioned: IVersionedTransactionInstruction;
+  LKeysMeta: TList<IAccountMeta>;
+  LAccountAddressesLength: TBytes;
+  LCompiledInstructionsLength: Integer;
+  LCompiledInstructions: TList<ICompiledInstruction>;
+  LInstruction: ITransactionInstruction;
+  LKeyCount, LI: Integer;
+  LKeyIndices: TBytes;
+  LCompiledInstruction: ICompiledInstruction;
+  LAccountKeysBuffer, LBuffer: TMemoryStream;
+  LInstructionsLength: TBytes;
+  LAM: IAccountMeta;
+  LMessageBufferSize, LAccountKeysBufferSize: Integer;
+  LMessageHeaderBytes: TBytes;
+  LEncodedRecentBlockhash, LAtl: TBytes;
+  LVersionPrefix, LProgramIdIndex: Byte;
+  LVersioned: IVersionedTransactionInstruction;
 begin
   if (FRecentBlockHash = '') and (FNonceInformation = nil) then
     raise Exception.Create('recent block hash or nonce information is required');
@@ -524,108 +524,108 @@ begin
 
   FMessageHeader := TMessageHeader.Create;
 
-  KeysMeta := GetAccountKeysMeta;
+  LKeysMeta := GetAccountKeysMeta;
   try
-    AccountAddressesLength := TShortVectorEncoding.EncodeLength(KeysMeta.Count);
-    CompiledInstructionsLength := 0;
-    CompiledInstructions := TList<ICompiledInstruction>.Create;
+    LAccountAddressesLength := TShortVectorEncoding.EncodeLength(LKeysMeta.Count);
+    LCompiledInstructionsLength := 0;
+    LCompiledInstructions := TList<ICompiledInstruction>.Create;
     try
-      for Instruction in FInstructions do
+      for LInstruction in FInstructions do
       begin
-        KeyCount := Instruction.Keys.Count;
+        LKeyCount := LInstruction.Keys.Count;
 
-        if Supports(Instruction, IVersionedTransactionInstruction, Versioned) then
+        if Supports(LInstruction, IVersionedTransactionInstruction, LVersioned) then
         begin
-          KeyIndices := Versioned.KeyIndices;
+          LKeyIndices := LVersioned.KeyIndices;
         end
         else
         begin
-          SetLength(KeyIndices, KeyCount);
-          for i := 0 to KeyCount - 1 do
-            KeyIndices[i] := FindAccountIndex(KeysMeta, Instruction.Keys[i].PublicKey.Key);
+          SetLength(LKeyIndices, LKeyCount);
+          for LI := 0 to LKeyCount - 1 do
+            LKeyIndices[LI] := FindAccountIndex(LKeysMeta, LInstruction.Keys[LI].PublicKey.Key);
         end;
 
-        CompiledInstruction := TCompiledInstruction.Create(
-          FindAccountIndex(KeysMeta, Instruction.ProgramId),
-          TShortVectorEncoding.EncodeLength(KeyCount),
-          KeyIndices,
-          TShortVectorEncoding.EncodeLength(Length(Instruction.Data)),
-          Instruction.Data
+        LCompiledInstruction := TCompiledInstruction.Create(
+          FindAccountIndex(LKeysMeta, LInstruction.ProgramId),
+          TShortVectorEncoding.EncodeLength(LKeyCount),
+          LKeyIndices,
+          TShortVectorEncoding.EncodeLength(Length(LInstruction.Data)),
+          LInstruction.Data
         );
-        CompiledInstructions.Add(CompiledInstruction);
-        Inc(CompiledInstructionsLength, CompiledInstruction.ItemCount);
+        LCompiledInstructions.Add(LCompiledInstruction);
+        Inc(LCompiledInstructionsLength, LCompiledInstruction.ItemCount);
       end;
 
-      AccountKeysBufferSize := FAccountKeysList.Count * 32;
-      AccountKeysBuffer := TMemoryStream.Create;
+      LAccountKeysBufferSize := FAccountKeysList.Count * 32;
+      LAccountKeysBuffer := TMemoryStream.Create;
       try
-        AccountKeysBuffer.Size := AccountKeysBufferSize;
-        InstructionsLength := TShortVectorEncoding.EncodeLength(CompiledInstructions.Count);
+        LAccountKeysBuffer.Size := LAccountKeysBufferSize;
+        LInstructionsLength := TShortVectorEncoding.EncodeLength(LCompiledInstructions.Count);
 
-        for AM in KeysMeta do
+        for LAM in LKeysMeta do
         begin
-          AccountKeysBuffer.WriteBuffer(AM.PublicKey.KeyBytes[0], Length(AM.PublicKey.KeyBytes));
+          LAccountKeysBuffer.WriteBuffer(LAM.PublicKey.KeyBytes[0], Length(LAM.PublicKey.KeyBytes));
 
-          if AM.IsSigner then
+          if LAM.IsSigner then
           begin
             FMessageHeader.RequiredSignatures := FMessageHeader.RequiredSignatures + 1;
-            if not AM.IsWritable then
+            if not LAM.IsWritable then
               FMessageHeader.ReadOnlySignedAccounts := FMessageHeader.ReadOnlySignedAccounts + 1;
           end
           else
           begin
-            if not AM.IsWritable then
+            if not LAM.IsWritable then
               FMessageHeader.ReadOnlyUnsignedAccounts := FMessageHeader.ReadOnlyUnsignedAccounts + 1;
           end;
         end;
 
-        MessageBufferSize := TMessageHeader.TLayout.HeaderLength + BlockHashLength +
-                             Length(AccountAddressesLength) + Length(InstructionsLength) +
-                             CompiledInstructionsLength + AccountKeysBufferSize;
-        Buffer := TMemoryStream.Create;
+        LMessageBufferSize := TMessageHeader.TLayout.HeaderLength + BlockHashLength +
+                             Length(LAccountAddressesLength) + Length(LInstructionsLength) +
+                             LCompiledInstructionsLength + LAccountKeysBufferSize;
+        LBuffer := TMemoryStream.Create;
         try
-          Buffer.Size := MessageBufferSize;
-          MessageHeaderBytes := FMessageHeader.ToBytes;
+          LBuffer.Size := LMessageBufferSize;
+          LMessageHeaderBytes := FMessageHeader.ToBytes;
 
           // versioned prefix 0x80
-          VersionPrefix := Byte($80);
-          Buffer.WriteBuffer(VersionPrefix, 1);
+          LVersionPrefix := Byte($80);
+          LBuffer.WriteBuffer(LVersionPrefix, 1);
 
-          Buffer.WriteBuffer(MessageHeaderBytes[0], Length(MessageHeaderBytes));
-          Buffer.WriteBuffer(AccountAddressesLength[0], Length(AccountAddressesLength));
-          Buffer.WriteBuffer(AccountKeysBuffer.Memory^, AccountKeysBuffer.Size);
-          EncodedRecentBlockhash := TEncoders.Base58.DecodeData(FRecentBlockHash);
-          Buffer.WriteBuffer(EncodedRecentBlockhash[0], Length(EncodedRecentBlockhash));
-          Buffer.WriteBuffer(InstructionsLength[0], Length(InstructionsLength));
+          LBuffer.WriteBuffer(LMessageHeaderBytes[0], Length(LMessageHeaderBytes));
+          LBuffer.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
+          LBuffer.WriteBuffer(LAccountKeysBuffer.Memory^, LAccountKeysBuffer.Size);
+          LEncodedRecentBlockhash := TBase58Encoder.DecodeData(FRecentBlockHash);
+          LBuffer.WriteBuffer(LEncodedRecentBlockhash[0], Length(LEncodedRecentBlockhash));
+          LBuffer.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
 
-          for CompiledInstruction in CompiledInstructions do
+          for LCompiledInstruction in LCompiledInstructions do
           begin
-            LProgramIdIndex := CompiledInstruction.ProgramIdIndex;
-            Buffer.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
-            Buffer.WriteBuffer(CompiledInstruction.KeyIndicesCount[0], Length(CompiledInstruction.KeyIndicesCount));
-            Buffer.WriteBuffer(CompiledInstruction.KeyIndices[0], Length(CompiledInstruction.KeyIndices));
-            Buffer.WriteBuffer(CompiledInstruction.DataLength[0], Length(CompiledInstruction.DataLength));
-            Buffer.WriteBuffer(CompiledInstruction.Data[0], Length(CompiledInstruction.Data));
+            LProgramIdIndex := LCompiledInstruction.ProgramIdIndex;
+            LBuffer.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
+            LBuffer.WriteBuffer(LCompiledInstruction.KeyIndicesCount[0], Length(LCompiledInstruction.KeyIndicesCount));
+            LBuffer.WriteBuffer(LCompiledInstruction.KeyIndices[0], Length(LCompiledInstruction.KeyIndices));
+            LBuffer.WriteBuffer(LCompiledInstruction.DataLength[0], Length(LCompiledInstruction.DataLength));
+            LBuffer.WriteBuffer(LCompiledInstruction.Data[0], Length(LCompiledInstruction.Data));
           end;
 
           // address table lookups
-          ATL := TVersionedMessage.TAddressTableLookupUtils.SerializeAddressTableLookups(FAddressTableLookups);
-          Buffer.WriteBuffer(ATL[0], Length(ATL));
+          LAtl := TVersionedMessage.TAddressTableLookupUtils.SerializeAddressTableLookups(FAddressTableLookups);
+          LBuffer.WriteBuffer(LAtl[0], Length(LAtl));
 
-          SetLength(Result, Buffer.Size);
-          Buffer.Position := 0;
-          Buffer.ReadBuffer(Result[0], Buffer.Size);
+          SetLength(Result, LBuffer.Size);
+          LBuffer.Position := 0;
+          LBuffer.ReadBuffer(Result[0], LBuffer.Size);
         finally
-          Buffer.Free;
+          LBuffer.Free;
         end;
       finally
-        AccountKeysBuffer.Free;
+        LAccountKeysBuffer.Free;
       end;
     finally
-      CompiledInstructions.Free;
+      LCompiledInstructions.Free;
     end;
   finally
-    KeysMeta.Free;
+    LKeysMeta.Free;
   end;
 end;
 

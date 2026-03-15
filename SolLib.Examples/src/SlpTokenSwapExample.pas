@@ -34,7 +34,7 @@ uses
   SlpTokenProgram,
   SlpTokenSwapProgram,
   SlpTokenSwapModel,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpExample;
 
 type
@@ -59,50 +59,50 @@ implementation
 
 procedure TTokenSwapExample.Run;
 var
-  LMainRpc   : IRpcClient;
-  LRpc       : IRpcClient;
-  LWallet    : IWallet;
+  LMainRpc: IRpcClient;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
 
   // Blockhash & fees
-  LBlock     : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinMint   : IRequestResult<UInt64>;
-  LMinAcc    : IRequestResult<UInt64>;
-  LMinSwap   : IRequestResult<UInt64>;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinMint: IRequestResult<UInt64>;
+  LMinAcc: IRequestResult<UInt64>;
+  LMinSwap: IRequestResult<UInt64>;
 
   // Accounts
-  LOwner         : IAccount;
-  LTokenAMint    : IAccount;
-  LTokenAUserAcc : IAccount;
-  LTokenBMint    : IAccount;
-  LTokenBUserAcc : IAccount;
+  LOwner: IAccount;
+  LTokenAMint: IAccount;
+  LTokenAUserAcc: IAccount;
+  LTokenBMint: IAccount;
+  LTokenBUserAcc: IAccount;
 
-  LSwap              : IAccount;
-  LSwapAuthority     : IPublicKey;
+  LSwap: IAccount;
+  LSwapAuthority: IPublicKey;
 
-  LSwapTokenAAccount : IAccount;
-  LSwapTokenBAccount : IAccount;
+  LSwapTokenAAccount: IAccount;
+  LSwapTokenBAccount: IAccount;
 
-  LPoolMint       : IAccount;
-  LPoolUserAcc    : IAccount;
-  LPoolFeeAcc     : IAccount;
+  LPoolMint: IAccount;
+  LPoolUserAcc: IAccount;
+  LPoolFeeAcc: IAccount;
 
   // Tx
-  LTxBuilder  : ITransactionBuilder;
-  LTx         : TBytes;
-  LSigners    : TList<IAccount>;
-  LSignature  : string;
+  LTxBuilder: ITransactionBuilder;
+  LTx: TBytes;
+  LSigners: TList<IAccount>;
+  LSignature: string;
 
   // Fees structure
-  LFees       : IFees;
+  LFees: IFees;
 
   // Deserialize state demo
-  LAccInfo    : IRequestResult<TResponseValue<TAccountInfo>>;
-  LSwapState  : ITokenSwapAccount;
+  LAccInfo: IRequestResult<TResponseValue<TAccountInfo>>;
+  LSwapState: ITokenSwapAccount;
   //LAccountInfoData: string;
   LAccountInfoDataBytes: TBytes;
 begin
   // RPCs
-  LRpc     := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LMainRpc := MainNetRpcClient;
 
   // --- Load on-chain TokenSwap account state
@@ -110,7 +110,7 @@ begin
   LAccInfo := LMainRpc.GetAccountInfo('GAM8dQkm4LwYJgPZbML61mKPUCQX7uAquxu67p9oifSK');
   if LAccInfo.WasSuccessful and (Length(LAccInfo.Result.Value.Data) > 0) then
   begin
-    LAccountInfoDataBytes := TEncoders.Base64.DecodeData(LAccInfo.Result.Value.Data[0]);
+    LAccountInfoDataBytes := TBase64Encoder.DecodeData(LAccInfo.Result.Value.Data[0]);
     Writeln('Live TokenSwap account length:  ' + IntToStr(Length(LAccountInfoDataBytes)) + 'bytes');
     LSwapState := TTokenSwapAccount.Deserialize(LAccountInfoDataBytes);
     Writeln('Pool Mint (from mainnet state read): ' + LSwapState.PoolMint.Key);
@@ -118,18 +118,18 @@ begin
 
   // Wallet + base owner
   LWallet := TWallet.Create(MnemonicWords);
-  LOwner  := LWallet.GetAccountByIndex(0);
+  LOwner := LWallet.GetAccountByIndex(0);
   Writeln('OwnerAccount: ' + LOwner.ToString);
 
   // Create local working accounts
-  LTokenAMint    := TAccount.Create;
+  LTokenAMint := TAccount.Create;
   LTokenAUserAcc := TAccount.Create;
-  LTokenBMint    := TAccount.Create;
+  LTokenBMint := TAccount.Create;
   LTokenBUserAcc := TAccount.Create;
 
   // === Setup two mints + user token accounts, mint initial supply ===
   LMinMint := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
-  LMinAcc  := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
+  LMinAcc := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
   Writeln('MinBalance RentEx Mint: ' + LMinMint.Result.ToString);
   Writeln('MinBalance RentEx Token Acc: ' + LMinAcc.Result.ToString);
 
@@ -241,7 +241,7 @@ begin
   PollConfirmedTx(LSignature);
 
   // === Prepare swap authority and its token accounts ===
-  LSwap          := TAccount.Create;
+  LSwap := TAccount.Create;
   LSwapAuthority := TTokenSwapProgram.CreateAuthority(LSwap.PublicKey).PublicKey;
 
   LSwapTokenAAccount := TAccount.Create;
@@ -318,9 +318,9 @@ begin
   PollConfirmedTx(LSignature);
 
   // === Create pool mint + user pool account + fee pool account ===
-  LPoolMint    := TAccount.Create;
+  LPoolMint := TAccount.Create;
   LPoolUserAcc := TAccount.Create;
-  LPoolFeeAcc  := TAccount.Create;
+  LPoolFeeAcc := TAccount.Create;
 
   LBlock := LRpc.GetLatestBlockHash;
 
@@ -396,19 +396,19 @@ begin
 
   // === Create swap account + initialize the swap ===
   LMinSwap := LRpc.GetMinimumBalanceForRentExemption(TTokenSwapProgram.TokenSwapDataLength);
-  LBlock   := LRpc.GetLatestBlockHash;
+  LBlock := LRpc.GetLatestBlockHash;
 
   LFees := TFees.Create;
 
   // Fill fees
-  LFees.TradeFeeNumerator            := 25;
-  LFees.TradeFeeDenominator          := 10000;
-  LFees.OwnerTradeFeeNumerator       := 5;
-  LFees.OwnerTradeFeeDenominator     := 10000;
-  LFees.OwnerWithdrawFeeNumerator     := 0;
-  LFees.OwnerWithdrawFeeDenominator   := 0;
-  LFees.HostFeeNumerator             := 20;
-  LFees.HostFeeDenominator           := 100;
+  LFees.TradeFeeNumerator := 25;
+  LFees.TradeFeeDenominator := 10000;
+  LFees.OwnerTradeFeeNumerator := 5;
+  LFees.OwnerTradeFeeDenominator := 10000;
+  LFees.OwnerWithdrawFeeNumerator := 0;
+  LFees.OwnerWithdrawFeeDenominator := 0;
+  LFees.HostFeeNumerator := 20;
+  LFees.HostFeeDenominator := 100;
 
   LTxBuilder := TTransactionBuilder.Create;
   LTxBuilder

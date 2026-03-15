@@ -28,7 +28,7 @@ uses
   SlpWordList,
   SlpPublicKey,
   SlpSecretKeyStoreService,
-  SlpDataEncoders;
+  SlpDataEncoderUtils;
 
 type
   /// <summary>
@@ -85,7 +85,7 @@ var
   LRestoredMnemonic: IMnemonic;
   LRestoredWallet: IWallet;
   LAccount: IAccount;
-  I: Integer;
+  LI: Integer;
   LOk: Boolean;
 begin
   // Build Sollet-compatible mnemonic (no passphrase hardening).
@@ -93,9 +93,9 @@ begin
 
   // Create wallet from mnemonic and derive the mnemonic seed
   LWallet := TWallet.Create(LMnemonic);
-  LSeed   := LWallet.DeriveMnemonicSeed;
+  LSeed := LWallet.DeriveMnemonicSeed;
 
-  Writeln('Seed: ', TEncoders.Solana.EncodeData(LSeed));
+  Writeln('Seed: ', TSolanaKeyPairJsonEncoder.EncodeData(LSeed));
   Writeln('Address: ', LWallet.Account.PublicKey.Key);
 
   LKeystoreSvc := TSecretKeyStoreService.Create;
@@ -123,20 +123,20 @@ begin
 
   // 3) Restore wallet from the restored mnemonic string.
   LRestoredMnemonic := TMnemonic.Create(LRestoredMnemonicStr, TWordList.English);
-  LRestoredWallet   := TWallet.Create(LRestoredMnemonic);
-  LRestoredSeed     := LRestoredWallet.DeriveMnemonicSeed;
+  LRestoredWallet := TWallet.Create(LRestoredMnemonic);
+  LRestoredSeed := LRestoredWallet.DeriveMnemonicSeed;
 
-  Writeln('Seed: ', TEncoders.Solana.EncodeData(LRestoredSeed));
+  Writeln('Seed: ', TSolanaKeyPairJsonEncoder.EncodeData(LRestoredSeed));
 
   // Mimic Sollet key generation and verify the first 10 accounts.
   LOk := True;
-  for I := 0 to 9 do
+  for LI := 0 to 9 do
   begin
-    LAccount := LRestoredWallet.GetAccountByIndex(I);
+    LAccount := LRestoredWallet.GetAccountByIndex(LI);
     Writeln('RESTORED SOLLET address ', LAccount.PublicKey.Key);
 
-    if (not SameStr(LAccount.PublicKey.Key, Expected[I].Pub)) or
-       (not SameStr(LAccount.PrivateKey.Key, Expected[I].Priv)) then
+    if (not SameStr(LAccount.PublicKey.Key, Expected[LI].Pub)) or
+       (not SameStr(LAccount.PrivateKey.Key, Expected[LI].Priv)) then
       LOk := False;
   end;
 

@@ -90,20 +90,20 @@ implementation
 
 procedure TCreateInitializeAndMintToExample.Run;
 var
-  LRpc       : IRpcClient;
-  LWallet    : IWallet;
-  LOwner     : IAccount;
-  LMint      : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
   LInitialAcc: IAccount;
-  LBlock     : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinAcc    : IRequestResult<UInt64>;
-  LMinMint   : IRequestResult<UInt64>;
-  LTx        : TBytes;
-  LSignature : string;
-  LSigners   : TList<IAccount>;
-  LTxBuilder : ITransactionBuilder;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinAcc: IRequestResult<UInt64>;
+  LMinMint: IRequestResult<UInt64>;
+  LTx: TBytes;
+  LSignature: string;
+  LSigners: TList<IAccount>;
+  LTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LMinAcc := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
@@ -123,7 +123,7 @@ begin
 
   Writeln('InitialAccount: ' + LInitialAcc.ToString);
 
-  LBlock  := LRpc.GetLatestBlockHash;
+  LBlock := LRpc.GetLatestBlockHash;
 
   LTxBuilder := TTransactionBuilder.Create;
   LTxBuilder
@@ -205,7 +205,7 @@ var
   LSigners: TList<IAccount>;
   LTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LBlock := LRpc.GetLatestBlockHash;
@@ -257,21 +257,21 @@ end;
 
 procedure TTransferTokenExample.Run;
 var
-  LRpc       : IRpcClient;
-  LWallet    : IWallet;
-  LOwner     : IAccount;
-  LMint      : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
   LInitialAcc: IAccount;
-  LNewAcc    : IAccount;
-  LBlock     : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinAcc    : IRequestResult<UInt64>;
-  LTx        : TBytes;
-  LSignature : string;
-  LSigners   : TList<IAccount>;
-  LTxBuilder : ITransactionBuilder;
+  LNewAcc: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinAcc: IRequestResult<UInt64>;
+  LTx: TBytes;
+  LSignature: string;
+  LSigners: TList<IAccount>;
+  LTxBuilder: ITransactionBuilder;
   LResult: TMintEnsureResult;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LMinAcc := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
@@ -299,7 +299,7 @@ begin
   if LResult.Status = TMintStatus.Unknown then
     Exit;
 
-  LBlock  := LRpc.GetLatestBlockHash;
+  LBlock := LRpc.GetLatestBlockHash;
 
   LTxBuilder := TTransactionBuilder.Create;
   LTxBuilder
@@ -383,21 +383,21 @@ end;
 
 procedure TTransferTokenCheckedExample.Run;
 var
-  LRpc       : IRpcClient;
-  LWallet    : IWallet;
-  LOwner     : IAccount;
-  LMint      : IAccount;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMint: IAccount;
   LInitialAcc: IAccount;
-  LNewAcc    : IAccount;
-  LBlock     : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinAcc    : IRequestResult<UInt64>;
-  LTx        : TBytes;
-  LSignature : string;
-  LSigners   : TList<IAccount>;
-  LTxBuilder : ITransactionBuilder;
+  LNewAcc: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinAcc: IRequestResult<UInt64>;
+  LTx: TBytes;
+  LSignature: string;
+  LSigners: TList<IAccount>;
+  LTxBuilder: ITransactionBuilder;
   LResult: TMintEnsureResult;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   LMinAcc := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
@@ -425,7 +425,7 @@ begin
   if LResult.Status = TMintStatus.Unknown then
     Exit;
 
-  LBlock  := LRpc.GetLatestBlockHash;
+  LBlock := LRpc.GetLatestBlockHash;
 
   LTxBuilder := TTransactionBuilder.Create;
   LTxBuilder
@@ -512,21 +512,21 @@ end;
 
 procedure TCreateNonceAccountExample.Run;
 var
-  LRpc      : IRpcClient;
-  LWallet   : IWallet;
-  LOwner    : IAccount;
-  LNonceAcc : IAccount;
-  LBlock    : IRequestResult<TResponseValue<TLatestBlockHash>>;
-  LMinAcc   : IRequestResult<UInt64>;
-  LTx       : TBytes;
+  LRpc: IRpcClient;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LNonceAcc: IAccount;
+  LBlock: IRequestResult<TResponseValue<TLatestBlockHash>>;
+  LMinAcc: IRequestResult<UInt64>;
+  LTx: TBytes;
   LSignature: string;
-  LSigners  : TList<IAccount>;
+  LSigners: TList<IAccount>;
   LTxBuilder: ITransactionBuilder;
 begin
-  LRpc    := TestNetRpcClient;
+  LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
-  LBlock  := LRpc.GetLatestBlockHash;
+  LBlock := LRpc.GetLatestBlockHash;
   LMinAcc := LRpc.GetMinimumBalanceForRentExemption(TNonceAccount.AccountDataSize);
 
   LOwner := LWallet.GetAccountByIndex(0);

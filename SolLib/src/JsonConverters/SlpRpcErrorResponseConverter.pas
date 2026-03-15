@@ -32,21 +32,35 @@ uses
   System.JSON.Serializers,
   SlpJsonHelpers,
   SlpValueHelpers,
-  SlpNullable;
+  SlpNullable,
+  SlpBaseJsonConverter;
 
 type
   /// <summary>
   /// Converts a JsonRpcErrorResponse from json into its model representation.
   /// </summary>
-  TRpcErrorResponseConverter = class(TJsonConverter)
+  TRpcErrorResponseConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInfo matches TJsonRpcErrorResponse.
+    /// </summary>
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a TJsonRpcErrorResponse from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+    /// <summary>
+    /// Serializes a TJsonRpcErrorResponse to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
+
+const
+  SPropJsonRpc = 'jsonrpc';
+  SPropId      = 'id';
+  SPropError   = 'error';
 
 implementation
 
@@ -64,100 +78,98 @@ function TRpcErrorResponseConverter.ReadJson(const AReader: TJsonReader;
   ATypeInfo: PTypeInfo; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
 var
-  Err: TJsonRpcErrorResponse;
-  Prop: string;
-  JO: TJSONObject;
-  ErrorContent: TErrorContent;
-
+  LErr: TJsonRpcErrorResponse;
+  LProp: string;
+  LJO: TJSONObject;
+  LErrorContent: TErrorContent;
 begin
   if AReader.TokenType <> TJsonToken.StartObject then
     Exit(nil);
 
   AReader.Read;
 
-  Err := TJsonRpcErrorResponse.Create;
-
-  while AReader.TokenType <> TJsonToken.EndObject do
-  begin
-    Prop := AReader.Value.AsString;
-
-    AReader.Read;
-
-    if Prop = 'jsonrpc' then
+  LErr := TJsonRpcErrorResponse.Create;
+  try
+    while AReader.TokenType <> TJsonToken.EndObject do
     begin
-      Err.Jsonrpc := AReader.Value.AsString;
-    end
-    else if Prop = 'id' then
-    begin
-     if AReader.Value.IsEmpty then
-      Err.Id := TNullable<Integer>.None
-      else
-      Err.Id := AReader.Value.AsInteger
-    end
-    else if Prop = 'error' then
-    begin
-      case AReader.TokenType of
-        TJsonToken.&String:
-          Err.ErrorMessage := AReader.Value.AsString;
+      LProp := AReader.Value.AsString;
 
-        TJsonToken.StartObject:
-          begin
-            JO := TJSONObject(AReader.ReadJsonValue);
-            try
-              ErrorContent := ASerializer.Deserialize<TErrorContent>(JO.ToJSON);
-              Err.Error := ErrorContent;
-            finally
-              JO.Free;
+      AReader.Read;
+
+      if LProp = SPropJsonRpc then
+        LErr.Jsonrpc := AReader.Value.AsString
+      else if LProp = SPropId then
+      begin
+        if AReader.Value.IsEmpty then
+          LErr.Id := TNullable<Integer>.None
+        else
+          LErr.Id := AReader.Value.AsInteger;
+      end
+      else if LProp = SPropError then
+      begin
+        case AReader.TokenType of
+          TJsonToken.&String:
+            LErr.ErrorMessage := AReader.Value.AsString;
+
+          TJsonToken.StartObject:
+            begin
+              LJO := TJSONObject(AReader.ReadJsonValue);
+              try
+                LErrorContent := ASerializer.Deserialize<TErrorContent>(LJO.ToJSON);
+                LErr.Error := LErrorContent;
+              finally
+                LJO.Free;
+              end;
             end;
-          end;
+        else
+          AReader.Skip();
+        end;
+      end
       else
         AReader.Skip();
-      end;
-    end
-    else
-    begin
-      AReader.Skip();
+
+      AReader.Read;
     end;
 
-    AReader.Read;
+    Result := LErr;
+  except
+    LErr.Free;
+    raise;
   end;
-
-  Result := Err;
 end;
-
 
 procedure TRpcErrorResponseConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
 var
-  Resp: TJsonRpcErrorResponse;
-  V: TValue;
+  LResp: TJsonRpcErrorResponse;
+  LValue: TValue;
 begin
-  V := AValue.Unwrap();
+  LValue := AValue.Unwrap();
 
-  if V.IsEmpty or (V.AsObject = nil) then
+  if LValue.IsEmpty or (LValue.AsObject = nil) then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
-  Resp := TJsonRpcErrorResponse(V.AsObject);
+  LResp := TJsonRpcErrorResponse(LValue.AsObject);
 
   AWriter.WriteStartObject;
   try
-    AWriter.WritePropertyName('jsonrpc');
-    AWriter.WriteValue(Resp.Jsonrpc);
+    AWriter.WritePropertyName(SPropJsonRpc);
+    AWriter.WriteValue(LResp.Jsonrpc);
 
-    AWriter.WritePropertyName('error');
-    if Assigned(Resp.Error) then
-      ASerializer.Serialize(AWriter, Resp.Error)
-    else if Resp.ErrorMessage <> '' then
-      AWriter.WriteValue(Resp.ErrorMessage)
+    AWriter.WritePropertyName(SPropError);
+    if Assigned(LResp.Error) then
+      ASerializer.Serialize(AWriter, LResp.Error)
+    else if LResp.ErrorMessage <> '' then
+      AWriter.WriteValue(LResp.ErrorMessage)
     else
       AWriter.WriteNull;
 
-    AWriter.WritePropertyName('id');
-    if Resp.Id.HasValue then
-      AWriter.WriteValue(Resp.Id.Value)
+    AWriter.WritePropertyName(SPropId);
+    if LResp.Id.HasValue then
+      AWriter.WriteValue(LResp.Id.Value)
     else
       AWriter.WriteNull;
   finally

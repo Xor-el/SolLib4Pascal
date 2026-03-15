@@ -75,77 +75,77 @@ implementation
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenSupply;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TTokenBalance>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := LoadTestData('Token/GetTokenSupplyResponse.json');
-  requestData  := LoadTestData('Token/GetTokenSupplyRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenSupplyResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenSupplyRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenSupply('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2');
+  LResult := LRpcClient.GetTokenSupply('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79266576, result.Result.Context.Slot);
-  AssertEquals('1000', result.Result.Value.Amount);
-  AssertEquals(2, result.Result.Value.Decimals);
-  AssertEquals('10', result.Result.Value.UiAmountString);
+  AssertEquals(79266576, LResult.Result.Context.Slot);
+  AssertEquals('1000', LResult.Result.Value.Amount);
+  AssertEquals(2, LResult.Result.Value.Decimals);
+  AssertEquals('10', LResult.Result.Value.UiAmountString);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenSupplyProcessed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TTokenBalance>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := LoadTestData('Token/GetTokenSupplyResponse.json');
-  requestData  := LoadTestData('Token/GetTokenSupplyProcessedRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenSupplyResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenSupplyProcessedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenSupply('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2', TCommitment.Processed);
+  LResult := LRpcClient.GetTokenSupply('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2', TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79266576, result.Result.Context.Slot);
-  AssertEquals('1000', result.Result.Value.Amount);
-  AssertEquals(2, result.Result.Value.Decimals);
-  AssertEquals('10', result.Result.Value.UiAmountString);
+  AssertEquals(79266576, LResult.Result.Context.Slot);
+  AssertEquals('1000', LResult.Result.Value.Amount);
+  AssertEquals(2, LResult.Result.Value.Decimals);
+  AssertEquals('10', LResult.Result.Value.UiAmountString);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountsByOwnerException;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
   AssertException(
     procedure
     begin
-      rpcClient.GetTokenAccountsByOwner(
+      LRpcClient.GetTokenAccountsByOwner(
         '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5'
       );
     end,
@@ -155,125 +155,125 @@ end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountsByOwner;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
-  responseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
-  requestData  := LoadTestData('Token/GetTokenAccountsByOwnerRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByOwnerRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenAccountsByOwner(
+  LResult := LRpcClient.GetTokenAccountsByOwner(
     '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5',
     '', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79200468, result.Result.Context.Slot);
-  AssertEquals(7, result.Result.Value.Count);
+  AssertEquals(79200468, LResult.Result.Context.Slot);
+  AssertEquals(7, LResult.Result.Value.Count);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountsByOwnerConfirmed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
-  responseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
-  requestData  := LoadTestData('Token/GetTokenAccountsByOwnerConfirmedRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenAccountsByOwnerResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByOwnerConfirmedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenAccountsByOwner(
+  LResult := LRpcClient.GetTokenAccountsByOwner(
     '9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5',
     'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '', TBinaryEncoding.JsonParsed, TCommitment.Confirmed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79200468, result.Result.Context.Slot);
-  AssertEquals(7, result.Result.Value.Count);
+  AssertEquals(79200468, LResult.Result.Context.Slot);
+  AssertEquals(7, LResult.Result.Value.Count);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
 begin
-  responseData := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Response.json');
-  requestData  := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Request.json');
+  LResponseData := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Response.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByOwnerWithRentEpochGreaterThanUInt64Request.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenAccountsByOwner(
+  LResult := LRpcClient.GetTokenAccountsByOwner(
     '5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj',
     '', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(366348635, result.Result.Context.Slot);
-  AssertEquals(53, result.Result.Value.Count);
+  AssertEquals(366348635, LResult.Result.Context.Slot);
+  AssertEquals(53, LResult.Result.Value.Count);
 
-  AssertEquals(18446744073709551615, result.Result.Value[0].Account.RentEpoch);
+  AssertEquals(18446744073709551615, LResult.Result.Value[0].Account.RentEpoch);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountsByDelegate;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
   LTokenAccountData: TTokenAccountData;
 begin
-  responseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
-  requestData  := LoadTestData('Token/GetTokenAccountsByDelegateRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByDelegateRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenAccountsByDelegate(
+  LResult := LRpcClient.GetTokenAccountsByDelegate(
     '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T',
     '', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(1114, result.Result.Context.Slot);
-  AssertEquals(1, result.Result.Value.Count);
-  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', result.Result.Value[0].Account.Owner);
-  AssertFalse(result.Result.Value[0].Account.Executable);
-  AssertEquals(4, result.Result.Value[0].Account.RentEpoch);
-  AssertEquals(1726080, result.Result.Value[0].Account.Lamports);
+  AssertEquals(1114, LResult.Result.Context.Slot);
+  AssertEquals(1, LResult.Result.Value.Count);
+  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LResult.Result.Value[0].Account.Owner);
+  AssertFalse(LResult.Result.Value[0].Account.Executable);
+  AssertEquals(4, LResult.Result.Value[0].Account.RentEpoch);
+  AssertEquals(1726080, LResult.Result.Value[0].Account.Lamports);
 
-  LTokenAccountData := result.Result.Value[0].Account.Data.AsType<TTokenAccountData>;
+  LTokenAccountData := LResult.Result.Value[0].Account.Data.AsType<TTokenAccountData>;
 
   AssertEquals('4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T', LTokenAccountData.Parsed.Info.Delegate);
   AssertEquals('1', LTokenAccountData.Parsed.Info.DelegatedAmount.Amount);
@@ -282,41 +282,41 @@ begin
   AssertEquals(0.1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountDouble, 0.0);
   AssertEquals(1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountUInt64);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountsByDelegateProcessed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TObjectList<TTokenAccount>>>;
   LTokenAccountData: TTokenAccountData;
 begin
-  responseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
-  requestData  := LoadTestData('Token/GetTokenAccountsByDelegateProcessedRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenAccountsByDelegateResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountsByDelegateProcessedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenAccountsByDelegate(
+  LResult := LRpcClient.GetTokenAccountsByDelegate(
     '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T',
     'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', '', TBinaryEncoding.JsonParsed, TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(1114, result.Result.Context.Slot);
-  AssertEquals(1, result.Result.Value.Count);
-  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', result.Result.Value[0].Account.Owner);
-  AssertFalse(result.Result.Value[0].Account.Executable);
-  AssertEquals(4, result.Result.Value[0].Account.RentEpoch);
-  AssertEquals(1726080, result.Result.Value[0].Account.Lamports);
+  AssertEquals(1114, LResult.Result.Context.Slot);
+  AssertEquals(1, LResult.Result.Value.Count);
+  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LResult.Result.Value[0].Account.Owner);
+  AssertFalse(LResult.Result.Value[0].Account.Executable);
+  AssertEquals(4, LResult.Result.Value[0].Account.RentEpoch);
+  AssertEquals(1726080, LResult.Result.Value[0].Account.Lamports);
 
-  LTokenAccountData := result.Result.Value[0].Account.Data.AsType<TTokenAccountData>;
+  LTokenAccountData := LResult.Result.Value[0].Account.Data.AsType<TTokenAccountData>;
 
   AssertEquals('4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T', LTokenAccountData.Parsed.Info.Delegate);
   AssertEquals('1', LTokenAccountData.Parsed.Info.DelegatedAmount.Amount);
@@ -325,24 +325,24 @@ begin
   AssertEquals(0.1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountDouble, 0.0);
   AssertEquals(1, LTokenAccountData.Parsed.Info.DelegatedAmount.AmountUInt64);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountsByDelegateBadParams;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
   AssertException(
     procedure
     begin
-      rpcClient.GetTokenAccountsByDelegate(
+      LRpcClient.GetTokenAccountsByDelegate(
         '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T'
       );
     end,
@@ -352,122 +352,122 @@ end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountBalance;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TTokenBalance>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
-  requestData  := LoadTestData('Token/GetTokenAccountBalanceRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountBalanceRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenAccountBalance('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ');
+  LResult := LRpcClient.GetTokenAccountBalance('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79207643, result.Result.Context.Slot);
-  AssertEquals('1000', result.Result.Value.Amount);
-  AssertEquals(2, result.Result.Value.Decimals);
-  AssertEquals('10', result.Result.Value.UiAmountString);
+  AssertEquals(79207643, LResult.Result.Context.Slot);
+  AssertEquals('1000', LResult.Result.Value.Amount);
+  AssertEquals(2, LResult.Result.Value.Decimals);
+  AssertEquals('10', LResult.Result.Value.UiAmountString);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenAccountBalanceConfirmed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TTokenBalance>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TTokenBalance>>;
 begin
-  responseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
-  requestData  := LoadTestData('Token/GetTokenAccountBalanceConfirmedRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenAccountBalanceResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenAccountBalanceConfirmedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenAccountBalance('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ', TCommitment.Confirmed);
+  LResult := LRpcClient.GetTokenAccountBalance('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ', TCommitment.Confirmed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79207643, result.Result.Context.Slot);
-  AssertEquals('1000', result.Result.Value.Amount);
-  AssertEquals(2, result.Result.Value.Decimals);
-  AssertEquals('10', result.Result.Value.UiAmountString);
+  AssertEquals(79207643, LResult.Result.Context.Slot);
+  AssertEquals('1000', LResult.Result.Value.Amount);
+  AssertEquals(2, LResult.Result.Value.Decimals);
+  AssertEquals('10', LResult.Result.Value.UiAmountString);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenLargestAccounts;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
 begin
-  responseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
-  requestData  := LoadTestData('Token/GetTokenLargestAccountsRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenLargestAccountsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenLargestAccounts('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2');
+  LResult := LRpcClient.GetTokenLargestAccounts('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2');
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79207653, result.Result.Context.Slot);
-  AssertEquals(1, result.Result.Value.Count);
-  AssertEquals('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ', result.Result.Value[0].Address);
-  AssertEquals('1000', result.Result.Value[0].Amount);
-  AssertEquals(2, result.Result.Value[0].Decimals);
-  AssertEquals('10', result.Result.Value[0].UiAmountString);
+  AssertEquals(79207653, LResult.Result.Context.Slot);
+  AssertEquals(1, LResult.Result.Value.Count);
+  AssertEquals('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ', LResult.Result.Value[0].Address);
+  AssertEquals('1000', LResult.Result.Value[0].Amount);
+  AssertEquals(2, LResult.Result.Value[0].Decimals);
+  AssertEquals('10', LResult.Result.Value[0].UiAmountString);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTokenTests.TestGetTokenLargestAccountsProcessed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TObjectList<TLargeTokenAccount>>>;
 begin
-  responseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
-  requestData  := LoadTestData('Token/GetTokenLargestAccountsProcessedRequest.json');
+  LResponseData := LoadTestData('Token/GetTokenLargestAccountsResponse.json');
+  LRequestData := LoadTestData('Token/GetTokenLargestAccountsProcessedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTokenLargestAccounts('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2', TCommitment.Processed);
+  LResult := LRpcClient.GetTokenLargestAccounts('7ugkvt26sFjMdiFQFP5AQX8m8UkxWaW7rk2nBk4R6Gf2', TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertTrue(result.WasSuccessful);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertTrue(LResult.WasSuccessful);
 
-  AssertEquals(79207653, result.Result.Context.Slot);
-  AssertEquals(1, result.Result.Value.Count);
-  AssertEquals('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ', result.Result.Value[0].Address);
-  AssertEquals('1000', result.Result.Value[0].Amount);
-  AssertEquals(2, result.Result.Value[0].Decimals);
-  AssertEquals('10', result.Result.Value[0].UiAmountString);
+  AssertEquals(79207653, LResult.Result.Context.Slot);
+  AssertEquals(1, LResult.Result.Value.Count);
+  AssertEquals('7247amxcSBamBSKZJrqbj373CiJSa1v21cRav56C3WfZ', LResult.Result.Value[0].Address);
+  AssertEquals('1000', LResult.Result.Value[0].Amount);
+  AssertEquals(2, LResult.Result.Value[0].Decimals);
+  AssertEquals('10', LResult.Result.Value[0].UiAmountString);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 initialization

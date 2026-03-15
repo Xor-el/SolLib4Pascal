@@ -180,12 +180,12 @@ end;
 
 class function TWalletTests.SetupWalletFromMnemonicWords(ASeedMode: TSeedMode): IWallet;
 var
-  WL: IWordList;
+  LWL: IWordList;
 begin
-  WL := TWordList.English;
+  LWL := TWordList.English;
   case ASeedMode of
-    TSeedMode.Bip39:       Result := TWallet.Create(MnemonicWords, WL, Bip39Passphrase, TSeedMode.Bip39);
-    TSeedMode.Ed25519Bip32:Result := TWallet.Create(MnemonicWords, WL);
+    TSeedMode.Bip39: Result := TWallet.Create(MnemonicWords, LWL, Bip39Passphrase, TSeedMode.Bip39);
+    TSeedMode.Ed25519Bip32: Result := TWallet.Create(MnemonicWords, LWL);
   else
     raise EArgumentOutOfRangeException.Create('this should never happen');
   end;
@@ -194,7 +194,7 @@ end;
 class function TWalletTests.SetupWalletFromSeed(ASeedMode: TSeedMode): IWallet;
 begin
   case ASeedMode of
-    TSeedMode.Bip39:        Result := TWallet.Create(SeedWithPassphrase, Bip39Passphrase, TSeedMode.Bip39);
+    TSeedMode.Bip39: Result := TWallet.Create(SeedWithPassphrase, Bip39Passphrase, TSeedMode.Bip39);
     TSeedMode.Ed25519Bip32: Result := TWallet.Create(SeedWithoutPassphrase);
   else
     raise EArgumentOutOfRangeException.Create('this should never happen');
@@ -203,13 +203,13 @@ end;
 
 class function TWalletTests.SetupWalletFromMnemonic(ASeedMode: TSeedMode): IWallet;
 var
-  M: IMnemonic;
+  LMnemonic: IMnemonic;
 begin
-  M := TMnemonic.Create(MnemonicWords);
+  LMnemonic := TMnemonic.Create(MnemonicWords);
 
   case ASeedMode of
-    TSeedMode.Bip39:         Result := TWallet.Create(M, Bip39Passphrase, TSeedMode.Bip39);
-    TSeedMode.Ed25519Bip32:  Result := TWallet.Create(M);
+    TSeedMode.Bip39: Result := TWallet.Create(LMnemonic, Bip39Passphrase, TSeedMode.Bip39);
+    TSeedMode.Ed25519Bip32: Result := TWallet.Create(LMnemonic);
   else
     raise EArgumentOutOfRangeException.Create('this should never happen');
   end;
@@ -217,177 +217,177 @@ end;
 
 procedure TWalletTests.TestWallet;
 var
-  W: IWallet;
-  Sig, Sig2: TBytes;
+  LWallet: IWallet;
+  LSig, LSig2: TBytes;
 begin
-  W := TWallet.Create(TWordCount.TwentyFour, TWordList.English);
+  LWallet := TWallet.Create(TWordCount.TwentyFour, TWordList.English);
 
-  AssertNotNull(W.Account, 'Wallet.Account should not be nil');
-  AssertNotNull(W.Account.PrivateKey, 'Wallet.Account.PrivateKey should not be nil');
-  AssertNotNull(W.Account.PublicKey, 'Wallet.Account.PublicKey should not be nil');
-  AssertTrue(W.Account.PrivateKey.KeyBytes <> nil, 'Wallet.Account.PrivateKeyBytes should not be nil');
-  AssertTrue(W.Account.PublicKey.KeyBytes  <> nil, 'Wallet.Account.PublicKeyBytes should not be nil');
+  AssertNotNull(LWallet.Account, 'Wallet.Account should not be nil');
+  AssertNotNull(LWallet.Account.PrivateKey, 'Wallet.Account.PrivateKey should not be nil');
+  AssertNotNull(LWallet.Account.PublicKey, 'Wallet.Account.PublicKey should not be nil');
+  AssertTrue(LWallet.Account.PrivateKey.KeyBytes <> nil, 'Wallet.Account.PrivateKeyBytes should not be nil');
+  AssertTrue(LWallet.Account.PublicKey.KeyBytes  <> nil, 'Wallet.Account.PublicKeyBytes should not be nil');
 
-  Sig := W.Account.Sign(SerializedMessage);
-  AssertTrue(W.Account.Verify(SerializedMessage, Sig), 'Account.Verify failed');
+  LSig := LWallet.Account.Sign(SerializedMessage);
+  AssertTrue(LWallet.Account.Verify(SerializedMessage, LSig), 'Account.Verify failed');
 
-  Sig2 := W.Sign(SerializedMessage, 2);
-  AssertTrue(W.Verify(SerializedMessage, Sig2, 2), 'Wallet.Verify(2) failed');
+  LSig2 := LWallet.Sign(SerializedMessage, 2);
+  AssertTrue(LWallet.Verify(SerializedMessage, LSig2, 2), 'Wallet.Verify(2) failed');
 end;
 
 
 procedure TWalletTests.TestWalletEd25519Bip32FromWords;
 var
-  W: IWallet;
-  I: Integer;
-  Pairs: TArray<TKeyPair>;
-  Acc: IAccount;
+  LWallet: IWallet;
+  LI: Integer;
+  LPairs: TArray<TKeyPair>;
+  LAcc: IAccount;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertEquals(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithoutPassphrase, LWallet.DeriveMnemonicSeed, 'seed mismatch');
 
-  Pairs := ExpectedSolletKeys;
-  for I := 0 to High(Pairs) do
+  LPairs := ExpectedSolletKeys;
+  for LI := 0 to High(LPairs) do
   begin
-    Acc := W.GetAccountByIndex(I);
-    AssertEquals(Pairs[I].PublicKey,  Acc.PublicKey.Key);
-    AssertEquals(Pairs[I].PrivateKey, Acc.PrivateKey.Key);
+    LAcc := LWallet.GetAccountByIndex(LI);
+    AssertEquals(LPairs[LI].PublicKey,  LAcc.PublicKey.Key);
+    AssertEquals(LPairs[LI].PrivateKey, LAcc.PrivateKey.Key);
   end;
 end;
 
 procedure TWalletTests.TestWalletBip39FromWords;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
 
-  AssertEquals(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
-  AssertEquals(ExpectedSolanaKeygenPublicKey,  W.Account.PublicKey.Key);
-  AssertEquals(ExpectedSolanaKeygenPrivateKey, W.Account.PrivateKey.Key);
+  AssertEquals(SeedWithPassphrase, LWallet.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(ExpectedSolanaKeygenPublicKey,  LWallet.Account.PublicKey.Key);
+  AssertEquals(ExpectedSolanaKeygenPrivateKey, LWallet.Account.PrivateKey.Key);
 end;
 
 
 procedure TWalletTests.TestWalletEd25519Bip32FromSeed;
 var
-  W: IWallet;
-  I: Integer;
-  Pairs: TArray<TKeyPair>;
-  Acc: IAccount;
+  LWallet: IWallet;
+  LI: Integer;
+  LPairs: TArray<TKeyPair>;
+  LAcc: IAccount;
 begin
-  W := SetupWalletFromSeed(TSeedMode.Ed25519Bip32);
+  LWallet := SetupWalletFromSeed(TSeedMode.Ed25519Bip32);
 
-  AssertEquals(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithoutPassphrase, LWallet.DeriveMnemonicSeed, 'seed mismatch');
 
-  Pairs := ExpectedSolletKeys;
-  for I := 0 to High(Pairs) do
+  LPairs := ExpectedSolletKeys;
+  for LI := 0 to High(LPairs) do
   begin
-    Acc := W.GetAccountByIndex(I);
-    AssertEquals(Pairs[I].PublicKey,  Acc.PublicKey.Key);
-    AssertEquals(Pairs[I].PrivateKey, Acc.PrivateKey.Key);
+    LAcc := LWallet.GetAccountByIndex(LI);
+    AssertEquals(LPairs[LI].PublicKey,  LAcc.PublicKey.Key);
+    AssertEquals(LPairs[LI].PrivateKey, LAcc.PrivateKey.Key);
   end;
 end;
 
 procedure TWalletTests.TestWalletBip39FromSeed;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromSeed(TSeedMode.Bip39);
+  LWallet := SetupWalletFromSeed(TSeedMode.Bip39);
 
-  AssertEquals(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
-  AssertEquals(ExpectedSolanaKeygenPublicKey,  W.Account.PublicKey.Key);
-  AssertEquals(ExpectedSolanaKeygenPrivateKey, W.Account.PrivateKey.Key);
+  AssertEquals(SeedWithPassphrase, LWallet.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(ExpectedSolanaKeygenPublicKey,  LWallet.Account.PublicKey.Key);
+  AssertEquals(ExpectedSolanaKeygenPrivateKey, LWallet.Account.PrivateKey.Key);
 end;
 
 procedure TWalletTests.TestWalletEd25519Bip32FromMnemonic;
 var
-  W: IWallet;
-  I: Integer;
-  Pairs: TArray<TKeyPair>;
-  Acc: IAccount;
+  LWallet: IWallet;
+  LI: Integer;
+  LPairs: TArray<TKeyPair>;
+  LAcc: IAccount;
 begin
-  W := SetupWalletFromMnemonic(TSeedMode.Ed25519Bip32);
+  LWallet := SetupWalletFromMnemonic(TSeedMode.Ed25519Bip32);
 
-  AssertEquals(SeedWithoutPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(SeedWithoutPassphrase, LWallet.DeriveMnemonicSeed, 'seed mismatch');
 
-  Pairs := ExpectedSolletKeys;
-  for I := 0 to High(Pairs) do
+  LPairs := ExpectedSolletKeys;
+  for LI := 0 to High(LPairs) do
   begin
-    Acc := W.GetAccountByIndex(I);
-    AssertEquals(Pairs[I].PublicKey,  Acc.PublicKey.Key);
-    AssertEquals(Pairs[I].PrivateKey, Acc.PrivateKey.Key);
+    LAcc := LWallet.GetAccountByIndex(LI);
+    AssertEquals(LPairs[LI].PublicKey,  LAcc.PublicKey.Key);
+    AssertEquals(LPairs[LI].PrivateKey, LAcc.PrivateKey.Key);
   end;
 end;
 
 procedure TWalletTests.TestWalletBip39FromMnemonic;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromMnemonic(TSeedMode.Bip39);
+  LWallet := SetupWalletFromMnemonic(TSeedMode.Bip39);
 
-  AssertEquals(SeedWithPassphrase, W.DeriveMnemonicSeed, 'seed mismatch');
-  AssertEquals(ExpectedSolanaKeygenPublicKey,  W.Account.PublicKey.Key);
-  AssertEquals(ExpectedSolanaKeygenPrivateKey, W.Account.PrivateKey.Key);
+  AssertEquals(SeedWithPassphrase, LWallet.DeriveMnemonicSeed, 'seed mismatch');
+  AssertEquals(ExpectedSolanaKeygenPublicKey,  LWallet.Account.PublicKey.Key);
+  AssertEquals(ExpectedSolanaKeygenPrivateKey, LWallet.Account.PrivateKey.Key);
 end;
 
 procedure TWalletTests.TestAccountSignEd25519Bip32;
 var
-  W: IWallet;
-  Acc: IAccount;
+  LWallet: IWallet;
+  LAcc: IAccount;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertEquals(SerializedMessageSignature, W.Account.Sign(SerializedMessage), 'acct sig mismatch');
+  AssertEquals(SerializedMessageSignature, LWallet.Account.Sign(SerializedMessage), 'acct sig mismatch');
 
-  Acc := W.GetAccountByIndex(0);
-  AssertEquals(SerializedMessageSignature, Acc.Sign(SerializedMessage), 'acct[0] sig mismatch');
+  LAcc := LWallet.GetAccountByIndex(0);
+  AssertEquals(SerializedMessageSignature, LAcc.Sign(SerializedMessage), 'acct[0] sig mismatch');
 end;
 
 procedure TWalletTests.TestWalletSignEd25519Bip32;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertEquals(SerializedMessageSignature, W.Account.Sign(SerializedMessage), 'acct sig mismatch');
-  AssertEquals(SerializedMessageSignature, W.Sign(SerializedMessage), 'wallet sig mismatch');
+  AssertEquals(SerializedMessageSignature, LWallet.Account.Sign(SerializedMessage), 'acct sig mismatch');
+  AssertEquals(SerializedMessageSignature, LWallet.Sign(SerializedMessage), 'wallet sig mismatch');
 end;
 
 procedure TWalletTests.TestAccountVerifyEd25519Bip32;
 var
-  W: IWallet;
-  Acc: IAccount;
+  LWallet: IWallet;
+  LAcc: IAccount;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertTrue(W.Account.Verify(SerializedMessage, SerializedMessageSignature), 'acct verify failed');
+  AssertTrue(LWallet.Account.Verify(SerializedMessage, SerializedMessageSignature), 'acct verify failed');
 
-  Acc := W.GetAccountByIndex(0);
-  AssertTrue(Acc.Verify(SerializedMessage, SerializedMessageSignature), 'acct[0] verify failed');
+  LAcc := LWallet.GetAccountByIndex(0);
+  AssertTrue(LAcc.Verify(SerializedMessage, SerializedMessageSignature), 'acct[0] verify failed');
 end;
 
 procedure TWalletTests.TestWalletVerifyEd25519Bip32;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Ed25519Bip32);
 
-  AssertTrue(W.Account.Verify(SerializedMessage, SerializedMessageSignature), 'acct verify failed');
-  AssertTrue(W.Verify(SerializedMessage, SerializedMessageSignature), 'wallet verify failed');
+  AssertTrue(LWallet.Account.Verify(SerializedMessage, SerializedMessageSignature), 'acct verify failed');
+  AssertTrue(LWallet.Verify(SerializedMessage, SerializedMessageSignature), 'wallet verify failed');
 end;
 
 
 procedure TWalletTests.TestWalletSignBip39;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
 
   // Wallet-level sign with explicit index should raise
   AssertException(
     procedure
     begin
-      W.Sign(SerializedMessage, 1);
+      LWallet.Sign(SerializedMessage, 1);
     end,
     Exception
   );
@@ -396,28 +396,28 @@ begin
   AssertException(
     procedure
     var
-      Acc: IAccount;
+      LAcc: IAccount;
     begin
-      Acc := W.GetAccountByIndex(0);
-      Acc.Sign(SerializedMessage);
+      LAcc := LWallet.GetAccountByIndex(0);
+      LAcc.Sign(SerializedMessage);
     end,
     Exception
   );
 
   // Default wallet sign (index 0 under Bip39) should match expected signature
-  AssertEquals(SerializedMessageSignatureBip39, W.Sign(SerializedMessage), 'bip39 wallet sig mismatch');
+  AssertEquals(SerializedMessageSignatureBip39, LWallet.Sign(SerializedMessage), 'bip39 wallet sig mismatch');
 end;
 
 procedure TWalletTests.TestAccountSignBip39;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
 
   AssertException(
     procedure
     begin
-      W.Sign(SerializedMessage, 1);
+      LWallet.Sign(SerializedMessage, 1);
     end,
     Exception
   );
@@ -425,27 +425,27 @@ begin
   AssertException(
     procedure
     var
-      Acc: IAccount;
+      LAcc: IAccount;
     begin
-      Acc := W.GetAccountByIndex(0);
-      Acc.Sign(SerializedMessage);
+      LAcc := LWallet.GetAccountByIndex(0);
+      LAcc.Sign(SerializedMessage);
     end,
     Exception
   );
 
-  AssertEquals(SerializedMessageSignatureBip39, W.Account.Sign(SerializedMessage), 'bip39 acct sig mismatch');
+  AssertEquals(SerializedMessageSignatureBip39, LWallet.Account.Sign(SerializedMessage), 'bip39 acct sig mismatch');
 end;
 
 procedure TWalletTests.TestWalletVerifyBip39;
 var
-  W: IWallet;
+  LWallet: IWallet;
 begin
-  W := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
+  LWallet := SetupWalletFromMnemonicWords(TSeedMode.Bip39);
 
   AssertException(
     procedure
     begin
-      W.Verify(SerializedMessage, SerializedMessageSignature, 1);
+      LWallet.Verify(SerializedMessage, SerializedMessageSignature, 1);
     end,
     Exception
   );
@@ -453,15 +453,15 @@ begin
   AssertException(
     procedure
     var
-      Acc: IAccount;
+      LAcc: IAccount;
     begin
-      Acc := W.GetAccountByIndex(0);
-      Acc.Verify(SerializedMessage, SerializedMessageSignature);
+      LAcc := LWallet.GetAccountByIndex(0);
+      LAcc.Verify(SerializedMessage, SerializedMessageSignature);
     end,
     Exception
   );
 
-  AssertTrue(W.Account.Verify(SerializedMessage, SerializedMessageSignatureBip39), 'bip39 acct verify failed');
+  AssertTrue(LWallet.Account.Verify(SerializedMessage, SerializedMessageSignatureBip39), 'bip39 acct verify failed');
 end;
 
 initialization

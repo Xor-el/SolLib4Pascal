@@ -70,17 +70,17 @@ type
     function BuildSerializer: TJsonSerializer; virtual;
 
     /// Serialize Request to JSON string.
-    function SerializeRequest(const Req: TJsonRpcRequest): string; virtual;
+    function SerializeRequest(const AReq: TJsonRpcRequest): string; virtual;
 
     /// <summary>
     /// Handles the result after sending a request.
     /// </summary>
-    function HandleResult<T>(const Response: IHttpApiResponse): TRequestResult<T>;
+    function HandleResult<T>(const AResponse: IHttpApiResponse): TRequestResult<T>;
 
     /// <summary>
     /// Handles the result after sending a batch of requests.
     /// </summary>
-    function HandleBatchResult(const Response: IHttpApiResponse): TRequestResult<TJsonRpcBatchResponse>;
+    function HandleBatchResult(const AResponse: IHttpApiResponse): TRequestResult<TJsonRpcBatchResponse>;
 
   public
     /// <summary>
@@ -100,13 +100,13 @@ type
     /// <summary>
     /// Sends a given message as a POST method and returns the deserialized message result based on the type parameter.
     /// </summary>
-    function SendRequest<T>(const Req: TJsonRpcRequest): TRequestResult<T>;
+    function SendRequest<T>(const AReq: TJsonRpcRequest): TRequestResult<T>;
 
   public
     /// <summary>
     /// Sends a batch of messages as a POST method and returns a collection of responses.
     /// </summary>
-    function SendBatchRequest(const Reqs: TJsonRpcBatchRequest): TRequestResult<TJsonRpcBatchResponse>;
+    function SendBatchRequest(const AReqs: TJsonRpcBatchRequest): TRequestResult<TJsonRpcBatchResponse>;
   end;
 
 implementation
@@ -128,15 +128,15 @@ end;
 
 destructor TJsonRpcClient.Destroy;
 var
-  I: Integer;
+  LI: Integer;
 begin
   if Assigned(FSerializer) then
   begin
     if Assigned(FSerializer.Converters) then
     begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
+      for LI := 0 to FSerializer.Converters.Count - 1 do
+        if Assigned(FSerializer.Converters[LI]) then
+          FSerializer.Converters[LI].Free;
       FSerializer.Converters.Clear;
     end;
     FSerializer.Free;
@@ -157,245 +157,245 @@ end;
 
 function TJsonRpcClient.BuildSerializer: TJsonSerializer;
 var
-  Converters: TList<TJsonConverter>;
+  LConverters: TList<TJsonConverter>;
 begin
-  Converters := GetConverters();
+  LConverters := GetConverters();
   try
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,
         TJsonNamingPolicy.CamelCase
       ),
-      Converters
+      LConverters
     );
   finally
-    Converters.Free;
+    LConverters.Free;
   end;
 end;
 
-function TJsonRpcClient.SerializeRequest(const Req: TJsonRpcRequest): string;
+function TJsonRpcClient.SerializeRequest(const AReq: TJsonRpcRequest): string;
 begin
-  Result := FSerializer.Serialize(Req);
+  Result := FSerializer.Serialize(AReq);
 end;
 
 class function TJsonRpcClient.IsNonEmptyValue<T>(const AValue: T): Boolean;
 var
-  V: TValue;
+  LV: TValue;
 begin
-  V := TValue.From<T>(AValue);
-  if V.IsEmpty then
+  LV := TValue.From<T>(AValue);
+  if LV.IsEmpty then
     Exit(False);
 
-  case V.Kind of
+  case LV.Kind of
     // treat strings specially: must be non-empty text
     tkUString, tkLString, tkWString, tkString:
-      Result := V.AsString <> '';
+      Result := LV.AsString <> '';
   else
     // for everything else, "not empty" is enough
     Result := True;
   end;
 end;
 
-function TJsonRpcClient.HandleResult<T>(const Response: IHttpApiResponse): TRequestResult<T>;
+function TJsonRpcClient.HandleResult<T>(const AResponse: IHttpApiResponse): TRequestResult<T>;
 var
-  ResultObj: TRequestResult<T>;
-  Raw: string;
-  SingleRes: TJsonRpcResponse<T>;
-  ErrRes: TJsonRpcErrorResponse;
+  LResultObj: TRequestResult<T>;
+  LRaw: string;
+  LSingleRes: TJsonRpcResponse<T>;
+  LErrRes: TJsonRpcErrorResponse;
 begin
-  ResultObj := TRequestResult<T>.CreateFromResponse(Response);
+  LResultObj := TRequestResult<T>.CreateFromResponse(AResponse);
   try
-    Raw := Response.ResponseBody;
-    ResultObj.RawRpcResponse := Raw;
+    LRaw := AResponse.ResponseBody;
+    LResultObj.RawRpcResponse := LRaw;
 
     if Assigned(FLogger) then
-    FLogger.LogInformation('Rpc Response: {0}', [ResultObj.RawRpcResponse]);
+    FLogger.LogInformation('Rpc Response: {0}', [LResultObj.RawRpcResponse]);
 
     // ---- Try success shape ----
-    SingleRes := nil;
+    LSingleRes := nil;
     try
-      SingleRes := FSerializer.Deserialize<TJsonRpcResponse<T>>(Raw);
-      if Assigned(SingleRes) and IsNonEmptyValue<T>(SingleRes.Result) then
+      LSingleRes := FSerializer.Deserialize<TJsonRpcResponse<T>>(LRaw);
+      if Assigned(LSingleRes) and IsNonEmptyValue<T>(LSingleRes.Result) then
       begin
         // take ownership of payload, then null out wrapper to avoid double free/release
-        ResultObj.Result := SingleRes.Result;
-        SingleRes.Result := Default(T);
+        LResultObj.Result := LSingleRes.Result;
+        LSingleRes.Result := Default(T);
 
-        ResultObj.WasRequestSuccessfullyHandled := True;
-        Exit(ResultObj);
+        LResultObj.WasRequestSuccessfullyHandled := True;
+        Exit(LResultObj);
       end;
     finally
-      SingleRes.Free;
+      LSingleRes.Free;
     end;
 
     // ---- Try error shape ----
-    ResultObj.Reason := 'Something wrong happened.';
-    ErrRes := nil;
-    ErrRes := FSerializer.Deserialize<TJsonRpcErrorResponse>(Raw);
-    if Assigned(ErrRes) then
+    LResultObj.Reason := 'Something wrong happened.';
+    LErrRes := nil;
+    LErrRes := FSerializer.Deserialize<TJsonRpcErrorResponse>(LRaw);
+    if Assigned(LErrRes) then
     begin
       try
-        if Assigned(ErrRes.Error) then
+        if Assigned(LErrRes.Error) then
         begin
-          ResultObj.Reason := ErrRes.Error.Message;
-          ResultObj.ServerErrorCode := ErrRes.Error.Code;
+          LResultObj.Reason := LErrRes.Error.Message;
+          LResultObj.ServerErrorCode := LErrRes.Error.Code;
 
           // transfer ownership of Error.Data safely
-          if Assigned(ErrRes.Error.Data) then
+          if Assigned(LErrRes.Error.Data) then
           begin
-            ResultObj.ErrorData.Free;
-            ResultObj.ErrorData := ErrRes.Error.Data;
-            ErrRes.Error.Data := nil;
+            LResultObj.ErrorData.Free;
+            LResultObj.ErrorData := LErrRes.Error.Data;
+            LErrRes.Error.Data := nil;
           end;
         end
-        else if ErrRes.ErrorMessage <> '' then
-          ResultObj.Reason := ErrRes.ErrorMessage;
+        else if LErrRes.ErrorMessage <> '' then
+          LResultObj.Reason := LErrRes.ErrorMessage;
       finally
-        ErrRes.Free;
+        LErrRes.Free;
       end;
     end;
 
-    ResultObj.WasRequestSuccessfullyHandled := False;
+    LResultObj.WasRequestSuccessfullyHandled := False;
   except
     on E: Exception do
     begin
-      ResultObj.WasRequestSuccessfullyHandled := False;
-      ResultObj.Reason := 'Unable to parse json.';
+      LResultObj.WasRequestSuccessfullyHandled := False;
+      LResultObj.Reason := 'Unable to parse json.';
       if Assigned(FLogger) then
       FLogger.LogException(TLogLevel.Error, E, 'An Exception Occurred In {0}', ['TJsonRpcClient.HandleResult<T>']);
     end;
   end;
 
-  Result := ResultObj;
+  Result := LResultObj;
 end;
 
-function TJsonRpcClient.SendRequest<T>(const Req: TJsonRpcRequest): TRequestResult<T>;
+function TJsonRpcClient.SendRequest<T>(const AReq: TJsonRpcRequest): TRequestResult<T>;
 var
-  RequestJson: string;
-  Resp: IHttpApiResponse;
+  LRequestJson: string;
+  LResp: IHttpApiResponse;
 begin
-  RequestJson := SerializeRequest(Req);
+  LRequestJson := SerializeRequest(AReq);
   try
     if Assigned(FRateLimiter) then
       FRateLimiter.WaitFire;
 
-    if Assigned(FLogger) and (Req.Id.HasValue) then
-      FLogger.LogInformation(TEventId.Create(Req.Id.Value, Req.Method), 'Sending Request: {0}', [RequestJson]);
+    if Assigned(FLogger) and (AReq.Id.HasValue) then
+      FLogger.LogInformation(TEventId.Create(AReq.Id.Value, AReq.Method), 'Sending Request: {0}', [LRequestJson]);
 
-    Resp := FClient.PostJson(FNodeAddress.ToString, RequestJson);
-    Result := HandleResult<T>(Resp);
-    Result.RawRpcRequest := RequestJson;
+    LResp := FClient.PostJson(FNodeAddress.ToString, LRequestJson);
+    Result := HandleResult<T>(LResp);
+    Result.RawRpcRequest := LRequestJson;
   except
     on E: Exception do
     begin
       Result := TRequestResult<T>.CreateWithError(400, E.Message);
-      Result.RawRpcRequest := RequestJson;
-      if Assigned(FLogger) and (Req.Id.HasValue) then
-      FLogger.LogException(TLogLevel.Error, TEventId.Create(Req.Id.Value, Req.Method), E, 'An Exception Occurred In {0}', ['TJsonRpcClient.SendRequest<T>']);
+      Result.RawRpcRequest := LRequestJson;
+      if Assigned(FLogger) and (AReq.Id.HasValue) then
+      FLogger.LogException(TLogLevel.Error, TEventId.Create(AReq.Id.Value, AReq.Method), E, 'An Exception Occurred In {0}', ['TJsonRpcClient.SendRequest<T>']);
     end;
   end;
 end;
 
-function TJsonRpcClient.HandleBatchResult(const Response: IHttpApiResponse): TRequestResult<TJsonRpcBatchResponse>;
+function TJsonRpcClient.HandleBatchResult(const AResponse: IHttpApiResponse): TRequestResult<TJsonRpcBatchResponse>;
 var
-  ResultObj: TRequestResult<TJsonRpcBatchResponse>;
-  Raw: string;
-  BatchRes: TJsonRpcBatchResponse;
-  ErrRes: TJsonRpcErrorResponse;
+  LResultObj: TRequestResult<TJsonRpcBatchResponse>;
+  LRaw: string;
+  LBatchRes: TJsonRpcBatchResponse;
+  LErrRes: TJsonRpcErrorResponse;
 begin
-  ResultObj := TRequestResult<TJsonRpcBatchResponse>.CreateFromResponse(Response);
+  LResultObj := TRequestResult<TJsonRpcBatchResponse>.CreateFromResponse(AResponse);
   try
-    Raw := Response.ResponseBody;
-    ResultObj.RawRpcResponse := Raw;
+    LRaw := AResponse.ResponseBody;
+    LResultObj.RawRpcResponse := LRaw;
 
     if Assigned(FLogger) then
-    FLogger.LogInformation('Batch Rpc Response: {0}', [ResultObj.RawRpcResponse]);
+    FLogger.LogInformation('Batch Rpc Response: {0}', [LResultObj.RawRpcResponse]);
 
     // ---- Try success shape ----
-    BatchRes := nil;
+    LBatchRes := nil;
     try
-      BatchRes := FSerializer.Deserialize<TJsonRpcBatchResponse>(Raw);
-      if Assigned(BatchRes) then
+      LBatchRes := FSerializer.Deserialize<TJsonRpcBatchResponse>(LRaw);
+      if Assigned(LBatchRes) then
       begin
-        // transfer ownership to ResultObj
-        ResultObj.Result := BatchRes;
-        BatchRes := nil; // prevent double free in finally
+        // transfer ownership to LResultObj
+        LResultObj.Result := LBatchRes;
+        LBatchRes := nil; // prevent double free in finally
 
-        ResultObj.WasRequestSuccessfullyHandled := True;
-        Exit(ResultObj);
+        LResultObj.WasRequestSuccessfullyHandled := True;
+        Exit(LResultObj);
       end;
     finally
-      BatchRes.Free;
+      LBatchRes.Free;
     end;
 
     // ---- Try error shape ----
-    ResultObj.Reason := 'Something wrong happened.';
-    ErrRes := FSerializer.Deserialize<TJsonRpcErrorResponse>(Raw);
-    if Assigned(ErrRes) then
+    LResultObj.Reason := 'Something wrong happened.';
+    LErrRes := FSerializer.Deserialize<TJsonRpcErrorResponse>(LRaw);
+    if Assigned(LErrRes) then
     begin
       try
-        if Assigned(ErrRes.Error) then
+        if Assigned(LErrRes.Error) then
         begin
-          ResultObj.Reason := ErrRes.Error.Message;
-          ResultObj.ServerErrorCode := ErrRes.Error.Code;
+          LResultObj.Reason := LErrRes.Error.Message;
+          LResultObj.ServerErrorCode := LErrRes.Error.Code;
 
           // transfer ownership of Error.Data safely
-          if Assigned(ErrRes.Error.Data) then
+          if Assigned(LErrRes.Error.Data) then
           begin
-            ResultObj.ErrorData := ErrRes.Error.Data; // take ownership
-            ErrRes.Error.Data := nil;                 // avoid double-free on ErrRes.Free
+            LResultObj.ErrorData := LErrRes.Error.Data; // take ownership
+            LErrRes.Error.Data := nil;                 // avoid double-free on LErrRes.Free
           end;
         end
-        else if ErrRes.ErrorMessage <> '' then
+        else if LErrRes.ErrorMessage <> '' then
         begin
-          ResultObj.Reason := ErrRes.ErrorMessage;
+          LResultObj.Reason := LErrRes.ErrorMessage;
         end;
       finally
-        ErrRes.Free;
+        LErrRes.Free;
       end;
     end;
 
-    ResultObj.WasRequestSuccessfullyHandled := False;
+    LResultObj.WasRequestSuccessfullyHandled := False;
   except
     on E: Exception do
     begin
-      ResultObj.WasRequestSuccessfullyHandled := False;
-      ResultObj.Reason := 'Unable to parse json.';
+      LResultObj.WasRequestSuccessfullyHandled := False;
+      LResultObj.Reason := 'Unable to parse json.';
       if Assigned(FLogger) then
       FLogger.LogException(TLogLevel.Error, E, 'An Exception Occurred In {0}', ['TJsonRpcClient.HandleBatchResult']);
     end;
   end;
 
-  Result := ResultObj;
+  Result := LResultObj;
 end;
 
-function TJsonRpcClient.SendBatchRequest(const Reqs: TJsonRpcBatchRequest): TRequestResult<TJsonRpcBatchResponse>;
+function TJsonRpcClient.SendBatchRequest(const AReqs: TJsonRpcBatchRequest): TRequestResult<TJsonRpcBatchResponse>;
 var
-  RequestsJson: string;
-  Resp: IHttpApiResponse;
+  LRequestsJson: string;
+  LResp: IHttpApiResponse;
 begin
-  if Reqs = nil then
+  if AReqs = nil then
     raise EArgumentNilException.Create('reqs');
-  if Reqs.Count = 0 then
+  if AReqs.Count = 0 then
     raise EArgumentException.Create('Empty batch');
 
-  RequestsJson := FSerializer.Serialize(Reqs);
+  LRequestsJson := FSerializer.Serialize(AReqs);
 
   try
     if Assigned(FRateLimiter) then
       FRateLimiter.WaitFire;
 
       if Assigned(FLogger) then
-      FLogger.LogInformation('Batch Count: {0} Sending Batch Request: {1}', [Reqs.Count, RequestsJson]);
+      FLogger.LogInformation('Batch Count: {0} Sending Batch Request: {1}', [AReqs.Count, LRequestsJson]);
 
-    Resp := FClient.PostJson(FNodeAddress.ToString, RequestsJson);
-    Result := HandleBatchResult(Resp);
-    Result.RawRpcRequest := RequestsJson;
+    LResp := FClient.PostJson(FNodeAddress.ToString, LRequestsJson);
+    Result := HandleBatchResult(LResp);
+    Result.RawRpcRequest := LRequestsJson;
   except
     on E: Exception do
     begin
       Result := TRequestResult<TJsonRpcBatchResponse>.CreateWithError(400, E.Message);
-      Result.RawRpcRequest := RequestsJson;
+      Result.RawRpcRequest := LRequestsJson;
       if Assigned(FLogger) then
       FLogger.LogException(TLogLevel.Error, E, 'An Exception Occurred In {0}', ['TJsonRpcClient.SendBatchRequest']);
     end;

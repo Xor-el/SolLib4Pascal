@@ -36,7 +36,7 @@ type
     class procedure WriteAllText(const AFilePath: string; const AContent: string); overload; static;
     class procedure WriteAllText(const AFilePath: string; const AContent: string; const AEncoding: TEncoding); overload; static;
 
-    class function CombinePath(const A, B: string): string; static;
+    class function CombinePath(const AFirstPath, ASecondPath: string): string; static;
     class function GetFullPath(const APath: string): string; static;
   end;
 
@@ -73,9 +73,9 @@ begin
   TFile.WriteAllText(AFilePath, AContent, AEncoding);
 end;
 
-class function TIOUtils.CombinePath(const A, B: string): string;
+class function TIOUtils.CombinePath(const AFirstPath, ASecondPath: string): string;
 begin
-  Result := TPath.Combine(A, B);
+  Result := TPath.Combine(AFirstPath, ASecondPath);
 end;
 
 class function TIOUtils.GetFullPath(const APath: string): string;

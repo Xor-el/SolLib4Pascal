@@ -166,18 +166,18 @@ implementation
 function TBaseResourceLoader.LoadString(const AResourceName: string;
   const AEncoding: TEncoding): string;
 var
-  Bytes: TBytes;
-  BOMLength: Integer;
-  Enc: TEncoding;
+  LBytes: TBytes;
+  LBOMLength: Integer;
+  LEnc: TEncoding;
 begin
   Result := '';
-  Bytes := DoLoadBytes(AResourceName);
+  LBytes := DoLoadBytes(AResourceName);
 
-  if Length(Bytes) > 0 then
+  if Length(LBytes) > 0 then
   begin
-    Enc := AEncoding;
-    BOMLength := TEncoding.GetBufferEncoding(Bytes, Enc);
-    Result := Enc.GetString(Bytes, BOMLength, Length(Bytes) - BOMLength);
+    LEnc := AEncoding;
+    LBOMLength := TEncoding.GetBufferEncoding(LBytes, LEnc);
+    Result := LEnc.GetString(LBytes, LBOMLength, Length(LBytes) - LBOMLength);
   end;
 end;
 
@@ -267,18 +267,18 @@ end;
 
 function TFileResourceLoader.DoLoadBytes(const AResourceName: string): TBytes;
 var
-  FilePath: string;
+  LFilePath: string;
 begin
-  FilePath := GetAssetFilePath(AResourceName);
-  Result := TFile.ReadAllBytes(FilePath);
+  LFilePath := GetAssetFilePath(AResourceName);
+  Result := TFile.ReadAllBytes(LFilePath);
 end;
 
 function TFileResourceLoader.DoesResourceExists(const AResourceName: string): Boolean;
 var
-  FilePath: string;
+  LFilePath: string;
 begin
-  FilePath := GetAssetFilePath(AResourceName);
-  Result := TFile.Exists(FilePath);
+  LFilePath := GetAssetFilePath(AResourceName);
+  Result := TFile.Exists(LFilePath);
 end;
 
 { TSlpResourceLoader }

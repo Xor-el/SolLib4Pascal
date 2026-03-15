@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   System.Generics.Defaults,
   System.Rtti,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpPublicKey,
   SlpRpcModel,
   SlpMessageDomain,
@@ -190,7 +190,7 @@ class function TInstructionDecoder.DecodeInstructions(
   const ATxMetaInfo: TTransactionMetaInfo
 ): TList<IDecodedInstruction>;
 var
-  I, X, Y: Integer;
+  LI, LX, LY: Integer;
   LDecodedInstruction, LInnerDecodedInstruction: IDecodedInstruction;
   LInstructionInfo: TInstructionInfo;
   LMethod: TDecodeMethodType;
@@ -207,10 +207,10 @@ begin
   LTxInfo := ATxMetaInfo.Transaction.AsType<TTransactionInfo>;
   LMsg := LTxInfo.Message;
 
-  for I := 0 to LMsg.Instructions.Count - 1 do
+  for LI := 0 to LMsg.Instructions.Count - 1 do
   begin
     LDecodedInstruction := nil;
-    LInstructionInfo := LMsg.Instructions[I];
+    LInstructionInfo := LMsg.Instructions[LI];
     LProgramKey := LMsg.AccountKeys[LInstructionInfo.ProgramIdIndex];
 
     if not FInstructionDictionary.TryGetValue(LProgramKey, LMethod) then
@@ -219,7 +219,7 @@ begin
         LInstructionInfo,
         LProgramKey,
         LMsg.AccountKeys,
-        LMsg.Instructions[I].Accounts
+        LMsg.Instructions[LI].Accounts
       );
     end
     else
@@ -232,13 +232,13 @@ begin
 
         // Convert KeyIndices -> Bytes
         SetLength(LKeyIndices, Length(LInstructionInfo.Accounts));
-        for X := 0 to High(LKeyIndices) do
-          LKeyIndices[X] := Byte(LInstructionInfo.Accounts[X]);
+        for LX := 0 to High(LKeyIndices) do
+          LKeyIndices[LX] := Byte(LInstructionInfo.Accounts[LX]);
 
         if LInstructionInfo.Data = '' then
           LData := nil
         else
-          LData := TEncoders.Base58.DecodeData(LInstructionInfo.Data);
+          LData := TBase58Encoder.DecodeData(LInstructionInfo.Data);
 
         LDecodedInstruction := LMethod(
           LData,
@@ -254,7 +254,7 @@ begin
     begin
       for LInnerInstruction in ATxMetaInfo.Meta.InnerInstructions do
       begin
-        if LInnerInstruction.Index <> I then
+        if LInnerInstruction.Index <> LI then
           Continue;
 
         for LInnerInstructionInfo in LInnerInstruction.Instructions do
@@ -268,7 +268,7 @@ begin
               LInnerInstructionInfo,
               LProgramKey,
               LMsg.AccountKeys,
-              LMsg.Instructions[I].Accounts
+              LMsg.Instructions[LI].Accounts
             );
           end
           else
@@ -281,13 +281,13 @@ begin
 
               // Convert indices for inner call -> TBytes
               SetLength(LKeyIndices, Length(LInnerInstructionInfo.Accounts));
-              for Y := 0 to High(LKeyIndices) do
-                LKeyIndices[Y] := Byte(LInnerInstructionInfo.Accounts[Y]);
+              for LY := 0 to High(LKeyIndices) do
+                LKeyIndices[LY] := Byte(LInnerInstructionInfo.Accounts[LY]);
 
               if LInnerInstructionInfo.Data = '' then
                 LData := nil
               else
-                LData := TEncoders.Base58.DecodeData(LInnerInstructionInfo.Data);
+                LData := TBase58Encoder.DecodeData(LInnerInstructionInfo.Data);
 
               LInnerDecodedInstruction := LMethod(
                 LData,
@@ -318,7 +318,7 @@ var
   LProgramKey: IPublicKey;
   LMethod: TDecodeMethodType;
   LDecoded: IDecodedInstruction;
-  I: Integer;
+  LI: Integer;
 begin
   Result := TList<IDecodedInstruction>.Create;
 
@@ -332,12 +332,12 @@ begin
       LDecoded.InstructionName := 'Unknown';
       LDecoded.ProgramName := 'Unknown';
       LDecoded.Values := TDictionary<string, TValue>.Create;
-      LDecoded.Values.Add('Data', TValue.From<string>(TEncoders.Base58.EncodeData(LCompiled.Data)));
+      LDecoded.Values.Add('Data', TValue.From<string>(TBase58Encoder.EncodeData(LCompiled.Data)));
       LDecoded.InnerInstructions := TList<IDecodedInstruction>.Create;
       LDecoded.PublicKey := LProgramKey;
 
-      for I := 0 to Length(LCompiled.KeyIndices) - 1 do
-        LDecoded.Values.Add(Format('Account %d', [I + 1]), TValue.From<string>(AMessage.AccountKeys[I].Key));
+      for LI := 0 to Length(LCompiled.KeyIndices) - 1 do
+        LDecoded.Values.Add(Format('Account %d', [LI + 1]), TValue.From<string>(AMessage.AccountKeys[LI].Key));
 
       Result.Add(LDecoded);
       Continue;
@@ -356,7 +356,7 @@ class function TInstructionDecoder.AddUnknownInstruction(
   const AKeyIndices: TArray<Integer>
 ): IDecodedInstruction;
 var
-  J: Integer;
+  LJ: Integer;
 begin
   Result := TDecodedInstruction.Create;
 
@@ -367,8 +367,8 @@ begin
   Result.ProgramName := 'Unknown';
   Result.PublicKey := TPublicKey.Create(AProgramKey);
 
-  for J := 0 to Length(AKeyIndices) - 1 do
-    Result.Values.Add(Format('Account %d', [J + 1]), TValue.From<string>(AKeys[AKeyIndices[J]]));
+  for LJ := 0 to Length(AKeyIndices) - 1 do
+    Result.Values.Add(Format('Account %d', [LJ + 1]), TValue.From<string>(AKeys[AKeyIndices[LJ]]));
 end;
 
 end.

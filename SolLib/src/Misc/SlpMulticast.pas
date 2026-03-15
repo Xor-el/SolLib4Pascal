@@ -31,7 +31,7 @@ uses
 type
   /// <summary>
   /// Generic multicast container for function/procedure/anonymous-method handlers.
-  /// Allows duplicates, and Remove deletes one occurrence from the end.
+  /// Allows duplicates; Remove deletes one occurrence from the end.
   /// Thread-safe: Add/Remove/Notify are guarded; Notify snapshots before invoking.
   /// </summary>
   IMulticast<THandler> = interface
@@ -44,11 +44,13 @@ type
 
     /// <summary>
     /// Invoke all subscribers using a user-supplied invoker that knows how to call THandler.
+    /// If a handler raises an exception, it propagates immediately and remaining
+    /// handlers are not invoked.
     /// Example:
     ///   Multicast.Notify(
-    ///     procedure(const H: TProc<Integer, string>)
+    ///     procedure(const AHandler: TProc&lt;Integer, string&gt;)
     ///     begin
-    ///       H(42, 'hello');
+    ///       AHandler(42, 'hello');
     ///     end);
     /// </summary>
     procedure Notify(const AInvoker: TProc<THandler>);
@@ -60,7 +62,14 @@ type
   TMulticast<THandler> = class(TInterfacedObject, IMulticast<THandler>)
   private
     FList: TList<THandler>;
+    FComparer: IEqualityComparer<THandler>;
     FLock: TCriticalSection;
+
+    /// <summary>
+    /// Takes a snapshot of the current handler list under lock.
+    /// Returns nil if the list is empty.
+    /// </summary>
+    function Snapshot: TArray<THandler>;
   public
     constructor Create;
     destructor Destroy; override;
@@ -81,24 +90,32 @@ constructor TMulticast<THandler>.Create;
 begin
   inherited Create;
   FList := TList<THandler>.Create;
+  FComparer := TEqualityComparer<THandler>.Default;
   FLock := TCriticalSection.Create;
 end;
 
 destructor TMulticast<THandler>.Destroy;
 begin
+  FList.Free;
+  FLock.Free;
+  inherited;
+end;
+
+function TMulticast<THandler>.Snapshot: TArray<THandler>;
+begin
   FLock.Acquire;
   try
-    FList.Free;
+    if FList.Count = 0 then
+      Result := nil
+    else
+      Result := FList.ToArray;
   finally
     FLock.Release;
-    FLock.Free;
   end;
-  inherited;
 end;
 
 procedure TMulticast<THandler>.Add(const AHandler: THandler);
 begin
-  // Allows duplicates
   FLock.Acquire;
   try
     FList.Add(AHandler);
@@ -109,17 +126,14 @@ end;
 
 procedure TMulticast<THandler>.Remove(const AHandler: THandler);
 var
-  I: Integer;
-  Cmp: IEqualityComparer<THandler>;
+  LI: Integer;
 begin
-  // Remove ONE occurrence from the end
   FLock.Acquire;
   try
-    Cmp := TEqualityComparer<THandler>.Default;
-    for I := FList.Count - 1 downto 0 do
-      if Cmp.Equals(FList[I], AHandler) then
+    for LI := FList.Count - 1 downto 0 do
+      if FComparer.Equals(FList[LI], AHandler) then
       begin
-        FList.Delete(I);
+        FList.Delete(LI);
         Break;
       end;
   finally
@@ -149,34 +163,28 @@ end;
 
 function TMulticast<THandler>.IsEmpty: Boolean;
 begin
-  Result := Count = 0;
+  FLock.Acquire;
+  try
+    Result := FList.Count = 0;
+  finally
+    FLock.Release;
+  end;
 end;
 
 procedure TMulticast<THandler>.Notify(const AInvoker: TProc<THandler>);
 var
-  Snapshot: TArray<THandler>;
-  H: THandler;
+  LHandlers: TArray<THandler>;
+  LHandler: THandler;
 begin
-  if not Assigned(AInvoker) then Exit;
+  if not Assigned(AInvoker) then
+    Exit;
 
-  // Snapshot to avoid re-entrancy/mutation during callbacks
-  FLock.Acquire;
-  try
-    if FList.Count = 0 then Exit;
-    Snapshot := FList.ToArray;
-  finally
-    FLock.Release;
-  end;
+  LHandlers := Snapshot;
+  if LHandlers = nil then
+    Exit;
 
-  for H in Snapshot do
-  begin
-    try
-      AInvoker(H);
-    except
-      // Swallow to keep multicast robust.
-    end;
-  end;
+  for LHandler in LHandlers do
+    AInvoker(LHandler);
 end;
 
 end.
-

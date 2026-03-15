@@ -33,9 +33,18 @@ uses
   SlpJsonHelpers;
 
 type
+  /// <summary>
+  /// Converts a raw JSON value into a TValue for batch RPC response items.
+  /// </summary>
   TJsonRpcBatchResponseItemResultConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TValue.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a batch RPC response item result from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
@@ -53,18 +62,18 @@ function TJsonRpcBatchResponseItemResultConverter.ReadJson(
   const AReader: TJsonReader; ATypeInf: PTypeInfo; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
 var
-  JV: TJSONValue;
+  LJV: TJSONValue;
 begin
   // Read one JSON value (null/scalar/array/object) and convert into a TValue.
-  JV := AReader.ReadJsonValue;
+  LJV := AReader.ReadJsonValue;
   try
-    if JV = nil then
+    if LJV = nil then
       Exit(TValue.Empty);
 
     // Convert DOM to TValue (primitives/arrays/objects/DOM passthrough)
-    Result := JV.ToTValue();
+    Result := LJV.ToTValue();
   finally
-    JV.Free;
+    LJV.Free;
   end;
 end;
 

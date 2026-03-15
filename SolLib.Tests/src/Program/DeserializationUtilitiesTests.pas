@@ -27,9 +27,7 @@ uses
   TestFramework,
 {$ENDIF}
   SlpDeserialization,
-  SlpSerialization,
   SlpPublicKey,
-  SlpArrayUtils,
   SolLibProgramTestCase;
 
 type
@@ -117,13 +115,13 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadU8Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1);
+  LSut := TBytes.Create(1);
   AssertException(
     procedure
     begin
-      TDeserialization.GetU8(SUT, 1);
+      TDeserialization.GetU8(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -131,23 +129,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadU8;
 var
-  SUT: TBytes;
-  v: Byte;
+  LSut: TBytes;
+  LV: Byte;
 begin
-  SUT := TBytes.Create(1);
-  v := TDeserialization.GetU8(SUT, 0);
-  AssertEquals(1, v, 'GetU8');
+  LSut := TBytes.Create(1);
+  LV := TDeserialization.GetU8(LSut, 0);
+  AssertEquals(1, LV, 'GetU8');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadU16Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1,0);
+  LSut := TBytes.Create(1,0);
   AssertException(
     procedure
     begin
-      TDeserialization.GetU16(SUT, 1);
+      TDeserialization.GetU16(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -155,23 +153,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadU16;
 var
-  SUT: TBytes;
-  v: Word;
+  LSut: TBytes;
+  LV: Word;
 begin
-  SUT := TBytes.Create(1,0);
-  v := TDeserialization.GetU16(SUT, 0);
-  AssertEquals(1, v, 'GetU16 (LE)');
+  LSut := TBytes.Create(1,0);
+  LV := TDeserialization.GetU16(LSut, 0);
+  AssertEquals(1, LV, 'GetU16 (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadU32Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1,0,0,0);
+  LSut := TBytes.Create(1,0,0,0);
   AssertException(
     procedure
     begin
-      TDeserialization.GetU32(SUT, 1);
+      TDeserialization.GetU32(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -179,23 +177,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadU32;
 var
-  SUT: TBytes;
-  v: Cardinal;
+  LSut: TBytes;
+  LV: Cardinal;
 begin
-  SUT := TBytes.Create(1,0,0,0);
-  v := TDeserialization.GetU32(SUT, 0);
-  AssertEquals(1, v, 'GetU32 (LE)');
+  LSut := TBytes.Create(1,0,0,0);
+  LV := TDeserialization.GetU32(LSut, 0);
+  AssertEquals(1, LV, 'GetU32 (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadU64Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1,0,0,0,0,0,0,0);
+  LSut := TBytes.Create(1,0,0,0,0,0,0,0);
   AssertException(
     procedure
     begin
-      TDeserialization.GetU64(SUT, 1);
+      TDeserialization.GetU64(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -203,23 +201,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadU64;
 var
-  SUT: TBytes;
-  v: UInt64;
+  LSut: TBytes;
+  LV: UInt64;
 begin
-  SUT := TBytes.Create(1,0,0,0,0,0,0,0);
-  v := TDeserialization.GetU64(SUT, 0);
-  AssertEquals(1, v, 'GetU64 (LE)');
+  LSut := TBytes.Create(1,0,0,0,0,0,0,0);
+  LV := TDeserialization.GetU64(LSut, 0);
+  AssertEquals(1, LV, 'GetU64 (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadS8Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1);
+  LSut := TBytes.Create(1);
   AssertException(
     procedure
     begin
-      TDeserialization.GetS8(SUT, 1);
+      TDeserialization.GetS8(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -227,23 +225,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadS8;
 var
-  SUT: TBytes;
-  v: ShortInt;
+  LSut: TBytes;
+  LV: ShortInt;
 begin
-  SUT := TBytes.Create(1);
-  v := TDeserialization.GetS8(SUT, 0);
-  AssertEquals(1, v, 'GetS8');
+  LSut := TBytes.Create(1);
+  LV := TDeserialization.GetS8(LSut, 0);
+  AssertEquals(1, LV, 'GetS8');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadS16Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1,0);
+  LSut := TBytes.Create(1,0);
   AssertException(
     procedure
     begin
-      TDeserialization.GetS16(SUT, 1);
+      TDeserialization.GetS16(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -251,23 +249,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadS16;
 var
-  SUT: TBytes;
-  v: SmallInt;
+  LSut: TBytes;
+  LV: SmallInt;
 begin
-  SUT := TBytes.Create(1,0);
-  v := TDeserialization.GetS16(SUT, 0);
-  AssertEquals(1, v, 'GetS16 (LE)');
+  LSut := TBytes.Create(1,0);
+  LV := TDeserialization.GetS16(LSut, 0);
+  AssertEquals(1, LV, 'GetS16 (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadS32Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1,0,0,0);
+  LSut := TBytes.Create(1,0,0,0);
   AssertException(
     procedure
     begin
-      TDeserialization.GetS32(SUT, 1);
+      TDeserialization.GetS32(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -275,23 +273,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadS32;
 var
-  SUT: TBytes;
-  v: Integer;
+  LSut: TBytes;
+  LV: Integer;
 begin
-  SUT := TBytes.Create(1,0,0,0);
-  v := TDeserialization.GetS32(SUT, 0);
-  AssertEquals(1, v, 'GetS32 (LE)');
+  LSut := TBytes.Create(1,0,0,0);
+  LV := TDeserialization.GetS32(LSut, 0);
+  AssertEquals(1, LV, 'GetS32 (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadS64Exception;
 var
-  SUT: TBytes;
+  LSut: TBytes;
 begin
-  SUT := TBytes.Create(1,0,0,0,0,0,0,0);
+  LSut := TBytes.Create(1,0,0,0,0,0,0,0);
   AssertException(
     procedure
     begin
-      TDeserialization.GetS64(SUT, 1);
+      TDeserialization.GetS64(LSut, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -299,23 +297,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadS64;
 var
-  SUT: TBytes;
-  v: Int64;
+  LSut: TBytes;
+  LV: Int64;
 begin
-  SUT := TBytes.Create(1,0,0,0,0,0,0,0);
-  v := TDeserialization.GetS64(SUT, 0);
-  AssertEquals(1, v, 'GetS64 (LE)');
+  LSut := TBytes.Create(1,0,0,0,0,0,0,0);
+  LV := TDeserialization.GetS64(LSut, 0);
+  AssertEquals(1, LV, 'GetS64 (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadSpanException;
 var
-  PK: TBytes;
+  LPk: TBytes;
 begin
-  PK := PublicKeyBytes;
+  LPk := PublicKeyBytes;
   AssertException(
     procedure
     begin
-      TDeserialization.GetSpan(PK, 1, 32);
+      TDeserialization.GetSpan(LPk, 1, 32);
     end,
     EArgumentOutOfRangeException
   );
@@ -323,22 +321,22 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadSpan;
 var
-  PK, Span: TBytes;
+  LPk, LSpan: TBytes;
 begin
-  PK := PublicKeyBytes;
-  Span := TDeserialization.GetSpan(PK, 0, 32);
-  AssertEquals(PK, Span, 'GetSpan');
+  LPk := PublicKeyBytes;
+  LSpan := TDeserialization.GetSpan(LPk, 0, 32);
+  AssertEquals(LPk, LSpan, 'GetSpan');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadPublicKeyException;
 var
-  PK: TBytes;
+  LPk: TBytes;
 begin
-  PK := PublicKeyBytes;
+  LPk := PublicKeyBytes;
   AssertException(
     procedure
     begin
-      TDeserialization.GetPubKey(PK, 1);
+      TDeserialization.GetPubKey(LPk, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -346,23 +344,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadPublicKey;
 var
-  PK: TBytes;
-  Pub: IPublicKey;
+  LPk: TBytes;
+  LPub: IPublicKey;
 begin
-  PK := PublicKeyBytes;
-  Pub := TDeserialization.GetPubKey(PK, 0);
-  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', Pub.Key, 'GetPubKey');
+  LPk := PublicKeyBytes;
+  LPub := TDeserialization.GetPubKey(LPk, 0);
+  AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LPub.Key, 'GetPubKey');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadDoubleException;
 var
-  B: TBytes;
+  LB: TBytes;
 begin
-  B := DoubleBytes;
+  LB := DoubleBytes;
   AssertException(
     procedure
     begin
-      TDeserialization.GetDouble(B, 1);
+      TDeserialization.GetDouble(LB, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -370,23 +368,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadDouble;
 var
-  B: TBytes;
-  v: Double;
+  LB: TBytes;
+  LV: Double;
 begin
-  B := DoubleBytes;
-  v := TDeserialization.GetDouble(B, 0);
-  AssertEquals(1.34534534564565, v, 0.0, 'GetDouble (LE)');
+  LB := DoubleBytes;
+  LV := TDeserialization.GetDouble(LB, 0);
+  AssertEquals(1.34534534564565, LV, 0.0, 'GetDouble (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadSingleException;
 var
-  B: TBytes;
+  LB: TBytes;
 begin
-  B := SingleBytes;
+  LB := SingleBytes;
   AssertException(
     procedure
     begin
-      TDeserialization.GetSingle(B, 1);
+      TDeserialization.GetSingle(LB, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -394,23 +392,23 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadSingle;
 var
-  B: TBytes;
-  v: Single;
+  LB: TBytes;
+  LV: Single;
 begin
-  B := SingleBytes;
-  v := TDeserialization.GetSingle(B, 0);
-  AssertEquals(1.34534534, v, 0.0, 'GetSingle (LE)');
+  LB := SingleBytes;
+  LV := TDeserialization.GetSingle(LB, 0);
+  AssertEquals(1.34534534, LV, 0.0, 'GetSingle (LE)');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadRustStringException;
 var
-  Enc: TBytes;
+  LEnc: TBytes;
 begin
-  Enc := EncodedStringBytes;
+  LEnc := EncodedStringBytes;
   AssertException(
     procedure
     begin
-      TDeserialization.DecodeBincodeString(Enc, 22);
+      TDeserialization.DecodeBincodeString(LEnc, 22);
     end,
     EArgumentOutOfRangeException
   );
@@ -418,17 +416,17 @@ end;
 
 procedure TDeserializationUtilitiesTests.TestReadRustString;
 var
-  Enc: TBytes;
-  Dec: TDecodedBincodeString;
-  Expected: string;
-  ExpectedLen: Integer;
+  LEnc: TBytes;
+  LDec: TDecodedBincodeString;
+  LExpected: string;
+  LExpectedLen: Integer;
 begin
-  Enc := EncodedStringBytes;
-  Expected := 'this is a test string';
-  ExpectedLen := Length(TEncoding.UTF8.GetBytes(Expected)) + SizeOf(UInt64);
-  Dec := TDeserialization.DecodeBincodeString(Enc, 0);
-  AssertEquals(Expected, Dec.EncodedString, 'DecodeBincodeString text');
-  AssertEquals(ExpectedLen, Dec.Length, 'DecodeBincodeString length');
+  LEnc := EncodedStringBytes;
+  LExpected := 'this is a test string';
+  LExpectedLen := Length(TEncoding.UTF8.GetBytes(LExpected)) + SizeOf(UInt64);
+  LDec := TDeserialization.DecodeBincodeString(LEnc, 0);
+  AssertEquals(LExpected, LDec.EncodedString, 'DecodeBincodeString text');
+  AssertEquals(LExpectedLen, LDec.Length, 'DecodeBincodeString length');
 end;
 
 initialization

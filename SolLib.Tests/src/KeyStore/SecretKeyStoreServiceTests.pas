@@ -27,7 +27,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpSolLibExceptions,
   SlpSecretKeyStoreService,
   SlpKeyStoreService,
@@ -81,229 +80,229 @@ end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStorePathNotFound;
 var
-  sut: TSecretKeyStoreService;
-  path: string;
+  LSut: TSecretKeyStoreService;
+  LPath: string;
 begin
-  path := 'DoesNotExist.json';
-  sut := TSecretKeyStoreService.Create;
+  LPath := 'DoesNotExist.json';
+  LSut := TSecretKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromFile('randomPassword', path);
+        LSut.DecryptKeyStoreFromFile('randomPassword', LPath);
       end,
       EFileNotFoundException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStoreInvalidEmptyFilePath;
 var
-  sut: TSecretKeyStoreService;
-  json: string;
+  LSut: TSecretKeyStoreService;
+  LJson: string;
 begin
-  json := LoadTestData('InvalidEmptyFile.json');
-  sut := TSecretKeyStoreService.Create;
+  LJson := LoadTestData('InvalidEmptyFile.json');
+  LSut := TSecretKeyStoreService.Create;
   try
     // Note: Resource contains whitespace (for embedding compatibility), 
     // so it throws EJSONParseException instead of EArgumentNilException
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromJson('randomPassword', json);
+        LSut.DecryptKeyStoreFromJson('randomPassword', LJson);
       end,
       EJSONParseException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStoreValid;
 var
-  sut: TSecretKeyStoreService;
-  json: string;
-  seed: TBytes;
+  LSut: TSecretKeyStoreService;
+  LJson: string;
+  LSeed: TBytes;
 begin
-  json := LoadTestData('ValidKeyStore.json');
-  sut := TSecretKeyStoreService.Create;
+  LJson := LoadTestData('ValidKeyStore.json');
+  LSut := TSecretKeyStoreService.Create;
   try
-    seed := sut.DecryptKeyStoreFromJson('randomPassword', json);
-    AssertEquals(SeedWithPassphrase, seed, 'Seed mismatch');
+    LSeed := LSut.DecryptKeyStoreFromJson('randomPassword', LJson);
+    AssertEquals(SeedWithPassphrase, LSeed, 'Seed mismatch');
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStoreInvalidPassword;
 var
-  sut: TSecretKeyStoreService;
-  json: string;
+  LSut: TSecretKeyStoreService;
+  LJson: string;
 begin
-  json := LoadTestData('ValidKeyStore.json');
-  sut := TSecretKeyStoreService.Create;
+  LJson := LoadTestData('ValidKeyStore.json');
+  LSut := TSecretKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromJson('randomPassworasdd', json);
+        LSut.DecryptKeyStoreFromJson('randomPassworasdd', LJson);
       end,
       EDecryptionException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStoreInvalid;
 var
-  sut: TSecretKeyStoreService;
-  json: string;
+  LSut: TSecretKeyStoreService;
+  LJson: string;
 begin
-  json := LoadTestData('InvalidKeyStore.json');
-  sut := TSecretKeyStoreService.Create;
+  LJson := LoadTestData('InvalidKeyStore.json');
+  LSut := TSecretKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromJson('randomPassword', json);
+        LSut.DecryptKeyStoreFromJson('randomPassword', LJson);
       end,
       EArgumentException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStoreSerialize;
 var
-  sut: TSecretKeyStoreService;
-  json: string;
-  addr: string;
+  LSut: TSecretKeyStoreService;
+  LJson: string;
+  LAddr: string;
 begin
-  sut := TSecretKeyStoreService.Create;
+  LSut := TSecretKeyStoreService.Create;
   try
-    json := sut.EncryptAndGenerateDefaultKeyStoreAsJson('randomPassword', SeedWithPassphrase, ExpectedKeyStoreAddress);
-    addr := TSecretKeyStoreService.GetAddressFromKeyStore(json);
-    AssertEquals(ExpectedKeyStoreAddress, addr, 'Address mismatch after serialize');
+    LJson := LSut.EncryptAndGenerateDefaultKeyStoreAsJson('randomPassword', SeedWithPassphrase, ExpectedKeyStoreAddress);
+    LAddr := TSecretKeyStoreService.GetAddressFromKeyStore(LJson);
+    AssertEquals(ExpectedKeyStoreAddress, LAddr, 'Address mismatch after serialize');
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStoreGenerateKeyStore;
 var
-  sut: TSecretKeyStoreService;
-  json: string;
-  addr: string;
+  LSut: TSecretKeyStoreService;
+  LJson: string;
+  LAddr: string;
 begin
-  sut := TSecretKeyStoreService.Create;
+  LSut := TSecretKeyStoreService.Create;
   try
-    json := sut.EncryptAndGenerateDefaultKeyStoreAsJson('randomPassword', SeedWithPassphrase, ExpectedKeyStoreAddress);
-    addr := TSecretKeyStoreService.GetAddressFromKeyStore(json);
-    AssertEquals(ExpectedKeyStoreAddress, addr, 'Address mismatch from generated keystore');
+    LJson := LSut.EncryptAndGenerateDefaultKeyStoreAsJson('randomPassword', SeedWithPassphrase, ExpectedKeyStoreAddress);
+    LAddr := TSecretKeyStoreService.GetAddressFromKeyStore(LJson);
+    AssertEquals(ExpectedKeyStoreAddress, LAddr, 'Address mismatch from generated keystore');
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestKeyStoreGetAddress;
 var
-  fileJson: string;
-  addr: string;
+  LFileJson: string;
+  LAddr: string;
 begin
-  fileJson := LoadTestData('ValidPbkdf2KeyStore.json');
-  addr := TSecretKeyStoreService.GetAddressFromKeyStore(fileJson);
-  AssertEquals(ExpectedKeyStoreAddress, addr, 'Address mismatch from file');
+  LFileJson := LoadTestData('ValidPbkdf2KeyStore.json');
+  LAddr := TSecretKeyStoreService.GetAddressFromKeyStore(LFileJson);
+  AssertEquals(ExpectedKeyStoreAddress, LAddr, 'Address mismatch from file');
 end;
 
 procedure TSecretKeyStoreServiceTests.TestValidPbkdf2KeyStore;
 var
-  ks: TKeyStorePbkdf2Service;
-  fileJson: string;
-  seed: TBytes;
+  LKs: TKeyStorePbkdf2Service;
+  LFileJson: string;
+  LSeed: TBytes;
 begin
-  fileJson := LoadTestData('ValidPbkdf2KeyStore.json');
+  LFileJson := LoadTestData('ValidPbkdf2KeyStore.json');
 
-  ks := TKeyStorePbkdf2Service.Create;
+  LKs := TKeyStorePbkdf2Service.Create;
   try
-    seed := ks.DecryptKeyStoreFromJson('randomPassword', fileJson);
-    AssertEquals(SeedWithPassphrase, seed, 'Seed mismatch (pbkdf2, with passphrase)');
+    LSeed := LKs.DecryptKeyStoreFromJson('randomPassword', LFileJson);
+    AssertEquals(SeedWithPassphrase, LSeed, 'Seed mismatch (pbkdf2, with passphrase)');
   finally
-    ks.Free;
+    LKs.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestValidPbkdf2KeyStoreSerialize;
 var
-  ks: TKeyStorePbkdf2Service;
-  json, addr: string;
+  LKs: TKeyStorePbkdf2Service;
+  LJson, LAddr: string;
 begin
-  ks := TKeyStorePbkdf2Service.Create;
+  LKs := TKeyStorePbkdf2Service.Create;
   try
-    json := ks.EncryptAndGenerateKeyStoreAsJson('randomPassword', SeedWithPassphrase, ExpectedKeyStoreAddress);
-    addr := TSecretKeyStoreService.GetAddressFromKeyStore(json);
-    AssertEquals(ExpectedKeyStoreAddress, addr, 'PBKDF2 serialize address mismatch');
+    LJson := LKs.EncryptAndGenerateKeyStoreAsJson('randomPassword', SeedWithPassphrase, ExpectedKeyStoreAddress);
+    LAddr := TSecretKeyStoreService.GetAddressFromKeyStore(LJson);
+    AssertEquals(ExpectedKeyStoreAddress, LAddr, 'PBKDF2 serialize address mismatch');
   finally
-    ks.Free;
+    LKs.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestInvalidPbkdf2KeyStore;
 var
-  ks: TKeyStorePbkdf2Service;
-  fileJson: string;
+  LKs: TKeyStorePbkdf2Service;
+  LFileJson: string;
 begin
-  fileJson := LoadTestData('InvalidPbkdf2KeyStore.json');
+  LFileJson := LoadTestData('InvalidPbkdf2KeyStore.json');
 
-  ks := TKeyStorePbkdf2Service.Create;
+  LKs := TKeyStorePbkdf2Service.Create;
   try
     AssertException(
       procedure
       begin
-        ks.DecryptKeyStoreFromJson('randomPassword', fileJson);
+        LKs.DecryptKeyStoreFromJson('randomPassword', LFileJson);
       end,
       EArgumentException
     );
   finally
-    ks.Free;
+    LKs.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestValidScryptKeyStoreWithEthTestVector;
 var
-  sut: TKeyStoreScryptService;
-  fileJson: string;
-  seed: TBytes;
+  LSut: TKeyStoreScryptService;
+  LFileJson: string;
+  LSeed: TBytes;
 begin
-  fileJson := LoadTestData('ValidScryptKeyStoreWithEthTestVector.json');
+  LFileJson := LoadTestData('ValidScryptKeyStoreWithEthTestVector.json');
 
-  sut := TKeyStoreScryptService.Create;
+  LSut := TKeyStoreScryptService.Create;
   try
-    seed := sut.DecryptKeyStoreFromJson('testpassword', fileJson);
-    AssertEquals(TEncoders.Hex.DecodeData(EthTestVectorSecret), seed, 'Seed mismatch (scrypt, with passphrase)');
+    LSeed := LSut.DecryptKeyStoreFromJson('testpassword', LFileJson);
+    AssertEquals(DecodeHex(EthTestVectorSecret), LSeed, 'Seed mismatch (scrypt, with passphrase)');
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSecretKeyStoreServiceTests.TestValidPbkdf2KeyStoreWithEthTestVector;
 
 var
-  ks: TKeyStorePbkdf2Service;
-  fileJson: string;
-  seed: TBytes;
+  LKs: TKeyStorePbkdf2Service;
+  LFileJson: string;
+  LSeed: TBytes;
 begin
-  fileJson := LoadTestData('ValidPbkdf2KeyStoreWithEthTestVector.json');
+  LFileJson := LoadTestData('ValidPbkdf2KeyStoreWithEthTestVector.json');
 
-  ks := TKeyStorePbkdf2Service.Create;
+  LKs := TKeyStorePbkdf2Service.Create;
   try
-    seed := ks.DecryptKeyStoreFromJson('testpassword', fileJson);
-    AssertEquals(TEncoders.Hex.DecodeData(EthTestVectorSecret), seed, 'Seed mismatch (pbkdf2, with passphrase)');
+    LSeed := LKs.DecryptKeyStoreFromJson('testpassword', LFileJson);
+    AssertEquals(DecodeHex(EthTestVectorSecret), LSeed, 'Seed mismatch (pbkdf2, with passphrase)');
   finally
-    ks.Free;
+    LKs.Free;
   end;
 end;
 

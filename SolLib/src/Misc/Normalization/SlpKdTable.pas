@@ -39,13 +39,13 @@ type
   private
     class var FSubstitutionTable: string;
 
-    class function Supported(const Ch: Char): Boolean; static;
-    class procedure Substitute(Ch: Char; SB: TStringBuilder); overload; static;
-    class procedure Substitute(Pos: Integer; SB: TStringBuilder); overload; static;
+    class function Supported(const ACh: Char): Boolean; static;
+    class procedure Substitute(ACh: Char; ASB: TStringBuilder); overload; static;
+    class procedure Substitute(APos: Integer; ASB: TStringBuilder); overload; static;
 
     class constructor Create();
   public
-    class function NormalizeKd(const S: string): string; static;
+    class function NormalizeKd(const AStr: string): string; static;
   end;
 
 const
@@ -74,75 +74,75 @@ begin
   FSubstitutionTable := TSlpResourceLoader.Instance.LoadAsString('KD_SUBSTITUTION_TABLE', TEncoding.UTF8);
 end;
 
-class function TKdTable.NormalizeKd(const S: string): string;
+class function TKdTable.NormalizeKd(const AStr: string): string;
 var
-  SB: TStringBuilder;
-  i, n: Integer;
-  ch: Char;
+  LSB: TStringBuilder;
+  LI, LN: Integer;
+  LCh: Char;
 begin
-  SB := TStringBuilder.Create(Length(S));
+  LSB := TStringBuilder.Create(Length(AStr));
   try
-    n := Length(S);
-    for i := 1 to n do
+    LN := Length(AStr);
+    for LI := 1 to LN do
     begin
-      ch := S[i];
-      if not Supported(ch) then
-        raise EKdNormalizationNotSupported.Create('the input string can''t be normalized on this platform');
-      Substitute(ch, SB);
+      LCh := AStr[LI];
+      if not Supported(LCh) then
+        raise EKdfNormalizationNotSupported.Create('the input string can''t be normalized on this platform');
+      Substitute(LCh, LSB);
     end;
-    Result := SB.ToString;
+    Result := LSB.ToString;
   finally
-    SB.Free;
+    LSB.Free;
   end;
 end;
 
-class function TKdTable.Supported(const Ch: Char): Boolean;
+class function TKdTable.Supported(const ACh: Char): Boolean;
 var
-  i: Integer;
-  code: Integer;
+  LI: Integer;
+  LCode: Integer;
 begin
-  code := Ord(Ch);
-  for i := Low(SupportedChars) to High(SupportedChars) do
-    if (code >= SupportedChars[i].Lo) and (code <= SupportedChars[i].Hi) then
+  LCode := Ord(ACh);
+  for LI := Low(SupportedChars) to High(SupportedChars) do
+    if (LCode >= SupportedChars[LI].Lo) and (LCode <= SupportedChars[LI].Hi) then
       Exit(True);
   Result := False;
 end;
 
-class procedure TKdTable.Substitute(Ch: Char; SB: TStringBuilder);
+class procedure TKdTable.Substitute(ACh: Char; ASB: TStringBuilder);
 var
-  i, L: Integer;
-  substitutedChar: Char;
+  LI, LLen: Integer;
+  LSubstitutedChar: Char;
 begin
-  L := Length(FSubstitutionTable);
-  i := 1;
-  while i <= L do
+  LLen := Length(FSubstitutionTable);
+  LI := 1;
+  while LI <= LLen do
   begin
-    substitutedChar := FSubstitutionTable[i];
-    if substitutedChar = Ch then
+    LSubstitutedChar := FSubstitutionTable[LI];
+    if LSubstitutedChar = ACh then
     begin
-      Substitute(i, SB);
+      Substitute(LI, ASB);
       Exit;
     end;
-    if substitutedChar > Ch then
+    if LSubstitutedChar > ACh then
       Break;
 
-    while (i <= L) and (FSubstitutionTable[i] <> #10) do
-      Inc(i);
-    Inc(i);
+    while (LI <= LLen) and (FSubstitutionTable[LI] <> #10) do
+      Inc(LI);
+    Inc(LI);
   end;
-  SB.Append(Ch);
+  ASB.Append(ACh);
 end;
 
-class procedure TKdTable.Substitute(Pos: Integer; SB: TStringBuilder);
+class procedure TKdTable.Substitute(APos: Integer; ASB: TStringBuilder);
 var
-  i, L: Integer;
+  LI, LLen: Integer;
 begin
-  L := Length(FSubstitutionTable);
-  i := Pos + 1;
-  while (i <= L) and (FSubstitutionTable[i] <> #10) do
+  LLen := Length(FSubstitutionTable);
+  LI := APos + 1;
+  while (LI <= LLen) and (FSubstitutionTable[LI] <> #10) do
   begin
-    SB.Append(FSubstitutionTable[i]);
-    Inc(i);
+    ASB.Append(FSubstitutionTable[LI]);
+    Inc(LI);
   end;
 end;
 

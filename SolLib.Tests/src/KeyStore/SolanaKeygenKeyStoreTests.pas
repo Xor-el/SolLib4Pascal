@@ -47,7 +47,7 @@ type
 implementation
 
 const
-  ExpectedKeyStoreAddress       = '4n8BE7DHH4NudifUBrwPbvNPs2F86XcagT7C2JKdrWrR';
+  ExpectedKeyStoreAddress = '4n8BE7DHH4NudifUBrwPbvNPs2F86XcagT7C2JKdrWrR';
   ExpectedStringKeyStoreAddress = '8D6vFRiysWWBwuf3HY7RrPt8EiFoP9o94LzySZqD4HsV';
 
   StringKeyStoreSeedWithoutPassphrase =
@@ -70,117 +70,117 @@ end;
 
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreFileNotFound;
 var
-  sut: TSolanaKeyStoreService;
-  path: string;
+  LSut: TSolanaKeyStoreService;
+  LPath: string;
 begin
-  path := 'DoesNotExist.txt';
-  sut := TSolanaKeyStoreService.Create;
+  LPath := 'DoesNotExist.txt';
+  LSut := TSolanaKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.RestoreKeystoreFromFile(path);
+        LSut.RestoreKeystoreFromFile(LPath);
       end,
       EFileNotFoundException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreInvalidEmptyFilePath;
 var
-  sut: TSolanaKeyStoreService;
-  content: string;
+  LSut: TSolanaKeyStoreService;
+  LContent: string;
 begin
   // Load from embedded resource (contains whitespace for compatibility)
-  content := LoadTestData('InvalidEmptyFile.txt');
-  sut := TSolanaKeyStoreService.Create;
+  LContent := LoadTestData('InvalidEmptyFile.txt');
+  LSut := TSolanaKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.RestoreKeystore(content);
+        LSut.RestoreKeystore(LContent);
       end,
       EArgumentException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreValid;
 var
-  sut: TSolanaKeyStoreService;
-  content: string;
-  wallet: IWallet;
+  LSut: TSolanaKeyStoreService;
+  LContent: string;
+  LWallet: IWallet;
 begin
-  content := LoadTestData('ValidSolanaKeygenKeyStore.txt');
-  sut := TSolanaKeyStoreService.Create;
+  LContent := LoadTestData('ValidSolanaKeygenKeyStore.txt');
+  LSut := TSolanaKeyStoreService.Create;
   try
-    wallet := sut.RestoreKeystore(content);
-    AssertEquals(ExpectedKeyStoreAddress, wallet.Account.PublicKey.Key,
+    LWallet := LSut.RestoreKeystore(LContent);
+    AssertEquals(ExpectedKeyStoreAddress, LWallet.Account.PublicKey.Key,
       'Restored address mismatch');
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreInvalid;
 var
-  sut: TSolanaKeyStoreService;
-  content: string;
+  LSut: TSolanaKeyStoreService;
+  LContent: string;
 begin
-  content := LoadTestData('InvalidSolanaKeygenKeyStore.txt');
-  sut := TSolanaKeyStoreService.Create;
+  LContent := LoadTestData('InvalidSolanaKeygenKeyStore.txt');
+  LSut := TSolanaKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.RestoreKeystore(content);
+        LSut.RestoreKeystore(LContent);
       end,
       EArgumentException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSolanaKeygenKeyStoreTests.TestKeyStoreFull;
 var
-  sut: TSolanaKeyStoreService;
-  content: string;
-  walletToSave, restoredWallet: IWallet;
+  LSut: TSolanaKeyStoreService;
+  LContent: string;
+  LWalletToSave, LRestoredWallet: IWallet;
 begin
-  content := LoadTestData('ValidSolanaKeygenKeyStore.txt');
+  LContent := LoadTestData('ValidSolanaKeygenKeyStore.txt');
 
-  sut := TSolanaKeyStoreService.Create;
+  LSut := TSolanaKeyStoreService.Create;
   try
-    walletToSave := TWallet.Create(SeedWithPassphrase, 'bip39passphrase', TSeedMode.Bip39);
+    LWalletToSave := TWallet.Create(SeedWithPassphrase, 'bip39passphrase', TSeedMode.Bip39);
 
-    restoredWallet := sut.RestoreKeystore(content, 'bip39passphrase');
+    LRestoredWallet := LSut.RestoreKeystore(LContent, 'bip39passphrase');
 
-    AssertEquals(ExpectedKeyStoreAddress, walletToSave.Account.PublicKey.Key,
+    AssertEquals(ExpectedKeyStoreAddress, LWalletToSave.Account.PublicKey.Key,
       'Created wallet address mismatch');
-    AssertEquals(ExpectedKeyStoreAddress, restoredWallet.Account.PublicKey.Key,
+    AssertEquals(ExpectedKeyStoreAddress, LRestoredWallet.Account.PublicKey.Key,
       'Restored wallet address mismatch');
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 
 procedure TSolanaKeygenKeyStoreTests.TestRestoreKeyStore;
 var
-  sut: TSolanaKeyStoreService;
-  wallet: IWallet;
+  LSut: TSolanaKeyStoreService;
+  LWallet: IWallet;
 begin
-  sut := TSolanaKeyStoreService.Create;
+  LSut := TSolanaKeyStoreService.Create;
   try
-    wallet := sut.RestoreKeystore(StringKeyStoreSeedWithoutPassphrase);
-    AssertEquals(ExpectedStringKeyStoreAddress, wallet.Account.PublicKey.Key,
+    LWallet := LSut.RestoreKeystore(StringKeyStoreSeedWithoutPassphrase);
+    AssertEquals(ExpectedStringKeyStoreAddress, LWallet.Account.PublicKey.Key,
       'Address mismatch (RestoreKeystore from string)');
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 

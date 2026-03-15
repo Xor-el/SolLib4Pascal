@@ -49,69 +49,69 @@ implementation
 
 procedure TSolanaRpcClientFeeTests.TestGetFeeForMessage;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<UInt64>>;
-  msg: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<UInt64>>;
+  LMsg: string;
 begin
-  responseData := LoadTestData('Fees/GetFeeForMessageResponse.json');
-  requestData  := LoadTestData('Fees/GetFeeForMessageRequest.json');
+  LResponseData := LoadTestData('Fees/GetFeeForMessageResponse.json');
+  LRequestData := LoadTestData('Fees/GetFeeForMessageRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  msg :=
+  LMsg :=
     'AQABAu+OVfa66vZfLI0xdX9GcGk/+U65+dox+iHABM3DOSGuBUpTWpkpIQZNJOhxYNo4fHw1td28kruB5B+oQEEFRI3tj0g2caCBX14VjqrxK4Daz/4WvmWxU698Okvp8lYDjAEBACNIZWxsbyBTb2xhbmEgV29ybGQsIHVzaW5nIFNvbG5ldCA6KQ==';
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
-  result := rpcClient.GetFeeForMessage(msg);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
+  LResult := LRpcClient.GetFeeForMessage(LMsg);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> nil, 'Result should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
-  AssertEquals(132177311, result.Result.Context.Slot);
-  AssertEquals(5000, result.Result.Value);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> nil, 'Result should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
+  AssertEquals(132177311, LResult.Result.Context.Slot);
+  AssertEquals(5000, LResult.Result.Value);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientFeeTests.TestGetRecentPrioritizationFees;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TObjectList<TPrioritizationFeeItem>>;
-  accounts: TArray<string>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TObjectList<TPrioritizationFeeItem>>;
+  LAccounts: TArray<string>;
 begin
-  responseData := LoadTestData('Fees/GetRecentPrioritizationFeesResponse.json');
-  requestData := LoadTestData('Fees/GetRecentPrioritizationFeesRequest.json');
+  LResponseData := LoadTestData('Fees/GetRecentPrioritizationFeesResponse.json');
+  LRequestData := LoadTestData('Fees/GetRecentPrioritizationFeesRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  accounts := TArray<string>.Create(
+  LAccounts := TArray<string>.Create(
     'CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY',
     'BQ72nSv9f3PRyRKCBnHLVrerrv37CYTHm5h3s9VSGQDV'
   );
 
-  result := rpcClient.GetRecentPrioritizationFees(accounts);
+  LResult := LRpcClient.GetRecentPrioritizationFees(LAccounts);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
 
-  AssertTrue(result.Result <> nil, 'Result should not be nil');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
-  AssertTrue(result.Result.Count > 0, 'Expected at least one fee item');
-  AssertTrue(result.Result[0] <> nil, 'First item should not be nil');
+  AssertTrue(LResult.Result <> nil, 'Result should not be nil');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
+  AssertTrue(LResult.Result.Count > 0, 'Expected at least one fee item');
+  AssertTrue(LResult.Result[0] <> nil, 'First item should not be nil');
 
-  AssertEquals(259311457, result.Result[0].Slot);
-  AssertEquals(0, result.Result[0].PrioritizationFee);
+  AssertEquals(259311457, LResult.Result[0].Slot);
+  AssertEquals(0, LResult.Result[0].PrioritizationFee);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 initialization

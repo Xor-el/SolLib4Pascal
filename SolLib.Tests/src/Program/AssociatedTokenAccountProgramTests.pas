@@ -68,15 +68,15 @@ const
     'route clerk disease box emerge airport loud waste attitude film army tray ' +
     'forward deal onion eight catalog surface unit card window walnut wealth medal';
 var
-  LWallet       : IWallet;
-  LOwnerAccount : IAccount;
-  LMintAccount  : IAccount;
-  LInstr        : ITransactionInstruction;
+  LWallet: IWallet;
+  LOwnerAccount: IAccount;
+  LMintAccount: IAccount;
+  LInstr: ITransactionInstruction;
 begin
   LWallet := TWallet.Create(MnemonicWords);
 
   LOwnerAccount := LWallet.GetAccountByIndex(10);
-  LMintAccount  := LWallet.GetAccountByIndex(21);
+  LMintAccount := LWallet.GetAccountByIndex(21);
 
   LInstr := TAssociatedTokenAccountProgram.CreateAssociatedTokenAccount(
               LOwnerAccount.PublicKey,

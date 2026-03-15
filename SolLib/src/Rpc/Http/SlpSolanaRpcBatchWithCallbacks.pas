@@ -26,7 +26,8 @@ uses
   System.Rtti,
   System.TypInfo,
   System.Generics.Collections,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
+  SlpEnumUtils,
   SlpRpcModel,
   SlpRpcEnum,
   SlpSolanaRpcClient,
@@ -380,7 +381,7 @@ procedure TSolanaRpcBatchWithCallbacks.GetProgramAccounts(const AProgramPubKey: 
 var
   LParams: TList<TValue>;
   LFilters: TArray<TValue>;
-  I: Integer;
+  LI: Integer;
 begin
   SetLength(LFilters, 0);
 
@@ -390,13 +391,13 @@ begin
 
   if (AMemCmpList <> nil) and (Length(AMemCmpList) > 0) then
   begin
-    for I := 0 to Length(AMemCmpList) - 1 do
+    for LI := 0 to Length(AMemCmpList) - 1 do
     begin
       LFilters := LFilters + [ TConfigObject.Make(
         TKeyValue.Make('memcmp',
           TConfigObject.Make(
-            TKeyValue.Make('offset', TValue.From<Integer>(AMemCmpList[I].Offset)),
-            TKeyValue.Make('bytes',  TValue.From<string>(AMemCmpList[I].Bytes))
+            TKeyValue.Make('offset', TValue.From<Integer>(AMemCmpList[LI].Offset)),
+            TKeyValue.Make('bytes',  TValue.From<string>(AMemCmpList[LI].Bytes))
           )
         )
       ) ];
@@ -508,14 +509,14 @@ var
 begin
   case AEncoding of
     TBinaryEncoding.Base58:
-      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+      LEncoded := TBase58Encoder.EncodeData(ATransaction);
 
     TBinaryEncoding.Base64:
-      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+      LEncoded := TBase64Encoder.EncodeData(ATransaction);
   else
     raise EArgumentException.CreateFmt(
       'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 

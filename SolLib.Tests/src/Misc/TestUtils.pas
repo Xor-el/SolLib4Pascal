@@ -60,15 +60,15 @@ end;
 
 class destructor TTestUtils.Destroy;
 var
- I: Integer;
+  LI: Integer;
 begin
   if Assigned(FSerializer) then
   begin
     if Assigned(FSerializer.Converters) then
     begin
-      for I := 0 to FSerializer.Converters.Count - 1 do
-        if Assigned(FSerializer.Converters[I]) then
-          FSerializer.Converters[I].Free;
+      for LI := 0 to FSerializer.Converters.Count - 1 do
+        if Assigned(FSerializer.Converters[LI]) then
+          FSerializer.Converters[LI].Free;
       FSerializer.Converters.Clear;
     end;
     FSerializer.Free;
@@ -79,22 +79,22 @@ end;
 
 class function TTestUtils.BuildSerializer: TJsonSerializer;
 var
-  Converters     : TList<TJsonConverter>;
+  LConverters: TList<TJsonConverter>;
 begin
-  Converters := TList<TJsonConverter>.Create;
+  LConverters := TList<TJsonConverter>.Create;
   try
-    Converters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
-    Converters.Add(TEncodingConverter.Create);
+    LConverters.Add(TJsonStringEnumConverter.Create(TJsonNamingPolicy.CamelCase));
+    LConverters.Add(TEncodingConverter.Create);
 
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,
         TJsonNamingPolicy.CamelCase
       ),
-      Converters
+      LConverters
     );
   finally
-    Converters.Free;
+    LConverters.Free;
   end;
 end;
 

@@ -35,7 +35,7 @@ type
   private
     FClient: THTTPClient;
 
-    class function MergeHeaders(const Defaults, Extra: THttpApiHeaderParams): TNetHeaders; static;
+    class function MergeHeaders(const ADefaults, AExtra: THttpApiHeaderParams): TNetHeaders; static;
   public
     constructor Create(const AExisting: THTTPClient = nil);
     destructor Destroy; override;
@@ -68,108 +68,108 @@ begin
 end;
 
 class function TDelphiHttpClientImpl.MergeHeaders(
-  const Defaults, Extra: THttpApiHeaderParams): TNetHeaders;
+  const ADefaults, AExtra: THttpApiHeaderParams): TNetHeaders;
 var
-  Tmp: THttpApiHeaderParams;
-  Keys: TArray<string>;
-  I: Integer;
-  K: string;
+  LTmp: THttpApiHeaderParams;
+  LKeys: TArray<string>;
+  LI: Integer;
+  LKey: string;
 begin
-  Tmp := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
+  LTmp := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
-    if Defaults <> nil then
-      for K in Defaults.Keys do
-        Tmp.AddOrSetValue(K, Defaults.Items[K]);
+    if ADefaults <> nil then
+      for LKey in ADefaults.Keys do
+        LTmp.AddOrSetValue(LKey, ADefaults.Items[LKey]);
 
-    if Extra <> nil then
-      for K in Extra.Keys do
-        Tmp.AddOrSetValue(K, Extra.Items[K]);
+    if AExtra <> nil then
+      for LKey in AExtra.Keys do
+        LTmp.AddOrSetValue(LKey, AExtra.Items[LKey]);
 
-    Keys := Tmp.Keys.ToArray;
-    SetLength(Result, Length(Keys));
-    for I := 0 to High(Keys) do
+    LKeys := LTmp.Keys.ToArray;
+    SetLength(Result, Length(LKeys));
+    for LI := 0 to High(LKeys) do
     begin
-      Result[I].Name  := Keys[I];
-      Result[I].Value := Tmp.Items[Keys[I]];
+      Result[LI].Name := LKeys[LI];
+      Result[LI].Value := LTmp.Items[LKeys[LI]];
     end;
   finally
-    Tmp.Free;
+    LTmp.Free;
   end;
 end;
 
 function TDelphiHttpClientImpl.GetJson(const AUrl: string;
   const AQuery: THttpApiQueryParams; const AHeaders: THttpApiHeaderParams): IHttpApiResponse;
 var
-  Url, Body, StatusText: string;
-  Resp: IHTTPResponse;
-  StatusCode: Integer;
-  DefaultHdrs: THttpApiHeaderParams;
-  NetHeaders: TNetHeaders;
+  LUrl, LBody, LStatusText: string;
+  LResp: IHTTPResponse;
+  LStatusCode: Integer;
+  LDefaultHdrs: THttpApiHeaderParams;
+  LNetHeaders: TNetHeaders;
 begin
-  Url := BuildUrlWithQuery(AUrl, AQuery);
+  LUrl := BuildUrlWithQuery(AUrl, AQuery);
 
-  DefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
+  LDefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
-    DefaultHdrs.Add('Accept', 'application/json');
-    NetHeaders := MergeHeaders(DefaultHdrs, AHeaders);
+    LDefaultHdrs.Add('Accept', 'application/json');
+    LNetHeaders := MergeHeaders(LDefaultHdrs, AHeaders);
   finally
-    DefaultHdrs.Free;
+    LDefaultHdrs.Free;
   end;
 
   try
-    Resp := FClient.Get(Url, nil, NetHeaders);
-    Body := Resp.ContentAsString(TEncoding.UTF8);
-    StatusCode := Resp.StatusCode;
-    StatusText := Resp.StatusText;
+    LResp := FClient.Get(LUrl, nil, LNetHeaders);
+    LBody := LResp.ContentAsString(TEncoding.UTF8);
+    LStatusCode := LResp.StatusCode;
+    LStatusText := LResp.StatusText;
   except
     on E: Exception do
       raise;
   end;
 
-  Result := THttpApiResponse.Create(StatusCode, StatusText, Body);
+  Result := THttpApiResponse.Create(LStatusCode, LStatusText, LBody);
 end;
 
 function TDelphiHttpClientImpl.PostJson(const AUrl, AJson: string;
   const AHeaders: THttpApiHeaderParams): IHttpApiResponse;
 var
-  MS: TMemoryStream;
-  Buffer: TBytes;
-  Body, StatusText: string;
-  Resp: IHTTPResponse;
-  StatusCode: Integer;
-  DefaultHdrs: THttpApiHeaderParams;
-  NetHeaders: TNetHeaders;
+  LMS: TMemoryStream;
+  LBuffer: TBytes;
+  LBody, LStatusText: string;
+  LResp: IHTTPResponse;
+  LStatusCode: Integer;
+  LDefaultHdrs: THttpApiHeaderParams;
+  LNetHeaders: TNetHeaders;
 begin
-  DefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
+  LDefaultHdrs := THttpApiHeaderParams.Create(TStringComparerFactory.OrdinalIgnoreCase);
   try
-    DefaultHdrs.Add('Content-Type', 'application/json');
-    NetHeaders := MergeHeaders(DefaultHdrs, AHeaders);
+    LDefaultHdrs.Add('Content-Type', 'application/json');
+    LNetHeaders := MergeHeaders(LDefaultHdrs, AHeaders);
   finally
-    DefaultHdrs.Free;
+    LDefaultHdrs.Free;
   end;
 
-  MS := TMemoryStream.Create;
+  LMS := TMemoryStream.Create;
   try
     if AJson <> '' then
     begin
-      Buffer := TEncoding.UTF8.GetBytes(AJson);
-      if Length(Buffer) > 0 then MS.WriteBuffer(Buffer, Length(Buffer));
+      LBuffer := TEncoding.UTF8.GetBytes(AJson);
+      if Length(LBuffer) > 0 then LMS.WriteBuffer(LBuffer, Length(LBuffer));
     end;
-    MS.Position := 0;
+    LMS.Position := 0;
 
     try
-      Resp := FClient.Post(AUrl, MS, nil, NetHeaders);
-      Body := Resp.ContentAsString(TEncoding.UTF8);
-      StatusCode := Resp.StatusCode;
-      StatusText := Resp.StatusText;
+      LResp := FClient.Post(AUrl, LMS, nil, LNetHeaders);
+      LBody := LResp.ContentAsString(TEncoding.UTF8);
+      LStatusCode := LResp.StatusCode;
+      LStatusText := LResp.StatusText;
     except
       on E: Exception do
         raise;
     end;
 
-    Result := THttpApiResponse.Create(StatusCode, StatusText, Body);
+    Result := THttpApiResponse.Create(LStatusCode, LStatusText, LBody);
   finally
-    MS.Free;
+    LMS.Free;
   end;
 end;
 

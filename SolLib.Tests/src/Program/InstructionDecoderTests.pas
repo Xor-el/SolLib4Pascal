@@ -203,7 +203,7 @@ implementation
 
 procedure TInstructionDecoderTests.InstructionDecoderRegisterTest;
 var
-  LRes : IDecodedInstruction;
+  LRes: IDecodedInstruction;
   LPubKeyOne, LPubKeyTwo: IPublicKey;
 begin
   // register a dummy decoder for a dummy program id
@@ -228,7 +228,7 @@ end;
 
 procedure TInstructionDecoderTests.InstructionDecoderRegisterNullTest;
 var
-  LRes : IDecodedInstruction;
+  LRes: IDecodedInstruction;
   LPubKeyOne, LPubKeyTwo: IPublicKey;
 begin
   LPubKeyOne := TPublicKey.Create('11111111111111111111111111111122');
@@ -252,11 +252,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromMessageTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(Base64Message);
+  LMsg := TMessage.Deserialize(Base64Message);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
@@ -300,13 +300,13 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromTransactionMetaTest;
 var
-  LJson    : string;
-  LTxMeta  : TTransactionMetaInfo;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LJson: string;
+  LTxMeta: TTransactionMetaInfo;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
   // arrange
-  LJson   := LoadTestData('AssociatedTokenAccount/TestDecodeInstructionFromBlockTransactionMetaInfo.json');
+  LJson := LoadTestData('AssociatedTokenAccount/TestDecodeInstructionFromBlockTransactionMetaInfo.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaInfo>(LJson);
 
   // act
@@ -370,12 +370,12 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromTransactionUnknownInstructionTest;
 var
-  LJson    : string;
-  LTxMeta  : TTransactionMetaSlotInfo;
-  LDecoded : TList<IDecodedInstruction>;
+  LJson: string;
+  LTxMeta: TTransactionMetaSlotInfo;
+  LDecoded: TList<IDecodedInstruction>;
 begin
   // arrange
-  LJson   := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInstruction.json');
+  LJson := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInstruction.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act
@@ -396,12 +396,12 @@ end;
 
 procedure TInstructionDecoderTests.DecodeInstructionsFromTransactionUnknownInnerInstructionTest;
 var
-  LJson    : string;
-  LTxMeta  : TTransactionMetaSlotInfo;
-  LDecoded : TList<IDecodedInstruction>;
+  LJson: string;
+  LTxMeta: TTransactionMetaSlotInfo;
+  LDecoded: TList<IDecodedInstruction>;
 begin
   // arrange
-  LJson   := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInnerInstruction.json');
+  LJson := LoadTestData('Unknown/TestDecodeFromTransactionUnknownInnerInstruction.json');
   LTxMeta := TTestUtils.Deserialize<TTransactionMetaSlotInfo>(LJson);
 
   // act
@@ -441,10 +441,10 @@ end;
 
 procedure TInstructionDecoderTests.DecodeUnknownInstructionFromMessageTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
 begin
-  LMsg     := TMessage.Deserialize(UnknownInstructionMessage);
+  LMsg := TMessage.Deserialize(UnknownInstructionMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(4, LDecoded.Count, 'Count');
@@ -459,13 +459,13 @@ end;
 
 procedure TInstructionDecoderTests.DecodeSharedMemoryProgramTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
   LDataExp, LDataAct: TBytes;
 begin
   // arrange
-  LMsg     := TMessage.Deserialize(SharedMemoryWriteMessage);
+  LMsg := TMessage.Deserialize(SharedMemoryWriteMessage);
 
   // act
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
@@ -495,11 +495,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeDurableNonceMessageTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(DurableNonceMessage);
+  LMsg := TMessage.Deserialize(DurableNonceMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
@@ -520,11 +520,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeCreateAccountWithSeedTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(CreateWithSeedTransferCheckedMessage);
+  LMsg := TMessage.Deserialize(CreateWithSeedTransferCheckedMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(3, LDecoded.Count, 'Count');
@@ -585,11 +585,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeAllocateAndTransferWithSeedTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(AllocateAndTransferWithSeedMessage);
+  LMsg := TMessage.Deserialize(AllocateAndTransferWithSeedMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(6, LDecoded.Count, 'Count');
@@ -645,11 +645,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeAssignWithSeedAndWithdrawNonceTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(AssignWithSeedAndWithdrawNonceMessage);
+  LMsg := TMessage.Deserialize(AssignWithSeedAndWithdrawNonceMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(6, LDecoded.Count, 'Count');
@@ -696,11 +696,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeCreateNonceAccountTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(CreateNonceAccountMessage);
+  LMsg := TMessage.Deserialize(CreateNonceAccountMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
@@ -722,11 +722,11 @@ end;
 
 procedure TInstructionDecoderTests.DecodeAuthorizeNonceAccountTest;
 var
-  LMsg     : IMessage;
-  LDecoded : TList<IDecodedInstruction>;
-  LVal     : TValue;
+  LMsg: IMessage;
+  LDecoded: TList<IDecodedInstruction>;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(AuthorizeNonceAccountMessage);
+  LMsg := TMessage.Deserialize(AuthorizeNonceAccountMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
@@ -755,68 +755,68 @@ var
   LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
-  D: IDecodedInstruction;
+  LInstr: IDecodedInstruction;
 begin
-  LMsg     := TMessage.Deserialize(InitializeMessage);
+  LMsg := TMessage.Deserialize(InitializeMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     // [0] is System CreateAccount, [1] is TokenSwap Initialize.
-    D := LDecoded[1];
-    AssertEquals('Initialize Swap', D.InstructionName, 'name');
-    AssertEquals('Token Swap Program', D.ProgramName, 'program');
+    LInstr := LDecoded[1];
+    AssertEquals('Initialize Swap', LInstr.InstructionName, 'name');
+    AssertEquals('Token Swap Program', LInstr.ProgramName, 'program');
 
-    AssertTrue(D.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
     AssertEquals('Hz3UWwAR4z7TZmzMW2TFjjzDtxEveiZZbJ4sg1LEuvKo', LVal.AsType<IPublicKey>.Key, 'Token Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
     AssertEquals('HRmkKfXbHcvNhWHw47zqoexKiLHmowR8o7hdwwWdaHoW', LVal.AsType<IPublicKey>.Key, 'Swap Authority');
 
-    AssertTrue(D.Values.TryGetValue('Token A Account', LVal), 'Missing "Token A Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token A Account', LVal), 'Missing "Token A Account"');
     AssertEquals('7WGJswQpwuNePUiEFBqCMKnGcpkNoX7fFeAdM16o1wV', LVal.AsType<IPublicKey>.Key, 'Token A Account');
 
-    AssertTrue(D.Values.TryGetValue('Token B Account', LVal), 'Missing "Token B Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token B Account', LVal), 'Missing "Token B Account"');
     AssertEquals('AbLFYgniLdGWikGJX3dT4iTWoX1FbFBwu2sjGDQN7nfa', LVal.AsType<IPublicKey>.Key, 'Token B Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token Mint', LVal), 'Missing "Pool Token Mint"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token Mint', LVal), 'Missing "Pool Token Mint"');
     AssertEquals('CZSQMnD4jTvRfEuApDAmjWvz1AWpFpXqoePPXwZpmk1F', LVal.AsType<IPublicKey>.Key, 'Pool Token Mint');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token Fee Account', LVal), 'Missing "Pool Token Fee Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token Fee Account', LVal), 'Missing "Pool Token Fee Account"');
     AssertEquals('3Z24fqykBPn1wNSXGz7SA5MXqGGk3DPSDpmxQoERMHrM', LVal.AsType<IPublicKey>.Key, 'Pool Token Fee Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token Account', LVal), 'Missing "Pool Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token Account', LVal), 'Missing "Pool Token Account"');
     AssertEquals('CosUN9gxk8M6gdSDHYvaKKKCbX2VL73z1mJ66tYFsnSA', LVal.AsType<IPublicKey>.Key, 'Pool Token Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LVal.AsType<IPublicKey>.Key, 'Token Program ID');
 
-    AssertTrue(D.Values.TryGetValue('Nonce', LVal), 'Missing "Nonce"');
+    AssertTrue(LInstr.Values.TryGetValue('Nonce', LVal), 'Missing "Nonce"');
     AssertEquals(Byte(253), LVal.AsType<Byte>, 'Nonce');
 
-    AssertTrue(D.Values.TryGetValue('Trade Fee Numerator', LVal), 'Missing "Trade Fee Numerator"');
+    AssertTrue(LInstr.Values.TryGetValue('Trade Fee Numerator', LVal), 'Missing "Trade Fee Numerator"');
     AssertEquals(UInt64(25), LVal.AsType<UInt64>, 'Trade Fee Numerator');
 
-    AssertTrue(D.Values.TryGetValue('Trade Fee Denominator', LVal), 'Missing "Trade Fee Denominator"');
+    AssertTrue(LInstr.Values.TryGetValue('Trade Fee Denominator', LVal), 'Missing "Trade Fee Denominator"');
     AssertEquals(UInt64(10000), LVal.AsType<UInt64>, 'Trade Fee Denominator');
 
-    AssertTrue(D.Values.TryGetValue('Owner Trade Fee Numerator', LVal), 'Missing "Owner Trade Fee Numerator"');
+    AssertTrue(LInstr.Values.TryGetValue('Owner Trade Fee Numerator', LVal), 'Missing "Owner Trade Fee Numerator"');
     AssertEquals(UInt64(5), LVal.AsType<UInt64>, 'Owner Trade Fee Numerator');
 
-    AssertTrue(D.Values.TryGetValue('Owner Trade Fee Denominator', LVal), 'Missing "Owner Trade Fee Denominator"');
+    AssertTrue(LInstr.Values.TryGetValue('Owner Trade Fee Denominator', LVal), 'Missing "Owner Trade Fee Denominator"');
     AssertEquals(UInt64(10000), LVal.AsType<UInt64>, 'Owner Trade Fee Denominator');
 
-    AssertTrue(D.Values.TryGetValue('Owner Withraw Fee Numerator', LVal), 'Missing "Owner Withraw Fee Numerator"');
+    AssertTrue(LInstr.Values.TryGetValue('Owner Withraw Fee Numerator', LVal), 'Missing "Owner Withraw Fee Numerator"');
     AssertEquals(UInt64(0), LVal.AsType<UInt64>, 'Owner Withraw Fee Numerator');
 
-    AssertTrue(D.Values.TryGetValue('Owner Withraw Fee Denominator', LVal), 'Missing "Owner Withraw Fee Denominator"');
+    AssertTrue(LInstr.Values.TryGetValue('Owner Withraw Fee Denominator', LVal), 'Missing "Owner Withraw Fee Denominator"');
     AssertEquals(UInt64(0), LVal.AsType<UInt64>, 'Owner Withraw Fee Denominator');
 
-    AssertTrue(D.Values.TryGetValue('Host Fee Numerator', LVal), 'Missing "Host Fee Numerator"');
+    AssertTrue(LInstr.Values.TryGetValue('Host Fee Numerator', LVal), 'Missing "Host Fee Numerator"');
     AssertEquals(UInt64(20), LVal.AsType<UInt64>, 'Host Fee Numerator');
 
-    AssertTrue(D.Values.TryGetValue('Host Fee Denominator', LVal), 'Missing "Host Fee Denominator"');
+    AssertTrue(LInstr.Values.TryGetValue('Host Fee Denominator', LVal), 'Missing "Host Fee Denominator"');
     AssertEquals(UInt64(100), LVal.AsType<UInt64>, 'Host Fee Denominator');
 
-    AssertTrue(D.Values.TryGetValue('Curve Type', LVal), 'Missing "Curve Type"');
+    AssertTrue(LInstr.Values.TryGetValue('Curve Type', LVal), 'Missing "Curve Type"');
     AssertEquals(Byte(0), LVal.AsType<Byte>, 'Curve Type should be (TCurveType.ConstantProduct = 0)');
   finally
     LDecoded.Free;
@@ -825,52 +825,52 @@ end;
 
 procedure TInstructionDecoderTests.SwapDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
-  D       : IDecodedInstruction;
-  LVal    : TValue;
+  LInstr: IDecodedInstruction;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(SwapMessage);
+  LMsg := TMessage.Deserialize(SwapMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
-    D := LDecoded[0];
+    LInstr := LDecoded[0];
 
-    AssertEquals('Swap', D.InstructionName, 'name');
+    AssertEquals('Swap', LInstr.InstructionName, 'name');
 
-    AssertTrue(D.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
     AssertEquals('Hz3UWwAR4z7TZmzMW2TFjjzDtxEveiZZbJ4sg1LEuvKo', LVal.AsType<IPublicKey>.Key, 'Token Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
     AssertEquals('HRmkKfXbHcvNhWHw47zqoexKiLHmowR8o7hdwwWdaHoW', LVal.AsType<IPublicKey>.Key, 'Swap Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
     AssertEquals('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z', LVal.AsType<IPublicKey>.Key, 'User Transfer Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Source Account', LVal), 'Missing "User Source Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Source Account', LVal), 'Missing "User Source Account"');
     AssertEquals('GxK5rLRGx1AnE9BZzQBP6SVenavuZqRUXbE6QTzL3jjW', LVal.AsType<IPublicKey>.Key, 'User Source Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Base Into Account', LVal), 'Missing "Token Base Into Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Base Into Account', LVal), 'Missing "Token Base Into Account"');
     AssertEquals('7WGJswQpwuNePUiEFBqCMKnGcpkNoX7fFeAdM16o1wV', LVal.AsType<IPublicKey>.Key, 'Token Base Into Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Base From Account', LVal), 'Missing "Token Base From Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Base From Account', LVal), 'Missing "Token Base From Account"');
     AssertEquals('AbLFYgniLdGWikGJX3dT4iTWoX1FbFBwu2sjGDQN7nfa', LVal.AsType<IPublicKey>.Key, 'Token Base From Account');
 
-    AssertTrue(D.Values.TryGetValue('User Destination Account', LVal), 'Missing "User Destination Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Destination Account', LVal), 'Missing "User Destination Account"');
     AssertEquals('DzVbjXqE9oFMJ4dWa9PqCA2bmiARtSURpmijux3PkC45', LVal.AsType<IPublicKey>.Key, 'User Destination Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token Mint', LVal), 'Missing "Pool Token Mint"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token Mint', LVal), 'Missing "Pool Token Mint"');
     AssertEquals('CZSQMnD4jTvRfEuApDAmjWvz1AWpFpXqoePPXwZpmk1F', LVal.AsType<IPublicKey>.Key, 'Pool Token Mint');
 
-    AssertTrue(D.Values.TryGetValue('Fee Account', LVal), 'Missing "Fee Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Fee Account', LVal), 'Missing "Fee Account"');
     AssertEquals('3Z24fqykBPn1wNSXGz7SA5MXqGGk3DPSDpmxQoERMHrM', LVal.AsType<IPublicKey>.Key, 'Fee Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LVal.AsType<IPublicKey>.Key, 'Token Program ID');
 
-    AssertTrue(D.Values.TryGetValue('Amount In', LVal), 'Missing "Amount In"');
+    AssertTrue(LInstr.Values.TryGetValue('Amount In', LVal), 'Missing "Amount In"');
     AssertEquals(UInt64(1000000000), LVal.AsType<UInt64>, 'Amount In');
 
-    AssertTrue(D.Values.TryGetValue('Amount Out', LVal), 'Missing "Amount Out"');
+    AssertTrue(LInstr.Values.TryGetValue('Amount Out', LVal), 'Missing "Amount Out"');
     AssertEquals(UInt64(500000), LVal.AsType<UInt64>, 'Amount Out');
   finally
     LDecoded.Free;
@@ -879,55 +879,55 @@ end;
 
 procedure TInstructionDecoderTests.DepositAllTokenTypesDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
-  D       : IDecodedInstruction;
-  LVal    : TValue;
+  LInstr: IDecodedInstruction;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(DepositAllTokenTypesMessage);
+  LMsg := TMessage.Deserialize(DepositAllTokenTypesMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
-    D := LDecoded[0];
+    LInstr := LDecoded[0];
 
-    AssertEquals('Deposit Both', D.InstructionName, 'name');
+    AssertEquals('Deposit Both', LInstr.InstructionName, 'name');
 
-    AssertTrue(D.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
     AssertEquals('Hz3UWwAR4z7TZmzMW2TFjjzDtxEveiZZbJ4sg1LEuvKo', LVal.AsType<IPublicKey>.Key, 'Token Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
     AssertEquals('HRmkKfXbHcvNhWHw47zqoexKiLHmowR8o7hdwwWdaHoW', LVal.AsType<IPublicKey>.Key, 'Swap Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
     AssertEquals('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z', LVal.AsType<IPublicKey>.Key, 'User Transfer Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Token A Account', LVal), 'Missing "User Token A Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Token A Account', LVal), 'Missing "User Token A Account"');
     AssertEquals('GxK5rLRGx1AnE9BZzQBP6SVenavuZqRUXbE6QTzL3jjW', LVal.AsType<IPublicKey>.Key, 'User Token A Account');
 
-    AssertTrue(D.Values.TryGetValue('User Token B Account', LVal), 'Missing "User Token B Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Token B Account', LVal), 'Missing "User Token B Account"');
     AssertEquals('DzVbjXqE9oFMJ4dWa9PqCA2bmiARtSURpmijux3PkC45', LVal.AsType<IPublicKey>.Key, 'User Token B Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token A Account', LVal), 'Missing "Pool Token A Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token A Account', LVal), 'Missing "Pool Token A Account"');
     AssertEquals('7WGJswQpwuNePUiEFBqCMKnGcpkNoX7fFeAdM16o1wV', LVal.AsType<IPublicKey>.Key, 'Pool Token A Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token B Account', LVal), 'Missing "Pool Token B Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token B Account', LVal), 'Missing "Pool Token B Account"');
     AssertEquals('AbLFYgniLdGWikGJX3dT4iTWoX1FbFBwu2sjGDQN7nfa', LVal.AsType<IPublicKey>.Key, 'Pool Token B Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token Mint', LVal), 'Missing "Pool Token Mint"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token Mint', LVal), 'Missing "Pool Token Mint"');
     AssertEquals('CZSQMnD4jTvRfEuApDAmjWvz1AWpFpXqoePPXwZpmk1F', LVal.AsType<IPublicKey>.Key, 'Pool Token Mint');
 
-    AssertTrue(D.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
     AssertEquals('CosUN9gxk8M6gdSDHYvaKKKCbX2VL73z1mJ66tYFsnSA', LVal.AsType<IPublicKey>.Key, 'User Pool Token Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LVal.AsType<IPublicKey>.Key, 'Token Program ID');
 
-    AssertTrue(D.Values.TryGetValue('Pool Tokens', LVal), 'Missing "Pool Tokens"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Tokens', LVal), 'Missing "Pool Tokens"');
     AssertEquals(UInt64(1000000), LVal.AsType<UInt64>, 'Pool Tokens');
 
-    AssertTrue(D.Values.TryGetValue('Max Token A', LVal), 'Missing "Max Token A"');
+    AssertTrue(LInstr.Values.TryGetValue('Max Token A', LVal), 'Missing "Max Token A"');
     AssertEquals(UInt64(100000000000), LVal.AsType<UInt64>, 'Max Token A');
 
-    AssertTrue(D.Values.TryGetValue('Max Token B', LVal), 'Missing "Max Token B"');
+    AssertTrue(LInstr.Values.TryGetValue('Max Token B', LVal), 'Missing "Max Token B"');
     AssertEquals(UInt64(100000000000), LVal.AsType<UInt64>, 'Max Token B');
   finally
     LDecoded.Free;
@@ -936,58 +936,58 @@ end;
 
 procedure TInstructionDecoderTests.WithdrawAllTokenTypesDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
-  D       : IDecodedInstruction;
-  LVal    : TValue;
+  LInstr: IDecodedInstruction;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
+  LMsg := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
-    D := LDecoded[0];
+    LInstr := LDecoded[0];
 
-    AssertEquals('Withdraw Both', D.InstructionName, 'name');
+    AssertEquals('Withdraw Both', LInstr.InstructionName, 'name');
 
-    AssertTrue(D.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
     AssertEquals('Hz3UWwAR4z7TZmzMW2TFjjzDtxEveiZZbJ4sg1LEuvKo', LVal.AsType<IPublicKey>.Key, 'Token Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
     AssertEquals('HRmkKfXbHcvNhWHw47zqoexKiLHmowR8o7hdwwWdaHoW', LVal.AsType<IPublicKey>.Key, 'Swap Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
     AssertEquals('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z', LVal.AsType<IPublicKey>.Key, 'User Transfer Authority');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token Account', LVal), 'Missing "Pool Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token Account', LVal), 'Missing "Pool Token Account"');
     AssertEquals('CZSQMnD4jTvRfEuApDAmjWvz1AWpFpXqoePPXwZpmk1F', LVal.AsType<IPublicKey>.Key, 'Pool Token Account');
 
-    AssertTrue(D.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
     AssertEquals('CosUN9gxk8M6gdSDHYvaKKKCbX2VL73z1mJ66tYFsnSA', LVal.AsType<IPublicKey>.Key, 'User Pool Token Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token A Account', LVal), 'Missing "Pool Token A Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token A Account', LVal), 'Missing "Pool Token A Account"');
     AssertEquals('7WGJswQpwuNePUiEFBqCMKnGcpkNoX7fFeAdM16o1wV', LVal.AsType<IPublicKey>.Key, 'Pool Token A Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Token B Account', LVal), 'Missing "Pool Token B Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Token B Account', LVal), 'Missing "Pool Token B Account"');
     AssertEquals('AbLFYgniLdGWikGJX3dT4iTWoX1FbFBwu2sjGDQN7nfa', LVal.AsType<IPublicKey>.Key, 'Pool Token B Account');
 
-    AssertTrue(D.Values.TryGetValue('User Token A Account', LVal), 'Missing "User Token A Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Token A Account', LVal), 'Missing "User Token A Account"');
     AssertEquals('GxK5rLRGx1AnE9BZzQBP6SVenavuZqRUXbE6QTzL3jjW', LVal.AsType<IPublicKey>.Key, 'User Token A Account');
 
-    AssertTrue(D.Values.TryGetValue('User Token B Account', LVal), 'Missing "User Token B Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Token B Account', LVal), 'Missing "User Token B Account"');
     AssertEquals('DzVbjXqE9oFMJ4dWa9PqCA2bmiARtSURpmijux3PkC45', LVal.AsType<IPublicKey>.Key, 'User Token B Account');
 
-    AssertTrue(D.Values.TryGetValue('Fee Account', LVal), 'Missing "Fee Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Fee Account', LVal), 'Missing "Fee Account"');
     AssertEquals('3Z24fqykBPn1wNSXGz7SA5MXqGGk3DPSDpmxQoERMHrM', LVal.AsType<IPublicKey>.Key, 'Fee Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LVal.AsType<IPublicKey>.Key, 'Token Program ID');
 
-    AssertTrue(D.Values.TryGetValue('Pool Tokens', LVal), 'Missing "Pool Tokens"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Tokens', LVal), 'Missing "Pool Tokens"');
     AssertEquals(UInt64(1000000), LVal.AsType<UInt64>, 'Pool Tokens');
 
-    AssertTrue(D.Values.TryGetValue('Min Token A', LVal), 'Missing "Min Token A"');
+    AssertTrue(LInstr.Values.TryGetValue('Min Token A', LVal), 'Missing "Min Token A"');
     AssertEquals(UInt64(1000), LVal.AsType<UInt64>, 'Min Token A');
 
-    AssertTrue(D.Values.TryGetValue('Min Token B', LVal), 'Missing "Min Token B"');
+    AssertTrue(LInstr.Values.TryGetValue('Min Token B', LVal), 'Missing "Min Token B"');
     AssertEquals(UInt64(1000), LVal.AsType<UInt64>, 'Min Token B');
   finally
     LDecoded.Free;
@@ -996,49 +996,49 @@ end;
 
 procedure TInstructionDecoderTests.DepositSingleTokenTypeExactAmountInDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
-  D       : IDecodedInstruction;
-  LVal    : TValue;
+  LInstr: IDecodedInstruction;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
+  LMsg := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
-    D := LDecoded[0];
+    LInstr := LDecoded[0];
 
-    AssertEquals('Deposit Single', D.InstructionName, 'name');
+    AssertEquals('Deposit Single', LInstr.InstructionName, 'name');
 
-    AssertTrue(D.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
     AssertEquals('Hz3UWwAR4z7TZmzMW2TFjjzDtxEveiZZbJ4sg1LEuvKo', LVal.AsType<IPublicKey>.Key, 'Token Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
     AssertEquals('HRmkKfXbHcvNhWHw47zqoexKiLHmowR8o7hdwwWdaHoW', LVal.AsType<IPublicKey>.Key, 'Swap Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
     AssertEquals('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z', LVal.AsType<IPublicKey>.Key, 'User Transfer Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Source Token Account', LVal), 'Missing "User Source Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Source Token Account', LVal), 'Missing "User Source Token Account"');
     AssertEquals('GxK5rLRGx1AnE9BZzQBP6SVenavuZqRUXbE6QTzL3jjW', LVal.AsType<IPublicKey>.Key, 'User Source Token Account');
 
-    AssertTrue(D.Values.TryGetValue('Token A Swap Account', LVal), 'Missing "Token A Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token A Swap Account', LVal), 'Missing "Token A Swap Account"');
     AssertEquals('7WGJswQpwuNePUiEFBqCMKnGcpkNoX7fFeAdM16o1wV', LVal.AsType<IPublicKey>.Key, 'Token A Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Token B Swap Account', LVal), 'Missing "Token B Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token B Swap Account', LVal), 'Missing "Token B Swap Account"');
     AssertEquals('AbLFYgniLdGWikGJX3dT4iTWoX1FbFBwu2sjGDQN7nfa', LVal.AsType<IPublicKey>.Key, 'Token B Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Pool Mint Account', LVal), 'Missing "Pool Mint Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Mint Account', LVal), 'Missing "Pool Mint Account"');
     AssertEquals('CZSQMnD4jTvRfEuApDAmjWvz1AWpFpXqoePPXwZpmk1F', LVal.AsType<IPublicKey>.Key, 'Pool Mint Account');
 
-    AssertTrue(D.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
     AssertEquals('CosUN9gxk8M6gdSDHYvaKKKCbX2VL73z1mJ66tYFsnSA', LVal.AsType<IPublicKey>.Key, 'User Pool Token Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LVal.AsType<IPublicKey>.Key, 'Token Program ID');
 
-    AssertTrue(D.Values.TryGetValue('Source Token Amount', LVal), 'Missing "Source Token Amount"');
+    AssertTrue(LInstr.Values.TryGetValue('Source Token Amount', LVal), 'Missing "Source Token Amount"');
     AssertEquals(UInt64(1000000000), LVal.AsType<UInt64>, 'Source Token Amount');
 
-    AssertTrue(D.Values.TryGetValue('Min Pool Token Amount', LVal), 'Missing "Min Pool Token Amount"');
+    AssertTrue(LInstr.Values.TryGetValue('Min Pool Token Amount', LVal), 'Missing "Min Pool Token Amount"');
     AssertEquals(UInt64(1000), LVal.AsType<UInt64>, 'Min Pool Token Amount');
   finally
     LDecoded.Free;
@@ -1047,52 +1047,52 @@ end;
 
 procedure TInstructionDecoderTests.WithdrawSingleTokenTypeExactAmountOutDecodeTokenSwapProgramTest;
 var
-  LMsg    : IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
-  D       : IDecodedInstruction;
-  LVal    : TValue;
+  LInstr: IDecodedInstruction;
+  LVal: TValue;
 begin
-  LMsg     := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
+  LMsg := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
   LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
-    D := LDecoded[0];
+    LInstr := LDecoded[0];
 
-    AssertEquals('Withdraw Single', D.InstructionName, 'name');
+    AssertEquals('Withdraw Single', LInstr.InstructionName, 'name');
 
-    AssertTrue(D.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Swap Account', LVal), 'Missing "Token Swap Account"');
     AssertEquals('Hz3UWwAR4z7TZmzMW2TFjjzDtxEveiZZbJ4sg1LEuvKo', LVal.AsType<IPublicKey>.Key, 'Token Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('Swap Authority', LVal), 'Missing "Swap Authority"');
     AssertEquals('HRmkKfXbHcvNhWHw47zqoexKiLHmowR8o7hdwwWdaHoW', LVal.AsType<IPublicKey>.Key, 'Swap Authority');
 
-    AssertTrue(D.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
+    AssertTrue(LInstr.Values.TryGetValue('User Transfer Authority', LVal), 'Missing "User Transfer Authority"');
     AssertEquals('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z', LVal.AsType<IPublicKey>.Key, 'User Transfer Authority');
 
-    AssertTrue(D.Values.TryGetValue('Pool Mint Account', LVal), 'Missing "Pool Mint Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Pool Mint Account', LVal), 'Missing "Pool Mint Account"');
     AssertEquals('CZSQMnD4jTvRfEuApDAmjWvz1AWpFpXqoePPXwZpmk1F', LVal.AsType<IPublicKey>.Key, 'Pool Mint Account');
 
-    AssertTrue(D.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Pool Token Account', LVal), 'Missing "User Pool Token Account"');
     AssertEquals('CosUN9gxk8M6gdSDHYvaKKKCbX2VL73z1mJ66tYFsnSA', LVal.AsType<IPublicKey>.Key, 'User Pool Token Account');
 
-    AssertTrue(D.Values.TryGetValue('Token A Swap Account', LVal), 'Missing "Token A Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token A Swap Account', LVal), 'Missing "Token A Swap Account"');
     AssertEquals('7WGJswQpwuNePUiEFBqCMKnGcpkNoX7fFeAdM16o1wV', LVal.AsType<IPublicKey>.Key, 'Token A Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('Token B Swap Account', LVal), 'Missing "Token B Swap Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Token B Swap Account', LVal), 'Missing "Token B Swap Account"');
     AssertEquals('AbLFYgniLdGWikGJX3dT4iTWoX1FbFBwu2sjGDQN7nfa', LVal.AsType<IPublicKey>.Key, 'Token B Swap Account');
 
-    AssertTrue(D.Values.TryGetValue('User Token Account', LVal), 'Missing "User Token Account"');
+    AssertTrue(LInstr.Values.TryGetValue('User Token Account', LVal), 'Missing "User Token Account"');
     AssertEquals('GxK5rLRGx1AnE9BZzQBP6SVenavuZqRUXbE6QTzL3jjW', LVal.AsType<IPublicKey>.Key, 'User Token Account');
 
-    AssertTrue(D.Values.TryGetValue('Fee Account', LVal), 'Missing "Fee Account"');
+    AssertTrue(LInstr.Values.TryGetValue('Fee Account', LVal), 'Missing "Fee Account"');
     AssertEquals('3Z24fqykBPn1wNSXGz7SA5MXqGGk3DPSDpmxQoERMHrM', LVal.AsType<IPublicKey>.Key, 'Fee Account');
 
-    AssertTrue(D.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
+    AssertTrue(LInstr.Values.TryGetValue('Token Program ID', LVal), 'Missing "Token Program ID"');
     AssertEquals('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', LVal.AsType<IPublicKey>.Key, 'Token Program ID');
 
-    AssertTrue(D.Values.TryGetValue('Destination Token Amount', LVal), 'Missing "Destination Token Amount"');
+    AssertTrue(LInstr.Values.TryGetValue('Destination Token Amount', LVal), 'Missing "Destination Token Amount"');
     AssertEquals(UInt64(1000000), LVal.AsType<UInt64>, 'Destination Token Amount');
 
-    AssertTrue(D.Values.TryGetValue('Max Pool Token Amount', LVal), 'Missing "Max Pool Token Amount"');
+    AssertTrue(LInstr.Values.TryGetValue('Max Pool Token Amount', LVal), 'Missing "Max Pool Token Amount"');
     AssertEquals(UInt64(100000), LVal.AsType<UInt64>, 'Max Pool Token Amount');
   finally
     LDecoded.Free;

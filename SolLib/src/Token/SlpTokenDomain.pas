@@ -475,30 +475,30 @@ end;
 
 function TTokenDef.ConvertDoubleToUInt64(AValue: Double): UInt64;
 var
-  I: Integer;
-  ImpliedAmount: Double;
+  LI: Integer;
+  LImpliedAmount: Double;
 begin
   if FDecimalPlaces < 0 then
     raise Exception.CreateFmt('DecimalPlaces is unknown for mint %s', [FTokenMint]);
 
-  ImpliedAmount := AValue;
-  for I := 1 to FDecimalPlaces do
-    ImpliedAmount := ImpliedAmount * 10;
-  Result := Trunc(ImpliedAmount);
+  LImpliedAmount := AValue;
+  for LI := 1 to FDecimalPlaces do
+    LImpliedAmount := LImpliedAmount * 10;
+  Result := Trunc(LImpliedAmount);
 end;
 
 function TTokenDef.ConvertUInt64ToDouble(AValue: UInt64): Double;
 var
-  I: Integer;
-  ImpliedAmount: Double;
+  LI: Integer;
+  LImpliedAmount: Double;
 begin
   if FDecimalPlaces < 0 then
     raise Exception.CreateFmt('DecimalPlaces is unknown for mint %s', [FTokenMint]);
 
-  ImpliedAmount := AValue;
-  for I := 1 to FDecimalPlaces do
-    ImpliedAmount := ImpliedAmount / 10;
-  Result := ImpliedAmount;
+  LImpliedAmount := AValue;
+  for LI := 1 to FDecimalPlaces do
+    LImpliedAmount := LImpliedAmount / 10;
+  Result := LImpliedAmount;
 end;
 
 function TTokenDef.CloneWithKnownDecimals(ADecimalPlaces: Integer): ITokenDef;
@@ -674,17 +674,17 @@ end;
 constructor TTokenWalletFilterList.Create(const AAccounts: array of ITokenWalletAccount);
 
 var
-  Account: ITokenWalletAccount;
+  LAccount: ITokenWalletAccount;
 begin
   inherited Create;
   FList := TList<ITokenWalletAccount>.Create;
-  for Account in AAccounts do
-    FList.Add(Account);
+  for LAccount in AAccounts do
+    FList.Add(LAccount);
 end;
 
 constructor TTokenWalletFilterList.Create(const AAccounts: TEnumerable<ITokenWalletAccount>);
 var
-  Account: ITokenWalletAccount;
+  LAccount: ITokenWalletAccount;
 begin
   inherited Create;
   FList := TList<ITokenWalletAccount>.Create;
@@ -692,8 +692,8 @@ begin
   if AAccounts = nil then
     raise EArgumentNilException.Create('AAccounts');
 
-  for Account in AAccounts do
-    FList.Add(Account);
+  for LAccount in AAccounts do
+    FList.Add(LAccount);
 end;
 
 destructor TTokenWalletFilterList.Destroy;
@@ -704,60 +704,60 @@ end;
 
 function TTokenWalletFilterList.ForToken(const AToken: ITokenDef): ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
   if AToken = nil then
     raise EArgumentNilException.Create('AToken');
 
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if SameText(Account.TokenMint, AToken.TokenMint) then
-      Filtered.FList.Add(Account);
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if SameText(LAccount.TokenMint, AToken.TokenMint) then
+      LFiltered.FList.Add(LAccount);
 
-  Result := Filtered;
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.WithSymbol(const ASymbol: string): ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
   if ASymbol.Trim = '' then
     raise EArgumentException.Create('ASymbol cannot be empty.');
 
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if SameText(Account.Symbol, ASymbol) then
-      Filtered.FList.Add(Account);
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if SameText(LAccount.Symbol, ASymbol) then
+      LFiltered.FList.Add(LAccount);
 
-  Result := Filtered;
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.WithPublicKey(const APublicKey: string): ITokenWalletAccount;
 var
-  Account: ITokenWalletAccount;
+  LAccount: ITokenWalletAccount;
 begin
   if APublicKey.Trim = '' then
     raise EArgumentException.Create('APublicKey cannot be empty.');
 
-  for Account in FList do
-    if SameStr(Account.PublicKey, APublicKey) then
-      Exit(Account);
+  for LAccount in FList do
+    if SameStr(LAccount.PublicKey, APublicKey) then
+      Exit(LAccount);
 
   Result := nil;
 end;
 
 function TTokenWalletFilterList.WithMint(const AMint: string): ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if SameText(Account.TokenMint, AMint) then
-      Filtered.FList.Add(Account);
-  Result := Filtered;
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if SameText(LAccount.TokenMint, AMint) then
+      LFiltered.FList.Add(LAccount);
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.WithMint(const ATokenDef: ITokenDef): ITokenWalletFilterList;
@@ -769,77 +769,77 @@ end;
 
 function TTokenWalletFilterList.WithAtLeast(AMinimumBalance: Double): ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if Account.QuantityDouble >= AMinimumBalance then
-      Filtered.FList.Add(Account);
-  Result := Filtered;
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if LAccount.QuantityDouble >= AMinimumBalance then
+      LFiltered.FList.Add(LAccount);
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.WithAtLeast(AMinimumBalance: UInt64): ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if Account.QuantityRaw >= AMinimumBalance then
-      Filtered.FList.Add(Account);
-  Result := Filtered;
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if LAccount.QuantityRaw >= AMinimumBalance then
+      LFiltered.FList.Add(LAccount);
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.WithNonZero: ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if Account.QuantityRaw > 0 then
-      Filtered.FList.Add(Account);
-  Result := Filtered;
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if LAccount.QuantityRaw > 0 then
+      LFiltered.FList.Add(LAccount);
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.WhichAreAssociatedTokenAccounts: ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if Account.IsAssociatedTokenAccount then
-      Filtered.FList.Add(Account);
-  Result := Filtered;
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if LAccount.IsAssociatedTokenAccount then
+      LFiltered.FList.Add(LAccount);
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.AssociatedTokenAccount: ITokenWalletAccount;
 var
-  List: ITokenWalletFilterList;
+  LList: ITokenWalletFilterList;
 begin
-  List := WhichAreAssociatedTokenAccounts;
-  if List.Count > 0 then
-    Result := List.First
+  LList := WhichAreAssociatedTokenAccounts;
+  if LList.Count > 0 then
+    Result := LList.First
   else
     Result := nil;
 end;
 
 function TTokenWalletFilterList.WithCustomFilter(const AFilter: TPredicate<ITokenWalletAccount>): ITokenWalletFilterList;
 var
-  Account: ITokenWalletAccount;
-  Filtered: TTokenWalletFilterList;
+  LAccount: ITokenWalletAccount;
+  LFiltered: TTokenWalletFilterList;
 begin
   if not Assigned(AFilter) then
     raise EArgumentNilException.Create('AFilter');
 
-  Filtered := TTokenWalletFilterList.Create([]);
-  for Account in FList do
-    if AFilter(Account) then
-      Filtered.FList.Add(Account);
+  LFiltered := TTokenWalletFilterList.Create([]);
+  for LAccount in FList do
+    if AFilter(LAccount) then
+      LFiltered.FList.Add(LAccount);
 
-  Result := Filtered;
+  Result := LFiltered;
 end;
 
 function TTokenWalletFilterList.GetEnumerator: TList<ITokenWalletAccount>.TEnumerator;

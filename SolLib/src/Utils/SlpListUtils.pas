@@ -29,77 +29,77 @@ uses
 type
   TListUtils = class
   public
-    class function Any<T>(const L: TList<T>; const Pred: TPredicate<T>): Boolean; overload; static;
-    class function Any<T: class>(const L: TObjectList<T>; const Pred: TPredicate<T>): Boolean; overload; static;
+    class function Any<T>(const AList: TList<T>; const APred: TPredicate<T>): Boolean; overload; static;
+    class function Any<T: class>(const AList: TObjectList<T>; const APred: TPredicate<T>): Boolean; overload; static;
 
-    class function Filter<T>(const L: TList<T>; const Pred: TPredicate<T>): TList<T>; overload; static;
-    class function Filter<T: class>(const L: TObjectList<T>; const Pred: TPredicate<T>): TObjectList<T>; overload; static;
+    class function Filter<T>(const AList: TList<T>; const APred: TPredicate<T>): TList<T>; overload; static;
+    class function Filter<T: class>(const AList: TObjectList<T>; const APred: TPredicate<T>): TObjectList<T>; overload; static;
 
-    class function FindIndex<T>(const L: TList<T>; const Pred: TPredicate<T>): Integer; overload; static;
-    class function FindIndex<T: class>(const L: TObjectList<T>; const Pred: TPredicate<T>): Integer; overload;
+    class function FindIndex<T>(const AList: TList<T>; const APred: TPredicate<T>): Integer; overload; static;
+    class function FindIndex<T: class>(const AList: TObjectList<T>; const APred: TPredicate<T>): Integer; overload;
   end;
 
 implementation
 
 { TListUtils }
 
-class function TListUtils.Any<T>(const L: TList<T>; const Pred: TPredicate<T>): Boolean;
+class function TListUtils.Any<T>(const AList: TList<T>; const APred: TPredicate<T>): Boolean;
 var
-  Item: T;
+  LItem: T;
 begin
-  for Item in L do
-    if Pred(Item) then
+  for LItem in AList do
+    if APred(LItem) then
       Exit(True);
   Result := False;
 end;
 
-class function TListUtils.Any<T>(const L: TObjectList<T>; const Pred: TPredicate<T>): Boolean;
+class function TListUtils.Any<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): Boolean;
 var
-  Item: T;
+  LItem: T;
 begin
-  for Item in L do
-    if Pred(Item) then
+  for LItem in AList do
+    if APred(LItem) then
       Exit(True);
   Result := False;
 end;
 
-class function TListUtils.Filter<T>(const L: TList<T>; const Pred: TPredicate<T>): TList<T>;
+class function TListUtils.Filter<T>(const AList: TList<T>; const APred: TPredicate<T>): TList<T>;
 var
-  Item: T;
+  LItem: T;
 begin
   Result := TList<T>.Create;
-  for Item in L do
-    if Pred(Item) then
-      Result.Add(Item);
+  for LItem in AList do
+    if APred(LItem) then
+      Result.Add(LItem);
 end;
 
-class function TListUtils.Filter<T>(const L: TObjectList<T>; const Pred: TPredicate<T>): TObjectList<T>;
+class function TListUtils.Filter<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): TObjectList<T>;
 var
-  Item: T;
+  LItem: T;
 begin
-  Result := TObjectList<T>.Create(L.OwnsObjects);
-  for Item in L do
-    if Pred(Item) then
-      Result.Add(Item);
+  Result := TObjectList<T>.Create(AList.OwnsObjects);
+  for LItem in AList do
+    if APred(LItem) then
+      Result.Add(LItem);
 end;
 
-class function TListUtils.FindIndex<T>(const L: TList<T>; const Pred: TPredicate<T>): Integer;
+class function TListUtils.FindIndex<T>(const AList: TList<T>; const APred: TPredicate<T>): Integer;
 var
-  I: Integer;
+  LI: Integer;
 begin
-  for I := 0 to L.Count - 1 do
-    if Pred(L[I]) then
-      Exit(I);
+  for LI := 0 to AList.Count - 1 do
+    if APred(AList[LI]) then
+      Exit(LI);
   Result := -1;
 end;
 
-class function TListUtils.FindIndex<T>(const L: TObjectList<T>; const Pred: TPredicate<T>): Integer;
+class function TListUtils.FindIndex<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): Integer;
 var
-  I: Integer;
+  LI: Integer;
 begin
-  for I := 0 to L.Count - 1 do
-    if Pred(L[I]) then
-      Exit(I);
+  for LI := 0 to AList.Count - 1 do
+    if APred(AList[LI]) then
+      Exit(LI);
   Result := -1;
 end;
 

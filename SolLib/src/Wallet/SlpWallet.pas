@@ -23,7 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  System.TypInfo,
+  SlpEnumUtils,
   SlpWalletEnum,
   SlpWordList,
   SlpAccount,
@@ -45,29 +45,27 @@ type
     /// <summary>
     /// Verify the signed message.
     /// </summary>
-    function Verify(const &Message, Signature: TBytes; AccountIndex: Integer)
-      : Boolean; overload;
+    function Verify(const AMessage, ASignature: TBytes; AAccountIndex: Integer): Boolean; overload;
 
     /// <summary>
     /// Verify the signed message with the default account.
     /// </summary>
-    function Verify(const &Message, Signature: TBytes): Boolean; overload;
+    function Verify(const AMessage, ASignature: TBytes): Boolean; overload;
 
     /// <summary>
     /// Sign the data with a specific account index.
     /// </summary>
-    function Sign(const &Message: TBytes; AccountIndex: Integer)
-      : TBytes; overload;
+    function Sign(const AMessage: TBytes; AAccountIndex: Integer): TBytes; overload;
 
     /// <summary>
     /// Sign the data with the default account.
     /// </summary>
-    function Sign(const &Message: TBytes): TBytes; overload;
+    function Sign(const AMessage: TBytes): TBytes; overload;
 
     /// <summary>
     /// Gets the account at the passed index using the ed25519 bip32 derivation path.
     /// </summary>
-    function GetAccountByIndex(Index: Integer): IAccount;
+    function GetAccountByIndex(AIndex: Integer): IAccount;
 
     /// <summary>
     /// Derive a seed from the passed mnemonic and/or passphrase, depending on <see cref="SeedMode"/>.
@@ -117,29 +115,27 @@ type
     /// <summary>
     /// Verify the signed message.
     /// </summary>
-    function Verify(const &Message, Signature: TBytes; AccountIndex: Integer)
-      : Boolean; overload;
+    function Verify(const AMessage, ASignature: TBytes; AAccountIndex: Integer): Boolean; overload;
 
     /// <summary>
     /// Verify the signed message with the default account.
     /// </summary>
-    function Verify(const &Message, Signature: TBytes): Boolean; overload;
+    function Verify(const AMessage, ASignature: TBytes): Boolean; overload;
 
     /// <summary>
     /// Sign the data with a specific account index.
     /// </summary>
-    function Sign(const &Message: TBytes; AccountIndex: Integer)
-      : TBytes; overload;
+    function Sign(const AMessage: TBytes; AAccountIndex: Integer): TBytes; overload;
 
     /// <summary>
     /// Sign the data with the default account.
     /// </summary>
-    function Sign(const &Message: TBytes): TBytes; overload;
+    function Sign(const AMessage: TBytes): TBytes; overload;
 
     /// <summary>
     /// Gets the account at the passed index using the ed25519 bip32 derivation path.
     /// </summary>
-    function GetAccountByIndex(Index: Integer): IAccount;
+    function GetAccountByIndex(AIndex: Integer): IAccount;
 
     /// <summary>
     /// Derive a seed from the passed mnemonic and/or passphrase, depending on <see cref="SeedMode"/>.
@@ -154,39 +150,39 @@ type
     /// <param name="WordList">The language of the mnemonic words.</param>
     /// <param name="Passphrase">The passphrase.</param>
     /// <param name="SeedMode">The seed generation mode.</param>
-    constructor Create(WordCount: TWordCount; const WordList: IWordList;
-      const Passphrase: string = '';
-      SeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
+    constructor Create(AWordCount: TWordCount; const AWordList: IWordList;
+      const APassphrase: string = '';
+      ASeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
 
     /// <summary>
     /// Initialize a wallet from the passed mnemonic and passphrase.
     /// </summary>
     /// <param name="AMnemonic">The mnemonic (reference counted).</param>
-    /// <param name="Passphrase">The passphrase.</param>
-    /// <param name="SeedMode">The seed generation mode.</param>
+    /// <param name="APassphrase">The passphrase.</param>
+    /// <param name="ASeedMode">The seed generation mode.</param>
     constructor Create(const AMnemonic: IMnemonic;
-      const Passphrase: string = '';
-      SeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
+      const APassphrase: string = '';
+      ASeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
 
     /// <summary>
     /// Initialize a wallet from the passed mnemonic string and optional word list and passphrase.
     /// </summary>
-    /// <param name="MnemonicWords">The mnemonic words.</param>
-    /// <param name="WordList">The language of the mnemonic words. Defaults to <see cref="WordList.English"/>.</param>
-    /// <param name="Passphrase">The passphrase.</param>
-    /// <param name="SeedMode">The seed generation mode.</param>
-    constructor Create(const MnemonicWords: string;
-      const WordList: IWordList = nil; const Passphrase: string = '';
-      SeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
+    /// <param name="AMnemonicWords">The mnemonic words.</param>
+    /// <param name="AWordList">The language of the mnemonic words. Defaults to <see cref="WordList.English"/>.</param>
+    /// <param name="APassphrase">The passphrase.</param>
+    /// <param name="ASeedMode">The seed generation mode.</param>
+    constructor Create(const AMnemonicWords: string;
+      const AWordList: IWordList = nil; const APassphrase: string = '';
+      ASeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
 
     /// <summary>
     /// Initializes a wallet from the passed seed byte array.
     /// </summary>
-    /// <param name="Seed">The seed used for key derivation.</param>
-    /// <param name="Passphrase">The passphrase.</param>
-    /// <param name="SeedMode">The seed mode.</param>
-    constructor Create(const Seed: TBytes; const Passphrase: string = '';
-      SeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
+    /// <param name="ASeed">The seed used for key derivation.</param>
+    /// <param name="APassphrase">The passphrase.</param>
+    /// <param name="ASeedMode">The seed mode.</param>
+    constructor Create(const ASeed: TBytes; const APassphrase: string = '';
+      ASeedMode: TSeedMode = TSeedMode.Ed25519Bip32); overload;
 
     destructor Destroy; override;
   end;
@@ -215,138 +211,138 @@ begin
   Result := FPassphrase;
 end;
 
-constructor TWallet.Create(WordCount: TWordCount; const WordList: IWordList;
-  const Passphrase: string; SeedMode: TSeedMode);
+constructor TWallet.Create(AWordCount: TWordCount; const AWordList: IWordList;
+  const APassphrase: string; ASeedMode: TSeedMode);
 begin
   inherited Create;
-  if WordList = nil then
+  if AWordList = nil then
     raise EArgumentNilException.Create('WordList');
 
-  FMnemonic := TMnemonic.Create(WordList, WordCount);
-  FPassphrase := Passphrase;
-  FSeedMode := SeedMode;
+  FMnemonic := TMnemonic.Create(AWordList, AWordCount);
+  FPassphrase := APassphrase;
+  FSeedMode := ASeedMode;
 
   InitializeSeed;
 end;
 
-constructor TWallet.Create(const AMnemonic: IMnemonic; const Passphrase: string;
-  SeedMode: TSeedMode);
+constructor TWallet.Create(const AMnemonic: IMnemonic; const APassphrase: string;
+  ASeedMode: TSeedMode);
 begin
   inherited Create;
   if AMnemonic = nil then
     raise EArgumentNilException.Create('mnemonic');
 
   FMnemonic := AMnemonic;
-  FPassphrase := Passphrase;
-  FSeedMode := SeedMode;
+  FPassphrase := APassphrase;
+  FSeedMode := ASeedMode;
 
   InitializeSeed;
 end;
 
-constructor TWallet.Create(const MnemonicWords: string;
-  const WordList: IWordList; const Passphrase: string; SeedMode: TSeedMode);
+constructor TWallet.Create(const AMnemonicWords: string;
+  const AWordList: IWordList; const APassphrase: string; ASeedMode: TSeedMode);
 var
-  WL: IWordList;
+  LWL: IWordList;
 begin
   inherited Create;
-  if MnemonicWords = '' then
+  if AMnemonicWords = '' then
     raise EArgumentNilException.Create('mnemonicWords');
 
-  WL := WordList;
-  if WL = nil then
-    WL := TWordList.English;
-  FMnemonic := TMnemonic.Create(MnemonicWords, WL);
+  LWL := AWordList;
+  if LWL = nil then
+    LWL := TWordList.English;
+  FMnemonic := TMnemonic.Create(AMnemonicWords, LWL);
 
-  FPassphrase := Passphrase;
-  FSeedMode := SeedMode;
+  FPassphrase := APassphrase;
+  FSeedMode := ASeedMode;
 
   InitializeSeed;
 end;
 
-constructor TWallet.Create(const Seed: TBytes; const Passphrase: string;
-  SeedMode: TSeedMode);
+constructor TWallet.Create(const ASeed: TBytes; const APassphrase: string;
+  ASeedMode: TSeedMode);
 begin
   inherited Create;
 
-  if Length(Seed) <> 64 then
+  if Length(ASeed) <> 64 then
     raise EArgumentNilException.Create('invalid seed length');
 
-  FPassphrase := Passphrase;
-  FSeedMode := SeedMode;
-  FSeed := Seed;
+  FPassphrase := APassphrase;
+  FSeedMode := ASeedMode;
+  FSeed := ASeed;
 
   InitializeFirstAccount;
 end;
 
-function TWallet.Verify(const &Message, Signature: TBytes;
-  AccountIndex: Integer): Boolean;
+function TWallet.Verify(const AMessage, ASignature: TBytes;
+  AAccountIndex: Integer): Boolean;
 var
-  Acc: IAccount;
+  LAcc: IAccount;
 begin
   if FSeedMode <> TSeedMode.Ed25519Bip32 then
     raise Exception.Create(
       'cannot verify bip39 signatures using ed25519 based bip32 keys'
     );
 
-  Acc := GetAccountByIndex(AccountIndex);
-  Result := Acc.Verify(&Message, Signature);
+  LAcc := GetAccountByIndex(AAccountIndex);
+  Result := LAcc.Verify(AMessage, ASignature);
 end;
 
-function TWallet.Verify(const &Message, Signature: TBytes): Boolean;
+function TWallet.Verify(const AMessage, ASignature: TBytes): Boolean;
 begin
   if not Assigned(FAccount) then
     raise EInvalidOpException.Create('Account not initialized');
-  Result := FAccount.Verify(&Message, Signature);
+  Result := FAccount.Verify(AMessage, ASignature);
 end;
 
-function TWallet.Sign(const &Message: TBytes; AccountIndex: Integer): TBytes;
+function TWallet.Sign(const AMessage: TBytes; AAccountIndex: Integer): TBytes;
 var
-  Acc: IAccount;
+  LAcc: IAccount;
 begin
   if FSeedMode <> TSeedMode.Ed25519Bip32 then
     raise Exception.Create(
       'cannot compute bip39 signature using ed25519 based bip32 keys'
     );
 
-  Acc := GetAccountByIndex(AccountIndex);
-  Result := Acc.Sign(&Message);
+  LAcc := GetAccountByIndex(AAccountIndex);
+  Result := LAcc.Sign(AMessage);
 end;
 
-function TWallet.Sign(const &Message: TBytes): TBytes;
+function TWallet.Sign(const AMessage: TBytes): TBytes;
 begin
   if not Assigned(FAccount) then
     raise EInvalidOpException.Create('Account not initialized');
-  Result := FAccount.Sign(&Message);
+  Result := FAccount.Sign(AMessage);
 end;
 
-function TWallet.GetAccountByIndex(Index: Integer): IAccount;
+function TWallet.GetAccountByIndex(AIndex: Integer): IAccount;
 var
-  Path: string;
-  Child: TKeyChain;
-  ChildSeed: TBytes;
-  SK64, PK32: TBytes;
-  KeyPair: TEd25519KeyPair;
+  LPath: string;
+  LChild: TKeyChain;
+  LChildSeed: TBytes;
+  LSK64, LPK32: TBytes;
+  LKeyPair: TEd25519KeyPair;
 begin
   if FSeedMode <> TSeedMode.Ed25519Bip32 then
     raise Exception.CreateFmt
       ('seed mode: %s cannot derive Ed25519 based BIP32 keys',
-      [GetEnumName(TypeInfo(TSeedMode), Ord(FSeedMode))]);
+      [TEnumUtils.ToString<TSeedMode>(FSeedMode)]);
 
   if not Assigned(FEd25519Bip32) then
     raise EInvalidOpException.Create('Ed25519Bip32 not initialized');
 
-  Path := StringReplace(DerivationPathTemplate, 'x', Index.ToString,
+  LPath := StringReplace(DerivationPathTemplate, 'x', AIndex.ToString,
     [rfReplaceAll, rfIgnoreCase]);
 
-  Child := FEd25519Bip32.DerivePath(Path);
-  ChildSeed := Child.Key; // 32 bytes
+  LChild := FEd25519Bip32.DerivePath(LPath);
+  LChildSeed := LChild.Key; // 32 bytes
 
   // libsodium: SecretKey64 = seed||pub; PublicKey32 derived from seed
-  KeyPair := TEd25519Crypto.GenerateKeyPair(ChildSeed);
-  SK64 := KeyPair.SecretKey;
-  PK32 := KeyPair.PublicKey;
+  LKeyPair := TEd25519Crypto.GenerateKeyPair(LChildSeed);
+  LSK64 := LKeyPair.SecretKey;
+  LPK32 := LKeyPair.PublicKey;
 
-  Result := TAccount.Create(SK64, PK32);
+  Result := TAccount.Create(LSK64, LPK32);
 end;
 
 function TWallet.DeriveMnemonicSeed: TBytes;
@@ -370,9 +366,9 @@ end;
 
 procedure TWallet.InitializeFirstAccount;
 var
-  FirstSeed32: TBytes;
-  SK64, PK32: TBytes;
-  KeyPair: TEd25519KeyPair;
+  LFirstSeed32: TBytes;
+  LSK64, LPK32: TBytes;
+  LKeyPair: TEd25519KeyPair;
 begin
   if FSeedMode = TSeedMode.Ed25519Bip32 then
   begin
@@ -381,13 +377,13 @@ begin
   end
   else
   begin
-    FirstSeed32 := TArrayUtils.Slice<Byte>(FSeed, 0, 32);
+    LFirstSeed32 := TArrayUtils.Slice<Byte>(FSeed, 0, 32);
 
-    KeyPair := TEd25519Crypto.GenerateKeyPair(FirstSeed32);
-    SK64 := KeyPair.SecretKey;
-    PK32 := KeyPair.PublicKey;
+    LKeyPair := TEd25519Crypto.GenerateKeyPair(LFirstSeed32);
+    LSK64 := LKeyPair.SecretKey;
+    LPK32 := LKeyPair.PublicKey;
 
-    FAccount := TAccount.Create(SK64, PK32);
+    FAccount := TAccount.Create(LSK64, LPK32);
   end;
 end;
 

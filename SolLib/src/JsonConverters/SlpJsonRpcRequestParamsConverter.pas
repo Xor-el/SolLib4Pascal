@@ -28,7 +28,6 @@ uses
   System.Generics.Collections,
   System.JSON,
   System.JSON.Readers,
-  System.JSON.Writers,
   System.JSON.Serializers,
   System.JSON.Utils,
   SlpBaseJsonConverter,
@@ -36,11 +35,20 @@ uses
   SlpJsonHelpers;
 
 type
+  /// <summary>
+  /// Converts JSON-RPC request params (array or single value) into a TList of TValue.
+  /// </summary>
   TJsonRpcRequestParamsConverter = class(TBaseJsonConverter)
   private
-    class function ReadParamsListFromJsonValue(const JV: TJSONValue): TList<TValue>; static;
+    class function ReadParamsListFromJsonValue(const AJV: TJSONValue): TList<TValue>; static;
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TList of TValue or a subclass thereof.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes JSON-RPC request params from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
@@ -50,26 +58,26 @@ implementation
 { TJsonRpcRequestParamsConverter }
 
 class function TJsonRpcRequestParamsConverter.ReadParamsListFromJsonValue(
-  const JV: TJSONValue): TList<TValue>;
+  const AJV: TJSONValue): TList<TValue>;
 var
-  Arr: TJSONArray;
-  I: Integer;
+  LArr: TJSONArray;
+  LI: Integer;
 begin
-  if (JV = nil) or (JV is TJSONNull) then
+  if (AJV = nil) or (AJV is TJSONNull) then
     Exit(nil);
 
   Result := TList<TValue>.Create;
 
-  if JV is TJSONArray then
+  if AJV is TJSONArray then
   begin
-    Arr := TJSONArray(JV);
-    for I := 0 to Arr.Count - 1 do
-      Result.Add(Arr.Items[I].ToTValue());
+    LArr := TJSONArray(AJV);
+    for LI := 0 to LArr.Count - 1 do
+      Result.Add(LArr.Items[LI].ToTValue());
   end
   else
   begin
     // non-array JSON value => single param list
-    Result.Add(JV.ToTValue());
+    Result.Add(AJV.ToTValue());
   end;
 end;
 
@@ -83,27 +91,27 @@ function TJsonRpcRequestParamsConverter.ReadJson(
   const AReader: TJsonReader; ATypeInf: PTypeInfo; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
 var
-  JV: TJSONValue;
-  Existing: TList<TValue>;
-  Parsed: TList<TValue>;
-  Item: TValue;
+  LJV: TJSONValue;
+  LExisting: TList<TValue>;
+  LParsed: TList<TValue>;
+  LItem: TValue;
 begin
-  JV := AReader.ReadJsonValue;
+  LJV := AReader.ReadJsonValue;
   try
     // If a list already exists, mutate it in-place
     if (not AExistingValue.IsEmpty) and (AExistingValue.Kind = tkClass) and
        (AExistingValue.AsObject is TList<TValue>) then
     begin
-      Existing := TList<TValue>(AExistingValue.AsObject);
-      Existing.Clear;
+      LExisting := TList<TValue>(AExistingValue.AsObject);
+      LExisting.Clear;
 
-      Parsed := ReadParamsListFromJsonValue(JV);
+      LParsed := ReadParamsListFromJsonValue(LJV);
       try
-        if Parsed <> nil then
-          for Item in Parsed do
-            Existing.Add(Item);
+        if LParsed <> nil then
+          for LItem in LParsed do
+            LExisting.Add(LItem);
       finally
-        Parsed.Free; // we copied items; free the temp list
+        LParsed.Free; // we copied items; free the temp list
       end;
 
       Result := AExistingValue; // keep same instance
@@ -111,9 +119,9 @@ begin
     end;
 
     // Otherwise create a new list and return it (caller will assign)
-    Result := TValue.From<TList<TValue>>(ReadParamsListFromJsonValue(JV));
+    Result := TValue.From<TList<TValue>>(ReadParamsListFromJsonValue(LJV));
   finally
-    JV.Free;
+    LJV.Free;
   end;
 end;
 

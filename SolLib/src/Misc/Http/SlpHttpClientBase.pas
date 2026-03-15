@@ -28,7 +28,7 @@ uses
   SlpHttpApiResponse;
 
 type
-  THttpApiQueryParams  = TDictionary<string,string>;
+  THttpApiQueryParams = TDictionary<string,string>;
   THttpApiHeaderParams = TDictionary<string,string>;
   // Abstract base for compiler-specific HTTP implementations
   THttpClientBase = class abstract
@@ -42,34 +42,34 @@ type
     function PostJson(const AUrl, AJson: string;
                       const AHeaders: THttpApiHeaderParams): IHttpApiResponse; virtual; abstract;
 
-    class function UrlEncode(const S: string): string; static;
-    class function BuildUrlWithQuery(const BaseUrl: string; const Q: THttpApiQueryParams): string; static;
+    class function UrlEncode(const AStr: string): string; static;
+    class function BuildUrlWithQuery(const ABaseUrl: string; const AQuery: THttpApiQueryParams): string; static;
   end;
 
 implementation
 
 { THttpClientBase }
 
-class function THttpClientBase.UrlEncode(const S: string): string;
+class function THttpClientBase.UrlEncode(const AStr: string): string;
 begin
-  Result := TNetEncoding.URL.Encode(S);
+  Result := TNetEncoding.URL.Encode(AStr);
 end;
 
-class function THttpClientBase.BuildUrlWithQuery(const BaseUrl: string; const Q: THttpApiQueryParams): string;
+class function THttpClientBase.BuildUrlWithQuery(const ABaseUrl: string; const AQuery: THttpApiQueryParams): string;
 var
-  Key, Sep, Val: string;
+  LKey, LSep, LVal: string;
 begin
-  Result := BaseUrl;
-  if (Q = nil) or (Q.Count = 0) then Exit;
-  if Pos('?', Result) > 0 then Sep := '&' else Sep := '?';
-  for Key in Q.Keys do
+  Result := ABaseUrl;
+  if (AQuery = nil) or (AQuery.Count = 0) then Exit;
+  if Pos('?', Result) > 0 then LSep := '&' else LSep := '?';
+  for LKey in AQuery.Keys do
   begin
-    if not Q.TryGetValue(Key, Val) then
-      Val := '';
-    Result := Result + Sep +
-      UrlEncode(Key) + '=' +
-      UrlEncode(Val);
-    Sep := '&';
+    if not AQuery.TryGetValue(LKey, LVal) then
+      LVal := '';
+    Result := Result + LSep +
+      UrlEncode(LKey) + '=' +
+      UrlEncode(LVal);
+    LSep := '&';
   end;
 end;
 

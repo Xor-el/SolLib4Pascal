@@ -31,11 +31,11 @@ type
   TSysVars = class sealed
   strict private
     class var FRecentBlockHashesKey: IPublicKey;
-    class var FRentKey            : IPublicKey;
-    class var FClockKey           : IPublicKey;
-    class var FStakeHistoryKey    : IPublicKey;
-    class var FSlotHashesKey      : IPublicKey;
-    class var FInstructionsKey    : IPublicKey;
+    class var FRentKey: IPublicKey;
+    class var FClockKey: IPublicKey;
+    class var FStakeHistoryKey: IPublicKey;
+    class var FSlotHashesKey: IPublicKey;
+    class var FInstructionsKey: IPublicKey;
   public
     /// <summary>
     /// The public key of the Recent Block Hashes System Variable.
@@ -78,21 +78,21 @@ implementation
 class constructor TSysVars.Create;
 begin
   FRecentBlockHashesKey := TPublicKey.Create('SysvarRecentB1ockHashes11111111111111111111');
-  FRentKey              := TPublicKey.Create('SysvarRent111111111111111111111111111111111');
-  FClockKey             := TPublicKey.Create('SysvarC1ock11111111111111111111111111111111');
-  FStakeHistoryKey      := TPublicKey.Create('SysvarStakeHistory1111111111111111111111111');
-  FSlotHashesKey        := TPublicKey.Create('SysvarS1otHashes111111111111111111111111111');
-  FInstructionsKey      := TPublicKey.Create('Sysvar1nstructions1111111111111111111111111');
+  FRentKey := TPublicKey.Create('SysvarRent111111111111111111111111111111111');
+  FClockKey := TPublicKey.Create('SysvarC1ock11111111111111111111111111111111');
+  FStakeHistoryKey := TPublicKey.Create('SysvarStakeHistory1111111111111111111111111');
+  FSlotHashesKey := TPublicKey.Create('SysvarS1otHashes111111111111111111111111111');
+  FInstructionsKey := TPublicKey.Create('Sysvar1nstructions1111111111111111111111111');
 end;
 
 class destructor TSysVars.Destroy;
 begin
   FRecentBlockHashesKey := nil;
-  FRentKey              := nil;
-  FClockKey             := nil;
-  FStakeHistoryKey      := nil;
-  FSlotHashesKey        := nil;
-  FInstructionsKey      := nil;
+  FRentKey := nil;
+  FClockKey := nil;
+  FStakeHistoryKey := nil;
+  FSlotHashesKey := nil;
+  FInstructionsKey := nil;
 end;
 
 end.

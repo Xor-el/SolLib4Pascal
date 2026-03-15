@@ -23,7 +23,6 @@ interface
 
 uses
   System.SysUtils,
-  System.TypInfo,
   System.Rtti,
   System.Generics.Collections,
   System.JSON,
@@ -39,6 +38,9 @@ type
   /// into a TObjectList-based batch type.
   TBaseJsonBatchConverter = class(TBaseJsonConverter)
   protected
+    /// <summary>
+    /// Deserializes a JSON array into a TObjectList-based batch of TItem instances.
+    /// </summary>
     class function ReadBatchArray<TBatch: class, constructor; TItem: class>(
       const AReader: TJsonReader; const AExistingValue: TValue;
       const ASerializer: TJsonSerializer): TValue; static;
@@ -52,10 +54,10 @@ class function TBaseJsonBatchConverter.ReadBatchArray<TBatch, TItem>(
   const AReader: TJsonReader; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
 var
-  Batch: TObjectList<TItem>;
-  JV: TJSONValue;
-  Item: TItem;
-  OwnBatch: Boolean;
+  LBatch: TObjectList<TItem>;
+  LJV: TJSONValue;
+  LItem: TItem;
+  LOwnBatch: Boolean;
 begin
   if (AReader.TokenType = TJsonToken.None) and (not AReader.Read) then Exit(nil);
   while AReader.TokenType = TJsonToken.Comment do
@@ -67,38 +69,38 @@ begin
 
   if AExistingValue.IsEmpty or (AExistingValue.AsObject = nil) then
   begin
-    Batch := TObjectList<TItem>(TBatch.Create);
-    OwnBatch := True;
+    LBatch := TObjectList<TItem>(TBatch.Create);
+    LOwnBatch := True;
   end
   else
   begin
-    Batch := TObjectList<TItem>(AExistingValue.AsObject);
-    Batch.Clear;
-    OwnBatch := False;
+    LBatch := TObjectList<TItem>(AExistingValue.AsObject);
+    LBatch.Clear;
+    LOwnBatch := False;
   end;
 
   try
-    while AReader.ReadNextArrayElement(JV) do
+    while AReader.ReadNextArrayElement(LJV) do
     begin
       try
-        Item := ASerializer.Deserialize<TItem>(JV.ToJSON);
-        if Item <> nil then
+        LItem := ASerializer.Deserialize<TItem>(LJV.ToJSON);
+        if LItem <> nil then
         begin
           try
-            Batch.Add(Item);
+            LBatch.Add(LItem);
           except
-            Item.Free;
+            LItem.Free;
             raise;
           end;
         end;
       finally
-        JV.Free;
+        LJV.Free;
       end;
     end;
-    TValue.Make(@Batch, TypeInfo(TBatch), Result);
+    TValue.Make(@LBatch, TypeInfo(TBatch), Result);
   except
-    if OwnBatch then
-      Batch.Free;
+    if LOwnBatch then
+      LBatch.Free;
     raise;
   end;
 end;

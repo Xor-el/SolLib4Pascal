@@ -47,27 +47,27 @@ implementation
 
 procedure TClientFactoryTests.TestBuildRpcClient;
 var
-  C: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
-  C := TClientFactory.GetClient(TCluster.DevNet, rpcHttpClient);
-  AssertNotNull(C, 'GetClient(TCluster.DevNet) should return a client instance');
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TClientFactory.GetClient(TCluster.DevNet, LRpcHttpClient);
+  AssertNotNull(LRpcClient, 'GetClient(TCluster.DevNet) should return a client instance');
 end;
 
 procedure TClientFactoryTests.TestBuildRpcClientFromString;
 var
-  C: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
-  C := TClientFactory.GetClient(TestnetUrl, rpcHttpClient);
-  AssertNotNull(C, 'GetClient(url) should return a client instance');
-  AssertEquals(TURI.Create(TestnetUrl).ToString, C.NodeAddress.ToString, 'NodeAddress mismatch');
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
+  LRpcClient := TClientFactory.GetClient(TestnetUrl, LRpcHttpClient);
+  AssertNotNull(LRpcClient, 'GetClient(url) should return a client instance');
+  AssertEquals(TURI.Create(TestnetUrl).ToString, LRpcClient.NodeAddress.ToString, 'NodeAddress mismatch');
 end;
 
 initialization

@@ -32,7 +32,7 @@ uses
   SlpPublicKey,
   SlpTransactionDomain,
   SlpShortVectorEncoding,
-  SlpDataEncoders;
+  SlpDataEncoderUtils;
 
 type
   /// <summary>
@@ -289,56 +289,53 @@ end;
 
 function TTransactionBuilder.Serialize: TBytes;
 var
-  SigLenEnc: TBytes;
-  MS: TMemoryStream;
-  Sig: string;
-  SigBytes: TBytes;
-  Capacity: Integer;
+  LSigLenEnc: TBytes;
+  LMS: TMemoryStream;
+  LSig: string;
+  LSigBytes: TBytes;
+  LCapacity: Integer;
 begin
-  SigLenEnc := TShortVectorEncoding.EncodeLength(FSignatures.Count);
+  LSigLenEnc := TShortVectorEncoding.EncodeLength(FSignatures.Count);
 
   if Length(FSerializedMessage) = 0 then
     FSerializedMessage := FMessageBuilder.Build;
 
-  Capacity := Length(SigLenEnc) + (FSignatures.Count * SignatureLength) +
+  LCapacity := Length(LSigLenEnc) + (FSignatures.Count * SignatureLength) +
     Length(FSerializedMessage);
-  MS := TMemoryStream.Create;
+  LMS := TMemoryStream.Create;
   try
-    MS.Size := Capacity;
-    MS.WriteBuffer(SigLenEnc[0], Length(SigLenEnc));
+    LMS.Size := LCapacity;
+    LMS.WriteBuffer(LSigLenEnc[0], Length(LSigLenEnc));
 
-    for Sig in FSignatures do
+    for LSig in FSignatures do
     begin
-      SigBytes := TEncoders.Base58.DecodeData(Sig);
-      MS.WriteBuffer(SigBytes[0], Length(SigBytes));
+      LSigBytes := TBase58Encoder.DecodeData(LSig);
+      LMS.WriteBuffer(LSigBytes[0], Length(LSigBytes));
     end;
 
-    MS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
+    LMS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
 
-    SetLength(Result, MS.Size);
-    MS.Position := 0;
-    MS.ReadBuffer(Result[0], MS.Size);
+    SetLength(Result, LMS.Size);
+    LMS.Position := 0;
+    LMS.ReadBuffer(Result[0], LMS.Size);
   finally
-    MS.Free;
+    LMS.Free;
   end;
 end;
 
-function TTransactionBuilder.AddInstruction(const AInstruction
-  : ITransactionInstruction): ITransactionBuilder;
+function TTransactionBuilder.AddInstruction(const AInstruction: ITransactionInstruction): ITransactionBuilder;
 begin
   FMessageBuilder.AddInstruction(AInstruction);
   Result := Self;
 end;
 
-function TTransactionBuilder.AddSignature(const ASignature: TBytes)
-  : ITransactionBuilder;
+function TTransactionBuilder.AddSignature(const ASignature: TBytes): ITransactionBuilder;
 begin
-  FSignatures.Add(TEncoders.Base58.EncodeData(ASignature));
+  FSignatures.Add(TBase58Encoder.EncodeData(ASignature));
   Result := Self;
 end;
 
-function TTransactionBuilder.AddSignature(const ASignature: string)
-  : ITransactionBuilder;
+function TTransactionBuilder.AddSignature(const ASignature: string): ITransactionBuilder;
 begin
   FSignatures.Add(ASignature);
   Result := Self;
@@ -346,14 +343,14 @@ end;
 
 function TTransactionBuilder.Build(const ASigner: IAccount): TBytes;
 var
-  Signers: TList<IAccount>;
+  LSigners: TList<IAccount>;
 begin
-  Signers := TList<IAccount>.Create;
+  LSigners := TList<IAccount>.Create;
   try
-    Signers.Add(ASigner);
-    Result := Build(Signers);
+    LSigners.Add(ASigner);
+    Result := Build(LSigners);
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
@@ -368,29 +365,25 @@ begin
   Result := FMessageBuilder.Build;
 end;
 
-function TTransactionBuilder.SetFeePayer(const APublicKey: IPublicKey)
-  : ITransactionBuilder;
+function TTransactionBuilder.SetFeePayer(const APublicKey: IPublicKey): ITransactionBuilder;
 begin
   FMessageBuilder.FeePayer := APublicKey;
   Result := Self;
 end;
 
-function TTransactionBuilder.SetNonceInformation(const ANonceInfo
-  : INonceInformation): ITransactionBuilder;
+function TTransactionBuilder.SetNonceInformation(const ANonceInfo: INonceInformation): ITransactionBuilder;
 begin
   FMessageBuilder.NonceInformation := ANonceInfo;
   Result := Self;
 end;
 
-function TTransactionBuilder.SetPriorityFeesInformation(const APriorityFeesInfo
-  : IPriorityFeesInformation): ITransactionBuilder;
+function TTransactionBuilder.SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): ITransactionBuilder;
 begin
   FMessageBuilder.PriorityFeesInformation := APriorityFeesInfo;
   Result := Self;
 end;
 
-function TTransactionBuilder.SetRecentBlockHash(const ARecentBlockHash: string)
-  : ITransactionBuilder;
+function TTransactionBuilder.SetRecentBlockHash(const ARecentBlockHash: string): ITransactionBuilder;
 begin
   FMessageBuilder.RecentBlockHash := ARecentBlockHash;
   Result := Self;
@@ -398,15 +391,15 @@ end;
 
 procedure TTransactionBuilder.Sign(const ASigners: TList<IAccount>);
 var
-  I, UsedCount: Integer;
-  OrderedKeys: TArray<string>;
-  GroupedSignersByKey: TObjectDictionary<string, TList<IAccount>>;
-  NextIndexByKey: TDictionary<string, Integer>;
-  SignatureCacheByKey: TDictionary<string, string>;
-  Signer, SignerToUse: IAccount;
-  PubKey, Key, SigBase58: string;
-  SignersForKey: TList<IAccount>;
-  SigBytes: TBytes;
+  LI, LUsedCount: Integer;
+  LOrderedKeys: TArray<string>;
+  LGroupedSignersByKey: TObjectDictionary<string, TList<IAccount>>;
+  LNextIndexByKey: TDictionary<string, Integer>;
+  LSignatureCacheByKey: TDictionary<string, string>;
+  LSigner, LSignerToUse: IAccount;
+  LPubKey, LKey, LSigBase58: string;
+  LSignersForKey: TList<IAccount>;
+  LSigBytes: TBytes;
 begin
 
   if (ASigners = nil) or (ASigners.Count = 0) then
@@ -419,74 +412,74 @@ begin
   FSerializedMessage := FMessageBuilder.Build;
 
   // Keys in the exact order (and multiplicity) the runtime expects for signatures.
-  OrderedKeys := FMessageBuilder.GetAccountMetaPublicKeys;
+  LOrderedKeys := FMessageBuilder.GetAccountMetaPublicKeys;
 
   // ---- Build: pubkey -> list of matching signer accounts -------------------
-  GroupedSignersByKey := TObjectDictionary<string, TList<IAccount>>.Create([doOwnsValues]);
-  NextIndexByKey := TDictionary<string, Integer>.Create;
-  SignatureCacheByKey := TDictionary<string, string>.Create;
+  LGroupedSignersByKey := TObjectDictionary<string, TList<IAccount>>.Create([doOwnsValues]);
+  LNextIndexByKey := TDictionary<string, Integer>.Create;
+  LSignatureCacheByKey := TDictionary<string, string>.Create;
   try
     // Group ASigners by their pubkey, preserving duplicates & input order
-    for I := 0 to ASigners.Count - 1 do
+    for LI := 0 to ASigners.Count - 1 do
     begin
-      Signer := ASigners[I];
-      if Signer = nil then
+      LSigner := ASigners[LI];
+      if LSigner = nil then
         Continue;
 
-      PubKey := Signer.PublicKey.Key;
+      LPubKey := LSigner.PublicKey.Key;
 
-      if not GroupedSignersByKey.TryGetValue(PubKey, SignersForKey) then
+      if not LGroupedSignersByKey.TryGetValue(LPubKey, LSignersForKey) then
       begin
-        SignersForKey := TList<IAccount>.Create;
-        GroupedSignersByKey.Add(PubKey, SignersForKey);
+        LSignersForKey := TList<IAccount>.Create;
+        LGroupedSignersByKey.Add(LPubKey, LSignersForKey);
       end;
-      SignersForKey.Add(Signer);
+      LSignersForKey.Add(LSigner);
     end;
 
     // ---- Produce signatures strictly in message order ----------------------
-    for Key in OrderedKeys do
+    for LKey in LOrderedKeys do
     begin
       // If no signer provided for this key, skip (caller may enforce required count later)
-      if not GroupedSignersByKey.TryGetValue(Key, SignersForKey) or (SignersForKey.Count = 0) then
+      if not LGroupedSignersByKey.TryGetValue(LKey, LSignersForKey) or (LSignersForKey.Count = 0) then
         Continue;
 
       // If we've already signed this pubkey for this message, reuse the cached signature
-      if SignatureCacheByKey.TryGetValue(Key, SigBase58) then
+      if LSignatureCacheByKey.TryGetValue(LKey, LSigBase58) then
       begin
-        FSignatures.Add(SigBase58);
+        FSignatures.Add(LSigBase58);
 
         // Still advance the attribution cursor so duplicates in ASigners are "consumed" in order
-        if NextIndexByKey.TryGetValue(Key, UsedCount) then
-          NextIndexByKey[Key] := UsedCount + 1
+        if LNextIndexByKey.TryGetValue(LKey, LUsedCount) then
+          LNextIndexByKey[LKey] := LUsedCount + 1
         else
-          NextIndexByKey.Add(Key, 1);
+          LNextIndexByKey.Add(LKey, 1);
 
         Continue;
       end;
 
       // First time we encounter this key: pick the next unused signer for this key (or reuse the first if exhausted)
-      if not NextIndexByKey.TryGetValue(Key, UsedCount) then
-        UsedCount := 0;
+      if not LNextIndexByKey.TryGetValue(LKey, LUsedCount) then
+        LUsedCount := 0;
 
-      if UsedCount < SignersForKey.Count then
-        SignerToUse := SignersForKey[UsedCount]
+      if LUsedCount < LSignersForKey.Count then
+        LSignerToUse := LSignersForKey[LUsedCount]
       else
-        SignerToUse := SignersForKey[0];
+        LSignerToUse := LSignersForKey[0];
 
-      NextIndexByKey.AddOrSetValue(Key, UsedCount + 1);
+      LNextIndexByKey.AddOrSetValue(LKey, LUsedCount + 1);
 
       // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
-      SigBytes  := SignerToUse.Sign(FSerializedMessage);
-      SigBase58 := TEncoders.Base58.EncodeData(SigBytes);
+      LSigBytes := LSignerToUse.Sign(FSerializedMessage);
+      LSigBase58 := TBase58Encoder.EncodeData(LSigBytes);
 
-      SignatureCacheByKey.Add(Key, SigBase58);
-      FSignatures.Add(SigBase58);
+      LSignatureCacheByKey.Add(LKey, LSigBase58);
+      FSignatures.Add(LSigBase58);
     end;
 
   finally
-    SignatureCacheByKey.Free;
-    NextIndexByKey.Free;
-    GroupedSignersByKey.Free;
+    LSignatureCacheByKey.Free;
+    LNextIndexByKey.Free;
+    LGroupedSignersByKey.Free;
   end;
 end;
 
@@ -531,7 +524,7 @@ end;
 function TVersionedTransactionBuilder.AddSignature(
   const ASignature: TBytes): IVersionedTransactionBuilder;
 begin
-  FSignatures.Add(TEncoders.Base58.EncodeData(ASignature));
+  FSignatures.Add(TBase58Encoder.EncodeData(ASignature));
   Result := Self;
 end;
 
@@ -544,14 +537,14 @@ end;
 
 function TVersionedTransactionBuilder.Build(const ASigner: IAccount): TBytes;
 var
-  Signers: TList<IAccount>;
+  LSigners: TList<IAccount>;
 begin
-  Signers := TList<IAccount>.Create;
+  LSigners := TList<IAccount>.Create;
   try
-    Signers.Add(ASigner);
-    Result := Build(Signers);
+    LSigners.Add(ASigner);
+    Result := Build(LSigners);
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
@@ -569,38 +562,38 @@ end;
 
 function TVersionedTransactionBuilder.Serialize: TBytes;
 var
-  SigLenEnc: TBytes;
-  MS: TMemoryStream;
-  Sig: string;
-  SigBytes: TBytes;
-  Capacity: Integer;
+  LSigLenEnc: TBytes;
+  LMS: TMemoryStream;
+  LSig: string;
+  LSigBytes: TBytes;
+  LCapacity: Integer;
 begin
-  SigLenEnc := TShortVectorEncoding.EncodeLength(FSignatures.Count);
+  LSigLenEnc := TShortVectorEncoding.EncodeLength(FSignatures.Count);
 
   if Length(FSerializedMessage) = 0 then
     FSerializedMessage := FMessageBuilder.Build;
 
-  Capacity := Length(SigLenEnc) + (FSignatures.Count * SignatureLength) + Length(FSerializedMessage);
+  LCapacity := Length(LSigLenEnc) + (FSignatures.Count * SignatureLength) + Length(FSerializedMessage);
 
-  MS := TMemoryStream.Create;
+  LMS := TMemoryStream.Create;
   try
-    MS.Size := Capacity;
+    LMS.Size := LCapacity;
 
-    MS.WriteBuffer(SigLenEnc[0], Length(SigLenEnc));
+    LMS.WriteBuffer(LSigLenEnc[0], Length(LSigLenEnc));
 
-    for Sig in FSignatures do
+    for LSig in FSignatures do
     begin
-      SigBytes := TEncoders.Base58.DecodeData(Sig);
-      MS.WriteBuffer(SigBytes[0], Length(SigBytes));
+      LSigBytes := TBase58Encoder.DecodeData(LSig);
+      LMS.WriteBuffer(LSigBytes[0], Length(LSigBytes));
     end;
 
-    MS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
+    LMS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
 
-    SetLength(Result, MS.Size);
-    MS.Position := 0;
-    MS.ReadBuffer(Result[0], MS.Size);
+    SetLength(Result, LMS.Size);
+    LMS.Position := 0;
+    LMS.ReadBuffer(Result[0], LMS.Size);
   finally
-    MS.Free;
+    LMS.Free;
   end;
 end;
 
@@ -627,15 +620,15 @@ end;
 
 procedure TVersionedTransactionBuilder.Sign(const ASigners: TList<IAccount>);
 var
-  I, UsedCount: Integer;
-  OrderedKeys: TArray<string>;
-  GroupedSignersByKey: TObjectDictionary<string, TList<IAccount>>;
-  NextIndexByKey: TDictionary<string, Integer>;
-  SignatureCacheByKey: TDictionary<string, string>;
-  Signer, SignerToUse: IAccount;
-  PubKey, Key, SigBase58: string;
-  SignersForKey: TList<IAccount>;
-  SigBytes: TBytes;
+  LI, LUsedCount: Integer;
+  LOrderedKeys: TArray<string>;
+  LGroupedSignersByKey: TObjectDictionary<string, TList<IAccount>>;
+  LNextIndexByKey: TDictionary<string, Integer>;
+  LSignatureCacheByKey: TDictionary<string, string>;
+  LSigner, LSignerToUse: IAccount;
+  LPubKey, LKey, LSigBase58: string;
+  LSignersForKey: TList<IAccount>;
+  LSigBytes: TBytes;
 begin
 
   if (ASigners = nil) or (ASigners.Count = 0) then
@@ -648,74 +641,74 @@ begin
   FSerializedMessage := FMessageBuilder.Build;
 
   // Keys in the exact order (and multiplicity) the runtime expects for signatures.
-  OrderedKeys := FMessageBuilder.GetAccountMetaPublicKeys;
+  LOrderedKeys := FMessageBuilder.GetAccountMetaPublicKeys;
 
   // ---- Build: pubkey -> list of matching signer accounts -------------------
-  GroupedSignersByKey := TObjectDictionary<string, TList<IAccount>>.Create([doOwnsValues]);
-  NextIndexByKey := TDictionary<string, Integer>.Create;
-  SignatureCacheByKey := TDictionary<string, string>.Create;
+  LGroupedSignersByKey := TObjectDictionary<string, TList<IAccount>>.Create([doOwnsValues]);
+  LNextIndexByKey := TDictionary<string, Integer>.Create;
+  LSignatureCacheByKey := TDictionary<string, string>.Create;
   try
     // Group ASigners by their pubkey, preserving duplicates & input order
-    for I := 0 to ASigners.Count - 1 do
+    for LI := 0 to ASigners.Count - 1 do
     begin
-      Signer := ASigners[I];
-      if Signer = nil then
+      LSigner := ASigners[LI];
+      if LSigner = nil then
         Continue;
 
-      PubKey := Signer.PublicKey.Key;
+      LPubKey := LSigner.PublicKey.Key;
 
-      if not GroupedSignersByKey.TryGetValue(PubKey, SignersForKey) then
+      if not LGroupedSignersByKey.TryGetValue(LPubKey, LSignersForKey) then
       begin
-        SignersForKey := TList<IAccount>.Create;
-        GroupedSignersByKey.Add(PubKey, SignersForKey);
+        LSignersForKey := TList<IAccount>.Create;
+        LGroupedSignersByKey.Add(LPubKey, LSignersForKey);
       end;
-      SignersForKey.Add(Signer);
+      LSignersForKey.Add(LSigner);
     end;
 
     // ---- Produce signatures strictly in message order ----------------------
-    for Key in OrderedKeys do
+    for LKey in LOrderedKeys do
     begin
       // If no signer provided for this key, skip (caller may enforce required count later)
-      if not GroupedSignersByKey.TryGetValue(Key, SignersForKey) or (SignersForKey.Count = 0) then
+      if not LGroupedSignersByKey.TryGetValue(LKey, LSignersForKey) or (LSignersForKey.Count = 0) then
         Continue;
 
       // If we've already signed this pubkey for this message, reuse the cached signature
-      if SignatureCacheByKey.TryGetValue(Key, SigBase58) then
+      if LSignatureCacheByKey.TryGetValue(LKey, LSigBase58) then
       begin
-        FSignatures.Add(SigBase58);
+        FSignatures.Add(LSigBase58);
 
         // Still advance the attribution cursor so duplicates in ASigners are "consumed" in order
-        if NextIndexByKey.TryGetValue(Key, UsedCount) then
-          NextIndexByKey[Key] := UsedCount + 1
+        if LNextIndexByKey.TryGetValue(LKey, LUsedCount) then
+          LNextIndexByKey[LKey] := LUsedCount + 1
         else
-          NextIndexByKey.Add(Key, 1);
+          LNextIndexByKey.Add(LKey, 1);
 
         Continue;
       end;
 
       // First time we encounter this key: pick the next unused signer for this key (or reuse the first if exhausted)
-      if not NextIndexByKey.TryGetValue(Key, UsedCount) then
-        UsedCount := 0;
+      if not LNextIndexByKey.TryGetValue(LKey, LUsedCount) then
+        LUsedCount := 0;
 
-      if UsedCount < SignersForKey.Count then
-        SignerToUse := SignersForKey[UsedCount]
+      if LUsedCount < LSignersForKey.Count then
+        LSignerToUse := LSignersForKey[LUsedCount]
       else
-        SignerToUse := SignersForKey[0];
+        LSignerToUse := LSignersForKey[0];
 
-      NextIndexByKey.AddOrSetValue(Key, UsedCount + 1);
+      LNextIndexByKey.AddOrSetValue(LKey, LUsedCount + 1);
 
       // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
-      SigBytes  := SignerToUse.Sign(FSerializedMessage);
-      SigBase58 := TEncoders.Base58.EncodeData(SigBytes);
+      LSigBytes := LSignerToUse.Sign(FSerializedMessage);
+      LSigBase58 := TBase58Encoder.EncodeData(LSigBytes);
 
-      SignatureCacheByKey.Add(Key, SigBase58);
-      FSignatures.Add(SigBase58);
+      LSignatureCacheByKey.Add(LKey, LSigBase58);
+      FSignatures.Add(LSigBase58);
     end;
 
   finally
-    SignatureCacheByKey.Free;
-    NextIndexByKey.Free;
-    GroupedSignersByKey.Free;
+    LSignatureCacheByKey.Free;
+    LNextIndexByKey.Free;
+    LGroupedSignersByKey.Free;
   end;
 end;
 

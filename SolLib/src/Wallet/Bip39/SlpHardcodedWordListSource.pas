@@ -27,10 +27,7 @@ interface
 
 uses
   System.SysUtils,
-  System.Types,
-  System.Generics.Defaults,
-  System.Generics.Collections,
-  SlpComparerFactory;
+  System.Generics.Collections;
 
 type
   IWordlistSource = interface
@@ -40,11 +37,42 @@ type
 
   THardcodedWordlistSource = class(TInterfacedObject, IWordlistSource)
   private
+    type
+      /// <summary>
+      /// Maps a Win32 resource name to the dictionary key used by TWordList.LoadWordList.
+      /// </summary>
+      TResourceEntry = record
+        ResourceName: string;
+        Key: string;
+      end;
+
+    const
+      /// <summary>
+      /// Static mapping of embedded resource names to their wordlist dictionary keys.
+      /// Keys must match exactly what TWordList.GetLanguageFileName returns.
+      /// </summary>
+      Resources: array[0..7] of TResourceEntry = (
+        (ResourceName: 'BIP39_CHINESE_SIMPLIFIED_WORDLIST';  Key: 'chinese_simplified'),
+        (ResourceName: 'BIP39_CHINESE_TRADITIONAL_WORDLIST'; Key: 'chinese_traditional'),
+        (ResourceName: 'BIP39_CZECH_WORDLIST';               Key: 'czech'),
+        (ResourceName: 'BIP39_ENGLISH_WORDLIST';             Key: 'english'),
+        (ResourceName: 'BIP39_FRENCH_WORDLIST';              Key: 'french'),
+        (ResourceName: 'BIP39_JAPANESE_WORDLIST';            Key: 'japanese'),
+        (ResourceName: 'BIP39_PORTUGUESE_BRAZIL_WORDLIST';   Key: 'portuguese_brazil'),
+        (ResourceName: 'BIP39_SPANISH_WORDLIST';             Key: 'spanish')
+      );
+
+      /// <summary>Japanese uses ideographic space (U+3000) as word separator.</summary>
+      JapaneseSpace = Char($3000);
+      /// <summary>All other languages use standard ASCII space.</summary>
+      DefaultSpace = Char($0020);
+
     class var FWordLists: TDictionary<string, string>;
+
+    class function LoadAllFromResources: TDictionary<string, string>; static;
+
     class constructor Create;
     class destructor Destroy;
-
-    class function LoadAllFromResources(const AEncoding: TEncoding): TDictionary<string, string>;
   public
     function Load(const AName: string): IInterface;
   end;
@@ -55,110 +83,56 @@ uses
   SlpWordList,
   SlpResourceLoader;
 
+{ THardcodedWordlistSource }
+
 class constructor THardcodedWordlistSource.Create;
 begin
-  FWordLists := LoadAllFromResources(TEncoding.UTF8);
+  FWordLists := LoadAllFromResources;
 end;
 
 class destructor THardcodedWordlistSource.Destroy;
 begin
- if Assigned(FWordLists) then
-   FWordLists.Free;
+  FreeAndNil(FWordLists);
 end;
 
-function THardcodedWordlistSource.Load(const AName: string): IInterface;
+class function THardcodedWordlistSource.LoadAllFromResources: TDictionary<string, string>;
 var
-  Raw: string;
-  Words: TArray<string>;
-  Space: Char;
+  LI: Integer;
+  LRaw: string;
 begin
-  // Return nil if the name is not found
-  if not FWordLists.TryGetValue(AName, Raw) then
-    Exit(nil);
-
-  // Split on LF only, exclude empty entries
-  Words := Raw.Split([#10], TStringSplitOptions.ExcludeEmpty);
-
-  if SameText(AName, 'japanese') then
-    Space := Char($3000) //IDEOGRAPHIC SPACE U+$3000
-  else
-    Space := Char($0020); //SPACE U+$0020
-
-  Result := TWordList.Create(Words, Space, AName) as IWordList;
-end;
-
-class function THardcodedWordlistSource.LoadAllFromResources(
-  const AEncoding: TEncoding): TDictionary<string, string>;
-const
-  RESOURCE_NAMES: array[0..7] of string = (
-    'BIP39_CHINESE_SIMPLIFIED_WORDLIST',
-    'BIP39_CHINESE_TRADITIONAL_WORDLIST',
-    'BIP39_CZECH_WORDLIST',
-    'BIP39_ENGLISH_WORDLIST',
-    'BIP39_FRENCH_WORDLIST',
-    'BIP39_JAPANESE_WORDLIST',
-    'BIP39_PORTUGUESE_BRAZIL_WORDLIST',
-    'BIP39_SPANISH_WORDLIST'
-  );
-var
-  Dict: TDictionary<string, string>;
-  ResName, Key, Raw: string;
-
-  function MakeKeyFromResourceName(const FullName: string): string;
-  var
-    S: string;
-    Parts: TArray<string>;
-    I: Integer;
-    Part: string;
-  begin
-    S := FullName;
-    S := S.Replace('BIP39_', '', [rfReplaceAll, rfIgnoreCase]);
-    S := S.Replace('_WORDLIST', '', [rfReplaceAll, rfIgnoreCase]);
-    S := S.Trim.ToLower;
-
-    Parts := S.Split(['_']);
-    for I := 0 to High(Parts) do
-    begin
-      Part := Parts[I];
-      if Part = '' then
-        Continue;
-
-      if Length(Part) = 1 then
-        Part := Part.ToUpper
-      else
-        Part := Part.Substring(0, 1).ToUpper + Part.Substring(1).ToLower;
-
-      Parts[I] := Part;
-    end;
-
-    Result := string.Join('_', Parts);
-  end;
-
-begin
-  Dict := TDictionary<string,string>.Create(TStringComparerFactory.OrdinalIgnoreCase);
+  Result := TDictionary<string, string>.Create(Length(Resources));
   try
-    for ResName in RESOURCE_NAMES do
+    for LI := Low(Resources) to High(Resources) do
     begin
-      // Skip if resource doesn't exist
-      if not TSlpResourceLoader.Instance.ResourceExists(ResName) then
+      if not TSlpResourceLoader.Instance.ResourceExists(Resources[LI].ResourceName) then
         Continue;
-
-      try
-        Raw := TSlpResourceLoader.Instance.LoadAsString(ResName, AEncoding);
-        Key := MakeKeyFromResourceName(ResName);
-        Dict.AddOrSetValue(Key, Raw);
-      except
-        on E: Exception do
-          Continue; // Skip on error
-      end;
+      LRaw := TSlpResourceLoader.Instance.LoadAsString(
+        Resources[LI].ResourceName, TEncoding.UTF8);
+      Result.AddOrSetValue(Resources[LI].Key, LRaw);
     end;
-
-    Result := Dict;
   except
-    Dict.Free;
+    Result.Free;
     raise;
   end;
 end;
 
-end.
+function THardcodedWordlistSource.Load(const AName: string): IInterface;
+var
+  LRaw: string;
+  LWords: TArray<string>;
+  LSpace: Char;
+begin
+  if not FWordLists.TryGetValue(AName, LRaw) then
+    Exit(nil);
 
+  LWords := LRaw.Split([#10], TStringSplitOptions.ExcludeEmpty);
+
+  if SameText(AName, 'japanese') then
+    LSpace := JapaneseSpace
+  else
+    LSpace := DefaultSpace;
+
+  Result := TWordList.Create(LWords, LSpace, AName) as IWordList;
+end;
+
+end.

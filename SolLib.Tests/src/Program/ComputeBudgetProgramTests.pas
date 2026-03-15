@@ -88,42 +88,42 @@ end;
 
 procedure TComputeBudgetProgramTests.TestComputeBudgetProgramRequestHeapFrame;
 var
-  Tx: ITransactionInstruction;
+  LTx: ITransactionInstruction;
 begin
-  Tx := TComputeBudgetProgram.RequestHeapFrame(32768);
-  AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(RequestHeapFrameInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(ComputeBudgetProgramIdBytes,      Tx.ProgramId, 'ProgramId');
+  LTx := TComputeBudgetProgram.RequestHeapFrame(32768);
+  AssertEquals(0, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(RequestHeapFrameInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,      LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TComputeBudgetProgramTests.TestComputeBudgetProgramSetComputeUnitLimit;
 var
-  Tx: ITransactionInstruction;
+  LTx: ITransactionInstruction;
 begin
-  Tx := TComputeBudgetProgram.SetComputeUnitLimit(200000);
-  AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(SetComputeUnitLimitInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(ComputeBudgetProgramIdBytes,         Tx.ProgramId, 'ProgramId');
+  LTx := TComputeBudgetProgram.SetComputeUnitLimit(200000);
+  AssertEquals(0, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(SetComputeUnitLimitInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,         LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TComputeBudgetProgramTests.TestComputeBudgetProgramSetComputeUnitPrice;
 var
-  Tx: ITransactionInstruction;
+  LTx: ITransactionInstruction;
 begin
-  Tx := TComputeBudgetProgram.SetComputeUnitPrice(100000);
-  AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(SetComputeUnitPriceInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(ComputeBudgetProgramIdBytes,         Tx.ProgramId, 'ProgramId');
+  LTx := TComputeBudgetProgram.SetComputeUnitPrice(100000);
+  AssertEquals(0, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(SetComputeUnitPriceInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,         LTx.ProgramId, 'ProgramId');
 end;
 
 procedure TComputeBudgetProgramTests.TestComputeBudgetProgramSetLoadedAccountsDataSizeLimit;
 var
-  Tx: ITransactionInstruction;
+  LTx: ITransactionInstruction;
 begin
-  Tx := TComputeBudgetProgram.SetLoadedAccountsDataSizeLimit(350000);
-  AssertEquals(0, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(SetLoadedAccountsDataSizeLimitInstructionBytes, Tx.Data, 'Data');
-  AssertEquals(ComputeBudgetProgramIdBytes,                    Tx.ProgramId, 'ProgramId');
+  LTx := TComputeBudgetProgram.SetLoadedAccountsDataSizeLimit(350000);
+  AssertEquals(0, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(SetLoadedAccountsDataSizeLimitInstructionBytes, LTx.Data, 'Data');
+  AssertEquals(ComputeBudgetProgramIdBytes,                    LTx.ProgramId, 'ProgramId');
 end;
 
 initialization

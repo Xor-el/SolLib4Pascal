@@ -33,79 +33,29 @@ uses
 
 type
   /// <summary>
-  /// Implements a keystore compatible with the web3 secret storage standard.
-  /// https://ethereum.org/developers/docs/data-structures-and-encoding/web3-secret-storage/
+  /// Unified keystore service that auto-detects the KDF type (scrypt or PBKDF2)
+  /// from JSON and dispatches to the appropriate service.
   /// </summary>
   TSecretKeyStoreService = class
   private
     FKeyStoreScryptService: TKeyStoreScryptService;
     FKeyStorePbkdf2Service: TKeyStorePbkdf2Service;
   public
-    /// <summary>
-    /// Initializes a new instance of <c>TSecretKeyStoreService</c>.
-    /// </summary>
     constructor Create; overload;
-    /// <summary>
-    /// Initializes a new instance of <c>TSecretKeyStoreService</c> with injected services.
-    /// </summary>
-    /// <param name="AKeyStoreScryptService">The scrypt-based keystore service.</param>
-    /// <param name="AKeyStorePbkdf2Service">The PBKDF2-based keystore service.</param>
     constructor Create(AKeyStoreScryptService: TKeyStoreScryptService;
-                       AKeyStorePbkdf2Service: TKeyStorePbkdf2Service); overload;
-    /// <summary>
-    /// Frees owned services.
-    /// </summary>
+      AKeyStorePbkdf2Service: TKeyStorePbkdf2Service); overload;
     destructor Destroy; override;
 
-    /// <summary>
-    /// Get the address from the json keystore.
-    /// </summary>
-    /// <param name="AJson">The json keystore.</param>
-    /// <returns>The address string.</returns>
-    /// <exception cref="EArgumentNilException">Thrown when <c>AJson</c> is empty.</exception>
-    /// <exception cref="EJsonParseException">Thrown when text could not be processed to JSON.</exception>
-    /// <exception cref="EJsonException">Thrown when <c>address</c> JSON property is not present.</exception>
+    /// <summary>Extracts the address from a JSON keystore string.</summary>
     class function GetAddressFromKeyStore(const AJson: string): string; static;
 
-    /// <summary>
-    /// Generates a UTC filename for the keystore.
-    /// </summary>
-    /// <param name="AAddress">The address to include in the filename.</param>
-    /// <returns>The generated filename.</returns>
-    /// <exception cref="EArgumentNilException">Thrown when <c>AAddress</c> is empty.</exception>
+    /// <summary>Generates a UTC-timestamped filename for keystore export.</summary>
     class function GenerateUtcFileName(const AAddress: string): string; static;
 
-    /// <summary>
-    /// Decrypt the keystore from a file path.
-    /// </summary>
-    /// <param name="APassword">The password.</param>
-    /// <param name="AFilePath">The keystore file path.</param>
-    /// <returns>The decrypted private key bytes.</returns>
-    /// <exception cref="EArgumentNilException">Thrown when <c>APassword</c> or <c>AFilePath</c> is empty.</exception>
     function DecryptKeyStoreFromFile(const APassword, AFilePath: string): TBytes;
-
-    /// <summary>
-    /// Decrypt the keystore from a json string.
-    /// </summary>
-    /// <param name="APassword">The password.</param>
-    /// <param name="AJson">The json keystore.</param>
-    /// <returns>The decrypted private key bytes.</returns>
-    /// <exception cref="EArgumentNilException">Thrown when <c>APassword</c> or <c>AJson</c> is empty.</exception>
-    /// <exception cref="EJsonParseException">Thrown when text could not be processed to JSON.</exception>
-    /// <exception cref="EJsonException">Thrown when the JSON content is missing required properties.</exception>
-    /// <exception cref="EInvalidKdfException">Throws exception when the <c>kdf</c> json property has an invalid <see cref="TKdfType"/> value.</exception>
     function DecryptKeyStoreFromJson(const APassword, AJson: string): TBytes;
-
-    /// <summary>
-    /// Encrypt and generate the default (scrypt) keystore as json.
-    /// </summary>
-    /// <param name="APassword">The password.</param>
-    /// <param name="AKey">The private key bytes.</param>
-    /// <param name="AAddress">The address.</param>
-    /// <returns>The json keystore.</returns>
-    /// <exception cref="EArgumentNilException">Thrown when <c>APassword</c> or <c>AAddress</c> is empty.</exception>
-    function EncryptAndGenerateDefaultKeyStoreAsJson(const APassword: string; const AKey: TBytes;
-      const AAddress: string): string;
+    function EncryptAndGenerateDefaultKeyStoreAsJson(const APassword: string;
+      const AKey: TBytes; const AAddress: string): string;
   end;
 
 implementation
@@ -127,10 +77,8 @@ end;
 
 destructor TSecretKeyStoreService.Destroy;
 begin
- if Assigned(FKeyStoreScryptService) then
-   FKeyStoreScryptService.Free;
- if Assigned(FKeyStorePbkdf2Service) then
-   FKeyStorePbkdf2Service.Free;
+  FKeyStoreScryptService.Free;
+  FKeyStorePbkdf2Service.Free;
   inherited;
 end;
 
@@ -145,15 +93,14 @@ begin
 
   LRootVal := TJSONObject.ParseJSONValue(AJson);
   if LRootVal = nil then
-    raise EJSONParseException.Create('could not process json');
+    raise EJsonParseException.Create('Could not process JSON');
   try
     if not (LRootVal is TJSONObject) then
-      raise EJSONParseException.Create('could not process json');
+      raise EJsonParseException.Create('Could not process JSON');
 
     LRootObj := TJSONObject(LRootVal);
-    LAddrVal := nil;
     if not LRootObj.TryGetValue<TJSONValue>('address', LAddrVal) then
-      raise EJsonException.Create('could not get address from json');
+      raise EJsonException.Create('Could not get address from JSON');
 
     Result := LAddrVal.Value;
   finally
@@ -173,29 +120,23 @@ begin
 end;
 
 function TSecretKeyStoreService.DecryptKeyStoreFromFile(const APassword, AFilePath: string): TBytes;
-var
-  LJson: string;
 begin
   if APassword = '' then
     raise EArgumentNilException.Create('password');
   if AFilePath = '' then
     raise EArgumentNilException.Create('filePath');
 
-  LJson := TIOUtils.ReadAllText(AFilePath, TEncoding.UTF8);
-  Result := DecryptKeyStoreFromJson(APassword, LJson);
+  Result := DecryptKeyStoreFromJson(APassword, TIOUtils.ReadAllText(AFilePath, TEncoding.UTF8));
 end;
 
 function TSecretKeyStoreService.DecryptKeyStoreFromJson(const APassword, AJson: string): TBytes;
-var
-  LType: TKdfType;
 begin
   if APassword = '' then
     raise EArgumentNilException.Create('password');
   if AJson = '' then
     raise EArgumentNilException.Create('json');
 
-  LType := TKeyStoreKdfChecker.GetKeyStoreKdfType(AJson);
-  case LType of
+  case TKeyStoreKdfChecker.GetKeyStoreKdfType(AJson) of
     TKdfType.Pbkdf2:
       Result := FKeyStorePbkdf2Service.DecryptKeyStoreFromJson(APassword, AJson);
     TKdfType.Scrypt:

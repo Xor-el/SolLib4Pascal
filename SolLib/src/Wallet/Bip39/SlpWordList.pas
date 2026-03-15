@@ -26,10 +26,7 @@ uses
   System.SyncObjs,
   System.Classes,
   System.Generics.Collections,
-  System.Generics.Defaults,
-  System.Character,
   SlpWalletEnum,
-  SlpArrayUtils,
   SlpHardcodedWordlistSource;
 
 type
@@ -37,12 +34,12 @@ type
     ['{3E3CFA0C-AC10-4A8A-8B0C-0D6E3F8A1B9E}']
     function GetName: string;
     function GetSpace: Char;
-    function WordExists(const AWord: string; out Index: Integer): Boolean;
+    function WordExists(const AWord: string; out AIndex: Integer): Boolean;
     function WordCount: Integer;
     function GetWords: TArray<string>;
-    function GetWordsByIndices(const Indices: TArray<Integer>): TArray<string>;
-    function GetSentence(const Indices: TArray<Integer>): string;
-    function ToIndices(const Words: TArray<string>): TArray<Integer>;
+    function GetWordsByIndices(const AIndices: TArray<Integer>): TArray<string>;
+    function GetSentence(const AIndices: TArray<Integer>): string;
+    function ToIndices(const AWords: TArray<string>): TArray<Integer>;
 
     property Name: string read GetName;
     property Space: Char read GetSpace;
@@ -50,18 +47,35 @@ type
 
   TWordList = class(TInterfacedObject, IWordList)
   private
-    FWords: TArray<string>;
-    FName : string;
-    FSpace: Char;
+    const
+      BitsPerWord = 11;
+      MaxWordValue = (1 shl BitsPerWord) - 1; // 2047
+      LanguageCount = 8;
 
-    class var FWordlistSource: IWordlistSource;
-    class var FLoadedLists: TDictionary<string, IWordList>;
-    class var FLoadedLock, FSingletonLock : TCriticalSection;
+    type
+      TLanguageIndex = 0..LanguageCount - 1;
 
-    class var FJapanese, FChineseSimplified, FChineseTraditional, FSpanish, FEnglish, FFrench, FPortugueseBrazil, FCzech: IWordList;
+    var
+      FWords: TArray<string>;
+      FWordMap: TDictionary<string, Integer>;
+      FName: string;
+      FSpace: Char;
+
+    class var
+      FWordlistSource: IWordlistSource;
+      FLoadedLists: TDictionary<string, IWordList>;
+      FLock: TCriticalSection;
+      FSingletons: array[TLanguageIndex] of IWordList;
 
     class function GetLanguageFileName(ALanguage: TLanguage): string; static;
-    class function NormalizeString(const S: string): string; static;
+    class function LanguageToIndex(ALanguage: TLanguage): TLanguageIndex; static;
+    class function NormalizeString(const AStr: string): string; static;
+
+    /// <summary>
+    /// Thread-safe lazy singleton accessor. Returns the cached wordlist for
+    /// the given language, loading it on first access.
+    /// </summary>
+    class function GetSingleton(ALanguage: TLanguage): IWordList; static;
 
     class function GetJapanese: IWordList; static;
     class function GetChineseSimplified: IWordList; static;
@@ -75,22 +89,28 @@ type
     function GetName: string;
     function GetSpace: Char;
 
-    function WordExists(const AWord: string; out Index: Integer): Boolean;
+    /// <summary>
+    /// O(1) dictionary lookup for AWord in the normalized word map.
+    /// Returns True if found, with AIndex set to the position in FWords.
+    /// </summary>
+    function WordExists(const AWord: string; out AIndex: Integer): Boolean;
     function WordCount: Integer;
     function GetWords: TArray<string>;
-    function GetWordsByIndices(const Indices: TArray<Integer>): TArray<string>;
-    function GetSentence(const Indices: TArray<Integer>): string;
-    function ToIndices(const Words: TArray<string>): TArray<Integer>;
-
+    function GetWordsByIndices(const AIndices: TArray<Integer>): TArray<string>;
+    function GetSentence(const AIndices: TArray<Integer>): string;
+    function ToIndices(const AWords: TArray<string>): TArray<Integer>;
   public
     constructor Create(const AWords: TArray<string>; ASpace: Char; const AName: string); overload;
+    destructor Destroy; override;
 
-    class function AutoDetect(const Sentence: string): IWordList; overload; static;
-    class function AutoDetectLanguage(const Sentence: string): TLanguage; overload; static;
-    class function AutoDetectLanguage(const Words: TArray<string>): TLanguage; overload; static;
+    class function AutoDetect(const ASentence: string): IWordList; overload; static;
+    class function AutoDetectLanguage(const ASentence: string): TLanguage; overload; static;
+    class function AutoDetectLanguage(const AWords: TArray<string>): TLanguage; overload; static;
 
-    // Map integers in [0..2047] to a compact TBits (11 bits per value, MSB first)
-    class function ToBits(const Values: TArray<Integer>): TBits; static;
+    /// <summary>
+    /// Map integers in [0..2047] to a compact TBits (11 bits per value, MSB first).
+    /// </summary>
+    class function ToBits(const AValues: TArray<Integer>): TBits; static;
 
     class function LoadWordList(ALanguage: TLanguage): IWordList; overload; static;
     class function LoadWordList(const AName: string): IWordList; overload; static;
@@ -111,89 +131,161 @@ type
 implementation
 
 uses
- SlpMnemonic;
+  SlpMnemonic;
 
 { TWordList }
 
 class constructor TWordList.Create;
+var
+  LI: TLanguageIndex;
 begin
-  // Initialize locks and caches
-  FLoadedLock    := TCriticalSection.Create;
-  FSingletonLock := TCriticalSection.Create;
+  FLock := TCriticalSection.Create;
   FLoadedLists := TDictionary<string, IWordList>.Create;
-
   FWordlistSource := THardcodedWordListSource.Create;
-
-  FJapanese          := nil;
-  FChineseSimplified := nil;
-  FChineseTraditional:= nil;
-  FSpanish           := nil;
-  FEnglish           := nil;
-  FFrench            := nil;
-  FPortugueseBrazil  := nil;
-  FCzech             := nil;
+  for LI := Low(TLanguageIndex) to High(TLanguageIndex) do
+    FSingletons[LI] := nil;
 end;
 
 class destructor TWordList.Destroy;
+var
+  LI: TLanguageIndex;
 begin
-  if Assigned(FLoadedLists) then
-    FLoadedLists.Free;
-
-  if Assigned(FSingletonLock) then
-    FSingletonLock.Free;
-
-  if Assigned(FLoadedLock) then
-    FLoadedLock.Free;
+  // Release singleton references before freeing infrastructure
+  for LI := Low(TLanguageIndex) to High(TLanguageIndex) do
+    FSingletons[LI] := nil;
+  FWordlistSource := nil;
+  FreeAndNil(FLoadedLists);
+  FreeAndNil(FLock);
 end;
 
 constructor TWordList.Create(const AWords: TArray<string>; ASpace: Char; const AName: string);
 var
-  I: Integer;
+  LI: Integer;
+  LNorm: string;
 begin
   inherited Create;
   SetLength(FWords, Length(AWords));
-  for I := 0 to High(AWords) do
-    FWords[I] := NormalizeString(AWords[I]);
-  FName  := AName;
+  FWordMap := TDictionary<string, Integer>.Create(Length(AWords));
+  for LI := 0 to High(AWords) do
+  begin
+    LNorm := NormalizeString(AWords[LI]);
+    FWords[LI] := LNorm;
+    FWordMap.AddOrSetValue(LNorm, LI);
+  end;
+  FName := AName;
   FSpace := ASpace;
 end;
 
-class function TWordList.NormalizeString(const S: string): string;
+destructor TWordList.Destroy;
 begin
-  Result := TMnemonic.NormalizeString(S);
+  FWordMap.Free;
+  inherited Destroy;
+end;
+
+class function TWordList.NormalizeString(const AStr: string): string;
+begin
+  Result := TMnemonic.NormalizeString(AStr);
+end;
+
+class function TWordList.LanguageToIndex(ALanguage: TLanguage): TLanguageIndex;
+begin
+  case ALanguage of
+    TLanguage.English:            Result := 0;
+    TLanguage.Japanese:           Result := 1;
+    TLanguage.Spanish:            Result := 2;
+    TLanguage.ChineseSimplified:  Result := 3;
+    TLanguage.ChineseTraditional: Result := 4;
+    TLanguage.French:             Result := 5;
+    TLanguage.PortugueseBrazil:   Result := 6;
+    TLanguage.Czech:              Result := 7;
+  else
+    raise ENotSupportedException.Create('Unsupported language');
+  end;
 end;
 
 class function TWordList.GetLanguageFileName(ALanguage: TLanguage): string;
 begin
   case ALanguage of
     TLanguage.ChineseTraditional: Result := 'chinese_traditional';
-    TLanguage.ChineseSimplified : Result := 'chinese_simplified';
-    TLanguage.English           : Result := 'english';
-    TLanguage.Japanese          : Result := 'japanese';
-    TLanguage.Spanish           : Result := 'spanish';
-    TLanguage.French            : Result := 'french';
-    TLanguage.PortugueseBrazil  : Result := 'portuguese_brazil';
-    TLanguage.Czech             : Result := 'czech';
-    TLanguage.Unknown           : raise ENotSupportedException.Create('Unknown language');
+    TLanguage.ChineseSimplified:  Result := 'chinese_simplified';
+    TLanguage.English:            Result := 'english';
+    TLanguage.Japanese:           Result := 'japanese';
+    TLanguage.Spanish:            Result := 'spanish';
+    TLanguage.French:             Result := 'french';
+    TLanguage.PortugueseBrazil:   Result := 'portuguese_brazil';
+    TLanguage.Czech:              Result := 'czech';
+    TLanguage.Unknown:            raise ENotSupportedException.Create('Unknown language');
   else
     raise ENotSupportedException.Create('Unsupported language');
   end;
 end;
 
-function TWordList.WordExists(const AWord: string; out Index: Integer): Boolean;
+class function TWordList.GetSingleton(ALanguage: TLanguage): IWordList;
 var
-  N: string;
+  LIdx: TLanguageIndex;
 begin
-  N := NormalizeString(AWord);
+  LIdx := LanguageToIndex(ALanguage);
 
-  Result := TArrayUtils.IndexOf<string>(
-    FWords,
-    function (S: string): Boolean
-    begin
-      Result := SameStr(N, S);
-    end,
-    Index
-  );
+  // Double-checked locking: fast path without lock
+  Result := FSingletons[LIdx];
+  if Result <> nil then
+    Exit;
+
+  FLock.Acquire;
+  try
+    if FSingletons[LIdx] = nil then
+      FSingletons[LIdx] := LoadWordList(ALanguage);
+    Result := FSingletons[LIdx];
+  finally
+    FLock.Release;
+  end;
+end;
+
+class function TWordList.GetJapanese: IWordList;
+begin
+  Result := GetSingleton(TLanguage.Japanese);
+end;
+
+class function TWordList.GetChineseSimplified: IWordList;
+begin
+  Result := GetSingleton(TLanguage.ChineseSimplified);
+end;
+
+class function TWordList.GetChineseTraditional: IWordList;
+begin
+  Result := GetSingleton(TLanguage.ChineseTraditional);
+end;
+
+class function TWordList.GetSpanish: IWordList;
+begin
+  Result := GetSingleton(TLanguage.Spanish);
+end;
+
+class function TWordList.GetEnglish: IWordList;
+begin
+  Result := GetSingleton(TLanguage.English);
+end;
+
+class function TWordList.GetFrench: IWordList;
+begin
+  Result := GetSingleton(TLanguage.French);
+end;
+
+class function TWordList.GetPortugueseBrazil: IWordList;
+begin
+  Result := GetSingleton(TLanguage.PortugueseBrazil);
+end;
+
+class function TWordList.GetCzech: IWordList;
+begin
+  Result := GetSingleton(TLanguage.Czech);
+end;
+
+function TWordList.WordExists(const AWord: string; out AIndex: Integer): Boolean;
+begin
+  Result := FWordMap.TryGetValue(NormalizeString(AWord), AIndex);
+  if not Result then
+    AIndex := -1;
 end;
 
 function TWordList.WordCount: Integer;
@@ -206,73 +298,59 @@ begin
   Result := FWords;
 end;
 
-function TWordList.GetWordsByIndices(const Indices: TArray<Integer>): TArray<string>;
+function TWordList.GetWordsByIndices(const AIndices: TArray<Integer>): TArray<string>;
 var
-  L: TList<string>;
-  I, Idx: Integer;
+  LI, LIdx: Integer;
 begin
-  L := TList<string>.Create;
-  try
-    L.Capacity := Length(Indices);
-    for I := 0 to High(Indices) do
-    begin
-      Idx := Indices[I];
-      if (Idx < 0) or (Idx >= Length(FWords)) then
-        raise ERangeError.CreateFmt('Index %d out of range', [Idx]);
-      L.Add(FWords[Idx]);
-    end;
-    Result := L.ToArray;
-  finally
-    L.Free;
-  end;
-end;
-
-function TWordList.GetSentence(const Indices: TArray<Integer>): string;
-var
-  Parts: TArray<string>;
-begin
-  Parts := GetWordsByIndices(Indices);
-  Result := string.Join(FSpace, Parts);
-end;
-
-function TWordList.ToIndices(const Words: TArray<string>): TArray<Integer>;
-var
-  I, Idx: Integer;
-begin
-  SetLength(Result, Length(Words));
-  for I := 0 to High(Words) do
+  SetLength(Result, Length(AIndices));
+  for LI := 0 to High(AIndices) do
   begin
-    if not WordExists(Words[I], Idx) then
-      raise Exception.CreateFmt(
-        'Word "%s" is not in the wordlist for this language, cannot continue to rebuild entropy from wordlist',
-        [Words[I]]);
-    Result[I] := Idx;
+    LIdx := AIndices[LI];
+    if (LIdx < 0) or (LIdx >= Length(FWords)) then
+      raise ERangeError.CreateFmt('Index %d out of range', [LIdx]);
+    Result[LI] := FWords[LIdx];
   end;
 end;
 
-class function TWordList.ToBits(const Values: TArray<Integer>): TBits;
-var
-  V: Integer;
-  BitIndex, P, I: Integer;
+function TWordList.GetSentence(const AIndices: TArray<Integer>): string;
 begin
-  // Validate: each index must be < 2048 (11 bits)
-  for V in Values do
-    if (V < 0) or (V >= 2048) then
-      raise EArgumentException.Create('values should be between 0 and 2048');
+  Result := string.Join(FSpace, GetWordsByIndices(AIndices));
+end;
+
+function TWordList.ToIndices(const AWords: TArray<string>): TArray<Integer>;
+var
+  LI, LIdx: Integer;
+begin
+  SetLength(Result, Length(AWords));
+  for LI := 0 to High(AWords) do
+  begin
+    if not WordExists(AWords[LI], LIdx) then
+      raise EArgumentException.CreateFmt(
+        'Word "%s" is not in the wordlist, cannot rebuild entropy', [AWords[LI]]);
+    Result[LI] := LIdx;
+  end;
+end;
+
+class function TWordList.ToBits(const AValues: TArray<Integer>): TBits;
+var
+  LV, LBitIndex, LP, LI: Integer;
+begin
+  for LV in AValues do
+    if (LV < 0) or (LV > MaxWordValue) then
+      raise EArgumentException.CreateFmt(
+        'Word index %d out of range [0..%d]', [LV, MaxWordValue]);
 
   Result := TBits.Create;
-  // 11 bits per value
-  Result.Size := Length(Values) * 11;
+  Result.Size := Length(AValues) * BitsPerWord;
 
-  BitIndex := 0;
-  for I := 0 to High(Values) do
+  LBitIndex := 0;
+  for LI := 0 to High(AValues) do
   begin
-    V := Values[I];
-    // MSB first: (bit 10) .. (bit 0)
-    for P := 0 to 10 do
+    LV := AValues[LI];
+    for LP := 0 to BitsPerWord - 1 do
     begin
-      Result[BitIndex] := ((V and (1 shl (10 - P))) <> 0);
-      Inc(BitIndex);
+      Result[LBitIndex] := (LV and (1 shl (BitsPerWord - 1 - LP))) <> 0;
+      Inc(LBitIndex);
     end;
   end;
 end;
@@ -283,228 +361,102 @@ begin
 end;
 
 class function TWordList.LoadWordList(const AName: string): IWordList;
+var
+  LLoaded: IInterface;
+  LWordList: IWordList;
 begin
   if AName = '' then
-    raise EArgumentNilException.Create('Word list name is nil/empty');
+    raise EArgumentException.Create('Word list name is empty');
 
-  FLoadedLock.Acquire;
+  FLock.Acquire;
   try
     if FLoadedLists.TryGetValue(AName, Result) then
       Exit;
 
     if FWordlistSource = nil then
-      raise EInvalidOperation.Create(
-        'WordList.WordlistSource is not initialized, could not fetch word list.');
+      raise EInvalidOpException.Create(
+        'WordList source is not initialized');
 
-    Result := FWordlistSource.Load(AName) as IWordList;
-    FLoadedLists.Add(AName, Result);
+    LLoaded := FWordlistSource.Load(AName);
+    if not Supports(LLoaded, IWordList, LWordList) then
+      raise EInvalidOpException.Create('Wordlist source did not return IWordList');
+    Result := LWordList;
+    FLoadedLists.Add(AName, LWordList);
   finally
-    FLoadedLock.Release;
+    FLock.Release;
   end;
 end;
 
-class function TWordList.GetJapanese: IWordList;
+class function TWordList.AutoDetect(const ASentence: string): IWordList;
 begin
-  if FJapanese <> nil then
-    Exit(FJapanese);
-
-  FSingletonLock.Acquire;
-  try
-    if FJapanese = nil then
-      FJapanese := LoadWordList(TLanguage.Japanese);
-    Result := FJapanese;
-  finally
-    FSingletonLock.Release;
-  end;
+  Result := LoadWordList(AutoDetectLanguage(ASentence));
 end;
 
-class function TWordList.GetChineseSimplified: IWordList;
+class function TWordList.AutoDetectLanguage(const ASentence: string): TLanguage;
 begin
-  if FChineseSimplified <> nil then
-    Exit(FChineseSimplified);
-
-  FSingletonLock.Acquire;
-  try
-    if FChineseSimplified = nil then
-      FChineseSimplified := LoadWordList(TLanguage.ChineseSimplified);
-    Result := FChineseSimplified;
-  finally
-    FSingletonLock.Release;
-  end;
+  // Split on normal space ($0020) and Japanese ideographic space ($3000)
+  Result := AutoDetectLanguage(ASentence.Split([Char($0020), Char($3000)]));
 end;
 
-class function TWordList.GetChineseTraditional: IWordList;
-begin
-  if FChineseTraditional <> nil then
-    Exit(FChineseTraditional);
-
-  FSingletonLock.Acquire;
-  try
-    if FChineseTraditional = nil then
-      FChineseTraditional := LoadWordList(TLanguage.ChineseTraditional);
-    Result := FChineseTraditional;
-  finally
-    FSingletonLock.Release;
-  end;
-end;
-
-class function TWordList.GetSpanish: IWordList;
-begin
-  if FSpanish <> nil then
-    Exit(FSpanish);
-
-  FSingletonLock.Acquire;
-  try
-    if FSpanish = nil then
-      FSpanish := LoadWordList(TLanguage.Spanish);
-    Result := FSpanish;
-  finally
-    FSingletonLock.Release;
-  end;
-end;
-
-class function TWordList.GetEnglish: IWordList;
-begin
-  if FEnglish <> nil then
-    Exit(FEnglish);
-
-  FSingletonLock.Acquire;
-  try
-    if FEnglish = nil then
-      FEnglish := LoadWordList(TLanguage.English);
-    Result := FEnglish;
-  finally
-    FSingletonLock.Release;
-  end;
-end;
-
-class function TWordList.GetFrench: IWordList;
-begin
-  if FFrench <> nil then
-    Exit(FFrench);
-
-  FSingletonLock.Acquire;
-  try
-    if FFrench = nil then
-      FFrench := LoadWordList(TLanguage.French);
-    Result := FFrench;
-  finally
-    FSingletonLock.Release;
-  end;
-end;
-
-class function TWordList.GetPortugueseBrazil: IWordList;
-begin
-  if FPortugueseBrazil <> nil then
-    Exit(FPortugueseBrazil);
-
-  FSingletonLock.Acquire;
-  try
-    if FPortugueseBrazil = nil then
-      FPortugueseBrazil := LoadWordList(TLanguage.PortugueseBrazil);
-    Result := FPortugueseBrazil;
-  finally
-    FSingletonLock.Release;
-  end;
-end;
-
-class function TWordList.GetCzech: IWordList;
-begin
-  if FCzech <> nil then
-    Exit(FCzech);
-
-  FSingletonLock.Acquire;
-  try
-    if FCzech = nil then
-      FCzech := LoadWordList(TLanguage.Czech);
-    Result := FCzech;
-  finally
-    FSingletonLock.Release;
-  end;
-end;
-
-class function TWordList.AutoDetect(const Sentence: string): IWordList;
-begin
-  Result := LoadWordList(AutoDetectLanguage(Sentence));
-end;
-
-class function TWordList.AutoDetectLanguage(const Sentence: string): TLanguage;
+class function TWordList.AutoDetectLanguage(const AWords: TArray<string>): TLanguage;
+const
+  IndexToLanguage: array[TLanguageIndex] of TLanguage = (
+    TLanguage.English, TLanguage.Japanese, TLanguage.Spanish,
+    TLanguage.ChineseSimplified, TLanguage.ChineseTraditional,
+    TLanguage.French, TLanguage.PortugueseBrazil, TLanguage.Czech
+  );
+  AllLists: array[TLanguageIndex] of TLanguage = (
+    TLanguage.English, TLanguage.Japanese, TLanguage.Spanish,
+    TLanguage.ChineseSimplified, TLanguage.ChineseTraditional,
+    TLanguage.French, TLanguage.PortugueseBrazil, TLanguage.Czech
+  );
 var
-  Words: TArray<string>;
+  LHits: array[TLanguageIndex] of Integer;
+  LI: TLanguageIndex;
+  LBestIdx: Integer;
+  LBestCount: Integer;
+  LS: string;
+  LDummy: Integer;
+  LInSimplified: Boolean;
 begin
-  Words := Sentence.Split([Char($0020), Char($3000)]);  //normal space and JP space
-  Result := AutoDetectLanguage(Words);
-end;
+  FillChar(LHits, SizeOf(LHits), 0);
 
-class function TWordList.AutoDetectLanguage(const Words: TArray<string>): TLanguage;
-var
-  LanguageCount: array[0..7] of Integer; // EN, JP, ES, ZH-S, ZH-T, FR, PT-BR, CZ
-  S: string;
-
-  procedure Bump(Index: Integer);
+  for LS in AWords do
   begin
-    Inc(LanguageCount[Index]);
-  end;
-
-  function MaxIndex: Integer;
-  var
-    I, M, MI: Integer;
-  begin
-    M := 0;     // start at 0 so we can detect "no hits"
-    MI := -1;   // -1 means "none"
-    for I := Low(LanguageCount) to High(LanguageCount) do
-      if LanguageCount[I] > M then
+    LInSimplified := False;
+    for LI := Low(TLanguageIndex) to High(TLanguageIndex) do
+    begin
+      if GetSingleton(AllLists[LI]).WordExists(LS, LDummy) then
       begin
-        M := LanguageCount[I];
-        MI := I;
+        // ChineseTraditional only counts if the word is NOT in ChineseSimplified
+        if AllLists[LI] = TLanguage.ChineseSimplified then
+          LInSimplified := True;
+        if (AllLists[LI] = TLanguage.ChineseTraditional) and LInSimplified then
+          Continue;
+        Inc(LHits[LI]);
       end;
-    // If M stayed 0, there were no hits -> Unknown
-    if M = 0 then
-      Exit(-1);
-    Result := MI;
+    end;
   end;
 
+  // Find the language with the most hits
+  LBestIdx := -1;
+  LBestCount := 0;
+  for LI := Low(TLanguageIndex) to High(TLanguageIndex) do
+    if LHits[LI] > LBestCount then
+    begin
+      LBestCount := LHits[LI];
+      LBestIdx := LI;
+    end;
 
-var
-  Dummy: Integer;
-begin
-  FillChar(LanguageCount, SizeOf(LanguageCount), 0);
-
-  for S in Words do
-  begin
-    if English.WordExists(S, Dummy) then Bump(0);
-    if Japanese.WordExists(S, Dummy) then Bump(1);
-    if Spanish.WordExists(S, Dummy) then Bump(2);
-    if ChineseSimplified.WordExists(S, Dummy) then Bump(3);
-    if ChineseTraditional.WordExists(S, Dummy) and (not ChineseSimplified.WordExists(S, Dummy)) then Bump(4);
-    if French.WordExists(S, Dummy) then Bump(5);
-    if PortugueseBrazil.WordExists(S, Dummy) then Bump(6);
-    if Czech.WordExists(S, Dummy) then Bump(7);
-  end;
-
-  // If no hits, Unknown
-  if MaxIndex = -1 then
+  if LBestIdx = -1 then
     Exit(TLanguage.Unknown);
 
-  case MaxIndex of
-    0: Result := TLanguage.English;
-    1: Result := TLanguage.Japanese;
-    2: Result := TLanguage.Spanish;
-    3:
-      begin
-        // if traditional had hits too (languageCount[4] > 0), prefer traditional
-        if LanguageCount[4] > 0 then
-          Result := TLanguage.ChineseTraditional
-        else
-          Result := TLanguage.ChineseSimplified;
-      end;
-    4: Result := TLanguage.ChineseTraditional;
-    5: Result := TLanguage.French;
-    6: Result := TLanguage.PortugueseBrazil;
-    7: Result := TLanguage.Czech;
-  else
-    Result := TLanguage.Unknown;
-  end;
+  // If best is ChineseSimplified but Traditional also had exclusive hits, prefer Traditional
+  if (IndexToLanguage[LBestIdx] = TLanguage.ChineseSimplified) and
+     (LHits[LanguageToIndex(TLanguage.ChineseTraditional)] > 0) then
+    Exit(TLanguage.ChineseTraditional);
+
+  Result := IndexToLanguage[LBestIdx];
 end;
 
 function TWordList.GetName: string;
@@ -518,5 +470,3 @@ begin
 end;
 
 end.
-
-

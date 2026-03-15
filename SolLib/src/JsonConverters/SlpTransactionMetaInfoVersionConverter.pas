@@ -38,11 +38,20 @@ type
   /// </summary>
   TTransactionMetaInfoVersionConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInfo matches TValue.
+    /// </summary>
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
 
+    /// <summary>
+    /// Deserializes a string-or-integer dynamic value from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
 
+    /// <summary>
+    /// Serializes a string-or-integer dynamic value to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
@@ -59,27 +68,27 @@ end;
 function TTransactionMetaInfoVersionConverter.ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  I64: Int64;
-  S  : string;
+  LI64: Int64;
+  LStr: string;
 begin
   SkipPropertyName(AReader);
 
   case AReader.TokenType of
     TJsonToken.&String:
       begin
-        S := AReader.Value.AsString;
-        Exit(TValue.From<string>(S));
+        LStr := AReader.Value.AsString;
+        Exit(TValue.From<string>(LStr));
       end;
 
     TJsonToken.&Integer:
       begin
-        I64 := AReader.Value.AsInt64;
+        LI64 := AReader.Value.AsInt64;
         // Must fit in 32-bit Integer
-        if (I64 < Low(Integer)) or (I64 > High(Integer)) then
+        if (LI64 < Low(Integer)) or (LI64 > High(Integer)) then
           raise EJsonSerializationException.CreateFmt(
-            'DynamicTypeConverter: integer value %d out of 32-bit range', [I64]
+            'DynamicTypeConverter: integer value %d out of 32-bit range', [LI64]
           );
-        Exit(TValue.From<Integer>(Integer(I64)));
+        Exit(TValue.From<Integer>(Integer(LI64)));
       end;
   end;
 
@@ -92,20 +101,20 @@ end;
 procedure TTransactionMetaInfoVersionConverter.WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
   const ASerializer: TJsonSerializer);
 var
-  V: TValue;
+  LValue: TValue;
 begin
-  V := AValue.Unwrap();
+  LValue := AValue.Unwrap();
 
-  if V.IsEmpty then
+  if LValue.IsEmpty then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
   // Only accept Delphi string or 32-bit Integer
-  if V.IsType<Integer> or V.IsType<string> then
+  if LValue.IsType<Integer> or LValue.IsType<string> then
   begin
-    WriteTValue(AWriter, ASerializer, V);
+    WriteTValue(AWriter, ASerializer, LValue);
     Exit;
   end;
 

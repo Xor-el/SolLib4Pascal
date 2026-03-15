@@ -287,236 +287,236 @@ end; *)
 
 procedure TTokenSwapProgramTests.TestInitialize;
 var
-  W: IWallet;
-  TokenSwapAccount, TokenA, TokenB, PoolMint, PoolFee, PoolToken: IAccount;
-  Tx: ITransactionInstruction;
-  Fees: IFees;
+  LWallet: IWallet;
+  LTokenSwapAccount, LTokenA, LTokenB, LPoolMint, LPoolFee, LPoolToken: IAccount;
+  LTx: ITransactionInstruction;
+  LFees: IFees;
 begin
-  W := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  TokenSwapAccount := W.GetAccountByIndex(1);
-  TokenA           := W.GetAccountByIndex(3);
-  TokenB           := W.GetAccountByIndex(4);
-  PoolMint         := W.GetAccountByIndex(5);
-  PoolFee          := W.GetAccountByIndex(6);
-  PoolToken        := W.GetAccountByIndex(7);
+  LTokenSwapAccount := LWallet.GetAccountByIndex(1);
+  LTokenA := LWallet.GetAccountByIndex(3);
+  LTokenB := LWallet.GetAccountByIndex(4);
+  LPoolMint := LWallet.GetAccountByIndex(5);
+  LPoolFee := LWallet.GetAccountByIndex(6);
+  LPoolToken := LWallet.GetAccountByIndex(7);
 
-  Fees := TFees.Create;
-  Fees.TradeFeeNumerator              := 1;
-  Fees.TradeFeeDenominator            := 100;
-  Fees.OwnerWithdrawFeeNumerator       := 0;
-  Fees.OwnerWithdrawFeeDenominator       := 1;
-  Fees.OwnerTradeFeeDenominator     := 1;
-  Fees.OwnerTradeFeeNumerator         := 1;
-  Fees.OwnerTradeFeeDenominator       := 100;
-  Fees.HostFeeNumerator               := 1;
-  Fees.HostFeeDenominator             := 1000;
+  LFees := TFees.Create;
+  LFees.TradeFeeNumerator := 1;
+  LFees.TradeFeeDenominator := 100;
+  LFees.OwnerWithdrawFeeNumerator := 0;
+  LFees.OwnerWithdrawFeeDenominator := 1;
+  LFees.OwnerTradeFeeDenominator := 1;
+  LFees.OwnerTradeFeeNumerator := 1;
+  LFees.OwnerTradeFeeDenominator := 100;
+  LFees.HostFeeNumerator := 1;
+  LFees.HostFeeDenominator := 1000;
 
-  Tx := TTokenSwapProgram.Initialize(
-    TokenSwapAccount.PublicKey,
-    TokenA.PublicKey,
-    TokenB.PublicKey,
-    PoolMint.PublicKey,
-    PoolFee.PublicKey,
-    PoolToken.PublicKey,
-    Fees,
+  LTx := TTokenSwapProgram.Initialize(
+    LTokenSwapAccount.PublicKey,
+    LTokenA.PublicKey,
+    LTokenB.PublicKey,
+    LPoolMint.PublicKey,
+    LPoolFee.PublicKey,
+    LPoolToken.PublicKey,
+    LFees,
     TSwapCurve.ConstantProduct
   );
 
-  AssertEquals(8, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals(ExpectedInitializeData, Tx.Data, 'Data');
+  AssertEquals(8, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TokenSwapProgramIdBytes, LTx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedInitializeData, LTx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestSwap;
 var
-  W: IWallet;
-  TokenSwapAccount, UserXfer, Source, Into_, From_, Destination, PoolTokenMint, Fee, HostFee: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LTokenSwapAccount, LUserXfer, LSource, LInto_, LFrom_, LDestination, LPoolTokenMint, LFee, LHostFee: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  W := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  TokenSwapAccount := W.GetAccountByIndex(1);
-  UserXfer         := W.GetAccountByIndex(3);
-  Source           := W.GetAccountByIndex(4);
-  Into_            := W.GetAccountByIndex(5);
-  From_            := W.GetAccountByIndex(6);
-  Destination      := W.GetAccountByIndex(7);
-  PoolTokenMint    := W.GetAccountByIndex(7);
-  Fee              := W.GetAccountByIndex(7);
-  HostFee          := W.GetAccountByIndex(7);
+  LTokenSwapAccount := LWallet.GetAccountByIndex(1);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LSource := LWallet.GetAccountByIndex(4);
+  LInto_ := LWallet.GetAccountByIndex(5);
+  LFrom_ := LWallet.GetAccountByIndex(6);
+  LDestination := LWallet.GetAccountByIndex(7);
+  LPoolTokenMint := LWallet.GetAccountByIndex(7);
+  LFee := LWallet.GetAccountByIndex(7);
+  LHostFee := LWallet.GetAccountByIndex(7);
 
-  Tx := TTokenSwapProgram.Swap(
-    TokenSwapAccount.PublicKey,
-    UserXfer.PublicKey,
-    Source.PublicKey,
-    Into_.PublicKey,
-    From_.PublicKey,
-    Destination.PublicKey,
-    PoolTokenMint.PublicKey,
-    Fee.PublicKey,
-    HostFee.PublicKey,
+  LTx := TTokenSwapProgram.Swap(
+    LTokenSwapAccount.PublicKey,
+    LUserXfer.PublicKey,
+    LSource.PublicKey,
+    LInto_.PublicKey,
+    LFrom_.PublicKey,
+    LDestination.PublicKey,
+    LPoolTokenMint.PublicKey,
+    LFee.PublicKey,
+    LHostFee.PublicKey,
     400000,   // Amount In
     8500000   // Amount Out
   );
 
-  AssertEquals(11, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals(ExpectedSwapData, Tx.Data, 'Data');
+  AssertEquals(11, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TokenSwapProgramIdBytes, LTx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedSwapData, LTx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestDepositAllTokenTypes;
 var
-  W: IWallet;
-  TokenSwapAccount, UserXfer, AuthA, AuthB, BaseA, BaseB, PoolTokenMint, PoolAccount: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LTokenSwapAccount, LUserXfer, LAuthA, LAuthB, LBaseA, LBaseB, LPoolTokenMint, LPoolAccount: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  W := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  TokenSwapAccount := W.GetAccountByIndex(1);
-  UserXfer         := W.GetAccountByIndex(3);
-  AuthA            := W.GetAccountByIndex(4);
-  AuthB            := W.GetAccountByIndex(5);
-  BaseA            := W.GetAccountByIndex(6);
-  BaseB            := W.GetAccountByIndex(7);
-  PoolTokenMint    := W.GetAccountByIndex(7);
-  PoolAccount      := W.GetAccountByIndex(7);
+  LTokenSwapAccount := LWallet.GetAccountByIndex(1);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LAuthA := LWallet.GetAccountByIndex(4);
+  LAuthB := LWallet.GetAccountByIndex(5);
+  LBaseA := LWallet.GetAccountByIndex(6);
+  LBaseB := LWallet.GetAccountByIndex(7);
+  LPoolTokenMint := LWallet.GetAccountByIndex(7);
+  LPoolAccount := LWallet.GetAccountByIndex(7);
 
-  Tx := TTokenSwapProgram.DepositAllTokenTypes(
-    TokenSwapAccount.PublicKey,
-    UserXfer.PublicKey,
-    AuthA.PublicKey,
-    AuthB.PublicKey,
-    BaseA.PublicKey,
-    BaseB.PublicKey,
-    PoolTokenMint.PublicKey,
-    PoolAccount.PublicKey,
+  LTx := TTokenSwapProgram.DepositAllTokenTypes(
+    LTokenSwapAccount.PublicKey,
+    LUserXfer.PublicKey,
+    LAuthA.PublicKey,
+    LAuthB.PublicKey,
+    LBaseA.PublicKey,
+    LBaseB.PublicKey,
+    LPoolTokenMint.PublicKey,
+    LPoolAccount.PublicKey,
     4,         // PoolTokens
     8500000,   // MaxTokenA
     4000       // MaxTokenB
   );
 
-  AssertEquals(10, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals(ExpectedDepositAllTokenTypesData, Tx.Data, 'Data');
+  AssertEquals(10, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TokenSwapProgramIdBytes, LTx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedDepositAllTokenTypesData, LTx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestWithdrawAllTokenTypes;
 var
-  W: IWallet;
-  TokenSwapAccount, UserXfer, PoolTokenMint, SourcePool, TokenAFrom, TokenBFrom, TokenATo, TokenBTo, FeeAccount: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LTokenSwapAccount, LUserXfer, LPoolTokenMint, LSourcePool, LTokenAFrom, LTokenBFrom, LTokenATo, LTokenBTo, LFeeAccount: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  W := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  TokenSwapAccount := W.GetAccountByIndex(1);
-  UserXfer         := W.GetAccountByIndex(3);
-  PoolTokenMint    := W.GetAccountByIndex(4);
-  SourcePool       := W.GetAccountByIndex(4);
-  TokenAFrom       := W.GetAccountByIndex(5);
-  TokenBFrom       := W.GetAccountByIndex(6);
-  TokenATo         := W.GetAccountByIndex(7);
-  TokenBTo         := W.GetAccountByIndex(7);
-  FeeAccount       := W.GetAccountByIndex(7);
+  LTokenSwapAccount := LWallet.GetAccountByIndex(1);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LPoolTokenMint := LWallet.GetAccountByIndex(4);
+  LSourcePool := LWallet.GetAccountByIndex(4);
+  LTokenAFrom := LWallet.GetAccountByIndex(5);
+  LTokenBFrom := LWallet.GetAccountByIndex(6);
+  LTokenATo := LWallet.GetAccountByIndex(7);
+  LTokenBTo := LWallet.GetAccountByIndex(7);
+  LFeeAccount := LWallet.GetAccountByIndex(7);
 
-  Tx := TTokenSwapProgram.WithdrawAllTokenTypes(
-    TokenSwapAccount.PublicKey,
-    UserXfer.PublicKey,
-    PoolTokenMint.PublicKey,
-    SourcePool.PublicKey,
-    TokenAFrom.PublicKey,
-    TokenBFrom.PublicKey,
-    TokenATo.PublicKey,
-    TokenBTo.PublicKey,
-    FeeAccount.PublicKey,
+  LTx := TTokenSwapProgram.WithdrawAllTokenTypes(
+    LTokenSwapAccount.PublicKey,
+    LUserXfer.PublicKey,
+    LPoolTokenMint.PublicKey,
+    LSourcePool.PublicKey,
+    LTokenAFrom.PublicKey,
+    LTokenBFrom.PublicKey,
+    LTokenATo.PublicKey,
+    LTokenBTo.PublicKey,
+    LFeeAccount.PublicKey,
     4,        // PoolTokens
     4000,     // MinTokenA
     8500000   // MinTokenB
   );
 
-  AssertEquals(11, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals(ExpectedWithdrawAllTokenTypesData, Tx.Data, 'Data');
+  AssertEquals(11, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TokenSwapProgramIdBytes, LTx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedWithdrawAllTokenTypesData, LTx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestDepositSingleTokenTypeExactAmountInTypes;
 var
-  W: IWallet;
-  TokenSwapAccount, UserXfer, TokenSource, TokenA, TokenB, PoolMint, Pool: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LTokenSwapAccount, LUserXfer, LTokenSource, LTokenA, LTokenB, LPoolMint, LPool: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  W := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  TokenSwapAccount := W.GetAccountByIndex(1);
-  UserXfer         := W.GetAccountByIndex(3);
-  TokenSource      := W.GetAccountByIndex(4);
-  TokenA           := W.GetAccountByIndex(5);
-  TokenB           := W.GetAccountByIndex(6);
-  PoolMint         := W.GetAccountByIndex(7);
-  Pool             := W.GetAccountByIndex(7);
+  LTokenSwapAccount := LWallet.GetAccountByIndex(1);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LTokenSource := LWallet.GetAccountByIndex(4);
+  LTokenA := LWallet.GetAccountByIndex(5);
+  LTokenB := LWallet.GetAccountByIndex(6);
+  LPoolMint := LWallet.GetAccountByIndex(7);
+  LPool := LWallet.GetAccountByIndex(7);
 
-  Tx := TTokenSwapProgram.DepositSingleTokenTypeExactAmountIn(
-    TokenSwapAccount.PublicKey,
-    UserXfer.PublicKey,
-    TokenSource.PublicKey,
-    TokenA.PublicKey,
-    TokenB.PublicKey,
-    PoolMint.PublicKey,
-    Pool.PublicKey,
+  LTx := TTokenSwapProgram.DepositSingleTokenTypeExactAmountIn(
+    LTokenSwapAccount.PublicKey,
+    LUserXfer.PublicKey,
+    LTokenSource.PublicKey,
+    LTokenA.PublicKey,
+    LTokenB.PublicKey,
+    LPoolMint.PublicKey,
+    LPool.PublicKey,
     4000,  // Source Token Amount
     4      // Min Pool Token Amount
   );
 
-  AssertEquals(9, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals(ExpectedDepositSingleTokenTypeExactAmountInData, Tx.Data, 'Data');
+  AssertEquals(9, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TokenSwapProgramIdBytes, LTx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedDepositSingleTokenTypeExactAmountInData, LTx.Data, 'Data');
 end;
 
 procedure TTokenSwapProgramTests.TestWithdrawSingleTokenTypeExactAmountOutTypes;
 var
-  W: IWallet;
-  TokenSwapAccount, UserXfer, PoolMint, SourcePool, TokenASource, TokenBSource, UserToken, FeeAccount: IAccount;
-  Tx: ITransactionInstruction;
+  LWallet: IWallet;
+  LTokenSwapAccount, LUserXfer, LPoolMint, LSourcePool, LTokenASource, LTokenBSource, LUserToken, LFeeAccount: IAccount;
+  LTx: ITransactionInstruction;
 begin
-  W := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  TokenSwapAccount := W.GetAccountByIndex(1);
-  UserXfer         := W.GetAccountByIndex(3);
-  PoolMint         := W.GetAccountByIndex(4);
-  SourcePool       := W.GetAccountByIndex(5);
-  TokenASource     := W.GetAccountByIndex(6);
-  TokenBSource     := W.GetAccountByIndex(6);
-  UserToken        := W.GetAccountByIndex(7);
-  FeeAccount       := W.GetAccountByIndex(7);
+  LTokenSwapAccount := LWallet.GetAccountByIndex(1);
+  LUserXfer := LWallet.GetAccountByIndex(3);
+  LPoolMint := LWallet.GetAccountByIndex(4);
+  LSourcePool := LWallet.GetAccountByIndex(5);
+  LTokenASource := LWallet.GetAccountByIndex(6);
+  LTokenBSource := LWallet.GetAccountByIndex(6);
+  LUserToken := LWallet.GetAccountByIndex(7);
+  LFeeAccount := LWallet.GetAccountByIndex(7);
 
-  Tx := TTokenSwapProgram.WithdrawSingleTokenTypeExactAmountOut(
-    TokenSwapAccount.PublicKey,
-    UserXfer.PublicKey,
-    PoolMint.PublicKey,
-    SourcePool.PublicKey,
-    TokenASource.PublicKey,
-    TokenBSource.PublicKey,
-    UserToken.PublicKey,
-    FeeAccount.PublicKey,
+  LTx := TTokenSwapProgram.WithdrawSingleTokenTypeExactAmountOut(
+    LTokenSwapAccount.PublicKey,
+    LUserXfer.PublicKey,
+    LPoolMint.PublicKey,
+    LSourcePool.PublicKey,
+    LTokenASource.PublicKey,
+    LTokenBSource.PublicKey,
+    LUserToken.PublicKey,
+    LFeeAccount.PublicKey,
     4000,  // Destination Token Amount
     4      // Max Pool Token Amount
   );
 
-  AssertEquals(10, Tx.Keys.Count, 'Keys.Count');
-  AssertEquals(TokenSwapProgramIdBytes, Tx.ProgramId, 'ProgramId');
-  AssertEquals(ExpectedWithdrawSingleTokenTypeExactAmountOutData,  Tx.Data, 'Data');
+  AssertEquals(10, LTx.Keys.Count, 'Keys.Count');
+  AssertEquals(TokenSwapProgramIdBytes, LTx.ProgramId, 'ProgramId');
+  AssertEquals(ExpectedWithdrawSingleTokenTypeExactAmountOutData,  LTx.Data, 'Data');
 end;
 
 { === Decode Tests (value-by-value + Free the list) ========================= }
 
 procedure TTokenSwapProgramTests.InitializeDecodeTest;
 var
-  Msg: IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  Msg      := TMessage.Deserialize(InitializeMessage);
-  LDecoded := TInstructionDecoder.DecodeInstructions(Msg);
+  LMsg := TMessage.Deserialize(InitializeMessage);
+  LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(2, LDecoded.Count, 'Count');
 
@@ -558,12 +558,12 @@ end;
 
 procedure TTokenSwapProgramTests.SwapDecodeTest;
 var
-  Msg: IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  Msg      := TMessage.Deserialize(SwapMessage);
-  LDecoded := TInstructionDecoder.DecodeInstructions(Msg);
+  LMsg := TMessage.Deserialize(SwapMessage);
+  LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
     AssertEquals('Swap',              LDecoded[0].InstructionName, 'name');
@@ -588,12 +588,12 @@ end;
 
 procedure TTokenSwapProgramTests.DepositAllTokenTypesDecodeTest;
 var
-  Msg: IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  Msg      := TMessage.Deserialize(DepositAllTokenTypesMessage);
-  LDecoded := TInstructionDecoder.DecodeInstructions(Msg);
+  LMsg := TMessage.Deserialize(DepositAllTokenTypesMessage);
+  LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
     AssertEquals('Deposit Both',     LDecoded[0].InstructionName, 'name');
@@ -619,12 +619,12 @@ end;
 
 procedure TTokenSwapProgramTests.WithdrawAllTokenTypesDecodeTest;
 var
-  Msg: IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  Msg      := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
-  LDecoded := TInstructionDecoder.DecodeInstructions(Msg);
+  LMsg := TMessage.Deserialize(WithdrawAllTokenTypesMessage);
+  LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
     AssertEquals('Withdraw Both',     LDecoded[0].InstructionName, 'name');
@@ -651,12 +651,12 @@ end;
 
 procedure TTokenSwapProgramTests.DepositSingleTokenTypeExactAmountInDecodeTest;
 var
-  Msg: IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  Msg      := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
-  LDecoded := TInstructionDecoder.DecodeInstructions(Msg);
+  LMsg := TMessage.Deserialize(DepositSingleTokenTypeExactAmountInMessage);
+  LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
     AssertEquals('Deposit Single',     LDecoded[0].InstructionName, 'name');
@@ -680,12 +680,12 @@ end;
 
 procedure TTokenSwapProgramTests.WithdrawSingleTokenTypeExactAmountOutDecodeTest;
 var
-  Msg: IMessage;
+  LMsg: IMessage;
   LDecoded: TList<IDecodedInstruction>;
   LVal: TValue;
 begin
-  Msg      := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
-  LDecoded := TInstructionDecoder.DecodeInstructions(Msg);
+  LMsg := TMessage.Deserialize(WithdrawSingleTokenTypeExactAmountOutMessage);
+  LDecoded := TInstructionDecoder.DecodeInstructions(LMsg);
   try
     AssertEquals(1, LDecoded.Count, 'Count');
     AssertEquals('Withdraw Single',   LDecoded[0].InstructionName, 'name');

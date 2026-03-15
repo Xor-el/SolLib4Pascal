@@ -26,6 +26,7 @@ uses
   System.Generics.Collections,
   System.Rtti,
   System.TypInfo,
+  SlpEnumUtils,
   SlpPublicKey,
   SlpAccountDomain,
   SlpTransactionInstruction,
@@ -454,7 +455,7 @@ var
   LCurve: TBytes;
 begin
   // 1 (op) + 1 (nonce) + 64 (fees) + 33 (curve) = 99
-  LFees  := AFees.Serialize;
+  LFees := AFees.Serialize;
   LCurve := ASwapCurve.Serialize;
 
   SetLength(Result, 99);
@@ -644,7 +645,7 @@ end;
 class constructor TTokenSwapProgram.Create;
 begin
   FProgramIdKey := TPublicKey.Create('SwaPpA9LAaLfeLi3a68M4DjnLqgtticKg6CnyNwgAC8');
-  FOwnerKey     := TPublicKey.Create('HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN');
+  FOwnerKey := TPublicKey.Create('HfoTxFR1Tm6kGmWgYWD6J7YHVy1UwqSULUGVLXkJqaKN');
 end;
 
 class destructor TTokenSwapProgram.Destroy;
@@ -867,25 +868,23 @@ var
 begin
   LInstr := TDeserialization.GetU8(AData, TTokenSwapProgramData.MethodOffset);
 
-  if GetEnumName(TypeInfo(TTokenSwapProgramInstructions.TValues), LInstr) = '' then
+  if not TEnumUtils.TryGetEnumFromOrdinal<TTokenSwapProgramInstructions.TValues>(LInstr, LVal) then
   begin
     Result := TDecodedInstruction.Create;
-    Result.PublicKey        := ProgramIdKey;
-    Result.InstructionName  := 'Unknown Instruction';
-    Result.ProgramName      := ProgramName;
-    Result.Values             := TDictionary<string, TValue>.Create;
-    Result.InnerInstructions  := TList<IDecodedInstruction>.Create;
+    Result.PublicKey := ProgramIdKey;
+    Result.InstructionName := 'Unknown Instruction';
+    Result.ProgramName := ProgramName;
+    Result.Values := TDictionary<string, TValue>.Create;
+    Result.InnerInstructions := TList<IDecodedInstruction>.Create;
     Exit;
   end;
 
-  LVal := TTokenSwapProgramInstructions.TValues(LInstr);
-
   Result := TDecodedInstruction.Create;
-  Result.PublicKey        := ProgramIdKey;
-  Result.InstructionName  := TTokenSwapProgramInstructions.Names[LVal];
-  Result.ProgramName      := ProgramName;
-  Result.Values             := TDictionary<string, TValue>.Create;
-  Result.InnerInstructions  := TList<IDecodedInstruction>.Create;
+  Result.PublicKey := ProgramIdKey;
+  Result.InstructionName := TTokenSwapProgramInstructions.Names[LVal];
+  Result.ProgramName := ProgramName;
+  Result.Values := TDictionary<string, TValue>.Create;
+  Result.InnerInstructions := TList<IDecodedInstruction>.Create;
 
   case LVal of
     TTokenSwapProgramInstructions.TValues.Initialize:

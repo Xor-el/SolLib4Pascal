@@ -23,7 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  System.TypInfo,
+  SlpEnumUtils,
   SlpSolanaRpcClient,
   SlpSolanaStreamingRpcClient,
   SlpRpcEnum,
@@ -42,7 +42,7 @@ type
   /// <summary>
   /// The dev net cluster.
   /// </summary>
-  RpcDevNet  = 'https://api.devnet.solana.com';
+  RpcDevNet = 'https://api.devnet.solana.com';
   /// <summary>
   /// The test net cluster.
   /// </summary>
@@ -118,7 +118,7 @@ begin
     TCluster.TestNet: LUrl := RpcTestNet;
     TCluster.MainNet: LUrl := RpcMainNet;
   else
-    raise Exception.CreateFmt('Invalid cluster specified: %s', [GetEnumName(TypeInfo(TCluster), Ord(ACluster))]);
+    raise Exception.CreateFmt('Invalid cluster specified: %s', [TEnumUtils.ToString<TCluster>(ACluster)]);
   end;
 
   Result := GetClient(LUrl, AClient, ALogger, ARateLimiter);
@@ -138,7 +138,7 @@ begin
     TCluster.TestNet: LUrl := StreamingRpcTestNet;
     TCluster.MainNet: LUrl := StreamingRpcMainNet;
   else
-    raise Exception.CreateFmt('Invalid cluster specified: %s', [GetEnumName(TypeInfo(TCluster), Ord(ACluster))]);
+    raise Exception.CreateFmt('Invalid cluster specified: %s', [TEnumUtils.ToString<TCluster>(ACluster)]);
   end;
 
   Result := GetStreamingClient(LUrl, AClient, ALogger);

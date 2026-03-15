@@ -31,7 +31,8 @@ uses
   System.JSON.Writers,
   System.JSON.Serializers,
   SlpValueHelpers,
-  SlpJsonHelpers;
+  SlpJsonHelpers,
+  SlpBaseJsonConverter;
 
 type
   /// <summary>
@@ -40,12 +41,21 @@ type
   ///   return TArray<string> with [ json, 'jsonParsed' ].
   /// - Otherwise -> raise "Unable to parse account data".
   /// </summary>
-  TAccountDataConverter = class(TJsonConverter)
+  TAccountDataConverter = class(TBaseJsonConverter)
 
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TArray of string.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes account data from a JSON reader (array or object form).
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+    /// <summary>
+    /// Serializes account data to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
@@ -61,22 +71,22 @@ function TAccountDataConverter.ReadJson(
   const AReader: TJsonReader; ATypeInf: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  Arr: TArray<string>;
+  LArr: TArray<string>;
 begin
   // If JSON is an array -> TArray<string>
   if AReader.TokenType = TJsonToken.StartArray then
   begin
-    ASerializer.Populate(AReader, Arr);
-    Exit(TValue.From<TArray<string>>(Arr));
+    ASerializer.Populate(AReader, LArr);
+    Exit(TValue.From<TArray<string>>(LArr));
   end;
 
   // If JSON is an object -> ["<object-as-json>", "jsonParsed"]
   if AReader.TokenType = TJsonToken.StartObject then
   begin
-    SetLength(Arr, 2);
-    Arr[0] := AReader.ToJson();
-    Arr[1] := 'jsonParsed';
-    Exit(TValue.From<TArray<string>>(Arr));
+    SetLength(LArr, 2);
+    LArr[0] := AReader.ToJson();
+    LArr[1] := 'jsonParsed';
+    Exit(TValue.From<TArray<string>>(LArr));
   end;
 
   raise EJsonException.Create('Unable to parse account data');
@@ -85,53 +95,53 @@ end;
 procedure TAccountDataConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
 var
-  SArr: TArray<string>;
-  JV: TJSONValue;
-  V: TValue;
-  S: string;
+  LSArr: TArray<string>;
+  LJV: TJSONValue;
+  LV: TValue;
+  LS: string;
 begin
-  V := AValue.Unwrap();
+  LV := AValue.Unwrap();
   // Expecting a TArray<string> in all cases
-  if V.IsEmpty then
+  if LV.IsEmpty then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
-  if not V.IsType<TArray<string>> then
+  if not LV.IsType<TArray<string>> then
     raise EJsonSerializationException.Create('TAccountDataConverter: expected TArray<string>');
 
-  SArr := V.AsType<TArray<string>>;
+  LSArr := LV.AsType<TArray<string>>;
 
   // Special shape: [ json, 'jsonParsed' ] -> write the json as the actual object
-  if (Length(SArr) = 2) and SameText(SArr[1], 'jsonParsed') then
+  if (Length(LSArr) = 2) and SameText(LSArr[1], 'jsonParsed') then
   begin
     // Try to parse the first entry as JSON and emit it as a DOM (preserving numerics)
-    JV := TJSONObject.ParseJSONValue(SArr[0]);
+    LJV := TJSONObject.ParseJSONValue(LSArr[0]);
     try
-      if Assigned(JV) then
+      if Assigned(LJV) then
       begin
-        AWriter.WriteJsonValue(JV);
+        AWriter.WriteJsonValue(LJV);
         Exit;
       end
       else
       begin
         // If it didn't parse, fall back to writing the raw array of strings
         AWriter.WriteStartArray;
-        AWriter.WriteValue(SArr[0]);
-        AWriter.WriteValue(SArr[1]);
+        AWriter.WriteValue(LSArr[0]);
+        AWriter.WriteValue(LSArr[1]);
         AWriter.WriteEndArray;
         Exit;
       end;
     finally
-      JV.Free;
+      LJV.Free;
     end;
   end;
 
   // Default: write as a plain array of strings (e.g., ["", "base64"])
   AWriter.WriteStartArray;
-  for S in SArr do
-    AWriter.WriteValue(S);
+  for LS in LSArr do
+    AWriter.WriteValue(LS);
   AWriter.WriteEndArray;
 end;
 

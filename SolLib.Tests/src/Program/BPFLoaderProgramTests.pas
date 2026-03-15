@@ -62,7 +62,7 @@ var
   LPayer, LBuffer: IAccount;
   LInstr: ITransactionInstruction;
 begin
-  LPayer  := TAccount.Create;
+  LPayer := TAccount.Create;
   LBuffer := TAccount.Create;
 
   LInstr := TBPFLoaderProgram.InitializeBuffer(LBuffer.PublicKey, LPayer.PublicKey);
@@ -83,7 +83,7 @@ var
   LInstr: ITransactionInstruction;
   LOffset: UInt32;
 begin
-  LPayer  := TAccount.Create;
+  LPayer := TAccount.Create;
   LBuffer := TAccount.Create;
 
   LData := TBytes.Create(1,2,3,4,5);
@@ -96,7 +96,7 @@ begin
   AssertEquals(2, LInstr.Keys.Count, 'Keys.Count mismatch');
 
   // Data layout (our encoder):
-  // 0..3: u32(tag=1), 4..7: u32(offset), 8.. : borsh byte-vector (len + bytes)
+  // 0..3: u32(tag=1), 4..7: u32(offset), 8..: borsh byte-vector (len + bytes)
   CheckEquals(1, LInstr.Data[0], 'Tag (byte 0) should be 1 (Write)');
   CheckTrue(Length(LInstr.Data) >= 4+4+4+Length(LData), 'Data too short for Write layout');
 
@@ -110,11 +110,11 @@ var
   LInstr: ITransactionInstruction;
   LMaxLen: UInt64;
 begin
-  LPayer    := TAccount.Create;
+  LPayer := TAccount.Create;
   LProgData := TAccount.Create;
-  LProg     := TAccount.Create;
-  LBuffer   := TAccount.Create;
-  LAuth     := TAccount.Create;
+  LProg := TAccount.Create;
+  LBuffer := TAccount.Create;
+  LAuth := TAccount.Create;
 
   LMaxLen := 1000;
 
@@ -143,10 +143,10 @@ var
   LInstr: ITransactionInstruction;
 begin
   LProgData := TAccount.Create;
-  LProg     := TAccount.Create;
-  LBuffer   := TAccount.Create;
-  LSpill    := TAccount.Create;
-  LAuth     := TAccount.Create;
+  LProg := TAccount.Create;
+  LBuffer := TAccount.Create;
+  LSpill := TAccount.Create;
+  LAuth := TAccount.Create;
 
   LInstr := TBPFLoaderProgram.Upgrade(
               LProgData.PublicKey,
@@ -171,8 +171,8 @@ var
   LAcct, LAuth, LNewAuth: IAccount;
   LInstr: ITransactionInstruction;
 begin
-  LAcct    := TAccount.Create;
-  LAuth    := TAccount.Create;
+  LAcct := TAccount.Create;
+  LAuth := TAccount.Create;
   LNewAuth := TAccount.Create;
 
   LInstr := TBPFLoaderProgram.SetAuthority(LAcct.PublicKey, LAuth.PublicKey, LNewAuth.PublicKey);

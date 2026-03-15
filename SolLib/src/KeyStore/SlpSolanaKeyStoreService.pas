@@ -25,83 +25,76 @@ uses
   System.SysUtils,
   SlpIOUtils,
   SlpWalletEnum,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpWallet;
 
 type
   /// <summary>
-  /// Implements a keystore compatible with the solana-keygen made in rust.
+  /// Keystore operations compatible with solana-keygen (Rust CLI).
+  /// Stateless: all methods are class/static.
   /// </summary>
-  TSolanaKeyStoreService = class
+  TSolanaKeyStoreService = class sealed
+  private
+    class function InitializeWallet(const ASeed: TBytes;
+      const APassphrase: string = ''): IWallet; static;
   public
     /// <summary>
-    /// Restores a keypair from a keystore compatible with the solana-keygen made in rust.
+    /// Restores a wallet from a solana-keygen JSON byte array string.
     /// </summary>
-    /// <param name="APrivateKey">The string with the private key bytes.</param>
-    /// <param name="APassphrase">The passphrase used while originally generating the keys.</param>
-    function RestoreKeystore(const APrivateKey: string; const APassphrase: string = ''): IWallet;
+    class function RestoreKeystore(const APrivateKey: string;
+      const APassphrase: string = ''): IWallet; static;
 
     /// <summary>
-    /// Restores a keypair from a keystore compatible with the solana-keygen made in rust.
+    /// Restores a wallet from a solana-keygen JSON keystore file.
     /// </summary>
-    /// <param name="APath">The path to the keystore.</param>
-    /// <param name="APassphrase">The passphrase used while originally generating the keys.</param>
-    function RestoreKeystoreFromFile(const APath: string; const APassphrase: string = ''): IWallet;
+    class function RestoreKeystoreFromFile(const APath: string;
+      const APassphrase: string = ''): IWallet; static;
 
     /// <summary>
-    /// Saves a keypair to a keystore compatible with the solana-keygen made in rust.
+    /// Saves a wallet's private key to a solana-keygen compatible JSON file.
     /// </summary>
-    /// <param name="APath">The path to the keystore</param>
-    /// <param name="AWallet">The wallet to save to the keystore.</param>
-    procedure SaveKeystore(const APath: string; const AWallet: IWallet);
-  private
-    /// <summary>
-    /// Initialize the wallet.
-    /// </summary>
-    /// <param name="ASeed">The seed.</param>
-    /// <param name="APassphrase">The passphrase.</param>
-    /// <returns>The wallet.</returns>
-    function InitializeWallet(const ASeed: TBytes; const APassphrase: string = ''): IWallet;
+    class procedure SaveKeystore(const APath: string; const AWallet: IWallet); static;
   end;
 
 implementation
 
 { TSolanaKeyStoreService }
 
-function TSolanaKeyStoreService.RestoreKeystore(const APrivateKey, APassphrase: string): IWallet;
+class function TSolanaKeyStoreService.RestoreKeystore(const APrivateKey,
+  APassphrase: string): IWallet;
 begin
   if APrivateKey = '' then
     raise EArgumentNilException.Create('privateKey');
 
-  Result := InitializeWallet(TEncoders.Solana.DecodeData(APrivateKey), APassphrase);
+  Result := InitializeWallet(TSolanaKeyPairJsonEncoder.DecodeData(APrivateKey), APassphrase);
 end;
 
-function TSolanaKeyStoreService.RestoreKeystoreFromFile(const APath, APassphrase: string): IWallet;
-var
-  JsonText: string;
+class function TSolanaKeyStoreService.RestoreKeystoreFromFile(const APath,
+  APassphrase: string): IWallet;
 begin
   if APath = '' then
     raise EArgumentNilException.Create('path');
 
-  JsonText := TIOUtils.ReadAllText(APath, TEncoding.UTF8);
-  Result := InitializeWallet(TEncoders.Solana.DecodeData(JsonText), APassphrase);
+  Result := InitializeWallet(
+    TSolanaKeyPairJsonEncoder.DecodeData(TIOUtils.ReadAllText(APath, TEncoding.UTF8)),
+    APassphrase);
 end;
 
-procedure TSolanaKeyStoreService.SaveKeystore(const APath: string; const AWallet: IWallet);
-var
-  SeedString: string;
+class procedure TSolanaKeyStoreService.SaveKeystore(const APath: string;
+  const AWallet: IWallet);
 begin
   if APath = '' then
     raise EArgumentNilException.Create('path');
   if AWallet = nil then
     raise EArgumentNilException.Create('wallet');
 
-  SeedString := TEncoders.Solana.EncodeData(AWallet.Account.PrivateKey.KeyBytes);
-
-  TIOUtils.WriteAllBytes(APath, TEncoding.ASCII.GetBytes(SeedString));
+  TIOUtils.WriteAllBytes(APath,
+    TEncoding.ASCII.GetBytes(
+      TSolanaKeyPairJsonEncoder.EncodeData(AWallet.Account.PrivateKey.KeyBytes)));
 end;
 
-function TSolanaKeyStoreService.InitializeWallet(const ASeed: TBytes; const APassphrase: string): IWallet;
+class function TSolanaKeyStoreService.InitializeWallet(const ASeed: TBytes;
+  const APassphrase: string): IWallet;
 begin
   Result := TWallet.Create(ASeed, APassphrase, TSeedMode.Bip39);
 end;

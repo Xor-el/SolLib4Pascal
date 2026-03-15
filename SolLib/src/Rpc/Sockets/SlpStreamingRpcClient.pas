@@ -216,19 +216,19 @@ end;
 
 function TStreamingRpcClient.BuildSerializer: TJsonSerializer;
 var
-  Converters: TList<TJsonConverter>;
+  LConverters: TList<TJsonConverter>;
 begin
-  Converters := GetConverters();
+  LConverters := GetConverters();
   try
     Result := TJsonSerializerFactory.CreateSerializer(
       TEnhancedContractResolver.Create(
         TJsonMemberSerialization.Public,
         TJsonNamingPolicy.CamelCase
       ),
-      Converters
+      LConverters
     );
   finally
-    Converters.Free;
+    LConverters.Free;
   end;
 end;
 

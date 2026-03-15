@@ -37,15 +37,27 @@ uses
 type
   TBaseJsonConverter = class abstract(TJsonConverter)
   protected
-    class function LooksLikeList(Obj: TObject): Boolean; static;
-    class function LooksLikeDictionaryWithStringKey(Obj: TObject): Boolean; static;
-    class procedure WriteDictionaryWithStringKey(const W: TJsonWriter;
-      const S: TJsonSerializer; Obj: TObject); static;
-    class procedure WriteListLike(
-      const W: TJsonWriter; const S: TJsonSerializer; Obj: TObject); static;
-    class procedure WriteTValue(const W: TJsonWriter; const S: TJsonSerializer; const AValue: TValue); static;
+    /// <summary>
+    /// If AObj is a string-keyed dictionary, writes it as a JSON object and
+    /// returns True. Returns False without writing anything if it is not.
+    /// </summary>
+    class function TryWriteDictionaryWithStringKey(const AWriter: TJsonWriter;
+      const ASerializer: TJsonSerializer; const AObj: TObject): Boolean; static;
+
+    /// <summary>
+    /// If AObj is a list-like collection, writes it as a JSON array and
+    /// returns True. Returns False without writing anything if it is not.
+    /// </summary>
+    class function TryWriteListLike(const AWriter: TJsonWriter;
+      const ASerializer: TJsonSerializer; const AObj: TObject): Boolean; static;
+
+    class procedure WriteTValue(const AWriter: TJsonWriter;
+      const ASerializer: TJsonSerializer; const AValue: TValue); static;
     class procedure SkipPropertyName(const AReader: TJsonReader); static;
   public
+    /// <summary>
+    /// Serializes the given value to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
@@ -54,295 +66,206 @@ implementation
 
 { TBaseJsonConverter }
 
-class function TBaseJsonConverter.LooksLikeList(Obj: TObject): Boolean;
+class function TBaseJsonConverter.TryWriteDictionaryWithStringKey(
+  const AWriter: TJsonWriter; const ASerializer: TJsonSerializer;
+  const AObj: TObject): Boolean;
 var
-  Ctx      : TRttiContext;
-  RT       : TRttiType;
-  AddMethod: TRttiMethod;
-  ElemType : PTypeInfo;
+  LCtx: TRttiContext;
+  LRT: TRttiType;
+  LAddMethod: TRttiMethod;
+  LGetEnum: TRttiMethod;
+  LKeyType: PTypeInfo;
+  LValType: PTypeInfo;
+  LEnumVal: TValue;
+  LEnumObj: TObject;
+  LEnumType: TRttiType;
+  LMoveNext: TRttiMethod;
+  LCurrentProp: TRttiProperty;
+  LCurr: TValue;
+  LCurrType: TRttiType;
+  LKeyField: TRttiField;
+  LValField: TRttiField;
+  LKeyCell: TValue;
+  LValCell: TValue;
 begin
   Result := False;
-  if Obj = nil then
+  if AObj = nil then
     Exit;
 
-  Ctx := TRttiContext.Create;
+  LCtx := TRttiContext.Create;
   try
-    RT := Ctx.GetType(Obj.ClassType);
-    if RT = nil then
+    LRT := LCtx.GetType(AObj.ClassType);
+    if LRT = nil then
       Exit;
 
-    // Let TValueUtils do the heavy lifting:
-    // - find Add(...)
-    // - extract ElemType (ignored here, but can be used later if needed)
-    Result := TValueUtils.IsListLikeType(RT, AddMethod, ElemType);
-  finally
-    Ctx.Free;
-  end;
-end;
-
-class function TBaseJsonConverter.LooksLikeDictionaryWithStringKey(
-  Obj: TObject): Boolean;
-var
-  Ctx      : TRttiContext;
-  RT       : TRttiType;
-  AddMethod: TRttiMethod;
-  GetEnum  : TRttiMethod;
-  KeyType  : PTypeInfo;
-  ValType  : PTypeInfo;
-begin
-  Result := False;
-  if Obj = nil then
-    Exit;
-
-  Ctx := TRttiContext.Create;
-  try
-    RT := Ctx.GetType(Obj.ClassType);
-    if RT = nil then
+    if not TValueUtils.IsDictionaryLikeType(LRT, LAddMethod, LKeyType, LValType, LGetEnum) then
       Exit;
 
-    // Let TValueUtils do the heavy lifting:
-    // - finds Add(...)
-    // - finds GetEnumerator
-    // - gives us KeyType / ValType / GetEnum
-    if not TValueUtils.IsDictionaryLikeType(RT, AddMethod, KeyType, ValType, GetEnum) then
+    if (LKeyType = nil) or (LKeyType <> TypeInfo(string)) then
       Exit;
 
-    // Now we only care that the key type is string
-    Result := (KeyType <> nil) and (KeyType = TypeInfo(string));
-  finally
-    Ctx.Free;
-  end;
-end;
-
-class procedure TBaseJsonConverter.WriteDictionaryWithStringKey(
-  const W: TJsonWriter; const S: TJsonSerializer; Obj: TObject);
-var
-  Ctx      : TRttiContext;
-  RT       : TRttiType;
-  AddMethod: TRttiMethod;
-  GetEnum  : TRttiMethod;
-  KeyType  : PTypeInfo;
-  ValType  : PTypeInfo;
-
-  EnumVal    : TValue;
-  EnumObj    : TObject;
-  EnumType   : TRttiType;
-  MoveNext   : TRttiMethod;
-  CurrentProp: TRttiProperty;
-
-  Curr      : TValue;
-  CurrType  : TRttiType;
-  KeyField  : TRttiField;
-  ValField  : TRttiField;
-
-  KeyCell   : TValue;
-  ValCell   : TValue;
-begin
-  // If the dictionary object itself is nil, write JSON null
-  if Obj = nil then
-  begin
-    W.WriteNull;
-    Exit;
-  end;
-
-  // Otherwise, always emit an object (possibly empty)
-  W.WriteStartObject;
-
-  Ctx := TRttiContext.Create;
-  try
-    RT := Ctx.GetType(Obj.ClassType);
-    if RT = nil then
-      Exit;
-
-    // Reuse the shared helper: detects Add(Key, Value) and GetEnumerator
-    if not TValueUtils.IsDictionaryLikeType(RT, AddMethod, KeyType, ValType, GetEnum) then
-      Exit;
-
-    // This writer is specifically for string-keyed dictionaries
-    if KeyType <> TypeInfo(string) then
-      Exit;
-
-    // Get the enumerator instance
-    EnumVal := GetEnum.Invoke(Obj, []);
-    EnumObj := EnumVal.AsObject;
-    if EnumObj = nil then
-      Exit;
-
+    // Committed to writing a JSON object
+    Result := True;
+    AWriter.WriteStartObject;
+    LEnumObj := nil;
     try
-      EnumType := Ctx.GetType(EnumObj.ClassType);
-      if EnumType = nil then
-        Exit;
-
-      MoveNext    := EnumType.GetMethod('MoveNext');
-      CurrentProp := EnumType.GetProperty('Current');
-      if (MoveNext = nil) or (CurrentProp = nil) then
-        Exit;
-
-      CurrType := CurrentProp.PropertyType;
-      if (CurrType = nil) or (CurrType.TypeKind <> tkRecord) then
-        Exit;
-
-      KeyField := CurrType.GetField('Key');
-      ValField := CurrType.GetField('Value');
-      if (KeyField = nil) or (ValField = nil) then
-        Exit;
-
-      // Iterate dictionary entries
-      while MoveNext.Invoke(EnumObj, []).AsBoolean do
+      LEnumVal := LGetEnum.Invoke(AObj, []);
+      LEnumObj := LEnumVal.AsObject;
+      if LEnumObj <> nil then
       begin
-        Curr    := CurrentProp.GetValue(EnumObj);
-        KeyCell := KeyField.GetValue(Curr.GetReferenceToRawData);
-        ValCell := ValField.GetValue(Curr.GetReferenceToRawData);
-
-        W.WritePropertyName(KeyCell.AsString);
-        WriteTValue(W, S, ValCell);
+        LEnumType := LCtx.GetType(LEnumObj.ClassType);
+        if LEnumType <> nil then
+        begin
+          LMoveNext := LEnumType.GetMethod('MoveNext');
+          LCurrentProp := LEnumType.GetProperty('Current');
+          if (LMoveNext <> nil) and (LCurrentProp <> nil) then
+          begin
+            LCurrType := LCurrentProp.PropertyType;
+            if (LCurrType <> nil) and (LCurrType.TypeKind = tkRecord) then
+            begin
+              LKeyField := LCurrType.GetField('Key');
+              LValField := LCurrType.GetField('Value');
+              if (LKeyField <> nil) and (LValField <> nil) then
+              begin
+                while LMoveNext.Invoke(LEnumObj, []).AsBoolean do
+                begin
+                  LCurr := LCurrentProp.GetValue(LEnumObj);
+                  LKeyCell := LKeyField.GetValue(LCurr.GetReferenceToRawData);
+                  LValCell := LValField.GetValue(LCurr.GetReferenceToRawData);
+                  AWriter.WritePropertyName(LKeyCell.AsString);
+                  WriteTValue(AWriter, ASerializer, LValCell);
+                end;
+              end;
+            end;
+          end;
+        end;
       end;
     finally
-      EnumObj.Free;
+      LEnumObj.Free;
+      AWriter.WriteEndObject;
     end;
   finally
-    Ctx.Free;
-    W.WriteEndObject; // ensure the JSON object is always properly closed
+    LCtx.Free;
   end;
 end;
 
-class procedure TBaseJsonConverter.WriteListLike(
-  const W: TJsonWriter; const S: TJsonSerializer; Obj: TObject);
+class function TBaseJsonConverter.TryWriteListLike(const AWriter: TJsonWriter;
+  const ASerializer: TJsonSerializer; const AObj: TObject): Boolean;
 var
-  Ctx      : TRttiContext;
-  RT       : TRttiType;
-  AddMethod: TRttiMethod;
-  ElemType : PTypeInfo;
-
-  Inst      : TRttiInstanceType;
-  GetEnum   : TRttiMethod;
-  EnumVal   : TValue;
-  EnumObj   : TObject;
-  EnumType  : TRttiType;
-  MoveNext  : TRttiMethod;
-  CurrentProp: TRttiProperty;
-
-  Curr      : TValue;
+  LCtx: TRttiContext;
+  LRT: TRttiType;
+  LAddMethod: TRttiMethod;
+  LElemType: PTypeInfo;
+  LGetEnum: TRttiMethod;
+  LEnumVal: TValue;
+  LEnumObj: TObject;
+  LEnumType: TRttiType;
+  LMoveNext: TRttiMethod;
+  LCurrentProp: TRttiProperty;
+  LCurr: TValue;
 begin
-  if Obj = nil then
-  begin
-    W.WriteNull;
+  Result := False;
+  if AObj = nil then
     Exit;
-  end;
 
-  W.WriteStartArray;
-
-  Ctx := TRttiContext.Create;
-  EnumObj := nil;
+  LCtx := TRttiContext.Create;
   try
-    RT := Ctx.GetType(Obj.ClassType);
-    if RT = nil then
+    LRT := LCtx.GetType(AObj.ClassType);
+    if (LRT = nil) or
+       not TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum) then
       Exit;
 
-    // Let the helper detect list-like types and element type
-    if not TValueUtils.IsListLikeType(RT, AddMethod, ElemType) then
-      Exit;
-
-    Inst := RT as TRttiInstanceType;
-    if Inst = nil then
-      Exit;
-
-    GetEnum := Inst.GetMethod('GetEnumerator');
-    if (GetEnum = nil) or (Length(GetEnum.GetParameters) <> 0) then
-      Exit;
-
-    // Get the enumerator object
-    EnumVal := GetEnum.Invoke(Obj, []);
-    EnumObj := EnumVal.AsObject;
-    if EnumObj = nil then
-      Exit;
-
-    EnumType := Ctx.GetType(EnumObj.ClassType);
-    if EnumType = nil then
-      Exit;
-
-    MoveNext := EnumType.GetMethod('MoveNext');
-    CurrentProp := EnumType.GetProperty('Current');
-    if (MoveNext = nil) or (CurrentProp = nil) then
-      Exit;
-
-    // Iterate list elements
-    while MoveNext.Invoke(EnumObj, []).AsBoolean do
-    begin
-      Curr := CurrentProp.GetValue(EnumObj);
-      WriteTValue(W, S, Curr);
+    // Committed to writing a JSON array
+    Result := True;
+    AWriter.WriteStartArray;
+    LEnumObj := nil;
+    try
+      LEnumVal := LGetEnum.Invoke(AObj, []);
+      LEnumObj := LEnumVal.AsObject;
+      if LEnumObj <> nil then
+      begin
+        LEnumType := LCtx.GetType(LEnumObj.ClassType);
+        if LEnumType <> nil then
+        begin
+          LMoveNext := LEnumType.GetMethod('MoveNext');
+          LCurrentProp := LEnumType.GetProperty('Current');
+          if (LMoveNext <> nil) and (LCurrentProp <> nil) then
+          begin
+            while LMoveNext.Invoke(LEnumObj, []).AsBoolean do
+            begin
+              LCurr := LCurrentProp.GetValue(LEnumObj);
+              WriteTValue(AWriter, ASerializer, LCurr);
+            end;
+          end;
+        end;
+      end;
+    finally
+      LEnumObj.Free;
+      AWriter.WriteEndArray;
     end;
   finally
-    EnumObj.Free;
-    Ctx.Free;
-    W.WriteEndArray; // always close the array, even on early Exit
+    LCtx.Free;
   end;
 end;
 
 class procedure TBaseJsonConverter.WriteTValue(
-  const W: TJsonWriter; const S: TJsonSerializer; const AValue: TValue);
+  const AWriter: TJsonWriter; const ASerializer: TJsonSerializer; const AValue: TValue);
 
- procedure WriteArray(const Arr: TValue);
+  procedure WriteArray(const AArr: TValue);
   var
-    I, L: Integer;
+    LI, LLen: Integer;
   begin
-    W.WriteStartArray;
-    L := Arr.GetArrayLength;
-    for I := 0 to L - 1 do
-      WriteTValue(W, S, Arr.GetArrayElement(I));
-    W.WriteEndArray;
+    AWriter.WriteStartArray;
+    LLen := AArr.GetArrayLength;
+    for LI := 0 to LLen - 1 do
+      WriteTValue(AWriter, ASerializer, AArr.GetArrayElement(LI));
+    AWriter.WriteEndArray;
   end;
 
 var
-  Obj: TObject;
-  V: TValue;
+  LObj: TObject;
+  LV: TValue;
 begin
-  V := AValue.Unwrap();
+  LV := AValue.Unwrap();
 
-  if V.IsEmpty then
+  if LV.IsEmpty then
   begin
-    W.WriteNull;
+    AWriter.WriteNull;
     Exit;
   end;
 
-  case V.Kind of
+  case LV.Kind of
 
     tkDynArray, tkArray:
-      WriteArray(V);
+      WriteArray(LV);
 
     tkClass:
       begin
-        Obj := V.AsObject;
-        if Obj = nil then
+        LObj := LV.AsObject;
+        if LObj = nil then
         begin
-          W.WriteNull;
+          AWriter.WriteNull;
           Exit;
         end;
 
         // DOM node - write as-is to preserve tokens (no stringification)
-        if Obj is TJSONValue then
+        if LObj is TJSONValue then
         begin
-          W.WriteJsonValue(TJSONValue(Obj));
+          AWriter.WriteJsonValue(TJSONValue(LObj));
           Exit;
         end;
 
-       if LooksLikeDictionaryWithStringKey(Obj) then
-       begin
-         WriteDictionaryWithStringKey(W, S, Obj);
-         Exit;
-       end;
+        if TryWriteDictionaryWithStringKey(AWriter, ASerializer, LObj) then
+          Exit;
 
-       if LooksLikeList(Obj) then
-       begin
-         WriteListLike(W, S, Obj);
-         Exit;
-       end;
+        if TryWriteListLike(AWriter, ASerializer, LObj) then
+          Exit;
 
         // Any other object (DTO, record-holder, etc.) -> hand off to serializer
-        S.Serialize(W, Obj);
+        ASerializer.Serialize(AWriter, LObj);
       end;
   else
-     S.Serialize(W, V);
+    ASerializer.Serialize(AWriter, LV);
   end;
 end;
 

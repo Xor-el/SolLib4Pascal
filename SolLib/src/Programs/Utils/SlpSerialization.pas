@@ -258,16 +258,16 @@ end;
 
 class function TSerialization.WriteBorshString(var AData: TBytes; const AValue: String; AOffset: Integer): Integer;
 var
-  Bytes: TBytes;
+  LBytes: TBytes;
 begin
-  Bytes := TEncoding.UTF8.GetBytes(AValue);
+  LBytes := TEncoding.UTF8.GetBytes(AValue);
 
-  if (AOffset + SizeOf(UInt32) + Length(Bytes)) > Length(AData) then
+  if (AOffset + SizeOf(UInt32) + Length(LBytes)) > Length(AData) then
     raise EArgumentOutOfRangeException.Create('AOffset');
 
-  WriteU32(AData, UInt32(Length(Bytes)), AOffset);
-  WriteSpan(AData, Bytes, AOffset + SizeOf(UInt32));
-  Result := Length(Bytes) + SizeOf(UInt32);
+  WriteU32(AData, UInt32(Length(LBytes)), AOffset);
+  WriteSpan(AData, LBytes, AOffset + SizeOf(UInt32));
+  Result := Length(LBytes) + SizeOf(UInt32);
 end;
 
 class function TSerialization.WriteBorshByteVector(var AData: TBytes; const ABuffer: TBytes; AOffset: Integer): Integer;
@@ -279,12 +279,12 @@ end;
 
 class function TSerialization.EncodeBincodeString(const AData: String): TBytes;
 var
-  StrBytes: TBytes;
+  LStrBytes: TBytes;
 begin
-  StrBytes := TEncoding.UTF8.GetBytes(AData);
-  SetLength(Result, Length(StrBytes) + SizeOf(UInt64));
-  WriteU64(Result, UInt64(Length(StrBytes)), 0);
-  WriteSpan(Result, StrBytes, 8);
+  LStrBytes := TEncoding.UTF8.GetBytes(AData);
+  SetLength(Result, Length(LStrBytes) + SizeOf(UInt64));
+  WriteU64(Result, UInt64(Length(LStrBytes)), 0);
+  WriteSpan(Result, LStrBytes, 8);
 end;
 
 end.

@@ -24,7 +24,7 @@ interface
 uses
   System.SysUtils,
   System.JSON.Serializers,
-  SlpDataEncoders;
+  SlpDataEncoderUtils;
 
 type
   TKdfParams = class
@@ -69,7 +69,7 @@ type
     FIv: string;
   public
     constructor Create(const AIV: TBytes); overload;
-  public
+
     [JsonName('iv')]
     property Iv: string read FIv write FIv;
   end;
@@ -86,7 +86,7 @@ type
     constructor Create(const ACipher: string; const ACipherText, AIV, AMac, ASalt: TBytes;
       AKdfParams: TKdfParamsType; const AKdfType: string); overload; virtual;
     destructor Destroy; override;
-  public
+
     [JsonName('cipher')]
     property Cipher: string read FCipher write FCipher;
     [JsonName('ciphertext')]
@@ -109,7 +109,7 @@ type
     FVersion: Integer;
   public
     destructor Destroy; override;
-  public
+
     [JsonName('crypto')]
     property Crypto: TCryptoInfo<TKdfParamsType> read FCrypto write FCrypto;
     [JsonName('id')]
@@ -127,30 +127,29 @@ implementation
 constructor TCipherParams.Create(const AIV: TBytes);
 begin
   inherited Create;
-  FIv := TEncoders.Hex.EncodeData(AIV).ToLower;
+  FIv := THexEncoder.EncodeData(AIV).ToLower;
 end;
 
 { TCryptoInfo<T> }
 
-constructor TCryptoInfo<TKdfParamsType>.Create(const ACipher: string; const ACipherText, AIV, AMac, ASalt: TBytes;
+constructor TCryptoInfo<TKdfParamsType>.Create(const ACipher: string;
+  const ACipherText, AIV, AMac, ASalt: TBytes;
   AKdfParams: TKdfParamsType; const AKdfType: string);
 begin
   inherited Create;
-  FCipher       := ACipher;
-  FCipherText   := TEncoders.Hex.EncodeData(ACipherText).ToLower;
-  FMac          := TEncoders.Hex.EncodeData(AMac).ToLower;
+  FCipher := ACipher;
+  FCipherText := THexEncoder.EncodeData(ACipherText).ToLower;
+  FMac := THexEncoder.EncodeData(AMac).ToLower;
   FCipherParams := TCipherParams.Create(AIV);
-  FKdf          := AKdfType;
-  FKdfParams    := AKdfParams;
+  FKdf := AKdfType;
+  FKdfParams := AKdfParams;
   if Assigned(FKdfParams) then
-    FKdfParams.Salt := TEncoders.Hex.EncodeData(ASalt).ToLower;
+    FKdfParams.Salt := THexEncoder.EncodeData(ASalt).ToLower;
 end;
 
 destructor TCryptoInfo<TKdfParamsType>.Destroy;
 begin
- if Assigned(FCipherParams) then
   FCipherParams.Free;
- if Assigned(FKdfParams) then
   FKdfParams.Free;
   inherited;
 end;
@@ -159,7 +158,6 @@ end;
 
 destructor TKeyStore<TKdfParamsType>.Destroy;
 begin
-if Assigned(FCrypto) then
   FCrypto.Free;
   inherited;
 end;

@@ -258,21 +258,21 @@ end;
 
 class function TWellKnownTokens.All: TList<ITokenDef>;
 var
-  token: ITokenDef;
+  LToken: ITokenDef;
 begin
   // Return new instance of list for immutability
   Result := TList<ITokenDef>.Create();
-  for token in FTokens do
-    Result.Add(token);
+  for LToken in FTokens do
+    Result.Add(LToken);
 end;
 
 class function TWellKnownTokens.CreateTokenMintResolver: ITokenMintResolver;
 var
-  Token: ITokenDef;
+  LToken: ITokenDef;
 begin
   Result := TTokenMintResolver.Create;
-  for Token in FTokens do
-    Result.Add(Token);
+  for LToken in FTokens do
+    Result.Add(LToken);
 end;
 
 end.

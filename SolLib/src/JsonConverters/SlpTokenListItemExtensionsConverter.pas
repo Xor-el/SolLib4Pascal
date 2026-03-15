@@ -40,7 +40,13 @@ type
   /// Object/Array JSON becomes a cloned TJSONValue wrapped in a TValue (the owner frees it later).
   TTokenListItemExtensionsConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInfo matches TDictionary&lt;string, TValue&gt;.
+    /// </summary>
     function CanConvert(ATypeInfo: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a JSON object into a TDictionary&lt;string, TValue&gt; from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInfo: PTypeInfo;
       const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
@@ -56,10 +62,10 @@ function TTokenListItemExtensionsConverter.ReadJson(
   const AReader: TJsonReader; ATypeInfo: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  Dict: TDictionary<string, TValue>;
-  JV  : TJSONValue;
-  Obj : TJSONObject;
-  P   : TJSONPair;
+  LDict: TDictionary<string, TValue>;
+  LJV: TJSONValue;
+  LObj: TJSONObject;
+  LPair: TJSONPair;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Exit(nil);
@@ -70,24 +76,24 @@ begin
     Exit(nil);
   end;
 
-  JV := AReader.ReadJsonValue; // consumes entire object
+  LJV := AReader.ReadJsonValue; // consumes entire object
   try
-    if not (JV is TJSONObject) then
+    if not (LJV is TJSONObject) then
       Exit(nil);
 
-    Obj := TJSONObject(JV);
-    Dict := TDictionary<string, TValue>.Create;
+    LObj := TJSONObject(LJV);
+    LDict := TDictionary<string, TValue>.Create;
     try
-      for P in Obj do
-        Dict.Add(P.JsonString.Value, P.JsonValue.ToTValue());
+      for LPair in LObj do
+        LDict.Add(LPair.JsonString.Value, LPair.JsonValue.ToTValue());
 
-      Result := TValue.From<TDictionary<string, TValue>>(Dict);
+      Result := TValue.From<TDictionary<string, TValue>>(LDict);
     except
-      Dict.Free;
+      LDict.Free;
       raise;
     end;
   finally
-    JV.Free;
+    LJV.Free;
   end;
 end;
 

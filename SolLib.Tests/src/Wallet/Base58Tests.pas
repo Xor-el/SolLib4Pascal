@@ -26,13 +26,12 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SolLibTestCase;
 
 type
   TBase58Tests = class(TSolLibTestCase)
   private
-    function FromHexString(const Hex: string): TBytes;
+    function FromHexString(const AHex: string): TBytes;
   published
     procedure ShouldEncodeProperly;
     procedure ShouldDecodeProperly;
@@ -66,77 +65,77 @@ const
 
 { TBase58Tests }
 
-function TBase58Tests.FromHexString(const Hex: string): TBytes;
+function TBase58Tests.FromHexString(const AHex: string): TBytes;
 begin
-  Result := TEncoders.Hex.DecodeData(Hex);
+  Result := DecodeHex(AHex);
 end;
 
 procedure TBase58Tests.ShouldEncodeProperly;
 var
-  I: Integer;
-  DataBytes: TBytes;
-  Encoded: string;
+  LI: Integer;
+  LDataBytes: TBytes;
+  LEncoded: string;
 begin
-  for I := Low(DataSet) to High(DataSet) do
+  for LI := Low(DataSet) to High(DataSet) do
   begin
-    DataBytes := FromHexString(DataSet[I].Hex);
-    Encoded := TEncoders.Base58.EncodeData(DataBytes);
-    AssertEquals(DataSet[I].B58, Encoded);
+    LDataBytes := FromHexString(DataSet[LI].Hex);
+    LEncoded := EncodeBase58(LDataBytes);
+    AssertEquals(DataSet[LI].B58, LEncoded);
   end;
 end;
 
 procedure TBase58Tests.ShouldDecodeProperly;
 var
-  I: Integer;
-  Decoded: TBytes;
-  Expected: TBytes;
+  LI: Integer;
+  LDecoded: TBytes;
+  LExpected: TBytes;
 begin
-  for I := Low(DataSet) to High(DataSet) do
+  for LI := Low(DataSet) to High(DataSet) do
   begin
-    Decoded := TEncoders.Base58.DecodeData(DataSet[I].B58);
-    Expected := FromHexString(DataSet[I].Hex);
-    AssertEquals(Decoded, Expected);
+    LDecoded := DecodeBase58(DataSet[LI].B58);
+    LExpected := FromHexString(DataSet[LI].Hex);
+    AssertEquals(LDecoded, LExpected);
   end;
 end;
 
 procedure TBase58Tests.ShouldThrowExceptionOnInvalidBase58;
 var
-  ResultBytes, Expected2: TBytes;
+  LResultBytes, LExpected2: TBytes;
 begin
   // invalid -> must throw
   AssertException(
     procedure
     begin
-      TEncoders.Base58.DecodeData('invalid');
+      DecodeBase58('invalid');
     end,
-    Exception
+    EArgumentException
   );
 
   // contains non-base58 content mixed with whitespace -> must throw
   AssertException(
     procedure
     begin
-      TEncoders.Base58.DecodeData(' '#9#10#11#12#13' skip '#13#12#11#10#9' a');
+      DecodeBase58(' '#9#10#11#12#13' skip '#13#12#11#10#9' a');
     end,
-    Exception
+    EArgumentException
   );
 
   // only ignorable whitespace around the word "skip"
-  ResultBytes := TEncoders.Base58.DecodeData(' '#9#10#11#12#13' skip '#13#12#11#10#9' ');
-  Expected2 := FromHexString('971a55');
-  AssertEquals(ResultBytes, Expected2);
+  LResultBytes := DecodeBase58(' '#9#10#11#12#13' skip '#13#12#11#10#9' ');
+  LExpected2 := FromHexString('971a55');
+  AssertEquals(LResultBytes, LExpected2);
 end;
 
 procedure TBase58Tests.ShouldThrowExceptionOnEncodingNilOrEmptyArray;
 var
-  Tmp: TBytes;
+  LTmp: TBytes;
 begin
   // nil -> must throw
   AssertException(
     procedure
     begin
-      Tmp := nil;
-      TEncoders.Base58.EncodeData(Tmp);
+      LTmp := nil;
+      EncodeBase58(LTmp);
     end,
     EArgumentNilException
   );
@@ -145,8 +144,8 @@ begin
   AssertException(
     procedure
     begin
-      SetLength(Tmp, 0);
-      TEncoders.Base58.EncodeData(Tmp);
+      SetLength(LTmp, 0);
+      EncodeBase58(LTmp);
     end,
     EArgumentNilException
   );
@@ -158,7 +157,7 @@ begin
   AssertException(
     procedure
     begin
-      TEncoders.Base58.DecodeData('');
+      DecodeBase58('');
     end,
     EArgumentException
   );

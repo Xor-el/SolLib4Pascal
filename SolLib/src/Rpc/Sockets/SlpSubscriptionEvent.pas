@@ -98,8 +98,8 @@ constructor TSubscriptionEvent.Create(AStatus: TSubscriptionStatus; const AError
 begin
   inherited Create;
   FStatus := AStatus;
-  FError  := AError;
-  FCode   := ACode;
+  FError := AError;
+  FCode := ACode;
 end;
 
 function TSubscriptionEvent.GetCode: string;

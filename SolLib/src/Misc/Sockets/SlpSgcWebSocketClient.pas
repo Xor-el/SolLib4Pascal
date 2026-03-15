@@ -120,12 +120,12 @@ begin
     FClient.Options.CleanDisconnect := True;
 
     // HeartBeat: keepalive pings
-    FClient.HeartBeat.Enabled  := True;   // keepalive on
+    FClient.HeartBeat.Enabled := True;   // keepalive on
     FClient.HeartBeat.Interval := 15;     // seconds between pings
-    FClient.HeartBeat.Timeout  := 90;     // seconds to wait for pong before error/close
+    FClient.HeartBeat.Timeout := 90;     // seconds to wait for pong before error/close
 
     // WatchDog: auto-reconnect on unexpected disconnects
-    FClient.WatchDog.Enabled  := True;    // auto reconnect
+    FClient.WatchDog.Enabled := True;    // auto reconnect
     FClient.WatchDog.Interval := 5;       // seconds between attempts
     FClient.WatchDog.Attempts := 0;       // unlimited attempts
   end;
@@ -250,20 +250,20 @@ end;
 procedure TSgcWebSocketClientImpl.DoBinary(AConnection: TsgcWsConnection;
   const AData: TMemoryStream);
 
-  function StreamToBytes(const S: TStream): TBytes;
+  function StreamToBytes(const AStream: TStream): TBytes;
   var
-    L: Integer;
+    LSize: Integer;
   begin
-    L := S.Size;
-    if L <= 0 then
+    LSize := AStream.Size;
+    if LSize <= 0 then
       Exit(nil);
-    SetLength(Result, L);
-    S.Position := 0;
-    S.ReadBuffer(Result[0], L);
+    SetLength(Result, LSize);
+    AStream.Position := 0;
+    AStream.ReadBuffer(Result[0], LSize);
   end;
 
 var
-  Bytes: TBytes;
+  LBytes: TBytes;
 begin
   if Assigned(FLogger) then
    FLogger.LogInformation('Binary Data Received', []);
@@ -271,8 +271,8 @@ begin
   if not Assigned(Callbacks.OnReceiveBinaryMessage) then
     Exit;
 
-  Bytes := StreamToBytes(AData);
-  Callbacks.OnReceiveBinaryMessage(Bytes);
+  LBytes := StreamToBytes(AData);
+  Callbacks.OnReceiveBinaryMessage(LBytes);
 end;
 
 procedure TSgcWebSocketClientImpl.DoError(AConnection: TsgcWsConnection;

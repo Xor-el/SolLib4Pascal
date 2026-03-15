@@ -31,56 +31,64 @@ type
   /// <summary>Pair of key material and chain code.</summary>
   TKeyChain = record
     /// <summary>
-    /// 32-byte **SLIP-0010 child key seed** (IL). For Ed25519 this is fed into the Ed25519 keypair generator,
-    /// which performs its own hashing+clamping to produce the private scalar.
+    /// 32-byte SLIP-0010 child key seed (IL). For Ed25519 this is fed into
+    /// the Ed25519 keypair generator, which performs its own hashing+clamping
+    /// to produce the private scalar.
     /// </summary>
     Key: TBytes;
     /// <summary>32-byte chain code (IR) used as the HMAC key for the next derivation step.</summary>
     ChainCode: TBytes;
+    /// <summary>Zeroes both Key and ChainCode in place.</summary>
+    procedure Wipe;
   end;
 
-type
   /// <summary>An implementation of Ed25519-based BIP32 (SLIP-0010) hardened-only derivation.</summary>
   /// <remarks>
   /// Master: I = HMAC-SHA512(key="ed25519 seed", data=seed) -> IL (Key), IR (ChainCode).<br/>
   /// Child (hardened): I = HMAC-SHA512(key=ChainCode, data=0x00 || Key || ser32(index|0x80000000)).<br/>
-  /// The returned <c>Key</c> is IL (32 bytes) and must be passed to an Ed25519 key generator to obtain the actual keypair.
+  /// The returned <c>Key</c> is IL (32 bytes) and must be passed to an Ed25519 key generator
+  /// to obtain the actual keypair.
   /// </remarks>
   TEd25519Bip32 = class
-  public
-
-  private const
-    /// <summary>The seed for the Ed25519 BIP32 HMAC-SHA512 master key calculation.</summary>
-    Curve: string = 'ed25519 seed';
-    /// <summary>Hardened child offset.</summary>
-    HardenedOffset: Cardinal = $80000000;
-
   private
-    FMasterKey, FChainCode: TBytes;
+    const
+      /// <summary>
+      /// Pre-computed UTF-8 encoding of "ed25519 seed", the HMAC key for
+      /// the SLIP-0010 master key derivation.
+      /// </summary>
+      CurveKey: array[0..11] of Byte = (
+        $65, $64, $32, $35, $35, $31, $39, $20,  // "ed25519 "
+        $73, $65, $65, $64                         // "seed"
+      );
+      /// <summary>Hardened child offset (BIP32).</summary>
+      HardenedOffset: Cardinal = $80000000;
+      /// <summary>Expected HMAC-SHA512 output length.</summary>
+      HmacLen = 64;
+      /// <summary>Key and chain code length (each half of HMAC output).</summary>
+      HalfLen = 32;
 
-    class function GetMasterKeyFromSeed(const Seed: TBytes): TKeyChain; static;
-    class function GetChildKeyDerivation(const Key, ChainCode: TBytes;
-      Index: Cardinal): TKeyChain; static;
-    class function HmacSha512(const KeyBuffer, Data: TBytes): TKeyChain; static;
+    var
+      FMasterKey: TBytes;
+      FChainCode: TBytes;
+
+    class function GetMasterKeyFromSeed(const ASeed: TBytes): TKeyChain; static;
+    class function GetChildKeyDerivation(const AKey, AChainCode: TBytes;
+      AIndex: Cardinal): TKeyChain; static;
+    class function SplitHmac(const AKeyBuffer, AData: TBytes): TKeyChain; static;
     /// <summary>
-    /// Checks if the derivation path is valid.
-    /// <remarks>Returns true if the path is valid, otherwise false.</remarks>
+    /// Parses and validates a SLIP-0010 derivation path.
+    /// Returns the parsed hardened indices (without the hardened offset applied).
+    /// Raises on invalid paths.
     /// </summary>
-    /// <param name="Path">The derivation path.</param>
-    /// <returns>A boolean.</returns>
-    class function IsValidPath(const Path: string): Boolean; static;
-    class function ParseSegments(const Path: string): TArray<UInt32>; static;
-
+    class function ParsePath(const APath: string): TArray<UInt32>; static;
   public
-    /// <summary>Initialize the ed25519-based SLIP-0010 generator with the passed seed.</summary>
-    /// <param name="Seed">The seed bytes.</param>
-    constructor Create(const Seed: TBytes);
+    /// <summary>Initialize the Ed25519-based SLIP-0010 generator with the passed seed.</summary>
+    constructor Create(const ASeed: TBytes);
 
     /// <summary>Derives a child key from the passed derivation path.</summary>
-    /// <param name="Path">The derivation path (e.g., m/44'/501'/0'/0'). All segments must be hardened.</param>
-    /// <returns>The key and chaincode.</returns>
-    /// <exception cref="Exception">Thrown when the derivation path is invalid or out of range.</exception>
-    function DerivePath(const Path: string): TKeyChain;
+    /// <param name="APath">The derivation path (e.g., m/44'/501'/0'/0'). All segments must be hardened.</param>
+    /// <returns>The key and chain code.</returns>
+    function DerivePath(const APath: string): TKeyChain;
 
     /// <summary>Access the computed master key (IL) after construction.</summary>
     property MasterKey: TBytes read FMasterKey;
@@ -90,168 +98,142 @@ type
 
 implementation
 
+{ TKeyChain }
+
+procedure TKeyChain.Wipe;
+begin
+  if Key <> nil then
+    TArrayUtils.Fill<Byte>(Key, 0);
+  if ChainCode <> nil then
+    TArrayUtils.Fill<Byte>(ChainCode, 0);
+end;
+
 { TEd25519Bip32 }
 
-constructor TEd25519Bip32.Create(const Seed: TBytes);
+constructor TEd25519Bip32.Create(const ASeed: TBytes);
 var
-  MC: TKeyChain;
+  LMaster: TKeyChain;
 begin
   inherited Create;
-  MC := GetMasterKeyFromSeed(Seed);
-  FMasterKey := MC.Key;
-  FChainCode := MC.ChainCode;
+  LMaster := GetMasterKeyFromSeed(ASeed);
+  FMasterKey := LMaster.Key;
+  FChainCode := LMaster.ChainCode;
 end;
 
-class function TEd25519Bip32.GetMasterKeyFromSeed(const Seed: TBytes): TKeyChain;
+class function TEd25519Bip32.GetMasterKeyFromSeed(const ASeed: TBytes): TKeyChain;
 var
-  KeyBuf: TBytes;
+  LKeyBuf: TBytes;
 begin
   // HMAC-SHA512(key = "ed25519 seed", data = seed)
-  KeyBuf := TEncoding.UTF8.GetBytes(Curve);
+  SetLength(LKeyBuf, Length(CurveKey));
+  Move(CurveKey[0], LKeyBuf[0], Length(CurveKey));
   try
-    Result := HmacSha512(KeyBuf, Seed);
+    Result := SplitHmac(LKeyBuf, ASeed);
   finally
-    if Length(KeyBuf) > 0 then
-      FillChar(KeyBuf[0], Length(KeyBuf), 0);
+    TArrayUtils.Fill<Byte>(LKeyBuf, 0);
   end;
 end;
 
-class function TEd25519Bip32.GetChildKeyDerivation(const Key, ChainCode: TBytes;
-  Index: Cardinal): TKeyChain;
+class function TEd25519Bip32.GetChildKeyDerivation(const AKey, AChainCode: TBytes;
+  AIndex: Cardinal): TKeyChain;
 var
-  Buf: TBytes;
-  Off: Integer;
+  LBuf: TBytes;
 begin
-  // Data = 0x00 || Key || BigEndian(Index)
-  SetLength(Buf, 1 + Length(Key) + 4);
+  // Data = 0x00 || Key(32) || BigEndian(Index)
+  SetLength(LBuf, 1 + HalfLen + 4);
   try
-    Buf[0] := 0;
-    if Length(Key) > 0 then
-      TArrayUtils.Copy<Byte>(Key, 0, Buf, 1, Length(Key));
-
-    Off := 1 + Length(Key);
-    // write UInt32 BE at Buf[Off .. Off+3]
-    TBinaryPrimitives.WriteUInt32BigEndian(Buf, Off, Index);
-
-    Result := HmacSha512(ChainCode, Buf);
+    LBuf[0] := 0;
+    Move(AKey[0], LBuf[1], HalfLen);
+    TBinaryPrimitives.WriteUInt32BigEndian(LBuf, 1 + HalfLen, AIndex);
+    Result := SplitHmac(AChainCode, LBuf);
   finally
-    if Length(Buf) > 0 then
-      FillChar(Buf[0], Length(Buf), 0);
+    TArrayUtils.Fill<Byte>(LBuf, 0);
   end;
 end;
 
-class function TEd25519Bip32.HmacSha512(const KeyBuffer, Data: TBytes): TKeyChain;
+class function TEd25519Bip32.SplitHmac(const AKeyBuffer, AData: TBytes): TKeyChain;
 var
-  Mac: TBytes;
+  LMac: TBytes;
 begin
-  Mac := THmacSHA512.Compute(KeyBuffer, Data);
+  LMac := THmacSHA512.Compute(AKeyBuffer, AData);
   try
-    if Length(Mac) <> 64 then
+    if Length(LMac) <> HmacLen then
       raise EInvalidOpException.Create('HMAC-SHA512 returned unexpected length');
-
-    SetLength(Result.Key, 32);
-    SetLength(Result.ChainCode, 32);
-
-    if Length(Mac) > 0 then
-    begin
-      TArrayUtils.Copy<Byte>(Mac, 0, Result.Key, 0, 32);
-      TArrayUtils.Copy<Byte>(Mac, 32, Result.ChainCode, 0, 32);
-    end;
+    SetLength(Result.Key, HalfLen);
+    SetLength(Result.ChainCode, HalfLen);
+    Move(LMac[0], Result.Key[0], HalfLen);
+    Move(LMac[HalfLen], Result.ChainCode[0], HalfLen);
   finally
-    if Length(Mac) > 0 then
-      FillChar(Mac[0], Length(Mac), 0);
+    TArrayUtils.Fill<Byte>(LMac, 0);
   end;
 end;
 
-class function TEd25519Bip32.IsValidPath(const Path: string): Boolean;
+class function TEd25519Bip32.ParsePath(const APath: string): TArray<UInt32>;
 var
-  Clean: string;
-  Parts: TArray<string>;
-  i, j: Integer;
-  s, num: string;
+  LTrimmed: string;
+  LParts: TArray<string>;
+  LI, LJ: Integer;
+  LSegment, LNum: string;
+  LVal64: UInt64;
 begin
-  // Normalize trivial whitespace
-  Clean := Trim(Path);
-  if Clean = '' then
-    Exit(False);
+  LTrimmed := Trim(APath);
 
-  // must start with 'm' and have at least one '/'
-  if Clean[1] <> 'm' then
-    Exit(False);
+  // Must start with 'm' and contain at least one segment
+  if (LTrimmed = '') or (LTrimmed[1] <> 'm') then
+    raise EArgumentException.Create('Invalid derivation path');
 
-  Parts := Clean.Split(['/'], TStringSplitOptions.ExcludeEmpty);
-  if Length(Parts) < 2 then
-    Exit(False);
-  if Parts[0] <> 'm' then
-    Exit(False);
+  LParts := LTrimmed.Split(['/'], TStringSplitOptions.ExcludeEmpty);
+  if (Length(LParts) < 2) or (LParts[0] <> 'm') then
+    raise EArgumentException.Create('Invalid derivation path');
 
-  // each segment after 'm' must be "<digits>'"
-  for i := 1 to High(Parts) do
+  SetLength(Result, Length(LParts) - 1);
+  for LI := 1 to High(LParts) do
   begin
-    s := Parts[i];
-    if s = '' then
-      Exit(False);
-    if s[Length(s)] <> '''' then
-      Exit(False);
-    num := Copy(s, 1, Length(s) - 1);
-    if num = '' then
-      Exit(False);
-    for j := 1 to Length(num) do
-      if (num[j] < '0') or (num[j] > '9') then
-        Exit(False);
-  end;
+    LSegment := LParts[LI];
 
-  Result := True;
+    // Each segment must end with apostrophe (hardened)
+    if (LSegment = '') or (LSegment[Length(LSegment)] <> '''') then
+      raise EArgumentException.Create('All derivation segments must be hardened');
+
+    // Extract numeric part
+    LNum := Copy(LSegment, 1, Length(LSegment) - 1);
+    if LNum = '' then
+      raise EArgumentException.Create('Empty derivation index');
+
+    // Validate all digits
+    for LJ := 1 to Length(LNum) do
+      if (LNum[LJ] < '0') or (LNum[LJ] > '9') then
+        raise EArgumentException.CreateFmt('Invalid derivation index "%s"', [LNum]);
+
+    LVal64 := StrToUInt64(LNum);
+    if LVal64 > High(UInt32) then
+      raise ERangeError.CreateFmt('Derivation index %s exceeds UInt32 range', [LNum]);
+
+    Result[LI - 1] := UInt32(LVal64);
+  end;
 end;
 
-class function TEd25519Bip32.ParseSegments(const Path: string): TArray<UInt32>;
+function TEd25519Bip32.DerivePath(const APath: string): TKeyChain;
 var
-  Parts: TArray<string>;
-  i: Integer;
-  num: string;
-  val64: UInt64;
+  LSegs: TArray<UInt32>;
+  LI: Integer;
+  LPrev: TKeyChain;
 begin
-  Parts := Trim(Path).Split(['/']);
-  SetLength(Result, Length(Parts) - 1);
-  for i := 1 to High(Parts) do
-  begin
-    // drop trailing apostrophe
-    num := Copy(Parts[i], 1, Length(Parts[i]) - 1);
+  LSegs := ParsePath(APath);
 
+  Result.Key := Copy(FMasterKey);
+  Result.ChainCode := Copy(FChainCode);
+
+  for LI := 0 to High(LSegs) do
+  begin
+    LPrev := Result;
     try
-      val64 := StrToUInt64(num);
-    except
-      on E: EConvertError do
-        raise EConvertError.CreateFmt('Invalid derivation index "%s".', [num]);
+      Result := GetChildKeyDerivation(LPrev.Key, LPrev.ChainCode,
+        LSegs[LI] + HardenedOffset);
+    finally
+      LPrev.Wipe;
     end;
-
-    // for hardened Ed25519, raw index must be <= 4294967295
-    if val64 > High(UInt32) then
-      raise ERangeError.Create('Derivation index must be <= 4294967295 for hardened Ed25519');
-
-    Result[i - 1] := UInt32(val64);
   end;
-end;
-
-function TEd25519Bip32.DerivePath(const Path: string): TKeyChain;
-var
-  Segs: TArray<Cardinal>;
-  i: Integer;
-  Cur: TKeyChain;
-begin
-  if not IsValidPath(Path) then
-    raise Exception.Create('Invalid derivation path');
-
-  Segs := ParseSegments(Path);
-
-  Cur.Key := Copy(FMasterKey);
-  Cur.ChainCode := Copy(FChainCode);
-
-  for i := 0 to High(Segs) do
-    Cur := GetChildKeyDerivation(Cur.Key, Cur.ChainCode, Segs[i] + HardenedOffset);
-
-  Result := Cur;
 end;
 
 end.
-

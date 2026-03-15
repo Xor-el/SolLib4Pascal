@@ -33,38 +33,38 @@ type
     function LevelToString(ALevel: TLogLevel): string;
     function LevelAnsiColor(ALevel: TLogLevel): string;
     function ResetAnsiColor: string;
-    function IsPositionalTemplate(const Template: string): Boolean;
-    function FormatMessage(const Template: string; const Args: array of const): string;
-    function VarRecToString(const V: TVarRec): string;
-    class function BackingObjectFromInterface(const I: IInterface): TObject; static;
+    function IsPositionalTemplate(const ATemplate: string): Boolean;
+    function FormatMessage(const ATemplate: string; const AArgs: array of const): string;
+    function VarRecToString(const AVarRec: TVarRec): string;
+    class function BackingObjectFromInterface(const AIntf: IInterface): TObject; static;
     function IsAnsiSupported: Boolean;
   public
     constructor Create(const ACategory: string; AMinLevel: TLogLevel = TLogLevel.Trace);
     class constructor Create;
 
-    procedure Log(ALevel: TLogLevel; const EventId: TEventId; const MessageTemplate: string; const Args: array of const); overload;
-    procedure Log(ALevel: TLogLevel; const MessageTemplate: string; const Args: array of const); overload;
+    procedure Log(ALevel: TLogLevel; const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure Log(ALevel: TLogLevel; const AMessageTemplate: string; const AArgs: array of const); overload;
 
-    procedure LogException(ALevel: TLogLevel; const EventId: TEventId; const E: Exception; const MessageTemplate: string; const Args: array of const); overload;
-    procedure LogException(ALevel: TLogLevel; const E: Exception; const MessageTemplate: string; const Args: array of const); overload;
+    procedure LogException(ALevel: TLogLevel; const AEventId: TEventId; const AException: Exception; const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure LogException(ALevel: TLogLevel; const AException: Exception; const AMessageTemplate: string; const AArgs: array of const); overload;
 
-    procedure LogTrace(const MessageTemplate: string; const Args: array of const); overload;
-    procedure LogTrace(const EventId: TEventId; const MessageTemplate: string; const Args: array of const); overload;
+    procedure LogTrace(const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure LogTrace(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const); overload;
 
-    procedure LogDebug(const MessageTemplate: string; const Args: array of const); overload;
-    procedure LogDebug(const EventId: TEventId; const MessageTemplate: string; const Args: array of const); overload;
+    procedure LogDebug(const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure LogDebug(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const); overload;
 
-    procedure LogInformation(const MessageTemplate: string; const Args: array of const); overload;
-    procedure LogInformation(const EventId: TEventId; const MessageTemplate: string; const Args: array of const); overload;
+    procedure LogInformation(const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure LogInformation(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const); overload;
 
-    procedure LogWarning(const MessageTemplate: string; const Args: array of const); overload;
-    procedure LogWarning(const EventId: TEventId; const MessageTemplate: string; const Args: array of const); overload;
+    procedure LogWarning(const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure LogWarning(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const); overload;
 
-    procedure LogError(const MessageTemplate: string; const Args: array of const); overload;
-    procedure LogError(const EventId: TEventId; const MessageTemplate: string; const Args: array of const); overload;
+    procedure LogError(const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure LogError(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const); overload;
 
-    procedure LogCritical(const MessageTemplate: string; const Args: array of const); overload;
-    procedure LogCritical(const EventId: TEventId; const MessageTemplate: string; const Args: array of const); overload;
+    procedure LogCritical(const AMessageTemplate: string; const AArgs: array of const); overload;
+    procedure LogCritical(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const); overload;
 
     function IsEnabled(ALevel: TLogLevel): Boolean;
     function Category: string;
@@ -75,7 +75,7 @@ type
     FMinLevel: TLogLevel;
   public
     constructor Create(AMinLevel: TLogLevel = TLogLevel.Trace);
-    function CreateLogger(const CategoryName: string): ILogger;
+    function CreateLogger(const ACategoryName: string): ILogger;
     procedure SetMinimumLevel(ALevel: TLogLevel);
     function GetMinimumLevel: TLogLevel;
   end;
@@ -88,15 +88,15 @@ uses
 
 procedure EnableVirtualTerminalProcessing;
 var
-  hOut: THandle;
-  dwMode: DWORD;
+  LHandle: THandle;
+  LMode: DWORD;
 begin
-  hOut := GetStdHandle(STD_OUTPUT_HANDLE);
-  if (hOut = INVALID_HANDLE_VALUE) or not GetConsoleMode(hOut, dwMode) then
+  LHandle := GetStdHandle(STD_OUTPUT_HANDLE);
+  if (LHandle = INVALID_HANDLE_VALUE) or not GetConsoleMode(LHandle, LMode) then
     Exit;
 
-  dwMode := dwMode or ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-  SetConsoleMode(hOut, dwMode);
+  LMode := LMode or ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+  SetConsoleMode(LHandle, LMode);
 end;
 {$ENDIF}
 
@@ -120,13 +120,13 @@ end;
 function TConsoleLogger.IsAnsiSupported: Boolean;
 {$IFDEF MSWINDOWS}
 var
-  hOut: THandle;
-  dwMode: DWORD;
+  LHandle: THandle;
+  LMode: DWORD;
 begin
-  hOut := GetStdHandle(STD_OUTPUT_HANDLE);
-  if (hOut = INVALID_HANDLE_VALUE) or not GetConsoleMode(hOut, dwMode) then
+  LHandle := GetStdHandle(STD_OUTPUT_HANDLE);
+  if (LHandle = INVALID_HANDLE_VALUE) or not GetConsoleMode(LHandle, LMode) then
     Exit(False);
-  Result := (dwMode and ENABLE_VIRTUAL_TERMINAL_PROCESSING) <> 0;
+  Result := (LMode and ENABLE_VIRTUAL_TERMINAL_PROCESSING) <> 0;
 end;
 {$ELSE}
 begin
@@ -172,221 +172,221 @@ begin
   Result := #27'[0m';
 end;
 
-function TConsoleLogger.IsPositionalTemplate(const Template: string): Boolean;
+function TConsoleLogger.IsPositionalTemplate(const ATemplate: string): Boolean;
 var
-  i, L: Integer;
+  LI, LLen: Integer;
 begin
   Result := False;
-  L := Length(Template);
-  if L < 2 then Exit;
-  for i := 1 to L - 1 do
-    if Template[i] = '{' then
-      if CharInSet(Template[i + 1], ['0'..'9']) then
+  LLen := Length(ATemplate);
+  if LLen < 2 then Exit;
+  for LI := 1 to LLen - 1 do
+    if ATemplate[LI] = '{' then
+      if CharInSet(ATemplate[LI + 1], ['0'..'9']) then
       begin
         Result := True;
         Exit;
       end;
 end;
 
-function TConsoleLogger.VarRecToString(const V: TVarRec): string;
+function TConsoleLogger.VarRecToString(const AVarRec: TVarRec): string;
 var
-  Obj: TObject;
-  IntfObj: TObject;
+  LObj: TObject;
+  LIntfObj: TObject;
 begin
-  case V.VType of
-    vtInteger:       Result := IntToStr(V.VInteger);
-    vtInt64:         Result := IntToStr(V.VInt64^);
-    vtBoolean:       Result := BoolToStr(V.VBoolean, True);
-    vtChar:          Result := string(V.VChar);
-    vtWideChar:      Result := V.VWideChar;
-    vtExtended:      Result := FloatToStr(V.VExtended^);
-    vtString:        Result := string(V.VString^);
-    vtPChar:         Result := string(V.VPChar);
-    vtPWideChar:     Result := string(V.VPWideChar);
-    vtAnsiString:    Result := string(AnsiString(V.VAnsiString));
-    vtUnicodeString: Result := string(V.VUnicodeString);
+  case AVarRec.VType of
+    vtInteger:       Result := IntToStr(AVarRec.VInteger);
+    vtInt64:         Result := IntToStr(AVarRec.VInt64^);
+    vtBoolean:       Result := BoolToStr(AVarRec.VBoolean, True);
+    vtChar:          Result := string(AVarRec.VChar);
+    vtWideChar:      Result := AVarRec.VWideChar;
+    vtExtended:      Result := FloatToStr(AVarRec.VExtended^);
+    vtString:        Result := string(AVarRec.VString^);
+    vtPChar:         Result := string(AVarRec.VPChar);
+    vtPWideChar:     Result := string(AVarRec.VPWideChar);
+    vtAnsiString:    Result := string(AnsiString(AVarRec.VAnsiString));
+    vtUnicodeString: Result := string(AVarRec.VUnicodeString);
     vtObject:
       begin
-        Obj := V.VObject;
-        if Assigned(Obj) then
-          Result := Format('%s(%p)', [Obj.ClassName, Pointer(Obj)])
+        LObj := AVarRec.VObject;
+        if Assigned(LObj) then
+          Result := Format('%s(%p)', [LObj.ClassName, Pointer(LObj)])
         else
           Result := 'nil';
       end;
     vtInterface:
       begin
-        IntfObj := BackingObjectFromInterface(IInterface(V.VInterface));
-        if Assigned(IntfObj) then
-          Result := Format('%s(%p)', [IntfObj.ClassName, Pointer(IntfObj)])
+        LIntfObj := BackingObjectFromInterface(IInterface(AVarRec.VInterface));
+        if Assigned(LIntfObj) then
+          Result := Format('%s(%p)', [LIntfObj.ClassName, Pointer(LIntfObj)])
         else
-          Result := Format('<interface %p>', [Pointer(V.VInterface)]);
+          Result := Format('<interface %p>', [Pointer(AVarRec.VInterface)]);
       end;
   else
     Result := '<unknown>';
   end;
 end;
 
-class function TConsoleLogger.BackingObjectFromInterface(const I: IInterface): TObject;
+class function TConsoleLogger.BackingObjectFromInterface(const AIntf: IInterface): TObject;
 var
-  Unknown: IInterface;
+  LUnknown: IInterface;
 begin
   Result := nil;
-  if I = nil then Exit;
-  if I.QueryInterface(IInterface, Unknown) = S_OK then
-    if TObject(Unknown) is TObject then
-      Result := TObject(Unknown);
+  if AIntf = nil then Exit;
+  if AIntf.QueryInterface(IInterface, LUnknown) = S_OK then
+    if TObject(LUnknown) is TObject then
+      Result := TObject(LUnknown);
 end;
 
-function TConsoleLogger.FormatMessage(const Template: string; const Args: array of const): string;
+function TConsoleLogger.FormatMessage(const ATemplate: string; const AArgs: array of const): string;
 var
-  I: Integer;
-  S: string;
+  LI: Integer;
+  LStr: string;
 begin
-  S := Template;
-  if IsPositionalTemplate(S) then
+  LStr := ATemplate;
+  if IsPositionalTemplate(LStr) then
   begin
-    for I := High(Args) downto 0 do
-      S := StringReplace(S, '{' + I.ToString + '}', VarRecToString(Args[I]), [rfReplaceAll]);
-    Result := S;
+    for LI := High(AArgs) downto 0 do
+      LStr := StringReplace(LStr, '{' + LI.ToString + '}', VarRecToString(AArgs[LI]), [rfReplaceAll]);
+    Result := LStr;
     Exit;
   end;
 
-  if Length(Args) > 0 then
-    Result := Format(S, Args)
+  if Length(AArgs) > 0 then
+    Result := Format(LStr, AArgs)
   else
-    Result := S;
+    Result := LStr;
 end;
 
-procedure TConsoleLogger.Log(ALevel: TLogLevel; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.Log(ALevel: TLogLevel; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(ALevel, TEventId.Empty, MessageTemplate, Args);
+  Log(ALevel, TEventId.Empty, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.Log(ALevel: TLogLevel; const EventId: TEventId;
-  const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.Log(ALevel: TLogLevel; const AEventId: TEventId;
+  const AMessageTemplate: string; const AArgs: array of const);
 const
   DIM_ANSI = #27'[90m';
 var
-  Msg, LevelStr, DateStr: string;
-  Dim, Color, Reset: string;
-  Prefix, EventPart, CategoryPart, CategoryWithColon: string;
+  LMsg, LLevelStr, LDateStr: string;
+  LDim, LColor, LReset: string;
+  LPrefix, LEventPart, LCategoryPart, LCategoryWithColon: string;
 begin
   if not IsEnabled(ALevel) then Exit;
 
-  Msg      := FormatMessage(MessageTemplate, Args);
-  LevelStr := LevelToString(ALevel);
-  DateStr  := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now);
+  LMsg := FormatMessage(AMessageTemplate, AArgs);
+  LLevelStr := LevelToString(ALevel);
+  LDateStr := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now);
 
   // Style tokens collapse to empty when ANSI is disabled
   if FAnsiEnabled then
   begin
-    Dim   := DIM_ANSI;
-    Color := LevelAnsiColor(ALevel);
-    Reset := ResetAnsiColor;
+    LDim := DIM_ANSI;
+    LColor := LevelAnsiColor(ALevel);
+    LReset := ResetAnsiColor;
   end
   else
   begin
-    Dim := '';
-    Color := '';
-    Reset := '';
+    LDim := '';
+    LColor := '';
+    LReset := '';
   end;
 
   // Category (optional)
   if FCategory <> '' then
-    CategoryPart := Format('%s[%s]%s', [Dim, FCategory, Reset])
+    LCategoryPart := Format('%s[%s]%s', [LDim, FCategory, LReset])
   else
-    CategoryPart := '';
+    LCategoryPart := '';
 
   // Prefix: date/time and [LEVEL] (brackets dimmed, level colored)
-  Prefix := Format('%s%s %s[%s%s%s%s] ', [Dim, DateStr, Dim, Color, LevelStr, Reset, Dim]);
+  LPrefix := Format('%s%s %s[%s%s%s%s] ', [LDim, LDateStr, LDim, LColor, LLevelStr, LReset, LDim]);
 
   // Event id (optional)
-  if not EventId.IsEmpty then
-    EventPart := Format('(%s%d:%s%s) ', [Dim, EventId.Id, EventId.Name, Dim])
+  if not AEventId.IsEmpty then
+    LEventPart := Format('(%s%d:%s%s) ', [LDim, AEventId.Id, AEventId.Name, LDim])
   else
-    EventPart := '';
+    LEventPart := '';
 
   // Category + colon (optional; colon is dimmed if ANSI)
-  if CategoryPart <> '' then
-    CategoryWithColon := Format('%s%s: ', [CategoryPart, Dim])
+  if LCategoryPart <> '' then
+    LCategoryWithColon := Format('%s%s: ', [LCategoryPart, LDim])
   else
-    CategoryWithColon := '';
+    LCategoryWithColon := '';
 
   // Final line (ensure we reset styles before the message)
-  Writeln(Format('%s%s%s%s%s', [Prefix, EventPart, CategoryWithColon, Reset, Msg]));
+  Writeln(Format('%s%s%s%s%s', [LPrefix, LEventPart, LCategoryWithColon, LReset, LMsg]));
 end;
 
-procedure TConsoleLogger.LogException(ALevel: TLogLevel; const E: Exception; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogException(ALevel: TLogLevel; const AException: Exception; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  LogException(ALevel, TEventId.Empty, E, MessageTemplate, Args);
+  LogException(ALevel, TEventId.Empty, AException, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogException(ALevel: TLogLevel; const EventId: TEventId; const E: Exception; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogException(ALevel: TLogLevel; const AEventId: TEventId; const AException: Exception; const AMessageTemplate: string; const AArgs: array of const);
 var
-  FullMsg: string;
+  LFullMsg: string;
 begin
-  FullMsg := FormatMessage(MessageTemplate, Args) + sLineBreak + '  Exception: ' + E.ClassName + ' - ' + E.Message;
-  Log(ALevel, EventId, FullMsg, []);
+  LFullMsg := FormatMessage(AMessageTemplate, AArgs) + sLineBreak + '  Exception: ' + AException.ClassName + ' - ' + AException.Message;
+  Log(ALevel, AEventId, LFullMsg, []);
 end;
 
-procedure TConsoleLogger.LogTrace(const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogTrace(const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Trace, MessageTemplate, Args);
+  Log(TLogLevel.Trace, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogTrace(const EventId: TEventId; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogTrace(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Trace, EventId, MessageTemplate, Args);
+  Log(TLogLevel.Trace, AEventId, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogDebug(const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogDebug(const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Debug, MessageTemplate, Args);
+  Log(TLogLevel.Debug, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogDebug(const EventId: TEventId; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogDebug(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Debug, EventId, MessageTemplate, Args);
+  Log(TLogLevel.Debug, AEventId, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogInformation(const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogInformation(const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Info, MessageTemplate, Args);
+  Log(TLogLevel.Info, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogInformation(const EventId: TEventId; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogInformation(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Info, EventId, MessageTemplate, Args);
+  Log(TLogLevel.Info, AEventId, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogWarning(const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogWarning(const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Warn, MessageTemplate, Args);
+  Log(TLogLevel.Warn, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogWarning(const EventId: TEventId; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogWarning(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Warn, EventId, MessageTemplate, Args);
+  Log(TLogLevel.Warn, AEventId, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogError(const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogError(const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Error, MessageTemplate, Args);
+  Log(TLogLevel.Error, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogError(const EventId: TEventId; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogError(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Error, EventId, MessageTemplate, Args);
+  Log(TLogLevel.Error, AEventId, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogCritical(const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogCritical(const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Fatal, MessageTemplate, Args);
+  Log(TLogLevel.Fatal, AMessageTemplate, AArgs);
 end;
 
-procedure TConsoleLogger.LogCritical(const EventId: TEventId; const MessageTemplate: string; const Args: array of const);
+procedure TConsoleLogger.LogCritical(const AEventId: TEventId; const AMessageTemplate: string; const AArgs: array of const);
 begin
-  Log(TLogLevel.Fatal, EventId, MessageTemplate, Args);
+  Log(TLogLevel.Fatal, AEventId, AMessageTemplate, AArgs);
 end;
 
 { TConsoleLoggerFactory }
@@ -397,9 +397,9 @@ begin
   FMinLevel := AMinLevel;
 end;
 
-function TConsoleLoggerFactory.CreateLogger(const CategoryName: string): ILogger;
+function TConsoleLoggerFactory.CreateLogger(const ACategoryName: string): ILogger;
 begin
-  Result := TConsoleLogger.Create(CategoryName, FMinLevel);
+  Result := TConsoleLogger.Create(ACategoryName, FMinLevel);
 end;
 
 procedure TConsoleLoggerFactory.SetMinimumLevel(ALevel: TLogLevel);

@@ -64,19 +64,19 @@ type
     /// </summary>
     /// <param name="data">The short vector encoded data.</param>
     /// <returns>The number of account keys present in the transaction.</returns>
-    class function DecodeLength(const Data: TBytes): TShortVecDecode; overload; static;
+    class function DecodeLength(const AData: TBytes): TShortVecDecode; overload; static;
 
     /// <summary>
     /// Decode from a TBytes starting at StartIndex.
     /// Returns (Value, LengthConsumed).
     /// </summary>
-    class function DecodeLength(const Data: TBytes; StartIndex: Integer): TShortVecDecode; overload; static;
+    class function DecodeLength(const AData: TBytes; AStartIndex: Integer): TShortVecDecode; overload; static;
 
     /// <summary>
     /// Decode from a raw buffer.
     /// Returns (Value, LengthConsumed).
     /// </summary>
-    class function DecodeLength(const Data: Pointer; DataSize: NativeInt): TShortVecDecode; overload; static;
+    class function DecodeLength(const AData: Pointer; ADataSize: NativeInt): TShortVecDecode; overload; static;
   end;
 
 implementation
@@ -93,88 +93,88 @@ end;
 
 class function TShortVectorEncoding.EncodeLength(ALen: Integer): TBytes;
 var
-  Output: array[0..9] of Byte;
-  RemLen: Integer;
-  Cursor: Integer;
-  Elem: Integer;
+  LOutput: array[0..9] of Byte;
+  LRemLen: Integer;
+  LCursor: Integer;
+  LElem: Integer;
 begin
   if ALen < 0 then
     raise EArgumentOutOfRangeException.Create('Length must be non-negative.');
 
-  RemLen := ALen;
-  Cursor := 0;
+  LRemLen := ALen;
+  LCursor := 0;
 
   while True do
   begin
-    Elem := RemLen and $7F;
-    RemLen := Cardinal(RemLen) shr 7; // logical shift
+    LElem := LRemLen and $7F;
+    LRemLen := Cardinal(LRemLen) shr 7; // logical shift
 
-    if RemLen = 0 then
+    if LRemLen = 0 then
     begin
-      Output[Cursor] := Byte(Elem);
+      LOutput[LCursor] := Byte(LElem);
       Break;
     end;
 
-    Elem := Elem or $80;
-    Output[Cursor] := Byte(Elem);
-    Inc(Cursor);
+    LElem := LElem or $80;
+    LOutput[LCursor] := Byte(LElem);
+    Inc(LCursor);
   end;
 
-  SetLength(Result, Cursor + 1);
-  Move(Output[0], Result[0], Cursor + 1);
+  SetLength(Result, LCursor + 1);
+  Move(LOutput[0], Result[0], LCursor + 1);
 end;
 
 
-class function TShortVectorEncoding.DecodeLength(const Data: TBytes): TShortVecDecode;
+class function TShortVectorEncoding.DecodeLength(const AData: TBytes): TShortVecDecode;
 begin
-  Result := DecodeLength(Data, 0);
+  Result := DecodeLength(AData, 0);
 end;
 
 class function TShortVectorEncoding.DecodeLength(
-  const Data: TBytes; StartIndex: Integer): TShortVecDecode;
+  const AData: TBytes; AStartIndex: Integer): TShortVecDecode;
 var
-  P: Pointer;
-  Size: NativeInt;
+  LP: Pointer;
+  LSize: NativeInt;
 begin
-  if (StartIndex < 0) or (StartIndex >= Length(Data)) then
+  if (AStartIndex < 0) or (AStartIndex >= Length(AData)) then
     Exit(TShortVecDecode.Make(0, 0));
 
   // Pointer to the start index inside the byte array
-  P := @Data[StartIndex];
+  LP := @AData[AStartIndex];
 
   // Remaining bytes from StartIndex to end
-  Size := Length(Data) - StartIndex;
+  LSize := Length(AData) - AStartIndex;
 
   // Delegate to the pointer-based implementation
-  Result := DecodeLength(P, Size);
+  Result := DecodeLength(LP, LSize);
 end;
 
-class function TShortVectorEncoding.DecodeLength(const Data: Pointer; DataSize: NativeInt): TShortVecDecode;
+class function TShortVectorEncoding.DecodeLength(const AData: Pointer; ADataSize: NativeInt): TShortVecDecode;
 var
-  P: PByte;
-  Elem: Byte;
-  Value, Size: Integer;
+  LP: PByte;
+  LElem: Byte;
+  LDecodedValue, LDecodedSize: Integer;
 begin
-  Value := 0;
-  Size := 0;
+  LDecodedValue := 0;
+  LDecodedSize := 0;
 
-  if (Data = nil) or (DataSize <= 0) then
+  if (AData = nil) or (ADataSize <= 0) then
     Exit(TShortVecDecode.Make(0, 0));
 
-  P := PByte(Data);
+  LP := PByte(AData);
 
-  while Size < DataSize do
+  while LDecodedSize < ADataSize do
   begin
-    Elem := P^;
-    Value := Value or ((Elem and $7F) shl (Size * 7));
-    Inc(Size);
-    Inc(P);
+    LElem := LP^;
+    LDecodedValue := LDecodedValue or ((LElem and $7F) shl (LDecodedSize * 7));
+    Inc(LDecodedSize);
+    Inc(LP);
 
-    if (Elem and $80) = 0 then
+    if (LElem and $80) = 0 then
       Break;
   end;
 
-  Result := TShortVecDecode.Make(Value, Size);
+  Result := TShortVecDecode.Make(LDecodedValue, LDecodedSize);
 end;
 
 end.

@@ -34,7 +34,6 @@ uses
   SlpRpcModel,
   SlpRequestResult,
   SlpSolanaRpcClient,
-  SlpDataEncoders,
   SlpNullable,
   RpcClientMocks,
   SolLibRpcClientTestCase;
@@ -63,149 +62,149 @@ implementation
 
 procedure TSolanaRpcClientTransactionsTests.TestGetTransactionCount;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<UInt64>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<UInt64>;
 begin
-  responseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
-  requestData  := LoadTestData('Transaction/GetTransactionCountRequest.json');
+  LResponseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionCountRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTransactionCount;
+  LResult := LRpcClient.GetTransactionCount;
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
-  AssertEquals(23632393337, result.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
+  AssertEquals(23632393337, LResult.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestGetTransactionCountProcessed;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<UInt64>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<UInt64>;
 begin
-  responseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
-  requestData  := LoadTestData('Transaction/GetTransactionCountProcessedRequest.json');
+  LResponseData := LoadTestData('Transaction/GetTransactionCountResponse.json');
+  LRequestData := LoadTestData('Transaction/GetTransactionCountProcessedRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.GetTransactionCount(TCommitment.Processed);
+  LResult := LRpcClient.GetTransactionCount(TCommitment.Processed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.WasSuccessful);
-  AssertEquals(23632393337, result.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.WasSuccessful);
+  AssertEquals(23632393337, LResult.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSendTransaction;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<string>;
-  txData: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<string>;
+  LTxData: string;
 begin
-  responseData := LoadTestData('Transaction/SendTransactionResponse.json');
-  requestData  := LoadTestData('Transaction/SendTransactionRequest.json');
+  LResponseData := LoadTestData('Transaction/SendTransactionResponse.json');
+  LRequestData := LoadTestData('Transaction/SendTransactionRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ASIhFkj3HRTDLiPxrxudL7eXCQ3DKrBB6Go/pn0sHWYIYgIHWYu2jZjbDXQseCEu73Li53BP7AEt8lCwKz' +
     'X5awcBAAIER2mrlyBLqD+wyu4X94aPHgdOUhWBoNidlDedqmW3F7J7rHLZwOnCKOnqrRmjOO1w2JcV0XhP'  +
     'LlWiw5thiFgQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KY' +
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.SendTransaction(txData, TNullable<UInt32>.None, TNullable<UInt64>.None);
+  LResult := LRpcClient.SendTransaction(LTxData, TNullable<UInt32>.None, TNullable<UInt64>.None);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.WasSuccessful);
-  AssertEquals('gaSFQXFqbYQypZdMFZy4Fe7uB2VFDEo4sGDypyrVxFgzZqc5MqWnRWTT9hXamcrFRcsiiH15vWii5ACSsyNScbp', result.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.WasSuccessful);
+  AssertEquals('gaSFQXFqbYQypZdMFZy4Fe7uB2VFDEo4sGDypyrVxFgzZqc5MqWnRWTT9hXamcrFRcsiiH15vWii5ACSsyNScbp', LResult.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSendTransactionBytes;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<string>;
-  txData: string;
-  bytes: TBytes;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<string>;
+  LTxData: string;
+  LBytes: TBytes;
 begin
-  responseData := LoadTestData('Transaction/SendTransactionResponse.json');
-  requestData  := LoadTestData('Transaction/SendTransactionWithParamsRequest.json');
+  LResponseData := LoadTestData('Transaction/SendTransactionResponse.json');
+  LRequestData := LoadTestData('Transaction/SendTransactionWithParamsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ASIhFkj3HRTDLiPxrxudL7eXCQ3DKrBB6Go/pn0sHWYIYgIHWYu2jZjbDXQseCEu73Li53BP7AEt8lCwKz' +
     'X5awcBAAIER2mrlyBLqD+wyu4X94aPHgdOUhWBoNidlDedqmW3F7J7rHLZwOnCKOnqrRmjOO1w2JcV0XhP'  +
     'LlWiw5thiFgQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KY' +
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  bytes := TEncoders.Base64.DecodeData(txData);
+  LBytes := DecodeBase64(LTxData);
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.SendTransaction(bytes, TNullable<UInt32>.None, TNullable<UInt64>.None, True, TBinaryEncoding.Base64, TCommitment.Confirmed);
+  LResult := LRpcClient.SendTransaction(LBytes, TNullable<UInt32>.None, TNullable<UInt64>.None, True, TBinaryEncoding.Base64, TCommitment.Confirmed);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.WasSuccessful);
-  AssertEquals('gaSFQXFqbYQypZdMFZy4Fe7uB2VFDEo4sGDypyrVxFgzZqc5MqWnRWTT9hXamcrFRcsiiH15vWii5ACSsyNScbp', result.Result);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.WasSuccessful);
+  AssertEquals('gaSFQXFqbYQypZdMFZy4Fe7uB2VFDEo4sGDypyrVxFgzZqc5MqWnRWTT9hXamcrFRcsiiH15vWii5ACSsyNScbp', LResult.Result);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSendTransactionExtraParams;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<string>;
-  txData: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<string>;
+  LTxData: string;
 begin
-  responseData := LoadTestData('Transaction/SendTransactionExtraParamsResponse.json');
-  requestData  := LoadTestData('Transaction/SendTransactionExtraParamsRequest.json');
+  LResponseData := LoadTestData('Transaction/SendTransactionExtraParamsResponse.json');
+  LRequestData := LoadTestData('Transaction/SendTransactionExtraParamsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ASIhFkj3HRTDLiPxrxudL7eXCQ3DKrBB6Go/pn0sHWYIYgIHWYu2jZjbDXQseCEu73Li53BP7AEt8lCwKz' +
     'X5awcBAAIER2mrlyBLqD+wyu4X94aPHgdOUhWBoNidlDedqmW3F7J7rHLZwOnCKOnqrRmjOO1w2JcV0XhP' +
     'LlWiw5thiFgQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KY' +
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.SendTransaction(
-    txData,
+  LResult := LRpcClient.SendTransaction(
+    LTxData,
     5,             // maxRetries
     259525972,     // minContextSlot
     False,         // skipPreflight
@@ -213,197 +212,197 @@ begin
     TCommitment.Confirmed  // preFlightCommitment
   );
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertTrue(result.Result <> '', 'Result should not be empty');
-  AssertTrue(result.WasSuccessful, 'Should be successful');
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertTrue(LResult.Result <> '', 'Result should not be empty');
+  AssertTrue(LResult.WasSuccessful, 'Should be successful');
   AssertEquals(
     'gaSFQXFqbYQypZdMFZy4Fe7uB2VFDEo4sGDypyrVxFgzZqc5MqWnRWTT9hXamcrFRcsiiH15vWii5ACSsyNScbp',
-    result.Result
+    LResult.Result
   );
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSimulateTransaction;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TSimulationLogs>>;
-  txData: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TSimulationLogs>>;
+  LTxData: string;
 begin
-  responseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
-  requestData  := LoadTestData('Transaction/SimulateTransactionRequest.json');
+  LResponseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ASIhFkj3HRTDLiPxrxudL7eXCQ3DKrBB6Go/pn0sHWYIYgIHWYu2jZjbDXQseCEu73Li53BP7AEt8lCwKz' +
     'X5awcBAAIER2mrlyBLqD+wyu4X94aPHgdOUhWBoNidlDedqmW3F7J7rHLZwOnCKOnqrRmjOO1w2JcV0XhP'  +
     'LlWiw5thiFgQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KY' +
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.SimulateTransaction(txData);
+  LResult := LRpcClient.SimulateTransaction(LTxData);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result, 'Result should not be nil');
-  AssertNotNull(result.Result.Value, 'Result.Value should not be nil');
-  AssertEquals(79206888, result.Result.Context.Slot);
-  AssertNull(result.Result.Value.Error, 'Error should be nil');
-  AssertEquals(5, Length(result.Result.Value.Logs));
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result, 'Result should not be nil');
+  AssertNotNull(LResult.Result.Value, 'Result.Value should not be nil');
+  AssertEquals(79206888, LResult.Result.Context.Slot);
+  AssertNull(LResult.Result.Value.Error, 'Error should be nil');
+  AssertEquals(5, Length(LResult.Result.Value.Logs));
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSimulateTransactionWithTransactionErrorObject;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TSimulationLogs>>;
-  txData: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TSimulationLogs>>;
+  LTxData: string;
 begin
-  responseData := LoadTestData('Transaction/SimulateTransactionResponse2.json');
-  requestData  := LoadTestData('Transaction/SimulateTransactionRequest.json');
+  LResponseData := LoadTestData('Transaction/SimulateTransactionResponse2.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ASIhFkj3HRTDLiPxrxudL7eXCQ3DKrBB6Go/pn0sHWYIYgIHWYu2jZjbDXQseCEu73Li53BP7AEt8lCwKz' +
     'X5awcBAAIER2mrlyBLqD+wyu4X94aPHgdOUhWBoNidlDedqmW3F7J7rHLZwOnCKOnqrRmjOO1w2JcV0XhP'  +
     'LlWiw5thiFgQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KY' +
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.SimulateTransaction(txData);
+  LResult := LRpcClient.SimulateTransaction(LTxData);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertNotNull(result.Result.Value);
-  AssertEquals(461971, result.Result.Context.Slot);
-  AssertNotNull(result.Result.Value.Error, 'Error should not be nil');
-  AssertEquals(Ord(TTransactionErrorType.InsufficientFundsForRent), Ord(result.Result.Value.Error.&Type));
-  AssertEquals(2, Length(result.Result.Value.Logs));
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertNotNull(LResult.Result.Value);
+  AssertEquals(461971, LResult.Result.Context.Slot);
+  AssertNotNull(LResult.Result.Value.Error, 'Error should not be nil');
+  AssertEquals(Ord(TTransactionErrorType.InsufficientFundsForRent), Ord(LResult.Result.Value.Error.&Type));
+  AssertEquals(2, Length(LResult.Result.Value.Logs));
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSimulateTransactionExtraParams;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TSimulationLogs>>;
-  txData: string;
-  acctList: TList<string>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TSimulationLogs>>;
+  LTxData: string;
+  LAcctList: TList<string>;
 begin
-  responseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
-  requestData  := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
+  LResponseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ASIhFkj3HRTDLiPxrxudL7eXCQ3DKrBB6Go/pn0sHWYIYgIHWYu2jZjbDXQseCEu73Li53BP7AEt8lCwKz' +
     'X5awcBAAIER2mrlyBLqD+wyu4X94aPHgdOUhWBoNidlDedqmW3F7J7rHLZwOnCKOnqrRmjOO1w2JcV0XhP'  +
     'LlWiw5thiFgQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KY' +
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  acctList := TList<string>.Create;
+  LAcctList := TList<string>.Create;
   try
-    acctList.Add('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z');
+    LAcctList.Add('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z');
 
-    rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+    LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-    result := rpcClient.SimulateTransaction(txData, True, False, acctList.ToArray, TBinaryEncoding.Base64, TCommitment.Confirmed);
+    LResult := LRpcClient.SimulateTransaction(LTxData, True, False, LAcctList.ToArray, TBinaryEncoding.Base64, TCommitment.Confirmed);
 
-    AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-    AssertNotNull(result.Result);
-    AssertNotNull(result.Result.Value);
-    AssertEquals(1, result.Result.Value.Accounts.Count);
-    AssertEquals(79206888, result.Result.Context.Slot);
-    AssertNull(result.Result.Value.Error, 'Error should be nil');
-    AssertEquals(5, Length(result.Result.Value.Logs));
+    AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+    AssertNotNull(LResult.Result);
+    AssertNotNull(LResult.Result.Value);
+    AssertEquals(1, LResult.Result.Value.Accounts.Count);
+    AssertEquals(79206888, LResult.Result.Context.Slot);
+    AssertNull(LResult.Result.Value.Error, 'Error should be nil');
+    AssertEquals(5, Length(LResult.Result.Value.Logs));
 
-    FinishTest(mockRpcHttpClient, TestnetUrl);
+    FinishTest(LMockRpcHttpClient, TestnetUrl);
   finally
-    acctList.Free;
+    LAcctList.Free;
   end;
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSimulateTransactionBytesExtraParams;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TSimulationLogs>>;
-  txData: string;
-  bytes: TBytes;
-  acctList: TList<string>;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TSimulationLogs>>;
+  LTxData: string;
+  LBytes: TBytes;
+  LAcctList: TList<string>;
 begin
-  responseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
-  requestData  := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
+  LResponseData := LoadTestData('Transaction/SimulateTransactionResponse.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionExtraParamsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ASIhFkj3HRTDLiPxrxudL7eXCQ3DKrBB6Go/pn0sHWYIYgIHWYu2jZjbDXQseCEu73Li53BP7AEt8lCwKz' +
     'X5awcBAAIER2mrlyBLqD+wyu4X94aPHgdOUhWBoNidlDedqmW3F7J7rHLZwOnCKOnqrRmjOO1w2JcV0XhP'  +
     'LlWiw5thiFgQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KY' +
     'GeIhJMvTu9qCKNNRNmSFNMnUzw5+FDszWV6YvuvspBr0qlIoAdeg67wICAgABDAIAAACAlpgAAAAAAAMBA' +
     'BVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  bytes := TEncoders.Base64.DecodeData(txData);
-  acctList := TList<string>.Create;
+  LBytes := DecodeBase64(LTxData);
+  LAcctList := TList<string>.Create;
   try
-    acctList.Add('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z');
+    LAcctList.Add('6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z');
 
-    rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+    LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-    result := rpcClient.SimulateTransaction(bytes, True, False, acctList.ToArray, TBinaryEncoding.Base64, TCommitment.Confirmed);
+    LResult := LRpcClient.SimulateTransaction(LBytes, True, False, LAcctList.ToArray, TBinaryEncoding.Base64, TCommitment.Confirmed);
 
-    AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-    AssertNotNull(result.Result);
-    AssertNotNull(result.Result.Value);
-    AssertEquals(1, result.Result.Value.Accounts.Count);
-    AssertEquals(79206888, result.Result.Context.Slot);
-    AssertTrue(result.Result.Value.Error = nil);
-    AssertEquals(5, Length(result.Result.Value.Logs));
+    AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+    AssertNotNull(LResult.Result);
+    AssertNotNull(LResult.Result.Value);
+    AssertEquals(1, LResult.Result.Value.Accounts.Count);
+    AssertEquals(79206888, LResult.Result.Context.Slot);
+    AssertTrue(LResult.Result.Value.Error = nil);
+    AssertEquals(5, Length(LResult.Result.Value.Logs));
 
-    FinishTest(mockRpcHttpClient, TestnetUrl);
+    FinishTest(LMockRpcHttpClient, TestnetUrl);
   finally
-    acctList.Free;
+    LAcctList.Free;
   end;
 end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSimulateTransactionIncompatibleParams;
 var
-  rpcClient: IRpcClient;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
 begin
-  mockRpcHttpClient := SetupTest('', 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest('', 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
   AssertException(
     procedure
     begin
-      rpcClient.SimulateTransaction(
+      LRpcClient.SimulateTransaction(
         '',
         True,
         True
@@ -415,42 +414,42 @@ end;
 
 procedure TSolanaRpcClientTransactionsTests.TestSimulateTransactionInsufficientLamports;
 var
-  responseData, requestData: string;
-  mockRpcHttpClient: TMockRpcHttpClient;
-  rpcHttpClient: IHttpApiClient;
-  rpcClient: IRpcClient;
-  result: IRequestResult<TResponseValue<TSimulationLogs>>;
-  txData: string;
+  LResponseData, LRequestData: string;
+  LMockRpcHttpClient: TMockRpcHttpClient;
+  LRpcHttpClient: IHttpApiClient;
+  LRpcClient: IRpcClient;
+  LResult: IRequestResult<TResponseValue<TSimulationLogs>>;
+  LTxData: string;
 begin
-  responseData := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsResponse.json');
-  requestData  := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsRequest.json');
+  LResponseData := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsResponse.json');
+  LRequestData := LoadTestData('Transaction/SimulateTransactionInsufficientLamportsRequest.json');
 
-  mockRpcHttpClient := SetupTest(responseData, 200);
-  rpcHttpClient := mockRpcHttpClient;
+  LMockRpcHttpClient := SetupTest(LResponseData, 200);
+  LRpcHttpClient := LMockRpcHttpClient;
 
-  txData :=
+  LTxData :=
     'ARymmnVB6PB0x//jV2vsTFFdeOkzD0FFoQq6P+wzGKlMD+XLb/hWnOebNaYlg/' +
     '+j6jdm9Fe2Sba/ACnvcv9KIA4BAAIEUy4zulRg8z2yKITZaNwcnq6G6aH8D0ITae862qbJ' +
     '+3eE3M6r5DRwldquwlqOuXDDOWZagXmbHnAU3w5Dg44kogAAAAAAAAAAAAAAAAAAAAAAAA' +
     'AAAAAAAAAAAAAAAAAABUpTUPhdyILWFKVWcniKKW3fHqur0KYGeIhJMvTu9qBann0itTd6uxx69h' +
     'ION5Js4E4drRP8CWwoLTdorAFUqAICAgABDAIAAACAlpgAAAAAAAMBABVIZWxsbyBmcm9tIFNvbC5OZXQgOik=';
 
-  rpcClient := TSolanaRpcClient.Create(TestnetUrl, rpcHttpClient);
+  LRpcClient := TSolanaRpcClient.Create(TestnetUrl, LRpcHttpClient);
 
-  result := rpcClient.SimulateTransaction(txData);
+  LResult := LRpcClient.SimulateTransaction(LTxData);
 
-  AssertJsonMatch(requestData, mockRpcHttpClient.LastJson, 'Sent JSON mismatch');
-  AssertNotNull(result.Result);
-  AssertNotNull(result.Result.Value);
-  AssertEquals(79203980, result.Result.Context.Slot);
-  AssertEquals(3, Length(result.Result.Value.Logs));
-  AssertNotNull(result.Result.Value.Error, 'Error should not be nil');
-  AssertEquals(Ord(TTransactionErrorType.InstructionError), Ord(result.Result.Value.Error.&Type));
-  AssertNotNull(result.Result.Value.Error.InstructionError);
-  AssertEquals(Ord(TInstructionErrorType.Custom), Ord(result.Result.Value.Error.InstructionError.&Type));
-  AssertEquals(1, result.Result.Value.Error.InstructionError.CustomError.Value);
+  AssertJsonMatch(LRequestData, LMockRpcHttpClient.LastJson, 'Sent JSON mismatch');
+  AssertNotNull(LResult.Result);
+  AssertNotNull(LResult.Result.Value);
+  AssertEquals(79203980, LResult.Result.Context.Slot);
+  AssertEquals(3, Length(LResult.Result.Value.Logs));
+  AssertNotNull(LResult.Result.Value.Error, 'Error should not be nil');
+  AssertEquals(Ord(TTransactionErrorType.InstructionError), Ord(LResult.Result.Value.Error.&Type));
+  AssertNotNull(LResult.Result.Value.Error.InstructionError);
+  AssertEquals(Ord(TInstructionErrorType.Custom), Ord(LResult.Result.Value.Error.InstructionError.&Type));
+  AssertEquals(1, LResult.Result.Value.Error.InstructionError.CustomError.Value);
 
-  FinishTest(mockRpcHttpClient, TestnetUrl);
+  FinishTest(LMockRpcHttpClient, TestnetUrl);
 end;
 
 initialization

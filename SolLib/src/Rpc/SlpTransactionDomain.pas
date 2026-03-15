@@ -31,7 +31,7 @@ uses
   SlpArrayUtils,
   SlpCryptoUtils,
   SlpListUtils,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpMessageDomain,
   SlpAccount,
   SlpSysVars,
@@ -43,9 +43,9 @@ type
   ISignaturePubKeyPair = interface
     ['{E0521039-8A1E-43D7-8C8D-1E6D3E4B0F9E}']
     function GetPublicKey: IPublicKey;
-    procedure SetPublicKey(const Value: IPublicKey);
+    procedure SetPublicKey(const AValue: IPublicKey);
     function GetSignature: TBytes;
-    procedure SetSignature(const Value: TBytes);
+    procedure SetSignature(const AValue: TBytes);
     /// <summary>
     /// The public key to verify the signature against.
     /// </summary>
@@ -59,9 +59,9 @@ type
   INonceInformation = interface
     ['{0AF2A2A6-3C8B-4285-8F2C-985B6C77C2E7}']
     function GetNonce: string;
-    procedure SetNonce(const Value: string);
+    procedure SetNonce(const AValue: string);
     function GetInstruction: ITransactionInstruction;
-    procedure SetInstruction(const Value: ITransactionInstruction);
+    procedure SetInstruction(const AValue: ITransactionInstruction);
 
     function Clone: INonceInformation;
     /// <summary>
@@ -104,19 +104,19 @@ type
   ITransaction = interface
     ['{6F2C9D9A-1E7B-4F3B-9F8B-7C16B7A5E3C4}']
     function GetFeePayer: IPublicKey;
-    procedure SetFeePayer(const Value: IPublicKey);
+    procedure SetFeePayer(const AValue: IPublicKey);
     function GetInstructions: TList<ITransactionInstruction>;
-    procedure SetInstructions(const Value: TList<ITransactionInstruction>);
+    procedure SetInstructions(const AValue: TList<ITransactionInstruction>);
     function GetRecentBlockHash: string;
-    procedure SetRecentBlockHash(const Value: string);
+    procedure SetRecentBlockHash(const AValue: string);
     function GetNonceInformation: INonceInformation;
-    procedure SetNonceInformation(const Value: INonceInformation);
+    procedure SetNonceInformation(const AValue: INonceInformation);
     function GetPriorityFeesInformation: IPriorityFeesInformation;
-    procedure SetPriorityFeesInformation(const Value: IPriorityFeesInformation);
+    procedure SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
     function GetSignatures: TList<ISignaturePubKeyPair>;
-    procedure SetSignatures(const Value: TList<ISignaturePubKeyPair>);
+    procedure SetSignatures(const AValue: TList<ISignaturePubKeyPair>);
     function GetAccountKeys: TList<IPublicKey>;
-    procedure SetAccountKeys(const Value: TList<IPublicKey>);
+    procedure SetAccountKeys(const AValue: TList<IPublicKey>);
     /// <summary>
     /// Compile the transaction data.
     /// </summary>
@@ -252,7 +252,7 @@ type
   IVersionedTransaction = interface(ITransaction)
     ['{E2A6EAB2-C5D5-4E8F-86AB-523C9B7D5A71}']
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
-    procedure SetAddressTableLookups(const Value: TList<IMessageAddressTableLookup>);
+    procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
     /// <summary>
     /// Address Table Lookups
     /// </summary>
@@ -268,9 +268,9 @@ type
     FSignature: TBytes;
 
     function GetPublicKey: IPublicKey;
-    procedure SetPublicKey(const Value: IPublicKey);
+    procedure SetPublicKey(const AValue: IPublicKey);
     function GetSignature: TBytes;
-    procedure SetSignature(const Value: TBytes);
+    procedure SetSignature(const AValue: TBytes);
   public
     constructor Create(const APublicKey: IPublicKey; const ASignature: TBytes);
 
@@ -285,9 +285,9 @@ type
     FInstruction: ITransactionInstruction;
 
     function GetNonce: string;
-    procedure SetNonce(const Value: string);
+    procedure SetNonce(const AValue: string);
     function GetInstruction: ITransactionInstruction;
-    procedure SetInstruction(const Value: ITransactionInstruction);
+    procedure SetInstruction(const AValue: ITransactionInstruction);
 
     function Clone: INonceInformation;
   public
@@ -324,28 +324,28 @@ type
   /// </summary>
   TTransaction = class(TInterfacedObject, ITransaction)
   private
-    FFeePayer        : IPublicKey;
-    FInstructions    : TList<ITransactionInstruction>;
-    FRecentBlockHash : string;
+    FFeePayer: IPublicKey;
+    FInstructions: TList<ITransactionInstruction>;
+    FRecentBlockHash: string;
     FNonceInformation: INonceInformation;
-    FPriorityFeesInformation : IPriorityFeesInformation;
-    FSignatures      : TList<ISignaturePubKeyPair>;
-    FAccountKeys     : TList<IPublicKey>;
+    FPriorityFeesInformation: IPriorityFeesInformation;
+    FSignatures: TList<ISignaturePubKeyPair>;
+    FAccountKeys: TList<IPublicKey>;
 
     function GetFeePayer: IPublicKey;
-    procedure SetFeePayer(const Value: IPublicKey);
+    procedure SetFeePayer(const AValue: IPublicKey);
     function GetInstructions: TList<ITransactionInstruction>;
-    procedure SetInstructions(const Value: TList<ITransactionInstruction>);
+    procedure SetInstructions(const AValue: TList<ITransactionInstruction>);
     function GetRecentBlockHash: string;
-    procedure SetRecentBlockHash(const Value: string);
+    procedure SetRecentBlockHash(const AValue: string);
     function GetNonceInformation: INonceInformation;
-    procedure SetNonceInformation(const Value: INonceInformation);
+    procedure SetNonceInformation(const AValue: INonceInformation);
     function GetPriorityFeesInformation: IPriorityFeesInformation;
-    procedure SetPriorityFeesInformation(const Value: IPriorityFeesInformation);
+    procedure SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
     function GetSignatures: TList<ISignaturePubKeyPair>;
-    procedure SetSignatures(const Value: TList<ISignaturePubKeyPair>);
+    procedure SetSignatures(const AValue: TList<ISignaturePubKeyPair>);
     function GetAccountKeys: TList<IPublicKey>;
-    procedure SetAccountKeys(const Value: TList<IPublicKey>);
+    procedure SetAccountKeys(const AValue: TList<IPublicKey>);
 
     function VerifySignatures: Boolean;
 
@@ -422,7 +422,7 @@ type
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
 
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
-    procedure SetAddressTableLookups(const Value: TList<IMessageAddressTableLookup>);
+    procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
 
   protected
     function CompileMessage: TBytes; override;
@@ -476,14 +476,14 @@ begin
   Result := FSignature;
 end;
 
-procedure TSignaturePubKeyPair.SetPublicKey(const Value: IPublicKey);
+procedure TSignaturePubKeyPair.SetPublicKey(const AValue: IPublicKey);
 begin
-  FPublicKey := Value;
+  FPublicKey := AValue;
 end;
 
-procedure TSignaturePubKeyPair.SetSignature(const Value: TBytes);
+procedure TSignaturePubKeyPair.SetSignature(const AValue: TBytes);
 begin
-  FSignature := Value;
+  FSignature := AValue;
 end;
 
 { TNonceInformation }
@@ -510,14 +510,14 @@ begin
   Result := FNonce;
 end;
 
-procedure TNonceInformation.SetInstruction(const Value: ITransactionInstruction);
+procedure TNonceInformation.SetInstruction(const AValue: ITransactionInstruction);
 begin
-  FInstruction := Value;
+  FInstruction := AValue;
 end;
 
-procedure TNonceInformation.SetNonce(const Value: string);
+procedure TNonceInformation.SetNonce(const AValue: string);
 begin
-  FNonce := Value;
+  FNonce := AValue;
 end;
 
 { TPriorityFeesInformation }
@@ -620,71 +620,71 @@ begin
   Result := FSignatures;
 end;
 
-procedure TTransaction.SetAccountKeys(const Value: TList<IPublicKey>);
+procedure TTransaction.SetAccountKeys(const AValue: TList<IPublicKey>);
 begin
-  FAccountKeys := Value;
+  FAccountKeys := AValue;
 end;
 
-procedure TTransaction.SetFeePayer(const Value: IPublicKey);
+procedure TTransaction.SetFeePayer(const AValue: IPublicKey);
 begin
-  FFeePayer := Value;
+  FFeePayer := AValue;
 end;
 
-procedure TTransaction.SetInstructions(const Value: TList<ITransactionInstruction>);
+procedure TTransaction.SetInstructions(const AValue: TList<ITransactionInstruction>);
 begin
-  FInstructions := Value;
+  FInstructions := AValue;
 end;
 
-procedure TTransaction.SetNonceInformation(const Value: INonceInformation);
+procedure TTransaction.SetNonceInformation(const AValue: INonceInformation);
 begin
-  FNonceInformation := Value;
+  FNonceInformation := AValue;
 end;
 
-procedure TTransaction.SetPriorityFeesInformation(const Value: IPriorityFeesInformation);
+procedure TTransaction.SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
 begin
-  FPriorityFeesInformation := Value;
+  FPriorityFeesInformation := AValue;
 end;
 
-procedure TTransaction.SetRecentBlockHash(const Value: string);
+procedure TTransaction.SetRecentBlockHash(const AValue: string);
 begin
-  FRecentBlockHash := Value;
+  FRecentBlockHash := AValue;
 end;
 
-procedure TTransaction.SetSignatures(const Value: TList<ISignaturePubKeyPair>);
+procedure TTransaction.SetSignatures(const AValue: TList<ISignaturePubKeyPair>);
 begin
-  FSignatures := Value;
+  FSignatures := AValue;
 end;
 
 function TTransaction.CompileMessage: TBytes;
 var
-  MessageBuilder: IMessageBuilder;
-  Instruction: ITransactionInstruction;
+  LMessageBuilder: IMessageBuilder;
+  LInstruction: ITransactionInstruction;
 begin
-  MessageBuilder := TMessageBuilder.Create;
+  LMessageBuilder := TMessageBuilder.Create;
 
-  MessageBuilder.FeePayer := FFeePayer;
+  LMessageBuilder.FeePayer := FFeePayer;
   if FRecentBlockHash <> '' then
-    MessageBuilder.RecentBlockHash := FRecentBlockHash;
+    LMessageBuilder.RecentBlockHash := FRecentBlockHash;
 
   if Assigned(FNonceInformation) then
-    MessageBuilder.NonceInformation := FNonceInformation;
+    LMessageBuilder.NonceInformation := FNonceInformation;
 
   if Assigned(FPriorityFeesInformation) then
-    MessageBuilder.PriorityFeesInformation := FPriorityFeesInformation;
+    LMessageBuilder.PriorityFeesInformation := FPriorityFeesInformation;
 
-  for Instruction in FInstructions do
-    MessageBuilder.AddInstruction(Instruction);
+  for LInstruction in FInstructions do
+    LMessageBuilder.AddInstruction(LInstruction);
 
-  Result := MessageBuilder.Build;
+  Result := LMessageBuilder.Build;
 end;
 
 function TTransaction.VerifySignaturesInternal(const ASerializedMessage: TBytes): Boolean;
 var
-  Pair: ISignaturePubKeyPair;
+  LPair: ISignaturePubKeyPair;
 begin
-  for Pair in FSignatures do
+  for LPair in FSignatures do
   begin
-    if not Pair.PublicKey.Verify(ASerializedMessage, Pair.Signature) then
+    if not LPair.PublicKey.Verify(ASerializedMessage, LPair.Signature) then
       Exit(False);
   end;
   Result := True;
@@ -697,46 +697,46 @@ end;
 
 class function TTransaction.DeduplicateSigners(const ASigners: TList<IAccount>): TList<IAccount>;
 var
-  UniqueSigners: TList<IAccount>;
-  Seen: TDictionary<IAccount, Byte>;
-  Account: IAccount;
+  LUniqueSigners: TList<IAccount>;
+  LSeen: TDictionary<IAccount, Byte>;
+  LAccount: IAccount;
 begin
-  UniqueSigners := TList<IAccount>.Create;
-  Seen := TDictionary<IAccount, Byte>.Create;
+  LUniqueSigners := TList<IAccount>.Create;
+  LSeen := TDictionary<IAccount, Byte>.Create;
   try
-    for Account in ASigners do
-      if not Seen.ContainsKey(Account) then
+    for LAccount in ASigners do
+      if not LSeen.ContainsKey(LAccount) then
       begin
-        Seen.Add(Account, 0);
-        UniqueSigners.Add(Account);
+        LSeen.Add(LAccount, 0);
+        LUniqueSigners.Add(LAccount);
       end;
-    Result := UniqueSigners;
+    Result := LUniqueSigners;
   finally
-    Seen.Free;
+    LSeen.Free;
   end;
 end;
 
 function TTransaction.Sign(const ASigners: TList<IAccount>): Boolean;
 var
-  UniqueSigners: TList<IAccount>;
-  SerializedMessage, SignatureBytes: TBytes;
-  Account: IAccount;
-  Pair: ISignaturePubKeyPair;
+  LUniqueSigners: TList<IAccount>;
+  LSerializedMessage, LSignatureBytes: TBytes;
+  LAccount: IAccount;
+  LPair: ISignaturePubKeyPair;
 begin
-  UniqueSigners := DeduplicateSigners(ASigners);
+  LUniqueSigners := DeduplicateSigners(ASigners);
   try
-    SerializedMessage := CompileMessage;
-    for Account in UniqueSigners do
+    LSerializedMessage := CompileMessage;
+    for LAccount in LUniqueSigners do
     begin
-      SignatureBytes := Account.Sign(SerializedMessage);
-      Pair := TSignaturePubKeyPair.Create(
-        Account.PublicKey,
-        SignatureBytes
+      LSignatureBytes := LAccount.Sign(LSerializedMessage);
+      LPair := TSignaturePubKeyPair.Create(
+        LAccount.PublicKey,
+        LSignatureBytes
       );
-      FSignatures.Add(Pair);
+      FSignatures.Add(LPair);
     end;
   finally
-    UniqueSigners.Free;
+    LUniqueSigners.Free;
   end;
 
   Result := VerifySignatures;
@@ -744,61 +744,61 @@ end;
 
 function TTransaction.Sign(const ASigner: IAccount): Boolean;
 var
-  Signers: TList<IAccount>;
+  LSigners: TList<IAccount>;
 begin
-  Signers := TList<IAccount>.Create;
+  LSigners := TList<IAccount>.Create;
   try
-    Signers.Add(ASigner);
-    Result := Sign(Signers);
+    LSigners.Add(ASigner);
+    Result := Sign(LSigners);
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
 procedure TTransaction.PartialSign(const ASigners: TList<IAccount>);
 var
-  UniqueSigners: TList<IAccount>;
-  SerializedMessage, SignatureBytes: TBytes;
-  Account: IAccount;
-  Pair: ISignaturePubKeyPair;
+  LUniqueSigners: TList<IAccount>;
+  LSerializedMessage, LSignatureBytes: TBytes;
+  LAccount: IAccount;
+  LPair: ISignaturePubKeyPair;
 begin
-  UniqueSigners := DeduplicateSigners(ASigners);
+  LUniqueSigners := DeduplicateSigners(ASigners);
   try
-    SerializedMessage := CompileMessage;
-    for Account in UniqueSigners do
+    LSerializedMessage := CompileMessage;
+    for LAccount in LUniqueSigners do
     begin
-      SignatureBytes := Account.Sign(SerializedMessage);
-      Pair := TSignaturePubKeyPair.Create(Account.PublicKey, SignatureBytes);
-      FSignatures.Add(Pair);
+      LSignatureBytes := LAccount.Sign(LSerializedMessage);
+      LPair := TSignaturePubKeyPair.Create(LAccount.PublicKey, LSignatureBytes);
+      FSignatures.Add(LPair);
     end;
   finally
-    UniqueSigners.Free;
+    LUniqueSigners.Free;
   end;
 end;
 
 procedure TTransaction.PartialSign(const ASigner: IAccount);
 var
-  UniqueSigners: TList<IAccount>;
+  LUniqueSigners: TList<IAccount>;
 begin
-  UniqueSigners := TList<IAccount>.Create;
+  LUniqueSigners := TList<IAccount>.Create;
   try
-    UniqueSigners.Add(ASigner);
-    PartialSign(UniqueSigners);
+    LUniqueSigners.Add(ASigner);
+    PartialSign(LUniqueSigners);
   finally
-    UniqueSigners.Free;
+    LUniqueSigners.Free;
   end;
 end;
 
 function TTransaction.Build(const ASigner: IAccount): TBytes;
 var
-  Signers: TList<IAccount>;
+  LSigners: TList<IAccount>;
 begin
-  Signers := TList<IAccount>.Create;
+  LSigners := TList<IAccount>.Create;
   try
-    Signers.Add(ASigner);
-    Result := Build(Signers);
+    LSigners.Add(ASigner);
+    Result := Build(LSigners);
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 end;
 
@@ -810,76 +810,76 @@ end;
 
 procedure TTransaction.AddSignature(const APublicKey: IPublicKey; const ASignature: TBytes);
 var
-  Pair: ISignaturePubKeyPair;
+  LPair: ISignaturePubKeyPair;
 begin
-  Pair := TSignaturePubKeyPair.Create(APublicKey, ASignature);
-  FSignatures.Add(Pair);
+  LPair := TSignaturePubKeyPair.Create(APublicKey, ASignature);
+  FSignatures.Add(LPair);
 end;
 
 function TTransaction.Add(const AInstructions: TList<ITransactionInstruction>): ITransaction;
 var
-  Instruction: ITransactionInstruction;
+  LInstruction: ITransactionInstruction;
 begin
-  for Instruction in AInstructions do
-    FInstructions.Add(Instruction);
+  for LInstruction in AInstructions do
+    FInstructions.Add(LInstruction);
   Result := Self;
 end;
 
 function TTransaction.Add(const AInstruction: ITransactionInstruction): ITransaction;
 var
-  Instructions: TList<ITransactionInstruction>;
+  LInstructions: TList<ITransactionInstruction>;
 begin
-  Instructions := TList<ITransactionInstruction>.Create;
+  LInstructions := TList<ITransactionInstruction>.Create;
   try
-    Instructions.Add(AInstruction);
-    Result := Add(Instructions);
+    LInstructions.Add(AInstruction);
+    Result := Add(LInstructions);
   finally
-    Instructions.Free;
+    LInstructions.Free;
   end;
 end;
 
 function TTransaction.Serialize: TBytes;
 var
-  SignaturesLength, SerializedMessage: TBytes;
-  Buffer: TMemoryStream;
-  Pair: ISignaturePubKeyPair;
+  LSignaturesLength, LSerializedMessage: TBytes;
+  LBuffer: TMemoryStream;
+  LPair: ISignaturePubKeyPair;
 begin
-  SignaturesLength := TShortVectorEncoding.EncodeLength(FSignatures.Count);
-  SerializedMessage := CompileMessage;
-  Buffer := TMemoryStream.Create;
+  LSignaturesLength := TShortVectorEncoding.EncodeLength(FSignatures.Count);
+  LSerializedMessage := CompileMessage;
+  LBuffer := TMemoryStream.Create;
   try
-    Buffer.Size := Length(SignaturesLength) +
+    LBuffer.Size := Length(LSignaturesLength) +
                    (FSignatures.Count * TTransactionBuilder.SignatureLength) +
-                   Length(SerializedMessage);
-    Buffer.Position := 0;
+                   Length(LSerializedMessage);
+    LBuffer.Position := 0;
 
-    Buffer.WriteBuffer(SignaturesLength[0], Length(SignaturesLength));
+    LBuffer.WriteBuffer(LSignaturesLength[0], Length(LSignaturesLength));
 
-    for Pair in FSignatures do
-      if Length(Pair.Signature) > 0 then
-        Buffer.WriteBuffer(Pair.Signature[0], Length(Pair.Signature));
+    for LPair in FSignatures do
+      if Length(LPair.Signature) > 0 then
+        LBuffer.WriteBuffer(LPair.Signature[0], Length(LPair.Signature));
 
-    if Length(SerializedMessage) > 0 then
-      Buffer.WriteBuffer(SerializedMessage[0], Length(SerializedMessage));
+    if Length(LSerializedMessage) > 0 then
+      LBuffer.WriteBuffer(LSerializedMessage[0], Length(LSerializedMessage));
 
-    SetLength(Result, Buffer.Size);
-    Buffer.Position := 0;
-    Buffer.ReadBuffer(Result[0], Buffer.Size);
+    SetLength(Result, LBuffer.Size);
+    LBuffer.Position := 0;
+    LBuffer.ReadBuffer(Result[0], LBuffer.Size);
   finally
-    Buffer.Free;
+    LBuffer.Free;
   end;
 end;
 
 class function TTransaction.Populate(const AMessage: IMessage; const ASignatures: TArray<TBytes> = nil): ITransaction;
 var
-  I, J, K, AccountLength: Integer;
-  Accounts: TList<IAccountMeta>;
-  CompiledInstruction: ICompiledInstruction;
-  Instruction: ITransactionInstruction;
-  MessageBytes: TBytes;
-  IsSignatureValid: Boolean;
-  Signer: IPublicKey;
-  Pair: ISignaturePubKeyPair;
+  LI, LJ, LK, LAccountLength: Integer;
+  LAccounts: TList<IAccountMeta>;
+  LCompiledInstruction: ICompiledInstruction;
+  LInstruction: ITransactionInstruction;
+  LMessageBytes: TBytes;
+  LIsSignatureValid: Boolean;
+  LSigner: IPublicKey;
+  LPair: ISignaturePubKeyPair;
 begin
   Result := TTransaction.Create;
 
@@ -892,96 +892,96 @@ begin
 
   if Length(ASignatures) > 0 then
   begin
-    for I := 0 to High(ASignatures) do
+    for LI := 0 to High(ASignatures) do
     begin
-      MessageBytes := AMessage.Serialize;
-      IsSignatureValid := TEd25519Crypto.Verify(AMessage.AccountKeys[I].KeyBytes, MessageBytes, ASignatures[I]);
-      Signer := AMessage.AccountKeys[I];
+      LMessageBytes := AMessage.Serialize;
+      LIsSignatureValid := TEd25519Crypto.Verify(AMessage.AccountKeys[LI].KeyBytes, LMessageBytes, ASignatures[LI]);
+      LSigner := AMessage.AccountKeys[LI];
 
-      if not IsSignatureValid then
+      if not LIsSignatureValid then
       begin
-        for K := 0 to AMessage.AccountKeys.Count - 1 do
+        for LK := 0 to AMessage.AccountKeys.Count - 1 do
         begin
-          if TEd25519Crypto.Verify(AMessage.AccountKeys[K].KeyBytes, MessageBytes, ASignatures[I]) then
+          if TEd25519Crypto.Verify(AMessage.AccountKeys[LK].KeyBytes, LMessageBytes, ASignatures[LI]) then
           begin
-            IsSignatureValid := True;
-            Signer := AMessage.AccountKeys[K];
+            LIsSignatureValid := True;
+            LSigner := AMessage.AccountKeys[LK];
             Break;
           end;
         end;
       end;
 
-      if IsSignatureValid then
+      if LIsSignatureValid then
       begin
-        Pair := TSignaturePubKeyPair.Create(Signer, ASignatures[I]);
-        Result.Signatures.Add(Pair);
+        LPair := TSignaturePubKeyPair.Create(LSigner, ASignatures[LI]);
+        Result.Signatures.Add(LPair);
       end;
     end;
   end;
 
-  for I := 0 to AMessage.Instructions.Count - 1 do
+  for LI := 0 to AMessage.Instructions.Count - 1 do
   begin
-    CompiledInstruction := AMessage.Instructions[I];
-    AccountLength := TShortVectorEncoding.DecodeLength(CompiledInstruction.KeyIndicesCount).Value;
+    LCompiledInstruction := AMessage.Instructions[LI];
+    LAccountLength := TShortVectorEncoding.DecodeLength(LCompiledInstruction.KeyIndicesCount).Value;
 
-    Accounts := TList<IAccountMeta>.Create;
-    for J := 0 to AccountLength - 1 do
+    LAccounts := TList<IAccountMeta>.Create;
+    for LJ := 0 to LAccountLength - 1 do
     begin
-      K := CompiledInstruction.KeyIndices[J];
-      Accounts.Add(TAccountMeta.Create(
-        AMessage.AccountKeys[K],
-        AMessage.IsAccountWritable(K),
+      LK := LCompiledInstruction.KeyIndices[LJ];
+      LAccounts.Add(TAccountMeta.Create(
+        AMessage.AccountKeys[LK],
+        AMessage.IsAccountWritable(LK),
         (TListUtils.Any<ISignaturePubKeyPair>(Result.Signatures,
-          function(pair: ISignaturePubKeyPair): Boolean
+          function(APair: ISignaturePubKeyPair): Boolean
           begin
-            Result := pair.PublicKey.Equals(AMessage.AccountKeys[K]);
-          end)) or AMessage.IsAccountSigner(K)));
+            Result := APair.PublicKey.Equals(AMessage.AccountKeys[LK]);
+          end)) or AMessage.IsAccountSigner(LK)));
     end;
 
-    Instruction := TTransactionInstruction.Create(
-      AMessage.AccountKeys[CompiledInstruction.ProgramIdIndex].KeyBytes,
-      Accounts,
-      CompiledInstruction.Data
+    LInstruction := TTransactionInstruction.Create(
+      AMessage.AccountKeys[LCompiledInstruction.ProgramIdIndex].KeyBytes,
+      LAccounts,
+      LCompiledInstruction.Data
     );
 
-    if (I = 0) and TListUtils.Any<IAccountMeta>(Accounts,
-      function(AccMeta: IAccountMeta): Boolean
+    if (LI = 0) and TListUtils.Any<IAccountMeta>(LAccounts,
+      function(AAccMeta: IAccountMeta): Boolean
       begin
-        Result := SameStr(AccMeta.PublicKey.Key, TSysVars.RecentBlockHashesKey.Key);
+        Result := SameStr(AAccMeta.PublicKey.Key, TSysVars.RecentBlockHashesKey.Key);
       end) then
     begin
-      Result.NonceInformation := TNonceInformation.Create(Result.RecentBlockHash, Instruction);
+      Result.NonceInformation := TNonceInformation.Create(Result.RecentBlockHash, LInstruction);
       Continue;
     end;
 
-    Result.Instructions.Add(Instruction);
+    Result.Instructions.Add(LInstruction);
   end;
 end;
 
 
 class function TTransaction.Populate(const AMessage: string; const ASignatures: TArray<TBytes> = nil): ITransaction;
 var
-  Msg: IMessage;
+  LMsg: IMessage;
 begin
-  Msg := TMessage.Deserialize(AMessage);
-  Result := Populate(Msg, ASignatures);
+  LMsg := TMessage.Deserialize(AMessage);
+  Result := Populate(LMsg, ASignatures);
 end;
 
 class function TTransaction.Deserialize(const AData: string): ITransaction;
 var
-  Bytes: TBytes;
+  LBytes: TBytes;
 begin
   if AData = '' then
     raise EArgumentNilException.Create('data');
 
   try
-    Bytes := TEncoders.Base64.DecodeData(AData);
+    LBytes := TBase64Encoder.DecodeData(AData);
   except
     on E: Exception do
       raise Exception.Create('could not decode transaction data from base64');
   end;
 
-  Result := Deserialize(Bytes);
+  Result := Deserialize(LBytes);
 end;
 
 class function TTransaction.Deserialize(const AData: TBytes): ITransaction;
@@ -992,48 +992,48 @@ end;
 
 class function TTransaction.DoDeserialize(const AData: TBytes): ITransaction;
 var
-  VecDecode       : TShortVecDecode;
-  I               : Integer;
-  SignaturesLength: Integer;
-  EncodedLength   : Integer;
-  Signatures      : TArray<TBytes>;
-  Signature       : TBytes;
-  Prefix          : Byte;
-  MaskedPrefix    : Byte;
-  Msg             : IMessage;
+  LVecDecode: TShortVecDecode;
+  LI: Integer;
+  LSignaturesLength: Integer;
+  LEncodedLength: Integer;
+  LSignatures: TArray<TBytes>;
+  LSignature: TBytes;
+  LPrefix: Byte;
+  LMaskedPrefix: Byte;
+  LMsg: IMessage;
 begin
   // Read number of signatures
-  VecDecode := TShortVectorEncoding.DecodeLength(
+  LVecDecode := TShortVectorEncoding.DecodeLength(
     TArrayUtils.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
   );
-  SignaturesLength := VecDecode.Value;
-  EncodedLength    := VecDecode.Length;
+  LSignaturesLength := LVecDecode.Value;
+  LEncodedLength := LVecDecode.Length;
 
-  SetLength(Signatures, SignaturesLength);
-  for I := 0 to SignaturesLength - 1 do
+  SetLength(LSignatures, LSignaturesLength);
+  for LI := 0 to LSignaturesLength - 1 do
   begin
-    Signature := TArrayUtils.Slice<Byte>(
+    LSignature := TArrayUtils.Slice<Byte>(
       AData,
-      EncodedLength + (I * TTransactionBuilder.SignatureLength),
+      LEncodedLength + (LI * TTransactionBuilder.SignatureLength),
       TTransactionBuilder.SignatureLength
     );
-    Signatures[I] := Signature;
+    LSignatures[LI] := LSignature;
   end;
 
-  Prefix       := AData[EncodedLength + (SignaturesLength * TTransactionBuilder.SignatureLength)];
-  MaskedPrefix := Prefix and TVersionedMessage.VersionPrefixMask;
+  LPrefix := AData[LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)];
+  LMaskedPrefix := LPrefix and TVersionedMessage.VersionPrefixMask;
 
   // If the transaction is a VersionedTransaction, use VersionedTransaction.Deserialize instead.
-  if Prefix <> MaskedPrefix then
+  if LPrefix <> LMaskedPrefix then
     Exit(TVersionedTransaction.Deserialize(AData));
 
-  Msg := TMessage.Deserialize(
+  LMsg := TMessage.Deserialize(
     TArrayUtils.Slice<Byte>(
       AData,
-      EncodedLength + (SignaturesLength * TTransactionBuilder.SignatureLength)
+      LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)
     )
   );
-  Result := Populate(Msg, Signatures);
+  Result := Populate(LMsg, LSignatures);
 end;
 
 { TVersionedTransaction }
@@ -1043,7 +1043,7 @@ begin
   inherited Create;
   FAddressTableLookups := TList<IMessageAddressTableLookup>.Create;
   FInstructions := TList<ITransactionInstruction>.Create;
-  FSignatures   := TList<ISignaturePubKeyPair>.Create;
+  FSignatures := TList<ISignaturePubKeyPair>.Create;
   FAddressTableLookups := TList<IMessageAddressTableLookup>.Create;
   FAccountKeys := TList<IPublicKey>.Create;
 end;
@@ -1060,47 +1060,47 @@ begin
   Result := FAddressTableLookups;
 end;
 
-procedure TVersionedTransaction.SetAddressTableLookups(const Value: TList<IMessageAddressTableLookup>);
+procedure TVersionedTransaction.SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
 begin
-  FAddressTableLookups := Value;
+  FAddressTableLookups := AValue;
 end;
 
 function TVersionedTransaction.CompileMessage: TBytes;
 var
-  MessageBuilder: IVersionedMessageBuilder;
-  Instruction: ITransactionInstruction;
+  LMessageBuilder: IVersionedMessageBuilder;
+  LInstruction: ITransactionInstruction;
 begin
-  MessageBuilder := TVersionedMessageBuilder.Create;
-  MessageBuilder.FeePayer := FFeePayer;
+  LMessageBuilder := TVersionedMessageBuilder.Create;
+  LMessageBuilder.FeePayer := FFeePayer;
 
   if FRecentBlockHash <> '' then
-    MessageBuilder.RecentBlockHash := FRecentBlockHash;
+    LMessageBuilder.RecentBlockHash := FRecentBlockHash;
 
   if Assigned(FNonceInformation) then
-    MessageBuilder.NonceInformation := FNonceInformation;
+    LMessageBuilder.NonceInformation := FNonceInformation;
 
   if Assigned(FPriorityFeesInformation) then
-    MessageBuilder.PriorityFeesInformation := FPriorityFeesInformation;
+    LMessageBuilder.PriorityFeesInformation := FPriorityFeesInformation;
 
-  for Instruction in FInstructions do
-    MessageBuilder.AddInstruction(Instruction);
+  for LInstruction in FInstructions do
+    LMessageBuilder.AddInstruction(LInstruction);
 
   if Assigned(FAccountKeys) then
-    MessageBuilder.AccountKeys.AddRange(FAccountKeys);
+    LMessageBuilder.AccountKeys.AddRange(FAccountKeys);
 
   if Assigned(FAddressTableLookups) then
-    MessageBuilder.AddressTableLookups.AddRange(FAddressTableLookups);
+    LMessageBuilder.AddressTableLookups.AddRange(FAddressTableLookups);
 
-  Result := MessageBuilder.Build;
+  Result := LMessageBuilder.Build;
 end;
 
 class function TVersionedTransaction.Populate(AMessage: IVersionedMessage; const ASignatures: TArray<TBytes> = nil): IVersionedTransaction;
 var
-  I, J, K, AccountLength: Integer;
-  Accounts: TList<IAccountMeta>;
-  CompiledInstruction: ICompiledInstruction;
-  Instruction: IVersionedTransactionInstruction;
-  Pair: ISignaturePubKeyPair;
+  LI, LJ, LK, LAccountLength: Integer;
+  LAccounts: TList<IAccountMeta>;
+  LCompiledInstruction: ICompiledInstruction;
+  LInstruction: IVersionedTransactionInstruction;
+  LPair: ISignaturePubKeyPair;
 begin
   Result := TVersionedTransaction.Create;
   try
@@ -1114,52 +1114,52 @@ begin
 
     if Length(ASignatures) > 0 then
     begin
-      for I := 0 to High(ASignatures) do
+      for LI := 0 to High(ASignatures) do
       begin
-        Pair := TSignaturePubKeyPair.Create(AMessage.AccountKeys[I], ASignatures[I]);
-        Result.Signatures.Add(Pair);
+        LPair := TSignaturePubKeyPair.Create(AMessage.AccountKeys[LI], ASignatures[LI]);
+        Result.Signatures.Add(LPair);
       end;
     end;
 
-    for I := 0 to AMessage.Instructions.Count - 1 do
+    for LI := 0 to AMessage.Instructions.Count - 1 do
     begin
-      CompiledInstruction := AMessage.Instructions[I];
-      AccountLength := TShortVectorEncoding.DecodeLength(CompiledInstruction.KeyIndicesCount).Value;
+      LCompiledInstruction := AMessage.Instructions[LI];
+      LAccountLength := TShortVectorEncoding.DecodeLength(LCompiledInstruction.KeyIndicesCount).Value;
 
-      Accounts := TList<IAccountMeta>.Create;
-      for J := 0 to AccountLength - 1 do
+      LAccounts := TList<IAccountMeta>.Create;
+      for LJ := 0 to LAccountLength - 1 do
       begin
-        K := CompiledInstruction.KeyIndices[J];
-        if K >= AMessage.AccountKeys.Count then
+        LK := LCompiledInstruction.KeyIndices[LJ];
+        if LK >= AMessage.AccountKeys.Count then
           Continue;
-        Accounts.Add(TAccountMeta.Create(
-          AMessage.AccountKeys[K],
-          AMessage.IsAccountWritable(K),
+        LAccounts.Add(TAccountMeta.Create(
+          AMessage.AccountKeys[LK],
+          AMessage.IsAccountWritable(LK),
           (TListUtils.Any<ISignaturePubKeyPair>(Result.Signatures,
-            function(Pair: ISignaturePubKeyPair): Boolean
+            function(APair: ISignaturePubKeyPair): Boolean
             begin
-              Result := Pair.PublicKey.Equals(AMessage.AccountKeys[K]);
-            end)) or AMessage.IsAccountSigner(K)));
+              Result := APair.PublicKey.Equals(AMessage.AccountKeys[LK]);
+            end)) or AMessage.IsAccountSigner(LK)));
       end;
 
-      Instruction := TVersionedTransactionInstruction.Create(
-        AMessage.AccountKeys[CompiledInstruction.ProgramIdIndex].KeyBytes,
-        Accounts,
-        CompiledInstruction.Data,
-        CompiledInstruction.KeyIndices
+      LInstruction := TVersionedTransactionInstruction.Create(
+        AMessage.AccountKeys[LCompiledInstruction.ProgramIdIndex].KeyBytes,
+        LAccounts,
+        LCompiledInstruction.Data,
+        LCompiledInstruction.KeyIndices
       );
 
-      if (I = 0) and TListUtils.Any<IAccountMeta>(Accounts,
-        function(AccMeta: IAccountMeta): Boolean
+      if (LI = 0) and TListUtils.Any<IAccountMeta>(LAccounts,
+        function(AAccMeta: IAccountMeta): Boolean
         begin
-          Result := SameStr(AccMeta.PublicKey.Key, TSysVars.RecentBlockHashesKey.Key);
+          Result := SameStr(AAccMeta.PublicKey.Key, TSysVars.RecentBlockHashesKey.Key);
         end) then
       begin
-        Result.NonceInformation := TNonceInformation.Create(Result.GetRecentBlockHash, Instruction);
+        Result.NonceInformation := TNonceInformation.Create(Result.GetRecentBlockHash, LInstruction);
         Continue;
       end;
 
-      Result.Instructions.Add(Instruction);
+      Result.Instructions.Add(LInstruction);
     end;
 
   except
@@ -1169,43 +1169,49 @@ end;
 
 class function TVersionedTransaction.Populate(const AMessage: string; const ASignatures: TArray<TBytes> = nil): IVersionedTransaction;
 var
-  Msg: IVersionedMessage;
+  LMsg: IMessage;
+  LVersionedMsg: IVersionedMessage;
 begin
-  Msg := TVersionedMessage.Deserialize(AMessage) as IVersionedMessage;
-  Result := Populate(Msg, ASignatures);
+  LMsg := TVersionedMessage.Deserialize(AMessage);
+  if not Supports(LMsg, IVersionedMessage, LVersionedMsg) then
+    raise EArgumentException.Create('Deserialized message does not support IVersionedMessage.');
+  Result := Populate(LVersionedMsg, ASignatures);
 end;
 
 class function TVersionedTransaction.DoDeserialize(const AData: TBytes): ITransaction;
 var
-  VecDecode       : TShortVecDecode;
-  I               : Integer;
-  SignaturesLength: Integer;
-  EncodedLength   : Integer;
-  Signatures      : TArray<TBytes>;
-  Signature       : TBytes;
-  MessageOffset   : Integer;
-  VersionedMessage: IVersionedMessage;
+  LVecDecode: TShortVecDecode;
+  LI: Integer;
+  LSignaturesLength: Integer;
+  LEncodedLength: Integer;
+  LSignatures: TArray<TBytes>;
+  LSignature: TBytes;
+  LMessageOffset: Integer;
+  LMsg: IMessage;
+  LVersionedMessage: IVersionedMessage;
 begin
-  VecDecode := TShortVectorEncoding.DecodeLength(
+  LVecDecode := TShortVectorEncoding.DecodeLength(
     TArrayUtils.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
   );
-  SignaturesLength := VecDecode.Value;
-  EncodedLength    := VecDecode.Length;
+  LSignaturesLength := LVecDecode.Value;
+  LEncodedLength := LVecDecode.Length;
 
-  SetLength(Signatures, SignaturesLength);
-  for I := 0 to SignaturesLength - 1 do
+  SetLength(LSignatures, LSignaturesLength);
+  for LI := 0 to LSignaturesLength - 1 do
   begin
-    Signature := TArrayUtils.Slice<Byte>(
+    LSignature := TArrayUtils.Slice<Byte>(
       AData,
-      EncodedLength + (I * TTransactionBuilder.SignatureLength),
+      LEncodedLength + (LI * TTransactionBuilder.SignatureLength),
       TTransactionBuilder.SignatureLength
     );
-    Signatures[I] := Signature;
+    LSignatures[LI] := LSignature;
   end;
 
-  MessageOffset := EncodedLength + (SignaturesLength * TTransactionBuilder.SignatureLength);
-  VersionedMessage := TVersionedMessage.Deserialize(TArrayUtils.Slice<Byte>(AData, MessageOffset)) as IVersionedMessage;
-  Result := Populate(VersionedMessage, Signatures);
+  LMessageOffset := LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength);
+  LMsg := TVersionedMessage.Deserialize(TArrayUtils.Slice<Byte>(AData, LMessageOffset));
+  if not Supports(LMsg, IVersionedMessage, LVersionedMessage) then
+    raise EArgumentException.Create('Deserialized message does not support IVersionedMessage.');
+  Result := Populate(LVersionedMessage, LSignatures);
 end;
 
 end.

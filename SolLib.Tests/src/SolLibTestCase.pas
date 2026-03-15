@@ -28,6 +28,7 @@ uses
   TestFramework,
 {$ENDIF}
   SlpArrayUtils,
+  SlpDataEncoderUtils,
   JsonStructuralComparer;
 
 type
@@ -40,227 +41,264 @@ type
    protected
     const DoubleCompareDelta = 0.01;
 
-    procedure AssertEquals(const Expected, Actual: string; const Msg: string = ''); overload;
-    procedure AssertNotEquals(const Expected, Actual: string; const Msg: string = ''); overload;
+    procedure AssertEquals(const AExpected, AActual: string; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(const AExpected, AActual: string; const AMsg: string = ''); overload;
 
-    procedure AssertEquals(Expected, Actual: Integer; const Msg: string = ''); overload;
-    procedure AssertNotEquals(Expected, Actual: Integer; const Msg: string = ''); overload;
+    procedure AssertEquals(AExpected, AActual: Integer; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(AExpected, AActual: Integer; const AMsg: string = ''); overload;
 
-    procedure AssertEquals(Expected, Actual: Int64; const Msg: string = ''); overload;
-    procedure AssertNotEquals(Expected, Actual: Int64; const Msg: string = ''); overload;
+    procedure AssertEquals(AExpected, AActual: Int64; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(AExpected, AActual: Int64; const AMsg: string = ''); overload;
 
-    procedure AssertEquals(Expected, Actual: UInt64; const Msg: string = ''); overload;
-    procedure AssertNotEquals(Expected, Actual: UInt64; const Msg: string = ''); overload;
+    procedure AssertEquals(AExpected, AActual: UInt64; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(AExpected, AActual: UInt64; const AMsg: string = ''); overload;
 
-    procedure AssertEquals(Expected, Actual: Single; Delta: Single = 0; const Msg: string = ''); overload;
-    procedure AssertNotEquals(Expected, Actual: Single; Delta: Single = 0; const Msg: string = ''); overload;
+    procedure AssertEquals(AExpected, AActual: Single; ADelta: Single = 0; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(AExpected, AActual: Single; ADelta: Single = 0; const AMsg: string = ''); overload;
 
-    procedure AssertEquals(Expected, Actual: Boolean; const Msg: string = ''); overload;
-    procedure AssertNotEquals(Expected, Actual: Boolean; const Msg: string = ''); overload;
+    procedure AssertEquals(AExpected, AActual: Boolean; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(AExpected, AActual: Boolean; const AMsg: string = ''); overload;
 
-    procedure AssertEquals(Expected, Actual: Double; Delta: Double = 0; const Msg: string = ''); overload;
-    procedure AssertNotEquals(Expected, Actual: Double; Delta: Double = 0; const Msg: string = ''); overload;
+    procedure AssertEquals(AExpected, AActual: Double; ADelta: Double = 0; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(AExpected, AActual: Double; ADelta: Double = 0; const AMsg: string = ''); overload;
 
-    procedure AssertEquals(const Expected, Actual: TBytes; const Msg: string = ''); overload;
-    procedure AssertNotEquals(const Expected, Actual: TBytes; const Msg: string = ''); overload;
+    procedure AssertEquals(const AExpected, AActual: TBytes; const AMsg: string = ''); overload;
+    procedure AssertNotEquals(const AExpected, AActual: TBytes; const AMsg: string = ''); overload;
 
-    procedure AssertTrue(Condition: Boolean; Msg: string = '');
-    procedure AssertFalse(Condition: Boolean; Msg: string = '');
+    procedure AssertTrue(ACondition: Boolean; const AMsg: string = '');
+    procedure AssertFalse(ACondition: Boolean; const AMsg: string = '');
 
-    procedure AssertNull(const Obj: TObject; Msg: string = ''); overload;
-    procedure AssertNotNull(const Obj: TObject; Msg: string = ''); overload;
+    procedure AssertNull(const AObj: TObject; const AMsg: string = ''); overload;
+    procedure AssertNotNull(const AObj: TObject; const AMsg: string = ''); overload;
 
-    procedure AssertSame(const Expected, Actual: TObject; Msg: string = '');
+    procedure AssertSame(const AExpected, AActual: TObject; const AMsg: string = '');
 
-    procedure AssertNull(const Obj: IInterface; Msg: string = ''); overload;
-    procedure AssertNotNull(const Obj: IInterface; Msg: string = ''); overload;
+    procedure AssertNull(const AObj: IInterface; const AMsg: string = ''); overload;
+    procedure AssertNotNull(const AObj: IInterface; const AMsg: string = ''); overload;
 
-    procedure AssertJsonMatch(const Expected, Actual: string; const Msg: string = ''); overload;
+    procedure AssertJsonMatch(const AExpected, AActual: string; const AMsg: string = ''); overload;
 
-    procedure AssertException(const Proc: TTestProc; const ExpectedClass: ExceptClass; const ExpectedExceptionMessage: string = ''; ExactTypeMatch: Boolean = True); overload;
-    procedure AssertException(const Proc: TTestProc; const ExpectedClass: ExceptClass; const ExpectedExceptionMessage: string; ExactTypeMatch: Boolean; out RaisedException: Exception); overload;
+    procedure AssertException(const AProc: TTestProc; const AExpectedClass: ExceptClass; const AExpectedExceptionMessage: string = ''; AExactTypeMatch: Boolean = True); overload;
+    procedure AssertException(const AProc: TTestProc; const AExpectedClass: ExceptClass; const AExpectedExceptionMessage: string; AExactTypeMatch: Boolean; out ARaisedException: Exception); overload;
 
-    procedure AssertIsInstanceOf(const Obj: TObject; const ClassType: TClass; const Msg: string = '');
+    procedure AssertIsInstanceOf(const AObj: TObject; const AClassType: TClass; const AMsg: string = '');
+
+    function DecodeHex(const AHex: string): TBytes;
+    function EncodeHex(const AData: TBytes): string;
+    function DecodeBase58(const AEncoded: string): TBytes;
+    function EncodeBase58(const AData: TBytes): string;
+    function DecodeBase64(const AEncoded: string): TBytes;
+    function EncodeBase64(const AData: TBytes): string;
 
   end;
 
 implementation
 
-procedure TSolLibTestCase.AssertEquals(const Expected, Actual, Msg: string);
+procedure TSolLibTestCase.AssertEquals(const AExpected, AActual, AMsg: string);
 begin
-  CheckEquals(Expected, Actual, Msg);
+  CheckEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(const Expected, Actual, Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(const AExpected, AActual, AMsg: string);
 begin
-  CheckNotEquals(Expected, Actual, Msg);
+  CheckNotEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertEquals(Expected, Actual: Integer; const Msg: string);
+procedure TSolLibTestCase.AssertEquals(AExpected, AActual: Integer; const AMsg: string);
 begin
-  CheckEquals(Expected, Actual, Msg);
+  CheckEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(Expected, Actual: Integer;
-  const Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(AExpected, AActual: Integer;
+  const AMsg: string);
 begin
-  CheckNotEquals(Expected, Actual, Msg);
+  CheckNotEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertEquals(Expected, Actual: Int64; const Msg: string);
+procedure TSolLibTestCase.AssertEquals(AExpected, AActual: Int64; const AMsg: string);
 begin
-  CheckEquals(Expected, Actual, Msg);
+  CheckEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(Expected, Actual: Int64;
-  const Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(AExpected, AActual: Int64;
+  const AMsg: string);
 begin
-  CheckNotEquals(Expected, Actual, Msg);
+  CheckNotEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertEquals(Expected, Actual: UInt64; const Msg: string);
+procedure TSolLibTestCase.AssertEquals(AExpected, AActual: UInt64; const AMsg: string);
 begin
-  CheckEquals(Expected, Actual, Msg);
+  CheckEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(Expected, Actual: UInt64;
-  const Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(AExpected, AActual: UInt64;
+  const AMsg: string);
 begin
-  CheckNotEquals(Expected, Actual, Msg);
+  CheckNotEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertEquals(Expected, Actual, Delta: Single; const Msg: string);
+procedure TSolLibTestCase.AssertEquals(AExpected, AActual: Single; ADelta: Single; const AMsg: string);
 begin
-  CheckEquals(Expected, Actual, Delta, Msg);
+  CheckEquals(AExpected, AActual, ADelta, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(Expected, Actual, Delta: Single;
-  const Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(AExpected, AActual: Single; ADelta: Single;
+  const AMsg: string);
 begin
-  CheckNotEquals(Expected, Actual, Delta, Msg);
+  CheckNotEquals(AExpected, AActual, ADelta, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertEquals(Expected, Actual, Delta: Double; const Msg: string);
+procedure TSolLibTestCase.AssertEquals(AExpected, AActual: Double; ADelta: Double; const AMsg: string);
 begin
-  CheckEquals(Expected, Actual, Delta, Msg);
+  CheckEquals(AExpected, AActual, ADelta, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(Expected, Actual, Delta: Double;
-  const Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(AExpected, AActual: Double; ADelta: Double;
+  const AMsg: string);
 begin
-  CheckNotEquals(Expected, Actual, Delta, Msg);
+  CheckNotEquals(AExpected, AActual, ADelta, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertEquals(Expected, Actual: Boolean; const Msg: string);
+procedure TSolLibTestCase.AssertEquals(AExpected, AActual: Boolean; const AMsg: string);
 begin
-  CheckEquals(Expected, Actual, Msg);
+  CheckEquals(AExpected, AActual, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(Expected, Actual: Boolean;
-  const Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(AExpected, AActual: Boolean;
+  const AMsg: string);
 begin
-  CheckNotEquals(Expected, Actual, Msg);
+  CheckNotEquals(AExpected, AActual, AMsg);
 end;
 
 
-procedure TSolLibTestCase.AssertEquals(const Expected, Actual: TBytes;
-  const Msg: string);
+procedure TSolLibTestCase.AssertEquals(const AExpected, AActual: TBytes;
+  const AMsg: string);
 begin
-  CheckTrue(TArrayUtils.AreArraysEqual(Expected, Actual), Msg);
+  CheckTrue(TArrayUtils.AreArraysEqual(AExpected, AActual), AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotEquals(const Expected, Actual: TBytes;
-  const Msg: string);
+procedure TSolLibTestCase.AssertNotEquals(const AExpected, AActual: TBytes;
+  const AMsg: string);
 begin
-  CheckFalse(TArrayUtils.AreArraysEqual(Expected, Actual), Msg);
+  CheckFalse(TArrayUtils.AreArraysEqual(AExpected, AActual), AMsg);
 end;
 
-procedure TSolLibTestCase.AssertTrue(Condition: Boolean; Msg: string);
+procedure TSolLibTestCase.AssertTrue(ACondition: Boolean; const AMsg: string);
 begin
-  CheckTrue(Condition, Msg);
+  CheckTrue(ACondition, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertFalse(Condition: Boolean; Msg: string);
+procedure TSolLibTestCase.AssertFalse(ACondition: Boolean; const AMsg: string);
 begin
-  CheckFalse(Condition, Msg);
+  CheckFalse(ACondition, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNull(const Obj: TObject; Msg: string);
+procedure TSolLibTestCase.AssertNull(const AObj: TObject; const AMsg: string);
 begin
-  CheckNull(Obj, Msg);
+  CheckNull(AObj, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotNull(const Obj: TObject; Msg: string);
+procedure TSolLibTestCase.AssertNotNull(const AObj: TObject; const AMsg: string);
 begin
-  CheckNotNull(Obj, Msg);
+  CheckNotNull(AObj, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertSame(const Expected, Actual: TObject; Msg: string);
+procedure TSolLibTestCase.AssertSame(const AExpected, AActual: TObject; const AMsg: string);
 begin
-   CheckSame(Expected, Actual, Msg)
+   CheckSame(AExpected, AActual, AMsg)
 end;
 
-procedure TSolLibTestCase.AssertNull(const Obj: IInterface; Msg: string);
+procedure TSolLibTestCase.AssertNull(const AObj: IInterface; const AMsg: string);
 begin
-  CheckNull(Obj, Msg);
+  CheckNull(AObj, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertNotNull(const Obj: IInterface; Msg: string);
+procedure TSolLibTestCase.AssertNotNull(const AObj: IInterface; const AMsg: string);
 begin
-  CheckNotNull(Obj, Msg);
+  CheckNotNull(AObj, AMsg);
 end;
 
-procedure TSolLibTestCase.AssertJsonMatch(const Expected, Actual, Msg: string);
+procedure TSolLibTestCase.AssertJsonMatch(const AExpected, AActual: string; const AMsg: string);
 begin
-  CheckTrue(TJsonStructuralComparer.AreStructurallyEqual(Expected, Actual, TJsonCompareOptions.Default), Msg);
+  CheckTrue(TJsonStructuralComparer.AreStructurallyEqual(AExpected, AActual, TJsonCompareOptions.Default), AMsg);
 end;
 
-procedure TSolLibTestCase.AssertException(const Proc: TTestProc;
-  const ExpectedClass: ExceptClass; const ExpectedExceptionMessage: string;
-  ExactTypeMatch: Boolean; out RaisedException: Exception);
+procedure TSolLibTestCase.AssertException(const AProc: TTestProc;
+  const AExpectedClass: ExceptClass; const AExpectedExceptionMessage: string;
+  AExactTypeMatch: Boolean; out ARaisedException: Exception);
 begin
-  RaisedException := nil;
+  ARaisedException := nil;
 
   try
-    Proc();
+    AProc();
     Fail(Format('Expected %s, but no exception was raised.',
-      [ExpectedClass.ClassName]));
+      [AExpectedClass.ClassName]));
   except
     on E: Exception do
     begin
       // Class match (exact or inherits)
-      if ExactTypeMatch then
-        CheckTrue(E.ClassType = ExpectedClass,
+      if AExactTypeMatch then
+        CheckTrue(E.ClassType = AExpectedClass,
           Format('Expected exactly %s, but got %s.',
-            [ExpectedClass.ClassName, E.ClassName]))
+            [AExpectedClass.ClassName, E.ClassName]))
       else
-        CheckTrue(E.InheritsFrom(ExpectedClass),
+        CheckTrue(E.InheritsFrom(AExpectedClass),
           Format('Expected %s (or descendant), but got %s.',
-            [ExpectedClass.ClassName, E.ClassName]));
+            [AExpectedClass.ClassName, E.ClassName]));
 
-      if ExpectedExceptionMessage <> '' then
-        CheckTrue(SameStr(E.Message, ExpectedExceptionMessage),
+      if AExpectedExceptionMessage <> '' then
+        CheckTrue(SameStr(E.Message, AExpectedExceptionMessage),
           Format('Exception message mismatch. Expected: "%s". Actual: "%s".',
-            [ExpectedExceptionMessage, E.Message]));
+            [AExpectedExceptionMessage, E.Message]));
 
-      RaisedException := E; // return the actual exception instance
+      ARaisedException := E; // return the actual exception instance
     end;
   end;
 end;
 
-procedure TSolLibTestCase.AssertException(const Proc: TTestProc;
-  const ExpectedClass: ExceptClass; const ExpectedExceptionMessage: string;
-  ExactTypeMatch: Boolean);
+procedure TSolLibTestCase.AssertException(const AProc: TTestProc;
+  const AExpectedClass: ExceptClass; const AExpectedExceptionMessage: string;
+  AExactTypeMatch: Boolean);
 var
-  Dummy: Exception;
+  LDummy: Exception;
 begin
-  AssertException(Proc, ExpectedClass, ExpectedExceptionMessage, ExactTypeMatch, Dummy);
+  AssertException(AProc, AExpectedClass, AExpectedExceptionMessage, AExactTypeMatch, LDummy);
 end;
 
-procedure TSolLibTestCase.AssertIsInstanceOf(const Obj: TObject; const ClassType: TClass;
-  const Msg: string);
+procedure TSolLibTestCase.AssertIsInstanceOf(const AObj: TObject; const AClassType: TClass;
+  const AMsg: string);
 begin
-    CheckIs(Obj, ClassType, Msg);
+    CheckIs(AObj, AClassType, AMsg);
+end;
+
+function TSolLibTestCase.DecodeHex(const AHex: string): TBytes;
+begin
+  Result := THexEncoder.DecodeData(AHex);
+end;
+
+function TSolLibTestCase.EncodeHex(const AData: TBytes): string;
+begin
+  Result := THexEncoder.EncodeData(AData);
+end;
+
+function TSolLibTestCase.DecodeBase58(const AEncoded: string): TBytes;
+begin
+  Result := TBase58Encoder.DecodeData(AEncoded);
+end;
+
+function TSolLibTestCase.EncodeBase58(const AData: TBytes): string;
+begin
+  Result := TBase58Encoder.EncodeData(AData);
+end;
+
+function TSolLibTestCase.DecodeBase64(const AEncoded: string): TBytes;
+begin
+  Result := TBase64Encoder.DecodeData(AEncoded);
+end;
+
+function TSolLibTestCase.EncodeBase64(const AData: TBytes): string;
+begin
+  Result := TBase64Encoder.EncodeData(AData);
 end;
 
 end.

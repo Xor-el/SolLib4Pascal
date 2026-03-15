@@ -33,7 +33,8 @@ uses
 {$ELSE}
   System.Net.URLClient,
 {$ENDIF}
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
+  SlpEnumUtils,
   SlpRpcModel,
   SlpRpcEnum,
   SlpRpcMessage,
@@ -817,25 +818,25 @@ end;
 
 function TSolanaRpcClient.SendRequest<T>(const AMethod: string): TRequestResult<T>;
 var
-  Req: TJsonRpcRequest;
+  LReq: TJsonRpcRequest;
 begin
-  Req := BuildRequest(AMethod, nil);
+  LReq := BuildRequest(AMethod, nil);
   try
-    Result := SendRequest<T>(Req);
+    Result := SendRequest<T>(LReq);
   finally
-    if Assigned(Req) then Req.Free;
+    if Assigned(LReq) then LReq.Free;
   end;
 end;
 
 function TSolanaRpcClient.SendRequest<T>(const AMethod: string; const AParameters: TList<TValue>): TRequestResult<T>;
 var
-  Req: TJsonRpcRequest;
+  LReq: TJsonRpcRequest;
 begin
-  Req := BuildRequest(AMethod, AParameters);
+  LReq := BuildRequest(AMethod, AParameters);
   try
-    Result := SendRequest<T>(Req);
+    Result := SendRequest<T>(LReq);
   finally
-    if Assigned(Req) then Req.Free;
+    if Assigned(LReq) then LReq.Free;
   end;
 end;
 
@@ -977,9 +978,9 @@ end;
 
 function TSolanaRpcClient.GetBlockProduction(const AIdentity: string; const AFirstSlot, ALastSlot: TNullable<UInt64>; ACommitment: TCommitment): TRequestResult<TResponseValue<TBlockProductionInfo>>;
 var
-  LArgs   : TList<TValue>;
-  LConfig : TDictionary<string, TValue>;
-  LRange  : TDictionary<string, TValue>;
+  LArgs: TList<TValue>;
+  LConfig: TDictionary<string, TValue>;
+  LRange: TDictionary<string, TValue>;
   LRangeKV: TKeyValue;
   LIdentity: TKeyValue;
 begin
@@ -1150,7 +1151,7 @@ end;
 function TSolanaRpcClient.GetInflationReward(const AAddresses: TArray<string>; AEpoch: UInt64; ACommitment: TCommitment): TRequestResult<TObjectList<TInflationReward>>;
 var
   LParams: TList<TValue>;
-  LEpoch : TValue;
+  LEpoch: TValue;
 begin
   if AEpoch > 0 then
     LEpoch := TValue.From<UInt64>(AEpoch)
@@ -1298,9 +1299,9 @@ var
     );
   end;
 
-  function FiltersValue(const Items: TList<TValue>): TValue;
+  function FiltersValue(const AItems: TList<TValue>): TValue;
   begin
-    Result := TValue.From<TArray<TValue>>(Items.ToArray);
+    Result := TValue.From<TArray<TValue>>(AItems.ToArray);
   end;
 
   function DataSliceValue(const ADataSlice: TDataSlice): TValue;
@@ -1316,7 +1317,7 @@ var
   end;
 
 var
-  I: Integer;
+  LI: Integer;
 begin
   LFilters := TList<TValue>.Create;
   try
@@ -1329,8 +1330,8 @@ begin
       );
 
     // Optional memcmp array
-    for I := Low(AMemCmpList) to High(AMemCmpList) do
-      LFilters.Add(MemCmpValue(AMemCmpList[I]));
+    for LI := Low(AMemCmpList) to High(AMemCmpList) do
+      LFilters.Add(MemCmpValue(AMemCmpList[LI]));
 
     LParams := TParameters.Make(
       APubKey,
@@ -1735,15 +1736,15 @@ var
 begin
   case AEncoding of
     TBinaryEncoding.Base58:
-      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+      LEncoded := TBase58Encoder.EncodeData(ATransaction);
 
     TBinaryEncoding.Base64:
-      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+      LEncoded := TBase64Encoder.EncodeData(ATransaction);
 
   else
     raise EArgumentException.CreateFmt(
       'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 
@@ -1805,15 +1806,15 @@ var
 begin
   case AEncoding of
     TBinaryEncoding.Base58:
-      LEncoded := TEncoders.Base58.EncodeData(ATransaction);
+      LEncoded := TBase58Encoder.EncodeData(ATransaction);
 
     TBinaryEncoding.Base64:
-      LEncoded := TEncoders.Base64.EncodeData(ATransaction);
+      LEncoded := TBase64Encoder.EncodeData(ATransaction);
 
   else
     raise EArgumentException.CreateFmt(
       'SimulateTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [GetEnumName(TypeInfo(TBinaryEncoding), Ord(AEncoding))]
+      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 

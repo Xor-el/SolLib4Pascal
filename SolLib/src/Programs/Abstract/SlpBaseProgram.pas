@@ -56,7 +56,7 @@ type
   TBaseProgram = class abstract(TInterfacedObject, IProgram)
   private
     FProgramIdKey: IPublicKey;
-    FProgramName : string;
+    FProgramName: string;
   protected
     /// <summary>
     /// The public key of the program.
@@ -92,7 +92,7 @@ constructor TBaseProgram.Create(const AProgramIdKey: IPublicKey; const AProgramN
 begin
   inherited Create;
   FProgramIdKey := AProgramIdKey;
-  FProgramName  := AProgramName;
+  FProgramName := AProgramName;
 end;
 
 function TBaseProgram.GetProgramIdKey: IPublicKey;

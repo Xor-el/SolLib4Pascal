@@ -30,7 +30,7 @@ uses
   SlpRpcMessage,
   SlpAccount,
   SlpPublicKey,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpTransactionDomain,
   SlpTransactionInstruction,
   SlpTransactionBuilder,
@@ -81,22 +81,22 @@ var
   LTxPopulated: ITransaction;
   LSigPair: ISignaturePubKeyPair;
   LTxDecoded: ITransaction;
-  DerivedAccountPublicKey: IPublicKey;
-  TxIx: ITransactionInstruction;
+  LDerivedAccountPublicKey: IPublicKey;
+  LTxIx: ITransactionInstruction;
 begin
   // 1. Initialize RPC client and wallet
   LRpc := TestNetRpcClient;
   LWallet := TWallet.Create(MnemonicWords);
 
   // Retrieve accounts for this example
-  LOwnerAccount   := LWallet.GetAccountByIndex(0);     // Fee payer / authority
-  LMintAccount    := LWallet.GetAccountByIndex(7000);   // Mint account
+  LOwnerAccount := LWallet.GetAccountByIndex(0);     // Fee payer / authority
+  LMintAccount := LWallet.GetAccountByIndex(7000);   // Mint account
   LInitialAccount := LWallet.GetAccountByIndex(7001);   // Token account
 
   // 2. Fetch recent blockhash and rent-exemption balances
   LBlockhashResult := LRpc.GetLatestBlockHash;
-  LMinRentAcc      := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
-  LMinRentMint     := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
+  LMinRentAcc := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.TokenAccountDataSize);
+  LMinRentMint := LRpc.GetMinimumBalanceForRentExemption(TTokenProgram.MintAccountDataSize);
 
   // Log account info
   Writeln(Format('MinBalanceForRentExemption Account >> %d', [LMinRentAcc.Result]));
@@ -110,7 +110,7 @@ begin
     LOwnerAccount.PublicKey,
     'Some Seed',
     TSystemProgram.ProgramIdKey,
-    DerivedAccountPublicKey
+    LDerivedAccountPublicKey
   );
 
   // 4. Build transaction
@@ -140,7 +140,7 @@ begin
       // 3. Create seed-derived account (fund with rent-exempt lamports)
       .AddInstruction(TSystemProgram.CreateAccountWithSeed(
         LOwnerAccount.PublicKey,
-        DerivedAccountPublicKey,
+        LDerivedAccountPublicKey,
         LOwnerAccount.PublicKey,
         'Some Seed',
         LMinRentAcc.Result,
@@ -150,7 +150,7 @@ begin
 
       // 4. Transfer lamports from derived to owner
       .AddInstruction(TSystemProgram.TransferWithSeed(
-        DerivedAccountPublicKey,
+        LDerivedAccountPublicKey,
         LOwnerAccount.PublicKey,
         'Some Seed',
         TSystemProgram.ProgramIdKey,
@@ -187,7 +187,7 @@ begin
       .CompileMessage;
 
   // 5. Encode message to Base64
-  LBase64Msg := TEncoders.Base64.EncodeData(LMsgData);
+  LBase64Msg := TBase64Encoder.EncodeData(LMsgData);
   Writeln(Format('Message: %s', [LBase64Msg]));
 
   // 6. Sign and populate transaction
@@ -217,26 +217,26 @@ begin
     Writeln(Format('Signer: %s%sSignature: %s',
       [LSigPair.PublicKey.Key,
        TAB,
-       TEncoders.Base58.EncodeData(LSigPair.Signature)]));
+       TBase58Encoder.EncodeData(LSigPair.Signature)]));
 
   // Display instructions and account metadata
-  for TxIx in LTxDecoded.Instructions do
+  for LTxIx in LTxDecoded.Instructions do
   begin
     Writeln(Format('ProgramKey: %s%s%sInstructionData: %s',
-      [TEncoders.Base58.EncodeData(TxIx.ProgramId),
+      [TBase58Encoder.EncodeData(LTxIx.ProgramId),
        NEWLINE,
        TAB,
-       TEncoders.Base64.EncodeData(TxIx.Data)]));
+       TBase64Encoder.EncodeData(LTxIx.Data)]));
 
-    var M: IAccountMeta;
-    for M in TxIx.Keys do
+    var LAccountMeta: IAccountMeta;
+    for LAccountMeta in LTxIx.Keys do
       Writeln(Format('%sAccountMeta: %s%sWritable: %s%sSigner: %s',
         [TAB,
-         M.PublicKey.Key,
+         LAccountMeta.PublicKey.Key,
          TAB,
-         BoolToStr(M.IsWritable, True),
+         BoolToStr(LAccountMeta.IsWritable, True),
          TAB,
-         BoolToStr(M.IsSigner, True)]));
+         BoolToStr(LAccountMeta.IsSigner, True)]));
   end;
 
   // 9. Serialize decoded transaction and simulate again

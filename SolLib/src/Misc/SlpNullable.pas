@@ -24,7 +24,8 @@ interface
 uses
   System.SysUtils,
   System.Generics.Defaults,
-  System.TypInfo;
+  System.TypInfo,
+  SlpEnumUtils;
 
 type
   /// <summary>
@@ -41,44 +42,44 @@ type
     class procedure AssertSupported; static;
 
   public
-    class function Some(const V: T): TNullable<T>; static;
+    class function Some(const AValue: T): TNullable<T>; static;
     class function None: TNullable<T>; static;
 
     function HasValue: Boolean; inline;
     function Value: T;
-    function TryGetValue(out V: T): Boolean; inline;
-    function ValueOrDefault(const DefaultValue: T): T; inline;
+    function TryGetValue(out AValue: T): Boolean; inline;
+    function ValueOrDefault(const ADefaultValue: T): T; inline;
 
     procedure Clear; inline;
 
-    class operator Implicit(const V: T): TNullable<T>;
-    class operator Explicit(const N: TNullable<T>): T;
+    class operator Implicit(const AValue: T): TNullable<T>;
+    class operator Explicit(const ANullable: TNullable<T>): T;
 
-    class operator Equal(const A, B: TNullable<T>): Boolean;
-    class operator NotEqual(const A, B: TNullable<T>): Boolean;
+    class operator Equal(const ALeft, ARight: TNullable<T>): Boolean;
+    class operator NotEqual(const ALeft, ARight: TNullable<T>): Boolean;
 
-    class operator Equal(const A: TNullable<T>; const B: T): Boolean;
-    class operator NotEqual(const A: TNullable<T>; const B: T): Boolean;
-    class operator Equal(const A: T; const B: TNullable<T>): Boolean;
-    class operator NotEqual(const A: T; const B: TNullable<T>): Boolean;
+    class operator Equal(const ALeft: TNullable<T>; const ARight: T): Boolean;
+    class operator NotEqual(const ALeft: TNullable<T>; const ARight: T): Boolean;
+    class operator Equal(const ALeft: T; const ARight: TNullable<T>): Boolean;
+    class operator NotEqual(const ALeft: T; const ARight: TNullable<T>): Boolean;
   end;
 
 implementation
 
 class procedure TNullable<T>.AssertSupported;
 var
-  K: TTypeKind;
+  LK: TTypeKind;
 begin
-  K := PTypeInfo(TypeInfo(T)).Kind;
+  LK := PTypeInfo(TypeInfo(T)).Kind;
 
-  case K of
+  case LK of
     tkInteger, tkInt64, tkEnumeration, tkFloat, tkSet, tkChar, tkWChar, tkRecord:
       Exit; // OK
   else
     raise EInvalidOp.CreateFmt(
       'TNullable<%s> only supports value types (got %s). ' +
       'Disallowed: class/interface/string/dyn array/variant/etc.',
-      [GetTypeName(TypeInfo(T)), GetEnumName(TypeInfo(TTypeKind), Ord(K))]
+      [GetTypeName(TypeInfo(T)), TEnumUtils.ToString<TTypeKind>(LK)]
     );
   end;
 end;
@@ -88,10 +89,10 @@ begin
   AssertSupported; // fires once per T
 end;
 
-class function TNullable<T>.Some(const V: T): TNullable<T>;
+class function TNullable<T>.Some(const AValue: T): TNullable<T>;
 begin
   Result.FHasValue := True;
-  Result.FValue := V;
+  Result.FValue := AValue;
 end;
 
 class function TNullable<T>.None: TNullable<T>;
@@ -112,21 +113,21 @@ begin
   Result := FValue;
 end;
 
-function TNullable<T>.TryGetValue(out V: T): Boolean;
+function TNullable<T>.TryGetValue(out AValue: T): Boolean;
 begin
   Result := FHasValue;
   if Result then
-    V := FValue
+    AValue := FValue
   else
-    V := Default(T);
+    AValue := Default(T);
 end;
 
-function TNullable<T>.ValueOrDefault(const DefaultValue: T): T;
+function TNullable<T>.ValueOrDefault(const ADefaultValue: T): T;
 begin
   if FHasValue then
     Result := FValue
   else
-    Result := DefaultValue;
+    Result := ADefaultValue;
 end;
 
 procedure TNullable<T>.Clear;
@@ -135,51 +136,51 @@ begin
   FValue := Default(T);
 end;
 
-class operator TNullable<T>.Implicit(const V: T): TNullable<T>;
+class operator TNullable<T>.Implicit(const AValue: T): TNullable<T>;
 begin
-  Result := Some(V);
+  Result := Some(AValue);
 end;
 
-class operator TNullable<T>.Explicit(const N: TNullable<T>): T;
+class operator TNullable<T>.Explicit(const ANullable: TNullable<T>): T;
 begin
-  Result := N.Value; // will raise if FHasValue = false
+  Result := ANullable.Value; // will raise if FHasValue = false
 end;
 
-class operator TNullable<T>.Equal(const A, B: TNullable<T>): Boolean;
+class operator TNullable<T>.Equal(const ALeft, ARight: TNullable<T>): Boolean;
 var
-  Cmp: IEqualityComparer<T>;
+  LCmp: IEqualityComparer<T>;
 begin
-  if A.FHasValue <> B.FHasValue then
+  if ALeft.FHasValue <> ARight.FHasValue then
     Exit(False);
-  if not A.FHasValue then
+  if not ALeft.FHasValue then
     Exit(True); // both null
-  Cmp := TEqualityComparer<T>.Default;
-  Result := Cmp.Equals(A.FValue, B.FValue);
+  LCmp := TEqualityComparer<T>.Default;
+  Result := LCmp.Equals(ALeft.FValue, ARight.FValue);
 end;
 
-class operator TNullable<T>.NotEqual(const A, B: TNullable<T>): Boolean;
+class operator TNullable<T>.NotEqual(const ALeft, ARight: TNullable<T>): Boolean;
 begin
-  Result := not (A = B);
+  Result := not (ALeft = ARight);
 end;
 
-class operator TNullable<T>.Equal(const A: TNullable<T>; const B: T): Boolean;
+class operator TNullable<T>.Equal(const ALeft: TNullable<T>; const ARight: T): Boolean;
 begin
-  Result := A.FHasValue and TEqualityComparer<T>.Default.Equals(A.FValue, B);
+  Result := ALeft.FHasValue and TEqualityComparer<T>.Default.Equals(ALeft.FValue, ARight);
 end;
 
-class operator TNullable<T>.NotEqual(const A: TNullable<T>; const B: T): Boolean;
+class operator TNullable<T>.NotEqual(const ALeft: TNullable<T>; const ARight: T): Boolean;
 begin
-  Result := not (A = B);
+  Result := not (ALeft = ARight);
 end;
 
-class operator TNullable<T>.Equal(const A: T; const B: TNullable<T>): Boolean;
+class operator TNullable<T>.Equal(const ALeft: T; const ARight: TNullable<T>): Boolean;
 begin
-  Result := B = A;
+  Result := ARight = ALeft;
 end;
 
-class operator TNullable<T>.NotEqual(const A: T; const B: TNullable<T>): Boolean;
+class operator TNullable<T>.NotEqual(const ALeft: T; const ARight: TNullable<T>): Boolean;
 begin
-  Result := not (A = B);
+  Result := not (ALeft = ARight);
 end;
 
 end.

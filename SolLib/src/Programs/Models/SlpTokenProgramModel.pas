@@ -398,7 +398,7 @@ end;
 class function TMultiSignatureAccount.Deserialize(
   const AData: TBytes): IMultiSignatureAccount;
 var
-  I: Integer;
+  LI: Integer;
   LSigner: IPublicKey;
 begin
   if Length(AData) <> TLayout.Length then
@@ -409,16 +409,16 @@ begin
 
   Result.Signers := TList<IPublicKey>.Create;
 
-  for I := 0 to MaxSigners - 1 do
+  for LI := 0 to MaxSigners - 1 do
   begin
-    LSigner := TDeserialization.GetPubKey(AData, TLayout.SignersOffset + I * TPublicKey.PublicKeyLength);
+    LSigner := TDeserialization.GetPubKey(AData, TLayout.SignersOffset + LI * TPublicKey.PublicKeyLength);
     if not LSigner.Equals(TSystemProgram.ProgramIdKey) then
       Result.Signers.Add(LSigner);
   end;
 
   Result.MinimumSigners := TDeserialization.GetU8(AData, TLayout.MinimumSignersOffset);
-  Result.NumberSigners  := TDeserialization.GetU8(AData, TLayout.NumberSignersOffset);
-  Result.IsInitialized  := TDeserialization.GetBool(AData, TLayout.IsInitializedOffset);
+  Result.NumberSigners := TDeserialization.GetU8(AData, TLayout.NumberSignersOffset);
+  Result.IsInitialized := TDeserialization.GetBool(AData, TLayout.IsInitializedOffset);
 end;
 
 { TTokenAccount }
@@ -511,11 +511,11 @@ begin
 
   Result := TTokenAccount.Create;
 
-  Result.Mint   := TDeserialization.GetPubKey(AData, TLayout.MintOffset);
-  Result.Owner  := TDeserialization.GetPubKey(AData, TLayout.OwnerOffset);
+  Result.Mint := TDeserialization.GetPubKey(AData, TLayout.MintOffset);
+  Result.Owner := TDeserialization.GetPubKey(AData, TLayout.OwnerOffset);
   Result.Amount := TDeserialization.GetU64(AData, TLayout.AmountOffset);
 
-  Result.State           := TTokenAccountState(TDeserialization.GetU8(AData, TLayout.StateOffset));
+  Result.State := TTokenAccountState(TDeserialization.GetU8(AData, TLayout.StateOffset));
   Result.DelegatedAmount := TDeserialization.GetU64(AData, TLayout.DelegatedAmountOffset);
 
   if TDeserialization.GetU32(AData, TLayout.DelegateOptionOffset) = 1 then
@@ -591,8 +591,8 @@ begin
   if TDeserialization.GetU32(AData, TLayout.MintAuthorityOptionOffset) = 1 then
     Result.MintAuthority := TDeserialization.GetPubKey(AData, TLayout.MintAuthorityOffset);
 
-  Result.Supply        := TDeserialization.GetU64(AData, TLayout.SupplyOffset);
-  Result.Decimals      := TDeserialization.GetU8(AData, TLayout.DecimalsOffset);
+  Result.Supply := TDeserialization.GetU64(AData, TLayout.SupplyOffset);
+  Result.Decimals := TDeserialization.GetU8(AData, TLayout.DecimalsOffset);
   Result.IsInitialized := TDeserialization.GetBool(AData, TLayout.IsInitializedOffset);
 
   if TDeserialization.GetU32(AData, TLayout.FreezeAuthorityOptionOffset) = 1 then

@@ -39,24 +39,24 @@ type
     /// Average throughput in the last 10s. Measured in bytes/s.
     /// </summary>
     function GetAverageThroughput10Seconds: UInt64;
-    procedure SetAverageThroughput10Seconds(const Value: UInt64);
+    procedure SetAverageThroughput10Seconds(const AValue: UInt64);
     property AverageThroughput10Seconds: UInt64 read GetAverageThroughput10Seconds write SetAverageThroughput10Seconds;
 
     /// <summary>
     /// Average throughput in the last minute. Measured in bytes/s.
     /// </summary>
     function GetAverageThroughput60Seconds: UInt64;
-    procedure SetAverageThroughput60Seconds(const Value: UInt64);
+    procedure SetAverageThroughput60Seconds(const AValue: UInt64);
     property AverageThroughput60Seconds: UInt64 read GetAverageThroughput60Seconds write SetAverageThroughput60Seconds;
 
     /// <summary>
     /// Total bytes downloaded.
     /// </summary>
     function GetTotalReceivedBytes: UInt64;
-    procedure SetTotalReceivedBytes(const Value: UInt64);
+    procedure SetTotalReceivedBytes(const AValue: UInt64);
     property TotalReceivedBytes: UInt64 read GetTotalReceivedBytes write SetTotalReceivedBytes;
 
-    procedure AddReceived(const Count: UInt32);
+    procedure AddReceived(const ACount: UInt32);
   end;
 
   /// <summary>
@@ -74,15 +74,15 @@ type
     FAverageReceived60s: UInt64;
 
     function GetAverageThroughput10Seconds: UInt64;
-    procedure SetAverageThroughput10Seconds(const Value: UInt64);
+    procedure SetAverageThroughput10Seconds(const AValue: UInt64);
     function GetAverageThroughput60Seconds: UInt64;
-    procedure SetAverageThroughput60Seconds(const Value: UInt64);
+    procedure SetAverageThroughput60Seconds(const AValue: UInt64);
     function GetTotalReceivedBytes: UInt64;
-    procedure SetTotalReceivedBytes(const Value: UInt64);
+    procedure SetTotalReceivedBytes(const AValue: UInt64);
 
-    procedure RemoveOutdatedData(Sender: TObject);
+    procedure RemoveOutdatedData(ASender: TObject);
 
-    procedure AddReceived(const Count: UInt32);
+    procedure AddReceived(const ACount: UInt32);
 
     class function CurrentUnixSeconds: Int64; static;
   public
@@ -133,43 +133,43 @@ begin
   Result := DateTimeToUnix(Now, False);
 end;
 
-procedure TConnectionStatistics.AddReceived(const Count: UInt32);
+procedure TConnectionStatistics.AddReceived(const ACount: UInt32);
 var
-  Secs: Int64;
-  CurrentVal: UInt64;
+  LSecs: Int64;
+  LCurrentVal: UInt64;
 begin
   FLock.Acquire;
   try
-    Secs := CurrentUnixSeconds;
-    Inc(FTotalReceived, Count);
+    LSecs := CurrentUnixSeconds;
+    Inc(FTotalReceived, ACount);
     if not FTicker.IsEnabled then
       FTicker.Enable;
 
-    if FHistoricData.TryGetValue(Secs, CurrentVal) then
-      FHistoricData[Secs] := CurrentVal + Count
+    if FHistoricData.TryGetValue(LSecs, LCurrentVal) then
+      FHistoricData[LSecs] := LCurrentVal + ACount
     else
-      FHistoricData.Add(Secs, Count);
+      FHistoricData.Add(LSecs, ACount);
 
-    Inc(FAverageReceived60s, Count div 60);
-    Inc(FAverageReceived10s, Count div 10);
+    Inc(FAverageReceived60s, ACount div 60);
+    Inc(FAverageReceived10s, ACount div 10);
   finally
     FLock.Release;
   end;
 end;
 
-procedure TConnectionStatistics.RemoveOutdatedData(Sender: TObject);
+procedure TConnectionStatistics.RemoveOutdatedData(ASender: TObject);
 var
-  CurrentSec, OldSec: Int64;
-  Pair: TPair<Int64, UInt64>;
-  Total, TenSecTotal: UInt64;
+  LCurrentSec, LOldSec: Int64;
+  LPair: TPair<Int64, UInt64>;
+  LTotal, LTenSecTotal: UInt64;
 begin
   FLock.Acquire;
   try
-    CurrentSec := CurrentUnixSeconds;
-    OldSec := CurrentSec - 60;
+    LCurrentSec := CurrentUnixSeconds;
+    LOldSec := LCurrentSec - 60;
 
-    if FHistoricData.ContainsKey(OldSec) then
-      FHistoricData.Remove(OldSec);
+    if FHistoricData.ContainsKey(LOldSec) then
+      FHistoricData.Remove(LOldSec);
 
     if FHistoricData.Count = 0 then
     begin
@@ -180,18 +180,18 @@ begin
     end
     else
     begin
-      Total := 0;
-      TenSecTotal := 0;
+      LTotal := 0;
+      LTenSecTotal := 0;
 
-    for Pair in FHistoricData do
+    for LPair in FHistoricData do
     begin
-      Inc(Total, Pair.Value);
-      if Pair.Key > (CurrentSec - 10) then
-        Inc(TenSecTotal, Pair.Value);
+      Inc(LTotal, LPair.Value);
+      if LPair.Key > (LCurrentSec - 10) then
+        Inc(LTenSecTotal, LPair.Value);
     end;
 
-      FAverageReceived60s := Total div 60;
-      FAverageReceived10s := TenSecTotal div 10;
+      FAverageReceived60s := LTotal div 60;
+      FAverageReceived10s := LTenSecTotal div 10;
     end;
   finally
     FLock.Release;
@@ -203,9 +203,9 @@ begin
   Result := FAverageReceived10s;
 end;
 
-procedure TConnectionStatistics.SetAverageThroughput10Seconds(const Value: UInt64);
+procedure TConnectionStatistics.SetAverageThroughput10Seconds(const AValue: UInt64);
 begin
-  FAverageReceived10s := Value;
+  FAverageReceived10s := AValue;
 end;
 
 function TConnectionStatistics.GetAverageThroughput60Seconds: UInt64;
@@ -213,9 +213,9 @@ begin
   Result := FAverageReceived60s;
 end;
 
-procedure TConnectionStatistics.SetAverageThroughput60Seconds(const Value: UInt64);
+procedure TConnectionStatistics.SetAverageThroughput60Seconds(const AValue: UInt64);
 begin
-  FAverageReceived60s := Value;
+  FAverageReceived60s := AValue;
 end;
 
 function TConnectionStatistics.GetTotalReceivedBytes: UInt64;
@@ -223,9 +223,9 @@ begin
   Result := FTotalReceived;
 end;
 
-procedure TConnectionStatistics.SetTotalReceivedBytes(const Value: UInt64);
+procedure TConnectionStatistics.SetTotalReceivedBytes(const AValue: UInt64);
 begin
-  FTotalReceived := Value;
+  FTotalReceived := AValue;
 end;
 
 end.

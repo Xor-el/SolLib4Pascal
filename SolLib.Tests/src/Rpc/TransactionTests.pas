@@ -27,7 +27,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -137,10 +136,10 @@ end;
 
 class function TTransactionTests.GetCraftTransactionTail: TBytes;
 var
-  Full: TBytes;
+  LFull: TBytes;
 begin
-  Full := GetCraftTransactionBytes;
-  Result := TArrayUtils.Slice<Byte>(Full, 193);
+  LFull := GetCraftTransactionBytes;
+  Result := TArrayUtils.Slice<Byte>(LFull, 193);
 end;
 
 procedure TTransactionTests.TransactionDeserializeExceptionTest;
@@ -153,10 +152,10 @@ begin
   AssertException(
     procedure
     var
-      Tx: ITransaction;
+      LTx: ITransaction;
     begin
       // should raise on invalid base64 (base64 length must be divisible by 4)
-      Tx := TTransaction.Deserialize(InvalidBase64Transaction);
+      LTx := TTransaction.Deserialize(InvalidBase64Transaction);
     end,
     Exception
   );
@@ -167,9 +166,9 @@ begin
   AssertException(
     procedure
     var
-      Tx: ITransaction;
+      LTx: ITransaction;
     begin
-      Tx := TTransaction.Deserialize('');
+      LTx := TTransaction.Deserialize('');
     end,
     EArgumentNilException
   );
@@ -183,52 +182,52 @@ const
     'Yh+8xbirWxK1GhRx3i0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGp9UXGSxWjuCKhF9z0peIzwNcMUWyGrNE2AYuqU' +
     'AAABVED1IAMQCS8bANVPk3JwnUUDkIwVnTMaKQLYx1FS5TAgMDAgQABAQAAAADAgABDAIAAAAAypo7AAAAAA==';
 var
-  Tx: ITransaction;
+  LTx: ITransaction;
 begin
-  Tx := TTransaction.Deserialize(Base64Transaction);
+  LTx := TTransaction.Deserialize(Base64Transaction);
 
-  AssertNotNull(Tx);
+  AssertNotNull(LTx);
 
   // Fee payer & blockhash
-  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', Tx.FeePayer.Key);
-  AssertEquals('2S1kjspXLPs6jpNVXQfNMqZzzSrKLbGdr9Fxap5h1DLN', Tx.RecentBlockHash);
+  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', LTx.FeePayer.Key);
+  AssertEquals('2S1kjspXLPs6jpNVXQfNMqZzzSrKLbGdr9Fxap5h1DLN', LTx.RecentBlockHash);
 
   // Signatures
-  AssertEquals(1, Tx.Signatures.Count);
-  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', Tx.Signatures[0].PublicKey.Key);
+  AssertEquals(1, LTx.Signatures.Count);
+  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', LTx.Signatures[0].PublicKey.Key);
   AssertEquals(
     'GAJa8rLiVeTHYTcbwjLmVnxVH986Vwxz4PXDEPaZKz4BEcmv9rvMF2Sw2xLzbu8mwNHA8ZZ6Es5Thf8yQrwjLv9',
-    TEncoders.Base58.EncodeData(Tx.Signatures[0].Signature)
+    EncodeBase58(LTx.Signatures[0].Signature)
   );
 
   // This is 1 because the transaction uses durable nonce.
-  AssertEquals(1, Tx.Instructions.Count);
-  AssertEquals('2S1kjspXLPs6jpNVXQfNMqZzzSrKLbGdr9Fxap5h1DLN', Tx.NonceInformation.Nonce);
-  AssertEquals(3, Tx.NonceInformation.Instruction.Keys.Count);
-  AssertEquals('11111111111111111111111111111111', TEncoders.Base58.EncodeData(Tx.NonceInformation.Instruction.ProgramId));
-  AssertEquals('G5EWCBwDM5GzVNwrG9LbgpTdQBD9PEAaey82ttuJJ7Qo', Tx.NonceInformation.Instruction.Keys[0].PublicKey.Key);
-  AssertTrue(Tx.NonceInformation.Instruction.Keys[0].IsWritable);
-  AssertFalse(Tx.NonceInformation.Instruction.Keys[0].IsSigner);
+  AssertEquals(1, LTx.Instructions.Count);
+  AssertEquals('2S1kjspXLPs6jpNVXQfNMqZzzSrKLbGdr9Fxap5h1DLN', LTx.NonceInformation.Nonce);
+  AssertEquals(3, LTx.NonceInformation.Instruction.Keys.Count);
+  AssertEquals('11111111111111111111111111111111', EncodeBase58(LTx.NonceInformation.Instruction.ProgramId));
+  AssertEquals('G5EWCBwDM5GzVNwrG9LbgpTdQBD9PEAaey82ttuJJ7Qo', LTx.NonceInformation.Instruction.Keys[0].PublicKey.Key);
+  AssertTrue(LTx.NonceInformation.Instruction.Keys[0].IsWritable);
+  AssertFalse(LTx.NonceInformation.Instruction.Keys[0].IsSigner);
 
-  AssertEquals(TSysVars.RecentBlockHashesKey.Key, Tx.NonceInformation.Instruction.Keys[1].PublicKey.Key);
-  AssertFalse(Tx.NonceInformation.Instruction.Keys[1].IsWritable);
-  AssertFalse(Tx.NonceInformation.Instruction.Keys[1].IsSigner);
+  AssertEquals(TSysVars.RecentBlockHashesKey.Key, LTx.NonceInformation.Instruction.Keys[1].PublicKey.Key);
+  AssertFalse(LTx.NonceInformation.Instruction.Keys[1].IsWritable);
+  AssertFalse(LTx.NonceInformation.Instruction.Keys[1].IsSigner);
 
-  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', Tx.NonceInformation.Instruction.Keys[2].PublicKey.Key);
-  AssertTrue(Tx.NonceInformation.Instruction.Keys[2].IsWritable);
-  AssertTrue(Tx.NonceInformation.Instruction.Keys[2].IsSigner);
-  AssertEquals('BAAAAA==', TEncoders.Base64.EncodeData(Tx.NonceInformation.Instruction.Data));
+  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', LTx.NonceInformation.Instruction.Keys[2].PublicKey.Key);
+  AssertTrue(LTx.NonceInformation.Instruction.Keys[2].IsWritable);
+  AssertTrue(LTx.NonceInformation.Instruction.Keys[2].IsSigner);
+  AssertEquals('BAAAAA==', EncodeBase64(LTx.NonceInformation.Instruction.Data));
 
   // Nonce-unrelated instruction
-  AssertEquals(2, Tx.Instructions[0].Keys.Count);
-  AssertEquals('11111111111111111111111111111111', TEncoders.Base58.EncodeData(Tx.Instructions[0].ProgramId));
-  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', Tx.Instructions[0].Keys[0].PublicKey.Key);
-  AssertTrue(Tx.Instructions[0].Keys[0].IsWritable);
-  AssertTrue(Tx.Instructions[0].Keys[0].IsSigner);
-  AssertEquals('9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', Tx.Instructions[0].Keys[1].PublicKey.Key);
-  AssertTrue(Tx.Instructions[0].Keys[1].IsWritable);
-  AssertFalse(Tx.Instructions[0].Keys[1].IsSigner);
-  AssertEquals('AgAAAADKmjsAAAAA', TEncoders.Base64.EncodeData(Tx.Instructions[0].Data));
+  AssertEquals(2, LTx.Instructions[0].Keys.Count);
+  AssertEquals('11111111111111111111111111111111', EncodeBase58(LTx.Instructions[0].ProgramId));
+  AssertEquals('5omQJtDUHA3gMFdHEQg1zZSvcBUVzey5WaKWYRmqF1Vj', LTx.Instructions[0].Keys[0].PublicKey.Key);
+  AssertTrue(LTx.Instructions[0].Keys[0].IsWritable);
+  AssertTrue(LTx.Instructions[0].Keys[0].IsSigner);
+  AssertEquals('9we6kjtbcZ2vy3GSLLsZTEhbAqXPTRvEyoxa8wxSqKp5', LTx.Instructions[0].Keys[1].PublicKey.Key);
+  AssertTrue(LTx.Instructions[0].Keys[1].IsWritable);
+  AssertFalse(LTx.Instructions[0].Keys[1].IsSigner);
+  AssertEquals('AgAAAADKmjsAAAAA', EncodeBase64(LTx.Instructions[0].Data));
 end;
 
 procedure TTransactionTests.PopulateTest;
@@ -242,177 +241,177 @@ const
     '6g/sMruF/eGjx4HTlIVgaDYnZQ3napltxeyAwIAATQAAAAA8B0fAAAAAAClAAAAAAAAAAbd9uHXZaGT2cvhRs7reawctIXtX1' +
     's3kTqM9YV+/wCpBgQBAgAFAQEGAwIBAAkHQEIPAAAAAAAEAQERSGVsbG8gZnJvbSBTb2xMaWI=';
 var
-  Tx: ITransaction;
-  SigList: TList<TBytes>;
-  TxBytes: TBytes;
+  LTx: ITransaction;
+  LSigList: TList<TBytes>;
+  LTxBytes: TBytes;
 begin
-  SigList := TList<TBytes>.Create;
+  LSigList := TList<TBytes>.Create;
   try
-    SigList.Add(TEncoders.Base58.DecodeData('5vjECoK7kVSJ1MvYuZtyDAmYZxh8ZRbwyFtr4JGsUzTiaPqEbfTTMJqYsBUNLWqQnvytFxm7A2Gw32p3sFBqznzh'));
-    SigList.Add(TEncoders.Base58.DecodeData('cDJQq6WQMiX2bMpam2btyuRwCtNLRF778UsjWpQqX3DHdr8nUTog8CGwanGHDQMzpuW3iDQx1mkR6dBzNDJNLpX'));
-    SigList.Add(TEncoders.Base58.DecodeData('5kFMN7jNmPtnZfUidcCVYaDiRqFV1Wz3wA7cya8CXmAyDoMiGQqiZpUbDas6q2jmiMfizBpe6oDbqKgUvCCNn9iX'));
+    LSigList.Add(DecodeBase58('5vjECoK7kVSJ1MvYuZtyDAmYZxh8ZRbwyFtr4JGsUzTiaPqEbfTTMJqYsBUNLWqQnvytFxm7A2Gw32p3sFBqznzh'));
+    LSigList.Add(DecodeBase58('cDJQq6WQMiX2bMpam2btyuRwCtNLRF778UsjWpQqX3DHdr8nUTog8CGwanGHDQMzpuW3iDQx1mkR6dBzNDJNLpX'));
+    LSigList.Add(DecodeBase58('5kFMN7jNmPtnZfUidcCVYaDiRqFV1Wz3wA7cya8CXmAyDoMiGQqiZpUbDas6q2jmiMfizBpe6oDbqKgUvCCNn9iX'));
 
-    Tx := TTransaction.Populate(Base64Message, SigList.ToArray());
-    TxBytes := Tx.Serialize;
-    AssertEquals(TxBytes, GetCraftTransactionBytes, 'Populate() serialized bytes mismatch');
+    LTx := TTransaction.Populate(Base64Message, LSigList.ToArray());
+    LTxBytes := LTx.Serialize;
+    AssertEquals(LTxBytes, GetCraftTransactionBytes, 'Populate() serialized bytes mismatch');
   finally
-    SigList.Free;
+    LSigList.Free;
   end;
 end;
 
 procedure TTransactionTests.CompileMessageTest;
 var
-  Msg: IMessage;
-  Tx: ITransaction;
-  OutBytes: TBytes;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LOutBytes: TBytes;
 begin
-  Msg := TMessage.Deserialize(GetCompiledMessageBytes);
-  Tx := TTransaction.Populate(Msg);
+  LMsg := TMessage.Deserialize(GetCompiledMessageBytes);
+  LTx := TTransaction.Populate(LMsg);
 
-  OutBytes := Tx.CompileMessage;
-  AssertEquals(OutBytes, GetCompiledMessageBytes, 'CompileMessage mismatch');
+  LOutBytes := LTx.CompileMessage;
+  AssertEquals(LOutBytes, GetCompiledMessageBytes, 'CompileMessage mismatch');
 end;
 
 procedure TTransactionTests.SignTest;
 var
-  Wallet: IWallet;
-  Owner: IAccount;
-  Msg: IMessage;
-  Tx: ITransaction;
-  TxBytes: TBytes;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Owner := Wallet.GetAccountByIndex(10);
-  Msg := TMessage.Deserialize(GetCompiledMessageBytes);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMsg := TMessage.Deserialize(GetCompiledMessageBytes);
 
-  Tx := TTransaction.Populate(Msg);
-  AssertTrue(Tx.Sign(Owner), 'Sign should succeed');
-  TxBytes := Tx.Serialize;
-  AssertEquals(TxBytes, GetCompiledAndSignedBytes, 'Signed bytes mismatch');
+  LTx := TTransaction.Populate(LMsg);
+  AssertTrue(LTx.Sign(LOwner), 'Sign should succeed');
+  LTxBytes := LTx.Serialize;
+  AssertEquals(LTxBytes, GetCompiledAndSignedBytes, 'Signed bytes mismatch');
 end;
 
 procedure TTransactionTests.BuildTest;
 var
-  Wallet: IWallet;
-  Owner: IAccount;
-  Msg: IMessage;
-  Tx: ITransaction;
-  TxBytes: TBytes;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LTxBytes: TBytes;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Owner := Wallet.GetAccountByIndex(10);
-  Msg := TMessage.Deserialize(GetCompiledMessageBytes);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMsg := TMessage.Deserialize(GetCompiledMessageBytes);
 
-  Tx := TTransaction.Populate(Msg);
-  TxBytes := Tx.Build(Owner);
-  AssertEquals(TxBytes, GetCompiledAndSignedBytes, 'Build bytes mismatch');
+  LTx := TTransaction.Populate(LMsg);
+  LTxBytes := LTx.Build(LOwner);
+  AssertEquals(LTxBytes, GetCompiledAndSignedBytes, 'Build bytes mismatch');
 end;
 
 procedure TTransactionTests.AddSignatureTest;
 var
-  Wallet: IWallet;
-  Owner: IAccount;
-  Msg: IMessage;
-  Tx: ITransaction;
-  Sig: TBytes;
-  TxBytes: TBytes;
+  LWallet: IWallet;
+  LOwner: IAccount;
+  LMsg: IMessage;
+  LTx: ITransaction;
+  LSig: TBytes;
+  LTxBytes: TBytes;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  Owner := Wallet.GetAccountByIndex(10);
-  Msg := TMessage.Deserialize(GetCompiledMessageBytes);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMsg := TMessage.Deserialize(GetCompiledMessageBytes);
 
-  Tx := TTransaction.Populate(Msg);
-  Sig := Owner.Sign(Tx.CompileMessage);
-  Tx.AddSignature(Owner.PublicKey, Sig);
-  TxBytes := Tx.Serialize;
-  AssertEquals(TxBytes, GetCompiledAndSignedBytes, 'AddSignature bytes mismatch');
+  LTx := TTransaction.Populate(LMsg);
+  LSig := LOwner.Sign(LTx.CompileMessage);
+  LTx.AddSignature(LOwner.PublicKey, LSig);
+  LTxBytes := LTx.Serialize;
+  AssertEquals(LTxBytes, GetCompiledAndSignedBytes, 'AddSignature bytes mismatch');
 end;
 
 
 procedure TTransactionTests.AddInstructionsTest;
 var
-  Wallet: IWallet;
-  Owner, Mint, Initial: IAccount;
-  Tx: ITransaction;
-  TxBytes, ExpectedTail: TBytes;
+  LWallet: IWallet;
+  LOwner, LMint, LInitial: IAccount;
+  LTx: ITransaction;
+  LTxBytes, LExpectedTail: TBytes;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  Owner   := Wallet.GetAccountByIndex(10);
-  Mint    := Wallet.GetAccountByIndex(1002);
-  Initial := Wallet.GetAccountByIndex(1102);
-  Tx      := TTransaction.Create;
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(1002);
+  LInitial := LWallet.GetAccountByIndex(1102);
+  LTx := TTransaction.Create;
 
-  Tx.FeePayer        := Owner.PublicKey;
-  Tx.RecentBlockHash := 'EtLZEUfN1sSsaHRzTtrGW6N62hagTXjc5jokiWqZ9qQ3';
+  LTx.FeePayer := LOwner.PublicKey;
+  LTx.RecentBlockHash := 'EtLZEUfN1sSsaHRzTtrGW6N62hagTXjc5jokiWqZ9qQ3';
 
-  TxBytes := Tx
+  LTxBytes := LTx
     .Add(TSystemProgram.CreateAccount(
-      Owner.PublicKey, Mint.PublicKey, 1461600, TTokenProgram.MintAccountDataSize, TTokenProgram.ProgramIdKey))
+      LOwner.PublicKey, LMint.PublicKey, 1461600, TTokenProgram.MintAccountDataSize, TTokenProgram.ProgramIdKey))
     .Add(TTokenProgram.InitializeMint(
-      Mint.PublicKey, 2, Owner.PublicKey, Owner.PublicKey))
+      LMint.PublicKey, 2, LOwner.PublicKey, LOwner.PublicKey))
     .Add(TSystemProgram.CreateAccount(
-      Owner.PublicKey, Initial.PublicKey, 2039280, TTokenProgram.TokenAccountDataSize, TTokenProgram.ProgramIdKey))
+      LOwner.PublicKey, LInitial.PublicKey, 2039280, TTokenProgram.TokenAccountDataSize, TTokenProgram.ProgramIdKey))
     .Add(TTokenProgram.InitializeAccount(
-      Initial.PublicKey, Mint.PublicKey, Owner.PublicKey))
+      LInitial.PublicKey, LMint.PublicKey, LOwner.PublicKey))
     .Add(TTokenProgram.MintTo(
-      Mint.PublicKey, Initial.PublicKey, 1000000, Owner.PublicKey))
-    .Add(TMemoProgram.NewMemo(Initial.PublicKey, 'Hello from SolLib'))
+      LMint.PublicKey, LInitial.PublicKey, 1000000, LOwner.PublicKey))
+    .Add(TMemoProgram.NewMemo(LInitial.PublicKey, 'Hello from SolLib'))
     .CompileMessage;
 
-  ExpectedTail := GetCraftTransactionTail;
-  AssertEquals(TxBytes, ExpectedTail, 'Compiled message tail mismatch');
+  LExpectedTail := GetCraftTransactionTail;
+  AssertEquals(LTxBytes, LExpectedTail, 'Compiled message tail mismatch');
 end;
 
 
 procedure TTransactionTests.PartialSignTest;
 var
-  Wallet: IWallet;
-  Owner, Mint, Initial: IAccount;
-  Tx: ITransaction;
-  MsgBytes, Serialized: TBytes;
-  Signers: TList<IAccount>;
+  LWallet: IWallet;
+  LOwner, LMint, LInitial: IAccount;
+  LTx: ITransaction;
+  LMsgBytes, LSerialized: TBytes;
+  LSigners: TList<IAccount>;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
+  LWallet := TWallet.Create(MnemonicWords);
 
-  Owner   := Wallet.GetAccountByIndex(10);
-  Mint    := Wallet.GetAccountByIndex(1002);
-  Initial := Wallet.GetAccountByIndex(1102);
-  Tx      := TTransaction.Create;
+  LOwner := LWallet.GetAccountByIndex(10);
+  LMint := LWallet.GetAccountByIndex(1002);
+  LInitial := LWallet.GetAccountByIndex(1102);
+  LTx := TTransaction.Create;
 
-  Tx.FeePayer        := Owner.PublicKey;
-  Tx.RecentBlockHash := 'EtLZEUfN1sSsaHRzTtrGW6N62hagTXjc5jokiWqZ9qQ3';
+  LTx.FeePayer := LOwner.PublicKey;
+  LTx.RecentBlockHash := 'EtLZEUfN1sSsaHRzTtrGW6N62hagTXjc5jokiWqZ9qQ3';
 
-  MsgBytes := Tx
+  LMsgBytes := LTx
     .Add(TSystemProgram.CreateAccount(
-      Owner.PublicKey, Mint.PublicKey, 1461600, TTokenProgram.MintAccountDataSize, TTokenProgram.ProgramIdKey))
+      LOwner.PublicKey, LMint.PublicKey, 1461600, TTokenProgram.MintAccountDataSize, TTokenProgram.ProgramIdKey))
     .Add(TTokenProgram.InitializeMint(
-      Mint.PublicKey, 2, Owner.PublicKey, Owner.PublicKey))
+      LMint.PublicKey, 2, LOwner.PublicKey, LOwner.PublicKey))
     .Add(TSystemProgram.CreateAccount(
-      Owner.PublicKey, Initial.PublicKey, 2039280, TTokenProgram.TokenAccountDataSize, TTokenProgram.ProgramIdKey))
+      LOwner.PublicKey, LInitial.PublicKey, 2039280, TTokenProgram.TokenAccountDataSize, TTokenProgram.ProgramIdKey))
     .Add(TTokenProgram.InitializeAccount(
-      Initial.PublicKey, Mint.PublicKey, Owner.PublicKey))
+      LInitial.PublicKey, LMint.PublicKey, LOwner.PublicKey))
     .Add(TTokenProgram.MintTo(
-      Mint.PublicKey, Initial.PublicKey, 1000000, Owner.PublicKey))
-    .Add(TMemoProgram.NewMemo(Initial.PublicKey, 'Hello from SolLib'))
+      LMint.PublicKey, LInitial.PublicKey, 1000000, LOwner.PublicKey))
+    .Add(TMemoProgram.NewMemo(LInitial.PublicKey, 'Hello from SolLib'))
     .CompileMessage;
 
   // partial sign
-  Signers := TList<IAccount>.Create;
+  LSigners := TList<IAccount>.Create;
   try
-    Signers.AddRange([Owner, Owner]);
-    Tx.PartialSign(Signers);
+    LSigners.AddRange([LOwner, LOwner]);
+    LTx.PartialSign(LSigners);
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 
-  Tx.PartialSign(Mint);
+  LTx.PartialSign(LMint);
 
   // final signature
-  Tx.AddSignature(Initial.PublicKey, Initial.Sign(MsgBytes));
+  LTx.AddSignature(LInitial.PublicKey, LInitial.Sign(LMsgBytes));
 
-  Serialized := Tx.Serialize;
-  AssertEquals(Serialized, GetCraftTransactionBytes, 'PartialSign serialized bytes mismatch');
+  LSerialized := LTx.Serialize;
+  AssertEquals(LSerialized, GetCraftTransactionBytes, 'PartialSign serialized bytes mismatch');
 end;
 
 initialization

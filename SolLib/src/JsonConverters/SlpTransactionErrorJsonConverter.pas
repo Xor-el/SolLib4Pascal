@@ -30,31 +30,43 @@ uses
   System.JSON.Writers,
   System.JSON.Serializers,
   SlpRpcEnum,
-  SlpNullable;
+  SlpNullable,
+  SlpBaseJsonConverter;
 
 type
   /// <summary>
   /// Converts a TransactionError from json into its model representation.
   /// </summary>
-  TTransactionErrorJsonConverter = class(TJsonConverter)
+  TTransactionErrorJsonConverter = class(TBaseJsonConverter)
   public
+    /// <summary>
+    /// Returns True when ATypeInf matches TTransactionError.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
+    /// <summary>
+    /// Deserializes a TTransactionError from a JSON reader.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+    /// <summary>
+    /// Serializes a TTransactionError to a JSON writer.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
   end;
 
+const
+  SUnexpectedErrorValue = 'Unexpected error value.';
+
 implementation
 
 uses
+  SlpEnumUtils,
   SlpRpcModel;
 
 { TTransactionErrorJsonConverter }
 
-function TTransactionErrorJsonConverter.CanConvert(ATypeInf: PTypeInfo)
-  : Boolean;
+function TTransactionErrorJsonConverter.CanConvert(ATypeInf: PTypeInfo): Boolean;
 begin
   Result := ATypeInf = TypeInfo(TTransactionError);
 end;
@@ -62,132 +74,127 @@ end;
 function TTransactionErrorJsonConverter.ReadJson(const AReader: TJsonReader;
   ATypeInf: PTypeInfo; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
-
-  function TryParseEnum(const AType: PTypeInfo; const S: string;
-    out OrdVal: Integer): Boolean;
-  begin
-    OrdVal := GetEnumValue(AType, S);
-    Result := OrdVal >= 0;
-  end;
-
 var
-  Err: TTransactionError;
-  EnumOrd: Integer;
-  EnumStr: string;
+  LErr: TTransactionError;
+  LEnumStr: string;
+  LErrType: TTransactionErrorType;
+  LInstrType: TInstructionErrorType;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Exit(nil);
 
-  Err := TTransactionError.Create;
-
-  if AReader.TokenType = TJsonToken.&String then
-  begin
-    EnumStr := AReader.Value.AsString;
-    if TryParseEnum(TypeInfo(TTransactionErrorType), EnumStr, EnumOrd) then
-      Err.&Type := TTransactionErrorType(EnumOrd);
-    Exit(Err);
-  end;
-
-  if AReader.TokenType <> TJsonToken.StartObject then
-    raise EJsonException.Create('Unexpected error value.');
-
-  AReader.Read;
-
-  if AReader.TokenType <> TJsonToken.PropertyName then
-    raise EJsonException.Create('Unexpected error value.');
-
-  begin
-    EnumStr := AReader.Value.AsString;
-    if TryParseEnum(TypeInfo(TTransactionErrorType), EnumStr, EnumOrd) then
-      Err.&Type := TTransactionErrorType(EnumOrd);
-  end;
-
-  if Err.&Type = TTransactionErrorType.InstructionError then
-  begin
-    AReader.Read;
-    Err.InstructionError := TInstructionError.Create;
-
-    if AReader.TokenType <> TJsonToken.StartArray then
-      raise EJsonException.Create('Unexpected error value.');
-
-    AReader.Read;
-
-    if AReader.TokenType <> TJsonToken.&Integer then
-      raise EJsonException.Create('Unexpected error value.');
-
-    Err.InstructionError.InstructionIndex := AReader.Value.AsInteger;
-
-    AReader.Read;
-
+  LErr := TTransactionError.Create;
+  try
     if AReader.TokenType = TJsonToken.&String then
     begin
-      EnumStr := AReader.Value.AsString;
-      if TryParseEnum(TypeInfo(TInstructionErrorType), EnumStr, EnumOrd) then
-        Err.InstructionError.&Type := TInstructionErrorType(EnumOrd);
-      AReader.Read; // string
-      AReader.Read; // endarray
-      Exit(Err);
+      LEnumStr := AReader.Value.AsString;
+      if TEnumUtils.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
+        LErr.&Type := LErrType;
+      Exit(LErr);
     end;
 
     if AReader.TokenType <> TJsonToken.StartObject then
-      raise EJsonException.Create('Unexpected error value.');
+      raise EJsonException.Create(SUnexpectedErrorValue);
 
     AReader.Read;
 
     if AReader.TokenType <> TJsonToken.PropertyName then
-      raise EJsonException.Create('Unexpected error value.');
+      raise EJsonException.Create(SUnexpectedErrorValue);
 
-    EnumStr := AReader.Value.AsString;
-    if TryParseEnum(TypeInfo(TInstructionErrorType), EnumStr, EnumOrd) then
-      Err.InstructionError.&Type := TInstructionErrorType(EnumOrd);
+    LEnumStr := AReader.Value.AsString;
+    if TEnumUtils.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
+      LErr.&Type := LErrType;
 
-    AReader.Read;
-
-    if (AReader.TokenType = TJsonToken.&Integer) or
-      (AReader.TokenType = TJsonToken.Null) then
+    if LErr.&Type = TTransactionErrorType.InstructionError then
     begin
-      case AReader.TokenType of
-        TJsonToken.&Integer:
-          Err.InstructionError.CustomError := UInt32(AReader.Value.AsUInt64);
+      AReader.Read;
+      LErr.InstructionError := TInstructionError.Create;
 
-        TJsonToken.Null:
-          Err.InstructionError.CustomError := TNullable<UInt32>.None;
+      if AReader.TokenType <> TJsonToken.StartArray then
+        raise EJsonException.Create(SUnexpectedErrorValue);
+
+      AReader.Read;
+
+      if AReader.TokenType <> TJsonToken.&Integer then
+        raise EJsonException.Create(SUnexpectedErrorValue);
+
+      LErr.InstructionError.InstructionIndex := AReader.Value.AsInteger;
+
+      AReader.Read;
+
+      if AReader.TokenType = TJsonToken.&String then
+      begin
+        LEnumStr := AReader.Value.AsString;
+        if TEnumUtils.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
+          LErr.InstructionError.&Type := LInstrType;
+        AReader.Read; // string
+        AReader.Read; // endarray
+        Exit(LErr);
       end;
+
+      if AReader.TokenType <> TJsonToken.StartObject then
+        raise EJsonException.Create(SUnexpectedErrorValue);
+
+      AReader.Read;
+
+      if AReader.TokenType <> TJsonToken.PropertyName then
+        raise EJsonException.Create(SUnexpectedErrorValue);
+
+      LEnumStr := AReader.Value.AsString;
+      if TEnumUtils.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
+        LErr.InstructionError.&Type := LInstrType;
+
+      AReader.Read;
+
+      if (AReader.TokenType = TJsonToken.&Integer) or
+        (AReader.TokenType = TJsonToken.Null) then
+      begin
+        case AReader.TokenType of
+          TJsonToken.&Integer:
+            LErr.InstructionError.CustomError := UInt32(AReader.Value.AsUInt64);
+
+          TJsonToken.Null:
+            LErr.InstructionError.CustomError := TNullable<UInt32>.None;
+        end;
+        AReader.Read; // number
+        AReader.Read; // endobj
+        AReader.Read; // endarray
+        Exit(LErr);
+      end;
+
+      if AReader.TokenType <> TJsonToken.&String then
+        raise EJsonException.Create(SUnexpectedErrorValue);
+
+      LErr.InstructionError.BorshIoError := AReader.Value.AsString;
+
       AReader.Read; // number
       AReader.Read; // endobj
       AReader.Read; // endarray
-      Exit(Err);
+    end
+    else
+    begin
+      AReader.Read; // startobj details
+      AReader.Read; // details property name
+      AReader.Read; // details property value
+      AReader.Read; // endobj details
+      AReader.Read; // endobj
+      Exit(LErr);
     end;
 
-    if AReader.TokenType <> TJsonToken.&String then
-      raise EJsonException.Create('Unexpected error value.');
-
-    Err.InstructionError.BorshIoError := AReader.Value.AsString;
-
-    AReader.Read; // number
-    AReader.Read; // endobj
-    AReader.Read; // endarray
-  end
-  else
-  begin
-    AReader.Read; // startobj details
-    AReader.Read; // details property name
-    AReader.Read; // details property value
-    AReader.Read; // endobj details
-    AReader.Read; // endobj
-    Exit(Err);
+    Result := LErr;
+  except
+    LErr.Free;
+    raise;
   end;
-
-  Result := Err;
 end;
 
 procedure TTransactionErrorJsonConverter.WriteJson(
   const AWriter: TJsonWriter; const AValue: TValue; const ASerializer: TJsonSerializer);
 var
-  Err: TTransactionError;
-  Instr: TInstructionError;
-  ErrTypeName: string;
-  InstrTypeName: string;
+  LErr: TTransactionError;
+  LInstr: TInstructionError;
+  LErrTypeName: string;
+  LInstrTypeName: string;
 begin
   // Null writer
   if AValue.IsEmpty then
@@ -200,24 +207,24 @@ begin
   if not AValue.IsType<TTransactionError> then
     raise EJsonSerializationException.Create('TTransactionErrorJsonConverter: expected TTransactionError');
 
-  Err := AValue.AsType<TTransactionError>;
-  if Err = nil then
+  LErr := AValue.AsType<TTransactionError>;
+  if LErr = nil then
   begin
     AWriter.WriteNull;
     Exit;
   end;
 
   // If not InstructionError, serialize as a simple string (enum name).
-  if Err.&Type <> TTransactionErrorType.InstructionError then
+  if LErr.&Type <> TTransactionErrorType.InstructionError then
   begin
-    ErrTypeName := GetEnumName(TypeInfo(TTransactionErrorType), Ord(Err.&Type));
-    AWriter.WriteValue(ErrTypeName);
+    LErrTypeName := TEnumUtils.ToString<TTransactionErrorType>(LErr.&Type);
+    AWriter.WriteValue(LErrTypeName);
     Exit;
   end;
 
   // InstructionError -> {"InstructionError": [ index, <payload> ]}
-  Instr := Err.InstructionError;
-  if Instr = nil then
+  LInstr := LErr.InstructionError;
+  if LInstr = nil then
   begin
     // Defensive: still emit a valid shape with nulls if model is incomplete
     AWriter.WriteStartObject;
@@ -230,7 +237,7 @@ begin
     Exit;
   end;
 
-  InstrTypeName := GetEnumName(TypeInfo(TInstructionErrorType), Ord(Instr.&Type));
+  LInstrTypeName := TEnumUtils.ToString<TInstructionErrorType>(LInstr.&Type);
 
   AWriter.WriteStartObject;
   AWriter.WritePropertyName('InstructionError');
@@ -238,32 +245,31 @@ begin
 
   // First array element: instruction index
   // Use the property name you set in ReadJson (InstructionIndex)
-  AWriter.WriteValue(Instr.InstructionIndex);
+  AWriter.WriteValue(LInstr.InstructionIndex);
 
   // Second array element:
   // Choose between { "<Enum>": <int/null|string> } or "<Enum>" (string)
-  if (Instr.&Type = TInstructionErrorType.Custom) then
+  if (LInstr.&Type = TInstructionErrorType.Custom) then
   begin
     AWriter.WriteStartObject;
-    AWriter.WritePropertyName(InstrTypeName);
-    if Instr.CustomError.HasValue then
-      AWriter.WriteValue(Instr.CustomError.Value)
+    AWriter.WritePropertyName(LInstrTypeName);
+    if LInstr.CustomError.HasValue then
+      AWriter.WriteValue(LInstr.CustomError.Value)
     else
       AWriter.WriteNull;
     AWriter.WriteEndObject;
   end
-  else if (Instr.&Type = TInstructionErrorType.BorshIoError) or
-          (Instr.BorshIoError <> '') then
+  else if (LInstr.&Type = TInstructionErrorType.BorshIoError) or (LInstr.BorshIoError <> '') then
   begin
     AWriter.WriteStartObject;
-    AWriter.WritePropertyName(InstrTypeName);
-    AWriter.WriteValue(Instr.BorshIoError);
+    AWriter.WritePropertyName(LInstrTypeName);
+    AWriter.WriteValue(LInstr.BorshIoError);
     AWriter.WriteEndObject;
   end
   else
   begin
     // Simple case: just the enum name as string
-    AWriter.WriteValue(InstrTypeName);
+    AWriter.WriteValue(LInstrTypeName);
   end;
 
   AWriter.WriteEndArray;   // ]

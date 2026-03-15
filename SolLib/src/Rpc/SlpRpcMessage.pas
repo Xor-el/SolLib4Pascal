@@ -262,15 +262,15 @@ end;
 
 destructor TResponseValue<T>.Destroy;
 var
-  V: TValue;
+  LV: TValue;
 begin
  if Assigned(FContext) then
    FContext.Free;
 
-  V := TValue.From<T>(FValue);
+  LV := TValue.From<T>(FValue);
 
- if not V.IsEmpty then
-   TValueUtils.FreeParameter(V);
+ if not LV.IsEmpty then
+   TValueUtils.FreeParameter(LV);
 
   inherited;
 end;
@@ -342,15 +342,15 @@ end;
 
 function TJsonRpcBatchResponseItem.GetResultTypeRtti: TRttiType;
 var
-  Ctx: TRttiContext;
+  LCtx: TRttiContext;
 begin
   if FResultType = nil then
     Exit(nil);
-  Ctx := TRttiContext.Create;
+  LCtx := TRttiContext.Create;
   try
-    Result := Ctx.GetType(FResultType);
+    Result := LCtx.GetType(FResultType);
   finally
-    Ctx.Free;
+    LCtx.Free;
   end;
 end;
 
@@ -366,17 +366,17 @@ end;
 
 destructor TJsonRpcResponse<T>.Destroy;
 var
-  V: TValue;
-  Obj: TObject;
+  LV: TValue;
+  LObj: TObject;
 begin
-  V := TValue.From<T>(FResult);
+  LV := TValue.From<T>(FResult);
 
-  if V.IsObject then
+  if LV.IsObject then
   begin
-    Obj := V.AsObject;
-    if Assigned(Obj) then
-      Obj.Free;
-    V := TValue.Empty;
+    LObj := LV.AsObject;
+    if Assigned(LObj) then
+      LObj.Free;
+    LV := TValue.Empty;
   end;
   inherited;
 end;

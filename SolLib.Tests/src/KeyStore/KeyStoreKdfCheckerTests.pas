@@ -41,22 +41,22 @@ implementation
 
 procedure TKeyStoreKdfCheckerTests.TestInvalidKdf;
 var
-  sut: TSecretKeyStoreService;
-  json: string;
+  LSut: TSecretKeyStoreService;
+  LJson: string;
 begin
-  json := LoadTestData('InvalidKdfType.json');
+  LJson := LoadTestData('InvalidKdfType.json');
 
-  sut := TSecretKeyStoreService.Create;
+  LSut := TSecretKeyStoreService.Create;
   try
     AssertException(
       procedure
       begin
-        sut.DecryptKeyStoreFromJson('randomPassword', json);
+        LSut.DecryptKeyStoreFromJson('randomPassword', LJson);
       end,
       EInvalidKdfException
     );
   finally
-    sut.Free;
+    LSut.Free;
   end;
 end;
 

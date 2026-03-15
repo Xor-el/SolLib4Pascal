@@ -36,32 +36,84 @@ uses
   SlpJsonHelpers;
 
 type
-  TPreserveNullOnReadJsonListConverter<V> = class(TJsonListConverter<V>)
-  public
-    function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+  /// <summary>
+  /// Shared helper that deserializes JSON array elements into a TList&lt;V&gt;,
+  /// preserving null elements as Default(V).
+  /// </summary>
+  TListDeserializer<V> = record
+    /// <summary>Reads array elements from AReader and adds them to AList.</summary>
+    class procedure PopulateFromReader(const AReader: TJsonReader;
+      const ASerializer: TJsonSerializer; AList: TList<V>); static;
   end;
 
+  /// <summary>
+  /// List converter that preserves JSON null array elements as default values of V.
+  /// </summary>
+  TPreserveNullOnReadJsonListConverter<V> = class(TJsonListConverter<V>)
+  public
+    /// <summary>
+    /// Deserializes a JSON array into a TList&lt;V&gt;, keeping null elements as Default(V).
+    /// </summary>
+    function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+  end;
+
+  /// <summary>
+  /// JSON converter for TObjectList&lt;V&gt; that serializes and deserializes arrays of owned objects.
+  /// </summary>
   TJsonObjectListConverter<V: class> = class(TJsonConverter)
   public
+    /// <summary>
+    /// Serializes a TObjectList&lt;V&gt; to a JSON array.
+    /// </summary>
     procedure WriteJson(const AWriter: TJsonWriter; const AValue: TValue;
       const ASerializer: TJsonSerializer); override;
+    /// <summary>
+    /// Deserializes a JSON array into a TObjectList&lt;V&gt;.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
+    /// <summary>
+    /// Returns True when ATypeInf matches TObjectList&lt;V&gt;.
+    /// </summary>
     function CanConvert(ATypeInf: PTypeInfo): Boolean; override;
   end;
 
-  TPreserveNullOnReadJsonObjectListConverter<V: class> = class
-    (TJsonObjectListConverter<V>)
+  /// <summary>
+  /// Object-list converter that preserves JSON null array elements as nil entries.
+  /// </summary>
+  TPreserveNullOnReadJsonObjectListConverter<V: class> = class(TJsonObjectListConverter<V>)
   public
+    /// <summary>
+    /// Deserializes a JSON array into a TObjectList&lt;V&gt;, keeping null elements as nil.
+    /// </summary>
     function ReadJson(const AReader: TJsonReader; ATypeInf: PTypeInfo;
-      const AExistingValue: TValue; const ASerializer: TJsonSerializer)
-      : TValue; override;
+      const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue; override;
   end;
 
 implementation
+
+class procedure TListDeserializer<V>.PopulateFromReader(
+  const AReader: TJsonReader; const ASerializer: TJsonSerializer;
+  AList: TList<V>);
+var
+  LJV: TJSONValue;
+  LItem: V;
+begin
+  while AReader.ReadNextArrayElement(LJV) do
+  begin
+    try
+      if LJV.Null then
+        LItem := Default(V)
+      else
+        LItem := ASerializer.Deserialize<V>(LJV.ToJSON);
+
+      AList.Add(LItem);
+    finally
+      LJV.Free;
+    end;
+  end;
+end;
 
 { TPreserveNullOnReadJsonListConverter<V> }
 
@@ -69,34 +121,27 @@ function TPreserveNullOnReadJsonListConverter<V>.ReadJson
   (const AReader: TJsonReader; ATypeInf: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  List: TList<V>;
-  JV: TJSONValue;
-  Item: V;
+  LList: TList<V>;
+  LOwns: Boolean;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Result := nil
   else
   begin
-    if AExistingValue.IsEmpty then
-      List := TList<V>.Create()
+    LOwns := AExistingValue.IsEmpty;
+    if LOwns then
+      LList := TList<V>.Create
     else
-      List := AExistingValue.AsType<TList<V>>;
+      LList := AExistingValue.AsType<TList<V>>;
 
-    while AReader.ReadNextArrayElement(JV) do
-    begin
-      try
-        if (JV.Null) then
-          Item := Default(V)
-        else
-          Item := ASerializer.Deserialize<V>(JV.ToJSON);
-
-        List.Add(Item);
-
-      finally
-        JV.Free;
-      end;
+    try
+      TListDeserializer<V>.PopulateFromReader(AReader, ASerializer, LList);
+      Result := TValue.From(LList);
+    except
+      if LOwns then
+        LList.Free;
+      raise;
     end;
-    Result := TValue.From(List);
   end;
 end;
 
@@ -111,30 +156,38 @@ function TJsonObjectListConverter<V>.ReadJson(const AReader: TJsonReader;
   ATypeInf: PTypeInfo; const AExistingValue: TValue;
   const ASerializer: TJsonSerializer): TValue;
 var
-  List: TObjectList<V>;
-  Arr: TArray<V>;
+  LList: TObjectList<V>;
+  LOwns: Boolean;
+  LArr: TArray<V>;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Result := nil
   else
   begin
-    ASerializer.Populate(AReader, Arr);
-    if AExistingValue.IsEmpty then
-      List := TObjectList<V>.Create(True)
+    ASerializer.Populate(AReader, LArr);
+    LOwns := AExistingValue.IsEmpty;
+    if LOwns then
+      LList := TObjectList<V>.Create(True)
     else
-      List := AExistingValue.AsType<TObjectList<V>>;
-    List.AddRange(Arr);
-    Result := TValue.From(List);
+      LList := AExistingValue.AsType<TObjectList<V>>;
+    try
+      LList.AddRange(LArr);
+      Result := TValue.From(LList);
+    except
+      if LOwns then
+        LList.Free;
+      raise;
+    end;
   end;
 end;
 
 procedure TJsonObjectListConverter<V>.WriteJson(const AWriter: TJsonWriter;
   const AValue: TValue; const ASerializer: TJsonSerializer);
 var
-  List: TObjectList<V>;
+  LList: TObjectList<V>;
 begin
-  if AValue.TryAsType(List) then
-    ASerializer.Serialize(AWriter, List.ToArray)
+  if AValue.TryAsType(LList) then
+    ASerializer.Serialize(AWriter, LList.ToArray)
   else
     raise EJsonException.CreateFmt
       ('Type of Value "%s" does not match with the expected type: "%s"',
@@ -147,34 +200,27 @@ function TPreserveNullOnReadJsonObjectListConverter<V>.ReadJson
   (const AReader: TJsonReader; ATypeInf: PTypeInfo;
   const AExistingValue: TValue; const ASerializer: TJsonSerializer): TValue;
 var
-  List: TObjectList<V>;
-  JV: TJSONValue;
-  Item: V;
+  LList: TObjectList<V>;
+  LOwns: Boolean;
 begin
   if AReader.TokenType = TJsonToken.Null then
     Result := nil
   else
   begin
-    if AExistingValue.IsEmpty then
-      List := TObjectList<V>.Create(True)
+    LOwns := AExistingValue.IsEmpty;
+    if LOwns then
+      LList := TObjectList<V>.Create(True)
     else
-      List := AExistingValue.AsType<TObjectList<V>>;
+      LList := AExistingValue.AsType<TObjectList<V>>;
 
-    while AReader.ReadNextArrayElement(JV) do
-    begin
-      try
-        if (JV.Null) then
-          Item := Default(V)
-        else
-          Item := ASerializer.Deserialize<V>(JV.ToJSON);
-
-        List.Add(Item);
-
-      finally
-        JV.Free;
-      end;
+    try
+      TListDeserializer<V>.PopulateFromReader(AReader, ASerializer, LList);
+      Result := TValue.From(LList);
+    except
+      if LOwns then
+        LList.Free;
+      raise;
     end;
-    Result := TValue.From(List);
   end;
 end;
 

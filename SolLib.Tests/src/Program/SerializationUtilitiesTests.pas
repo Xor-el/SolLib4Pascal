@@ -117,13 +117,13 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteU8Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 1);
+  SetLength(LSUT, 1);
   AssertException(
     procedure
     begin
-      TSerialization.WriteU8(SUT, 1, 2);
+      TSerialization.WriteU8(LSUT, 1, 2);
     end,
     EArgumentOutOfRangeException
   );
@@ -131,22 +131,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteU8;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 1);
-  TSerialization.WriteU8(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1), SUT, 'WriteU8');
+  SetLength(LSUT, 1);
+  TSerialization.WriteU8(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1), LSUT, 'WriteU8');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteU16Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 2);
+  SetLength(LSUT, 2);
   AssertException(
     procedure
     begin
-      TSerialization.WriteU16(SUT, 1, 2);
+      TSerialization.WriteU16(LSUT, 1, 2);
     end,
     EArgumentOutOfRangeException
   );
@@ -154,22 +154,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteU16;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 2);
-  TSerialization.WriteU16(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1,0), SUT, 'WriteU16 (LE)');
+  SetLength(LSUT, 2);
+  TSerialization.WriteU16(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1,0), LSUT, 'WriteU16 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteBoolException;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 2);
+  SetLength(LSUT, 2);
   AssertException(
     procedure
     begin
-      TSerialization.WriteBool(SUT, True, 2);
+      TSerialization.WriteBool(LSUT, True, 2);
     end,
     EArgumentOutOfRangeException
   );
@@ -177,22 +177,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteBool;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 2);
-  TSerialization.WriteBool(SUT, True, 0);
-  AssertEquals(TBytes.Create(1,0), SUT, 'WriteBool');
+  SetLength(LSUT, 2);
+  TSerialization.WriteBool(LSUT, True, 0);
+  AssertEquals(TBytes.Create(1,0), LSUT, 'WriteBool');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteU32Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 4);
+  SetLength(LSUT, 4);
   AssertException(
     procedure
     begin
-      TSerialization.WriteU32(SUT, 1, 4);
+      TSerialization.WriteU32(LSUT, 1, 4);
     end,
     EArgumentOutOfRangeException
   );
@@ -200,22 +200,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteU32;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 4);
-  TSerialization.WriteU32(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1,0,0,0), SUT, 'WriteU32 (LE)');
+  SetLength(LSUT, 4);
+  TSerialization.WriteU32(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1,0,0,0), LSUT, 'WriteU32 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteU64Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 8);
+  SetLength(LSUT, 8);
   AssertException(
     procedure
     begin
-      TSerialization.WriteU64(SUT, 1, 8);
+      TSerialization.WriteU64(LSUT, 1, 8);
     end,
     EArgumentOutOfRangeException
   );
@@ -223,22 +223,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteU64;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 8);
-  TSerialization.WriteU64(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1,0,0,0,0,0,0,0), SUT, 'WriteU64 (LE)');
+  SetLength(LSUT, 8);
+  TSerialization.WriteU64(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1,0,0,0,0,0,0,0), LSUT, 'WriteU64 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS8Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 1);
+  SetLength(LSUT, 1);
   AssertException(
     procedure
     begin
-      TSerialization.WriteS8(SUT, 1, 2);
+      TSerialization.WriteS8(LSUT, 1, 2);
     end,
     EArgumentOutOfRangeException
   );
@@ -246,22 +246,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteS8;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 1);
-  TSerialization.WriteS8(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1), SUT, 'WriteS8');
+  SetLength(LSUT, 1);
+  TSerialization.WriteS8(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1), LSUT, 'WriteS8');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS16Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 2);
+  SetLength(LSUT, 2);
   AssertException(
     procedure
     begin
-      TSerialization.WriteS16(SUT, 1, 1);
+      TSerialization.WriteS16(LSUT, 1, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -269,22 +269,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteS16;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 2);
-  TSerialization.WriteS16(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1,0), SUT, 'WriteS16 (LE)');
+  SetLength(LSUT, 2);
+  TSerialization.WriteS16(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1,0), LSUT, 'WriteS16 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS32Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 4);
+  SetLength(LSUT, 4);
   AssertException(
     procedure
     begin
-      TSerialization.WriteS32(SUT, 1, 1);
+      TSerialization.WriteS32(LSUT, 1, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -292,22 +292,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteS32;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 4);
-  TSerialization.WriteS32(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1,0,0,0), SUT, 'WriteS32 (LE)');
+  SetLength(LSUT, 4);
+  TSerialization.WriteS32(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1,0,0,0), LSUT, 'WriteS32 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteS64Exception;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 8);
+  SetLength(LSUT, 8);
   AssertException(
     procedure
     begin
-      TSerialization.WriteS64(SUT, 1, 1);
+      TSerialization.WriteS64(LSUT, 1, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -315,22 +315,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteS64;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 8);
-  TSerialization.WriteS64(SUT, 1, 0);
-  AssertEquals(TBytes.Create(1,0,0,0,0,0,0,0), SUT, 'WriteS64 (LE)');
+  SetLength(LSUT, 8);
+  TSerialization.WriteS64(LSUT, 1, 0);
+  AssertEquals(TBytes.Create(1,0,0,0,0,0,0,0), LSUT, 'WriteS64 (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteSpanException;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 32);
+  SetLength(LSUT, 32);
   AssertException(
     procedure
     begin
-      TSerialization.WriteSpan(SUT, PublicKeyBytes, 1);
+      TSerialization.WriteSpan(LSUT, PublicKeyBytes, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -338,24 +338,24 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteSpan;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
 begin
-  SetLength(SUT, 32);
-  TSerialization.WriteSpan(SUT, PublicKeyBytes, 0);
-  AssertEquals(PublicKeyBytes, SUT, 'WriteSpan');
+  SetLength(LSUT, 32);
+  TSerialization.WriteSpan(LSUT, PublicKeyBytes, 0);
+  AssertEquals(PublicKeyBytes, LSUT, 'WriteSpan');
 end;
 
 procedure TSerializationUtilitiesTests.TestWritePublicKeyException;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
   LPubKey: IPublicKey;
 begin
-  SetLength(SUT, 32);
+  SetLength(LSUT, 32);
   AssertException(
     procedure
     begin
       LPubKey := TPublicKey.Create(PublicKeyBytes);
-      TSerialization.WritePubKey(SUT, LPubKey, 1);
+      TSerialization.WritePubKey(LSUT, LPubKey, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -363,24 +363,24 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWritePublicKey;
 var
-  SUT: TBytes;
+  LSUT: TBytes;
   LPubKey: IPublicKey;
 begin
-  SetLength(SUT, 32);
+  SetLength(LSUT, 32);
   LPubKey := TPublicKey.Create(PublicKeyBytes);
-  TSerialization.WritePubKey(SUT, LPubKey, 0);
-  AssertEquals(PublicKeyBytes, SUT, 'WritePubKey');
+  TSerialization.WritePubKey(LSUT, LPubKey, 0);
+  AssertEquals(PublicKeyBytes, LSUT, 'WritePubKey');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteDoubleException;
 var
-  BytesArr: TBytes;
+  LBytesArr: TBytes;
 begin
-  SetLength(BytesArr, 8);
+  SetLength(LBytesArr, 8);
   AssertException(
     procedure
     begin
-      TSerialization.WriteDouble(BytesArr, 1.34534534564565, 1);
+      TSerialization.WriteDouble(LBytesArr, 1.34534534564565, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -388,22 +388,22 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteDouble;
 var
-  BytesArr: TBytes;
+  LBytesArr: TBytes;
 begin
-  SetLength(BytesArr, 8);
-  TSerialization.WriteDouble(BytesArr, 1.34534534564565, 0);
-  AssertEquals(DoubleBytes, BytesArr, 'WriteDouble (LE)');
+  SetLength(LBytesArr, 8);
+  TSerialization.WriteDouble(LBytesArr, 1.34534534564565, 0);
+  AssertEquals(DoubleBytes, LBytesArr, 'WriteDouble (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteSingleException;
 var
-  BytesArr: TBytes;
+  LBytesArr: TBytes;
 begin
-  SetLength(BytesArr, 4);
+  SetLength(LBytesArr, 4);
   AssertException(
     procedure
     begin
-      TSerialization.WriteSingle(BytesArr, 1.34534534, 1);
+      TSerialization.WriteSingle(LBytesArr, 1.34534534, 1);
     end,
     EArgumentOutOfRangeException
   );
@@ -411,19 +411,19 @@ end;
 
 procedure TSerializationUtilitiesTests.TestWriteSingle;
 var
-  BytesArr: TBytes;
+  LBytesArr: TBytes;
 begin
-  SetLength(BytesArr, 4);
-  TSerialization.WriteSingle(BytesArr, 1.34534534, 0);
-  AssertEquals(SingleBytes, BytesArr, 'WriteSingle (LE)');
+  SetLength(LBytesArr, 4);
+  TSerialization.WriteSingle(LBytesArr, 1.34534534, 0);
+  AssertEquals(SingleBytes, LBytesArr, 'WriteSingle (LE)');
 end;
 
 procedure TSerializationUtilitiesTests.TestWriteRustString;
 var
-  Encoded: TBytes;
+  LEncoded: TBytes;
 begin
-  Encoded := TSerialization.EncodeBincodeString('this is a test string');
-  AssertEquals(EncodedStringBytes, Encoded, 'EncodeBincodeString');
+  LEncoded := TSerialization.EncodeBincodeString('this is a test string');
+  AssertEquals(EncodedStringBytes, LEncoded, 'EncodeBincodeString');
 end;
 
 initialization

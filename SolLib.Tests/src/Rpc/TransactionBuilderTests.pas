@@ -27,7 +27,6 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoders,
   SlpWallet,
   SlpPublicKey,
   SlpAccount,
@@ -113,20 +112,20 @@ implementation
 
 procedure TTransactionBuilderTests.TestTransactionBuilderBuildNullInstructionsException;
 var
-  Wallet: IWallet;
-  FromAccount: IAccount;
-  Builder: ITransactionBuilder;
+  LWallet: IWallet;
+  LFromAccount: IAccount;
+  LBuilder: ITransactionBuilder;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(0);
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
 
-  Builder := TTransactionBuilder.Create;
-  Builder.SetRecentBlockHash(Blockhash);
+  LBuilder := TTransactionBuilder.Create;
+  LBuilder.SetRecentBlockHash(Blockhash);
 
   AssertException(
     procedure
     begin
-      Builder.Build(FromAccount)
+      LBuilder.Build(LFromAccount)
     end,
     Exception
   );
@@ -134,48 +133,48 @@ end;
 
 procedure TTransactionBuilderTests.TestTransactionBuilderBuild;
 var
-  Wallet: IWallet;
-  FromAccount, ToAccount: IAccount;
-  Builder: ITransactionBuilder;
-  TxBytes: TBytes;
-  B64: string;
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LBuilder: ITransactionBuilder;
+  LTxBytes: TBytes;
+  LB64: string;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(0);
-  ToAccount   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
-  Builder := TTransactionBuilder.Create;
-  TxBytes := Builder
+  LBuilder := TTransactionBuilder.Create;
+  LTxBytes := LBuilder
     .SetRecentBlockHash(Blockhash)
-    .SetFeePayer(FromAccount.PublicKey)
-    .AddInstruction(TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 10000000))
-    .AddInstruction(TMemoProgram.NewMemo(FromAccount.PublicKey, 'Hello from SolLib :)'))
-    .Build(FromAccount);
+    .SetFeePayer(LFromAccount.PublicKey)
+    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
+    .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'))
+    .Build(LFromAccount);
 
-  B64 := TEncoders.Base64.EncodeData(TxBytes);
-  AssertEquals(ExpectedTransactionHashWithTransferAndMemo, B64);
+  LB64 := EncodeBase64(LTxBytes);
+  AssertEquals(ExpectedTransactionHashWithTransferAndMemo, LB64);
 end;
 
 procedure TTransactionBuilderTests.TestTransactionBuilderBuildNullBlockhashException;
 var
-  Wallet: IWallet;
-  FromAccount, ToAccount: IAccount;
-  Builder: ITransactionBuilder;
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LBuilder: ITransactionBuilder;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(0);
-  ToAccount   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
-  Builder := TTransactionBuilder.Create;
-  Builder
-    .SetFeePayer(FromAccount.PublicKey)
-    .AddInstruction(TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 10000000))
-    .AddInstruction(TMemoProgram.NewMemo(FromAccount.PublicKey, 'Hello from SolLib :)'));
+  LBuilder := TTransactionBuilder.Create;
+  LBuilder
+    .SetFeePayer(LFromAccount.PublicKey)
+    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
+    .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'));
 
   AssertException(
     procedure
     begin
-      Builder.Build(FromAccount)
+      LBuilder.Build(LFromAccount)
     end,
     Exception
   );
@@ -183,24 +182,24 @@ end;
 
 procedure TTransactionBuilderTests.TestTransactionBuilderBuildNullFeePayerException;
 var
-  Wallet: IWallet;
-  FromAccount, ToAccount: IAccount;
-  Builder: ITransactionBuilder;
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LBuilder: ITransactionBuilder;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(0);
-  ToAccount   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
-  Builder := TTransactionBuilder.Create;
-  Builder
+  LBuilder := TTransactionBuilder.Create;
+  LBuilder
     .SetRecentBlockHash(Blockhash)
-    .AddInstruction(TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 10000000))
-    .AddInstruction(TMemoProgram.NewMemo(FromAccount.PublicKey, 'Hello from SolLib :)'));
+    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
+    .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'));
 
   AssertException(
     procedure
     begin
-      Builder.Build(FromAccount)
+      LBuilder.Build(LFromAccount)
     end,
     Exception
   );
@@ -208,116 +207,116 @@ end;
 
 procedure TTransactionBuilderTests.TestTransactionBuilderBuildEmptySignersException;
 var
-  Wallet: IWallet;
-  FromAccount, ToAccount: IAccount;
-  Builder: ITransactionBuilder;
-  EmptySigners: TList<IAccount>;
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LBuilder: ITransactionBuilder;
+  LEmptySigners: TList<IAccount>;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(0);
-  ToAccount   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
-  EmptySigners := TList<IAccount>.Create;
+  LEmptySigners := TList<IAccount>.Create;
   try
-    Builder := TTransactionBuilder.Create;
-    Builder
+    LBuilder := TTransactionBuilder.Create;
+    LBuilder
       .SetRecentBlockHash(Blockhash)
-      .AddInstruction(TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 10000000))
-      .AddInstruction(TMemoProgram.NewMemo(FromAccount.PublicKey, 'Hello from SolLib :)'));
+      .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
+      .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'));
 
     AssertException(
       procedure
       begin
-        Builder.Build(EmptySigners)
+        LBuilder.Build(LEmptySigners)
       end,
       Exception
     );
   finally
-    EmptySigners.Free;
+    LEmptySigners.Free;
   end;
 end;
 
 procedure TTransactionBuilderTests.CreateInitializeAndMintToTest;
 var
-  Wallet: IWallet;
-  BlockHash, B64: string;
-  MinBalanceForAccount, MinBalanceForMint: UInt64;
-  MintAccount, OwnerAccount, InitialAccount: IAccount;
-  Builder: ITransactionBuilder;
-  Signers: TList<IAccount>;
-  Tx: TBytes;
-  Tx2: ITransaction;
-  Msg: TBytes;
-  Ok: Boolean;
+  LWallet: IWallet;
+  LBlockHash, LB64: string;
+  LMinBalanceForAccount, LMinBalanceForMint: UInt64;
+  LMintAccount, LOwnerAccount, LInitialAccount: IAccount;
+  LBuilder: ITransactionBuilder;
+  LSigners: TList<IAccount>;
+  LTx: TBytes;
+  LTx2: ITransaction;
+  LMsg: TBytes;
+  LOk: Boolean;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  BlockHash := 'G9JC6E7LfG6ayxARq5zDV5RdDr6P8NJEdzTUJ8ttrSKs';
-  MinBalanceForAccount := 2039280;
-  MinBalanceForMint    := 1461600;
+  LWallet := TWallet.Create(MnemonicWords);
+  LBlockHash := 'G9JC6E7LfG6ayxARq5zDV5RdDr6P8NJEdzTUJ8ttrSKs';
+  LMinBalanceForAccount := 2039280;
+  LMinBalanceForMint := 1461600;
 
-  MintAccount    := Wallet.GetAccountByIndex(17);
-  OwnerAccount   := Wallet.GetAccountByIndex(10);
-  InitialAccount := Wallet.GetAccountByIndex(18);
+  LMintAccount := LWallet.GetAccountByIndex(17);
+  LOwnerAccount := LWallet.GetAccountByIndex(10);
+  LInitialAccount := LWallet.GetAccountByIndex(18);
 
-  Builder := TTransactionBuilder.Create;
-  Builder
-    .SetRecentBlockHash(BlockHash)
-    .SetFeePayer(OwnerAccount.PublicKey)
+  LBuilder := TTransactionBuilder.Create;
+  LBuilder
+    .SetRecentBlockHash(LBlockHash)
+    .SetFeePayer(LOwnerAccount.PublicKey)
     .AddInstruction(
       TSystemProgram.CreateAccount(
-        OwnerAccount.PublicKey, MintAccount.PublicKey, MinBalanceForMint,
+        LOwnerAccount.PublicKey, LMintAccount.PublicKey, LMinBalanceForMint,
         TTokenProgram.MintAccountDataSize, TTokenProgram.ProgramIdKey
       )
     )
     .AddInstruction(
       TTokenProgram.InitializeMint(
-        MintAccount.PublicKey, 2, OwnerAccount.PublicKey, OwnerAccount.PublicKey
+        LMintAccount.PublicKey, 2, LOwnerAccount.PublicKey, LOwnerAccount.PublicKey
       )
     )
     .AddInstruction(
       TSystemProgram.CreateAccount(
-        OwnerAccount.PublicKey, InitialAccount.PublicKey, MinBalanceForAccount,
+        LOwnerAccount.PublicKey, LInitialAccount.PublicKey, LMinBalanceForAccount,
         TTokenProgram.TokenAccountDataSize, TTokenProgram.ProgramIdKey
       )
     )
     .AddInstruction(
       TTokenProgram.InitializeAccount(
-        InitialAccount.PublicKey, MintAccount.PublicKey, OwnerAccount.PublicKey
+        LInitialAccount.PublicKey, LMintAccount.PublicKey, LOwnerAccount.PublicKey
       )
     )
     .AddInstruction(
       TTokenProgram.MintTo(
-        MintAccount.PublicKey, InitialAccount.PublicKey, 25000, OwnerAccount.PublicKey
+        LMintAccount.PublicKey, LInitialAccount.PublicKey, 25000, LOwnerAccount.PublicKey
       )
     )
-    .AddInstruction(TMemoProgram.NewMemo(InitialAccount.PublicKey, 'Hello from SolLib'));
+    .AddInstruction(TMemoProgram.NewMemo(LInitialAccount.PublicKey, 'Hello from SolLib'));
 
-  Signers := TList<IAccount>.Create;
+  LSigners := TList<IAccount>.Create;
   try
-    Signers.AddRange([OwnerAccount, MintAccount, InitialAccount]);
-    Tx := Builder.Build(Signers);
+    LSigners.AddRange([LOwnerAccount, LMintAccount, LInitialAccount]);
+    LTx := LBuilder.Build(LSigners);
   finally
-    Signers.Free;
+    LSigners.Free;
   end;
 
-  Tx2 := TTransaction.Deserialize(Tx);
-  Msg := Tx2.CompileMessage;
-  Ok := Tx2.Signatures[0].PublicKey.Verify(Msg, Tx2.Signatures[0].Signature);
-  AssertTrue(Ok, 'Signature[0] should verify');
+  LTx2 := TTransaction.Deserialize(LTx);
+  LMsg := LTx2.CompileMessage;
+  LOk := LTx2.Signatures[0].PublicKey.Verify(LMsg, LTx2.Signatures[0].Signature);
+  AssertTrue(LOk, 'Signature[0] should verify');
 
-  B64 := TEncoders.Base64.EncodeData(Tx);
-  AssertEquals(ExpectedTransactionHashCreateInitializeAndMintTo, B64);
+  LB64 := EncodeBase64(LTx);
+  AssertEquals(ExpectedTransactionHashCreateInitializeAndMintTo, LB64);
 end;
 
 procedure TTransactionBuilderTests.CompileMessageTest;
 var
-  Wallet: IWallet;
-  OwnerAccount, NonceAccount, ToAccount: IAccount;
-  NonceInfo: INonceInformation;
-  Builder: ITransactionBuilder;
-  CompiledMessageBytes, TxBytes: TBytes;
+  LWallet: IWallet;
+  LOwnerAccount, LNonceAccount, LToAccount: IAccount;
+  LNonceInfo: INonceInformation;
+  LBuilder: ITransactionBuilder;
+  LCompiledMessageBytes, LTxBytes: TBytes;
 begin
-  CompiledMessageBytes := TBytes.Create(
+  LCompiledMessageBytes := TBytes.Create(
     1, 0, 2, 5, 71, 105, 171, 151, 32, 75, 168, 63, 176, 202, 238, 23, 247, 134, 143, 30, 7, 78, 82, 21,
     129, 160, 216, 157, 148, 55, 157, 170, 101, 183, 23, 178, 132, 220, 206, 171, 228, 52, 112, 149, 218,
     174, 194, 90, 142, 185, 112, 195, 57, 102, 90, 129, 121, 155, 30, 112, 20, 223, 14, 67, 131, 142, 36,
@@ -329,127 +328,127 @@ begin
     83, 2, 3, 3, 2, 4, 0, 4, 4, 0, 0, 0, 3, 2, 0, 1, 12, 2, 0, 0, 0, 0, 202, 154, 59, 0, 0, 0, 0
   );
 
-  Wallet := TWallet.Create(MnemonicWords);
-  OwnerAccount := Wallet.GetAccountByIndex(10);
-  NonceAccount := Wallet.GetAccountByIndex(1119);
-  ToAccount    := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwnerAccount := LWallet.GetAccountByIndex(10);
+  LNonceAccount := LWallet.GetAccountByIndex(1119);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
-  NonceInfo := TNonceInformation.Create(
+  LNonceInfo := TNonceInformation.Create(
     NonceStr,
-    TSystemProgram.AdvanceNonceAccount(NonceAccount.PublicKey, OwnerAccount.PublicKey)
+    TSystemProgram.AdvanceNonceAccount(LNonceAccount.PublicKey, LOwnerAccount.PublicKey)
   );
 
-  Builder := TTransactionBuilder.Create;
-  TxBytes := Builder
-    .SetFeePayer(OwnerAccount.PublicKey)
-    .SetNonceInformation(NonceInfo)
+  LBuilder := TTransactionBuilder.Create;
+  LTxBytes := LBuilder
+    .SetFeePayer(LOwnerAccount.PublicKey)
+    .SetNonceInformation(LNonceInfo)
     .AddInstruction(
-      TSystemProgram.Transfer(OwnerAccount.PublicKey, ToAccount.PublicKey, 1000000000)
+      TSystemProgram.Transfer(LOwnerAccount.PublicKey, LToAccount.PublicKey, 1000000000)
     )
     .CompileMessage;
 
-  AssertEquals(CompiledMessageBytes, TxBytes, 'compiled message mismatch');
+  AssertEquals(LCompiledMessageBytes, LTxBytes, 'compiled message mismatch');
 end;
 
 procedure TTransactionBuilderTests.TestTransactionInstructionTest;
 var
-  Wallet: IWallet;
-  OwnerAccount: IAccount;
-  MemoIx, Created: ITransactionInstruction;
+  LWallet: IWallet;
+  LOwnerAccount: IAccount;
+  LMemoIx, LCreated: ITransactionInstruction;
   LPubKey: IPublicKey;
   LKeys: TList<IAccountMeta>;
-  I: Integer;
+  LI: Integer;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  OwnerAccount := Wallet.GetAccountByIndex(10);
-  MemoIx := TMemoProgram.NewMemo(OwnerAccount.PublicKey, 'Hello');
-  LPubKey := TPublicKey.Create(MemoIx.ProgramId);
+  LWallet := TWallet.Create(MnemonicWords);
+  LOwnerAccount := LWallet.GetAccountByIndex(10);
+  LMemoIx := TMemoProgram.NewMemo(LOwnerAccount.PublicKey, 'Hello');
+  LPubKey := TPublicKey.Create(LMemoIx.ProgramId);
 
   LKeys := TList<IAccountMeta>.Create;
-  LKeys.AddRange(MemoIx.Keys);
+  LKeys.AddRange(LMemoIx.Keys);
 
-  Created := TTransactionInstructionFactory.Create(
+  LCreated := TTransactionInstructionFactory.Create(
     LPubKey,
     LKeys,
-    MemoIx.Data
+    LMemoIx.Data
   );
 
   AssertEquals(
-    TEncoders.Base64.EncodeData(MemoIx.ProgramId),
-    TEncoders.Base64.EncodeData(Created.ProgramId),
+    EncodeBase64(LMemoIx.ProgramId),
+    EncodeBase64(LCreated.ProgramId),
     'ProgramId b64'
   );
 
-  AssertEquals(MemoIx.Keys.Count, Created.Keys.Count, 'Keys count mismatch');
-  for I := 0 to MemoIx.Keys.Count - 1 do
-    AssertTrue(MemoIx.Keys[I] = Created.Keys[I], Format('Keys[%d] instance', [I]));
+  AssertEquals(LMemoIx.Keys.Count, LCreated.Keys.Count, 'Keys count mismatch');
+  for LI := 0 to LMemoIx.Keys.Count - 1 do
+    AssertTrue(LMemoIx.Keys[LI] = LCreated.Keys[LI], Format('Keys[%d] instance', [LI]));
 
   AssertEquals(
-    TEncoders.Base64.EncodeData(MemoIx.Data),
-    TEncoders.Base64.EncodeData(Created.Data),
+    EncodeBase64(LMemoIx.Data),
+    EncodeBase64(LCreated.Data),
     'Data b64'
   );
 end;
 
 procedure TTransactionBuilderTests.TransactionBuilderAddSignatureTest;
 var
-  Wallet: IWallet;
-  FromAccount, ToAccount: IAccount;
-  Builder: ITransactionBuilder;
-  MsgBytes, Sig, Tx: TBytes;
-  Sig58, TxB64: string;
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LBuilder: ITransactionBuilder;
+  LMsgBytes, LSig, LTx: TBytes;
+  LSig58, LTxB64: string;
 begin
-  Wallet := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(10);
-  ToAccount   := Wallet.GetAccountByIndex(8);
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(10);
+  LToAccount := LWallet.GetAccountByIndex(8);
 
-  Builder := TTransactionBuilder.Create;
-  Builder
+  LBuilder := TTransactionBuilder.Create;
+  LBuilder
     .SetRecentBlockHash(AddSignatureBlockHash)
-    .SetFeePayer(FromAccount.PublicKey)
-    .AddInstruction(TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 10000000))
-    .AddInstruction(TMemoProgram.NewMemo(FromAccount.PublicKey, 'Hello from SolLib :)'));
+    .SetFeePayer(LFromAccount.PublicKey)
+    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
+    .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'));
 
-  MsgBytes := Builder.CompileMessage;
-  Sig      := FromAccount.Sign(MsgBytes);
+  LMsgBytes := LBuilder.CompileMessage;
+  LSig := LFromAccount.Sign(LMsgBytes);
 
-  Sig58 := TEncoders.Base58.EncodeData(Sig);
-  AssertEquals(AddSignatureSignature, Sig58, 'base58 signature');
+  LSig58 := EncodeBase58(LSig);
+  AssertEquals(AddSignatureSignature, LSig58, 'base58 signature');
 
-  Tx := Builder.AddSignature(Sig).Serialize;
-  TxB64 := TEncoders.Base64.EncodeData(Tx);
-  AssertEquals(AddSignatureTransaction, TxB64, 'serialized tx b64');
+  LTx := LBuilder.AddSignature(LSig).Serialize;
+  LTxB64 := EncodeBase64(LTx);
+  AssertEquals(AddSignatureTransaction, LTxB64, 'serialized tx b64');
 end;
 
 procedure TTransactionBuilderTests.TestTransactionWithPriorityFeesInformation;
 var
-  Wallet: IWallet;
-  FromAccount, ToAccount: IAccount;
-  Builder: ITransactionBuilder;
-  PriorityFeesInfo: IPriorityFeesInformation;
-  TxBytes: TBytes;
-  TxB64: string;
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LBuilder: ITransactionBuilder;
+  LPriorityFeesInfo: IPriorityFeesInformation;
+  LTxBytes: TBytes;
+  LTxB64: string;
 begin
-  Wallet      := TWallet.Create(MnemonicWords);
-  FromAccount := Wallet.GetAccountByIndex(10);
-  ToAccount   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(10);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   // Prepare priority-fee instructions
-  PriorityFeesInfo := TPriorityFeesInformation.Create(
+  LPriorityFeesInfo := TPriorityFeesInformation.Create(
     TComputeBudgetProgram.SetComputeUnitLimit(400000),   // SetComputeUnitLimit
     TComputeBudgetProgram.SetComputeUnitPrice(100000)    // SetComputeUnitPrice
   );
 
-  Builder := TTransactionBuilder.Create;
-  TxBytes := Builder
+  LBuilder := TTransactionBuilder.Create;
+  LTxBytes := LBuilder
     .SetRecentBlockHash(Blockhash)
-    .SetFeePayer(FromAccount.PublicKey)
-    .AddInstruction(TSystemProgram.Transfer(FromAccount.PublicKey, ToAccount.PublicKey, 1000000))
-    .SetPriorityFeesInformation(PriorityFeesInfo)
-    .Build(FromAccount);
+    .SetFeePayer(LFromAccount.PublicKey)
+    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 1000000))
+    .SetPriorityFeesInformation(LPriorityFeesInfo)
+    .Build(LFromAccount);
 
-  TxB64 := TEncoders.Base64.EncodeData(TxBytes);
-  AssertEquals(ExpectedTransactionWithPriorityFees, TxB64);
+  LTxB64 := EncodeBase64(LTxBytes);
+  AssertEquals(ExpectedTransactionWithPriorityFees, LTxB64);
 end;
 
 initialization

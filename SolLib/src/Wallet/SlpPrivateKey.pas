@@ -23,7 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  SlpDataEncoders,
+  SlpDataEncoderUtils,
   SlpArrayUtils,
   SlpCryptoUtils;
 
@@ -32,21 +32,21 @@ type
     ['{B7C3A3B7-8C7E-4D0E-9B6E-6B7E0F9B6D31}']
 
     function GetKey: string;
-    procedure SetKey(const Value: string);
+    procedure SetKey(const AValue: string);
     function GetKeyBytes: TBytes;
-    procedure SetKeyBytes(const Value: TBytes);
+    procedure SetKeyBytes(const AValue: TBytes);
 
     /// <summary>
     /// Sign the data.
     /// </summary>
     /// <param name="message">The data to sign.</param>
     /// <returns>The signature of the data (64 bytes).</returns>
-    function Sign(const &Message: TBytes): TBytes;
+    function Sign(const AMessage: TBytes): TBytes;
 
     function Clone(): IPrivateKey;
 
     /// <inheritdoc cref="Equals(object)"/>
-    function Equals(const Other: IPrivateKey): Boolean;
+    function Equals(const AOther: IPrivateKey): Boolean;
     function ToString: string;
 
     function ToBytes: TBytes;
@@ -68,20 +68,20 @@ type
     FKeyBytes: TBytes;
 
     function GetKey: string;
-    procedure SetKey(const Value: string);
+    procedure SetKey(const AValue: string);
     function GetKeyBytes: TBytes;
-    procedure SetKeyBytes(const Value: TBytes);
+    procedure SetKeyBytes(const AValue: TBytes);
 
     /// <summary>
     /// Sign the data.
     /// </summary>
     /// <param name="message">The data to sign.</param>
     /// <returns>The signature of the data (64 bytes).</returns>
-    function Sign(const &Message: TBytes): TBytes;
+    function Sign(const AMessage: TBytes): TBytes;
 
     function Clone(): IPrivateKey;
 
-    function Equals(const Other: IPrivateKey): Boolean; reintroduce;
+    function Equals(const AOther: IPrivateKey): Boolean; reintroduce;
 
     function ToBytes: TBytes;
   public const
@@ -102,8 +102,8 @@ type
 
     function ToString: string; override;
 
-    class function FromString(const S: string): IPrivateKey; static;
-    class function FromBytes(const B: TBytes): IPrivateKey; static;
+    class function FromString(const AStr: string): IPrivateKey; static;
+    class function FromBytes(const ABytes: TBytes): IPrivateKey; static;
   end;
 
 implementation
@@ -141,52 +141,52 @@ function TPrivateKey.GetKey: string;
 begin
   if FKey = '' then
   begin
-    FKey := TEncoders.Base58.EncodeData(GetKeyBytes);
+    FKey := TBase58Encoder.EncodeData(GetKeyBytes);
   end;
   Result := FKey;
 end;
 
-procedure TPrivateKey.SetKey(const Value: string);
+procedure TPrivateKey.SetKey(const AValue: string);
 begin
-  FKey := Value;
+  FKey := AValue;
 end;
 
 function TPrivateKey.GetKeyBytes: TBytes;
 begin
   if Length(FKeyBytes) = 0 then
   begin
-    FKeyBytes := TEncoders.Base58.DecodeData(GetKey);
+    FKeyBytes := TBase58Encoder.DecodeData(GetKey);
   end;
   Result := FKeyBytes;
 end;
 
-procedure TPrivateKey.SetKeyBytes(const Value: TBytes);
+procedure TPrivateKey.SetKeyBytes(const AValue: TBytes);
 begin
-  FKeyBytes := Value;
+  FKeyBytes := AValue;
 end;
 
-function TPrivateKey.Sign(const &Message: TBytes): TBytes;
+function TPrivateKey.Sign(const AMessage: TBytes): TBytes;
 begin
   // Expects SecretKey64 = Seed(32)||PublicKey(32)
-  Result := TEd25519Crypto.Sign(GetKeyBytes, &Message);
+  Result := TEd25519Crypto.Sign(GetKeyBytes, AMessage);
 end;
 
-function TPrivateKey.Equals(const Other: IPrivateKey): Boolean;
+function TPrivateKey.Equals(const AOther: IPrivateKey): Boolean;
 var
-  SelfAsI: IPrivateKey;
+  LSelfAsI: IPrivateKey;
 begin
-  if Other = nil then
+  if AOther = nil then
     Exit(False);
 
   // 1) Exact same IPrivateKey reference?
-  if Supports(Self, IPrivateKey, SelfAsI) then
+  if Supports(Self, IPrivateKey, LSelfAsI) then
   begin
-   if SelfAsI = Other then
+   if LSelfAsI = AOther then
     Exit(True);
   end;
 
   // 2) Value equality: same key
-  Result := SameStr(SelfAsI.Key, Other.Key);
+  Result := SameStr(LSelfAsI.Key, AOther.Key);
 end;
 
 function TPrivateKey.ToString: string;
@@ -199,14 +199,14 @@ begin
   Result := GetKeyBytes;
 end;
 
-class function TPrivateKey.FromString(const S: string): IPrivateKey;
+class function TPrivateKey.FromString(const AStr: string): IPrivateKey;
 begin
-  Result := TPrivateKey.Create(S);
+  Result := TPrivateKey.Create(AStr);
 end;
 
-class function TPrivateKey.FromBytes(const B: TBytes): IPrivateKey;
+class function TPrivateKey.FromBytes(const ABytes: TBytes): IPrivateKey;
 begin
-  Result := TPrivateKey.Create(B);
+  Result := TPrivateKey.Create(ABytes);
 end;
 
 end.

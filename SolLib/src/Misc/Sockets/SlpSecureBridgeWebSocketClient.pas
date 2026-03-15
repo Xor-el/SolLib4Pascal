@@ -42,17 +42,17 @@ type
     FFragType: TScWebSocketMessageType;
     FFragActive: Boolean;
 
-    procedure HandleAfterConnect(Sender: TObject);
-    procedure HandleAfterDisconnect(Sender: TObject);
-    procedure HandleConnectFail(Sender: TObject);
-    procedure HandleAsyncError(Sender: TObject; AException: Exception);
-    procedure HandleMessage(Sender: TObject; const Data: TBytes;
-                            MessageType: TScWebSocketMessageType; EndOfMessage: Boolean);
-    procedure HandleControlMessage(Sender: TObject; AControlMessageType: TScWebSocketControlMessageType);
+    procedure HandleAfterConnect(ASender: TObject);
+    procedure HandleAfterDisconnect(ASender: TObject);
+    procedure HandleConnectFail(ASender: TObject);
+    procedure HandleAsyncError(ASender: TObject; AException: Exception);
+    procedure HandleMessage(ASender: TObject; const AData: TBytes;
+                            AMessageType: TScWebSocketMessageType; AEndOfMessage: Boolean);
+    procedure HandleControlMessage(ASender: TObject; AControlMessageType: TScWebSocketControlMessageType);
 
     procedure DeliverCompletedText(const AData: TBytes);
     procedure DeliverCompletedBinary(const AData: TBytes);
-    procedure AppendFragment(const Data: TBytes; MsgType: TScWebSocketMessageType; EndOfMessage: Boolean);
+    procedure AppendFragment(const AData: TBytes; AMessageType: TScWebSocketMessageType; AEndOfMessage: Boolean);
     procedure ResetFragment;
   public
     constructor Create(const AExisting: TScWebSocketClient = nil; const ALogger: ILogger = nil);
@@ -92,12 +92,12 @@ begin
     FClient.EventsCallMode := ecDirectly;
 
     // HeartBeat: keepalive pings
-    FClient.HeartBeatOptions.Enabled  := True;   // keepalive on
+    FClient.HeartBeatOptions.Enabled := True;   // keepalive on
     FClient.HeartBeatOptions.Interval := 15;     // seconds between pings
-    FClient.HeartBeatOptions.Timeout  := 90;     // seconds to wait for pong before error/close
+    FClient.HeartBeatOptions.Timeout := 90;     // seconds to wait for pong before error/close
 
     // WatchDog: auto-reconnect on unexpected disconnects
-    FClient.WatchDogOptions.Enabled  := True;    // auto reconnect
+    FClient.WatchDogOptions.Enabled := True;    // auto reconnect
     FClient.WatchDogOptions.Interval := 5;       // seconds between attempts
     FClient.WatchDogOptions.Attempts := -1;      // unlimited attempts
   end;
@@ -180,7 +180,7 @@ begin
   FClient.Ping;
 end;
 
-procedure TSecureBridgeWebSocketClientImpl.HandleAfterConnect(Sender: TObject);
+procedure TSecureBridgeWebSocketClientImpl.HandleAfterConnect(ASender: TObject);
 begin
   if Assigned(FLogger) then
     FLogger.LogInformation('Connected', []);
@@ -189,7 +189,7 @@ begin
     Callbacks.OnConnect();
 end;
 
-procedure TSecureBridgeWebSocketClientImpl.HandleAfterDisconnect(Sender: TObject);
+procedure TSecureBridgeWebSocketClientImpl.HandleAfterDisconnect(ASender: TObject);
 begin
   if Assigned(FLogger) then
     FLogger.LogInformation('Disconnected', []);
@@ -200,7 +200,7 @@ begin
   ResetFragment;
 end;
 
-procedure TSecureBridgeWebSocketClientImpl.HandleConnectFail(Sender: TObject);
+procedure TSecureBridgeWebSocketClientImpl.HandleConnectFail(ASender: TObject);
 begin
   if Assigned(FLogger) then
     FLogger.LogError('Connection failed', []);
@@ -209,7 +209,7 @@ begin
     Callbacks.OnError('Connection failed');
 end;
 
-procedure TSecureBridgeWebSocketClientImpl.HandleAsyncError(Sender: TObject; AException: Exception);
+procedure TSecureBridgeWebSocketClientImpl.HandleAsyncError(ASender: TObject; AException: Exception);
 begin
   if Assigned(FLogger) then
     FLogger.LogException(TLogLevel.Error, AException, 'Async error: {0}', [AException.Message]);
@@ -219,7 +219,7 @@ begin
 end;
 
 procedure TSecureBridgeWebSocketClientImpl.HandleControlMessage(
-  Sender: TObject; AControlMessageType: TScWebSocketControlMessageType);
+  ASender: TObject; AControlMessageType: TScWebSocketControlMessageType);
 begin
   // Optional: log ping/pong
   if Assigned(FLogger) then
@@ -230,15 +230,15 @@ begin
 end;
 
 procedure TSecureBridgeWebSocketClientImpl.HandleMessage(
-  Sender: TObject; const Data: TBytes; MessageType: TScWebSocketMessageType; EndOfMessage: Boolean);
+  ASender: TObject; const AData: TBytes; AMessageType: TScWebSocketMessageType; AEndOfMessage: Boolean);
 begin
-  // Library may deliver fragmented messages; buffer until EndOfMessage=True
-  AppendFragment(Data, MessageType, EndOfMessage);
+  // Library may deliver fragmented messages; buffer until AEndOfMessage=True
+  AppendFragment(AData, AMessageType, AEndOfMessage);
 
-  if EndOfMessage then
+  if AEndOfMessage then
   begin
     try
-      case MessageType of
+      case AMessageType of
         mtText:   DeliverCompletedText(FFragBuf);
         mtBinary: DeliverCompletedBinary(FFragBuf);
         mtClose:  ; // Close notifications are handled via AfterDisconnect/Close logic
@@ -250,31 +250,31 @@ begin
 end;
 
 procedure TSecureBridgeWebSocketClientImpl.AppendFragment(
-  const Data: TBytes; MsgType: TScWebSocketMessageType; EndOfMessage: Boolean);
+  const AData: TBytes; AMessageType: TScWebSocketMessageType; AEndOfMessage: Boolean);
 var
-  baseLen, addLen: Integer;
+  LBaseLen, LAddLen: Integer;
 begin
   if not FFragActive then
   begin
     // Start a new message
     FFragActive := True;
-    FFragType   := MsgType;
-    FFragBuf    := nil;
+    FFragType := AMessageType;
+    FFragBuf := nil;
   end;
 
   // If message type changes mid-stream, flush previous (defensive)
-  if (FFragType <> MsgType) and FFragActive then
+  if (FFragType <> AMessageType) and FFragActive then
     ResetFragment;
 
-  addLen := Length(Data);
-  if addLen > 0 then
+  LAddLen := Length(AData);
+  if LAddLen > 0 then
   begin
-    baseLen := Length(FFragBuf);
-    SetLength(FFragBuf, baseLen + addLen);
-    Move(Data[0], FFragBuf[baseLen], addLen);
+    LBaseLen := Length(FFragBuf);
+    SetLength(FFragBuf, LBaseLen + LAddLen);
+    Move(AData[0], FFragBuf[LBaseLen], LAddLen);
   end;
 
-  if EndOfMessage then
+  if AEndOfMessage then
   begin
     // nothing else here; caller will deliver and reset
   end;
@@ -282,7 +282,7 @@ end;
 
 procedure TSecureBridgeWebSocketClientImpl.DeliverCompletedText(const AData: TBytes);
 var
-  S: string;
+  LS: string;
 begin
   if Assigned(FLogger) then
     FLogger.LogInformation('Text Data Received', []);
@@ -292,11 +292,11 @@ begin
 
   // WebSocket text is UTF-8 by spec
   if Length(AData) > 0 then
-    S := TEncoding.UTF8.GetString(AData)
+    LS := TEncoding.UTF8.GetString(AData)
   else
-    S := '';
+    LS := '';
 
-  Callbacks.OnReceiveTextMessage(S);
+  Callbacks.OnReceiveTextMessage(LS);
 end;
 
 procedure TSecureBridgeWebSocketClientImpl.DeliverCompletedBinary(const AData: TBytes);
@@ -313,9 +313,9 @@ end;
 
 procedure TSecureBridgeWebSocketClientImpl.ResetFragment;
 begin
-  FFragBuf    := nil;
+  FFragBuf := nil;
   FFragActive := False;
-  FFragType   := mtBinary;
+  FFragType := mtBinary;
 end;
 
 end.

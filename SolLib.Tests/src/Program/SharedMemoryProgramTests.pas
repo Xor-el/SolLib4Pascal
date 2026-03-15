@@ -46,31 +46,31 @@ const
     'route clerk disease box emerge airport loud waste attitude film army tray ' +
     'forward deal onion eight catalog surface unit card window walnut wealth medal';
 var
-  Wallet: IWallet;
-  Payload: TBytes;
-  FromAccount: IAccount;
-  ToAccount: IAccount;
-  Tx: ITransactionInstruction;
-  ExpectedData: TBytes;
-  TotalLen: Integer;
+  LWallet: IWallet;
+  LPayload: TBytes;
+  LFromAccount: IAccount;
+  LToAccount: IAccount;
+  LTx: ITransactionInstruction;
+  LExpectedData: TBytes;
+  LTotalLen: Integer;
 begin
   // Arrange
-  Wallet := TWallet.Create(MnemonicWords);
-  Payload := TEncoding.UTF8.GetBytes('Hello World!');
-  FromAccount := Wallet.GetAccountByIndex(0);
-  ToAccount   := Wallet.GetAccountByIndex(1);
+  LWallet := TWallet.Create(MnemonicWords);
+  LPayload := TEncoding.UTF8.GetBytes('Hello World!');
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount := LWallet.GetAccountByIndex(1);
 
   // Act
-  Tx := TSharedMemoryProgram.Write(ToAccount.PublicKey, Payload, 0);
+  LTx := TSharedMemoryProgram.Write(LToAccount.PublicKey, LPayload, 0);
 
   // Build expected buffer: 8 zero bytes (u64 offset=0) + payload
-  TotalLen := 8 + Length(Payload);
-  SetLength(ExpectedData, TotalLen);
+  LTotalLen := 8 + Length(LPayload);
+  SetLength(LExpectedData, LTotalLen);
 
-  Move(Payload[0], ExpectedData[8], Length(Payload));
+  Move(LPayload[0], LExpectedData[8], Length(LPayload));
 
-  AssertEquals(ExpectedData, Tx.Data, 'Data');
-  AssertEquals(1, Tx.Keys.Count, 'Keys.Count');
+  AssertEquals(LExpectedData, LTx.Data, 'Data');
+  AssertEquals(1, LTx.Keys.Count, 'Keys.Count');
 end;
 
 initialization
