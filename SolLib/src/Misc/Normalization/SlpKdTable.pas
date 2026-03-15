@@ -87,7 +87,7 @@ begin
     begin
       LCh := AStr[LI];
       if not Supported(LCh) then
-        raise EKdNormalizationNotSupported.Create('the input string can''t be normalized on this platform');
+        raise EKdfNormalizationNotSupported.Create('the input string can''t be normalized on this platform');
       Substitute(LCh, LSB);
     end;
     Result := LSB.ToString;
