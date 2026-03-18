@@ -324,7 +324,7 @@ end;
 
 class function TPublicKey.FastCheck(const AValue: string): Boolean;
 begin
-  Result := TBase58Encoder.IsValid(AValue);
+  Result := TBase58Encoder.IsValidCharset(AValue);
 end;
 
 class function TPublicKey.TryCreateProgramAddress(const ASeeds: TArray<TBytes>;
