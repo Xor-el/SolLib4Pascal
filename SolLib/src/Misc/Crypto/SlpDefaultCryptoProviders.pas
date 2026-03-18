@@ -23,7 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  ClpBits,
+  ClpBitOperations,
   ClpBigInteger,
   ClpIDigest,
   ClpDigestUtilities,
@@ -41,15 +41,11 @@ uses
   ClpParameterUtilities,
   ClpISecureRandom,
   ClpSecureRandom,
-  ClpIEd25519,
   ClpEd25519,
   ClpISigner,
-  ClpIEd25519Signer,
   ClpEd25519Signer,
-  ClpIEd25519PublicKeyParameters,
-  ClpEd25519PublicKeyParameters,
-  ClpIEd25519PrivateKeyParameters,
-  ClpEd25519PrivateKeyParameters,
+  ClpIEd25519Parameters,
+  ClpEd25519Parameters,
   SlpArrayUtils,
   SlpCryptoProviders;
 
@@ -114,7 +110,7 @@ type
     // Curve constants for IsOnCurve
     class var FQ, FQm2, FQp3, FD, FI, FUn, FTwo, FEight: TBigInteger;
     class constructor Create;
-    class function GetEd25519Instance: IEd25519; static;
+
     // SHA-512(seed) with RFC8032 clamping
     // - First 32 bytes = clamped scalar
     // - Next 32 bytes  = prefix
@@ -328,11 +324,6 @@ end;
 
 { TDefaultEd25519Provider }
 
-class function TDefaultEd25519Provider.GetEd25519Instance: IEd25519;
-begin
-  Result := TEd25519.Create;
-end;
-
 function TDefaultEd25519Provider.GenerateKeyPair(const ASeed32: TBytes): TEd25519KeyPair;
 var
   LPriv: IEd25519PrivateKeyParameters;
@@ -343,7 +334,7 @@ begin
     raise EArgumentException.Create('Seed must be exactly 32 bytes');
 
   // Private key from seed
-  LPriv := TEd25519PrivateKeyParameters.Create(GetEd25519Instance, ASeed32, 0);
+  LPriv := TEd25519PrivateKeyParameters.Create(ASeed32, 0);
 
   // Derive public key (32 bytes)
   LPub := LPriv.GeneratePublicKey;
@@ -373,10 +364,10 @@ begin
   TArrayUtils.Copy<Byte>(ASecretKey64, 0, LSeed, 0, 32);
 
   // Private key from seed
-  LPriv := TEd25519PrivateKeyParameters.Create(GetEd25519Instance, LSeed, 0);
+  LPriv := TEd25519PrivateKeyParameters.Create(LSeed, 0);
 
   // Sign
-  LSigner := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
+  LSigner := TEd25519Signer.Create();
   LSigner.Init(True, LPriv);
   if Length(AMessage) > 0 then
     LSigner.BlockUpdate(AMessage, 0, Length(AMessage));
@@ -396,7 +387,7 @@ begin
 
   LPub := TEd25519PublicKeyParameters.Create(APublicKey32, 0);
 
-  LVerifier := TEd25519Signer.Create(GetEd25519Instance) as IEd25519Signer;
+  LVerifier := TEd25519Signer.Create();
   LVerifier.Init(False, LPub);
   if Length(AMessage) > 0 then
     LVerifier.BlockUpdate(AMessage, 0, Length(AMessage));
@@ -596,7 +587,7 @@ end;
 
 class function TScryptImpl.RotateLeft32(AA: Cardinal; AB: Integer): Cardinal;
 begin
-  Result := TBits.RotateLeft32(AA, AB);
+  Result := TBitOperations.RotateLeft32(AA, AB);
 end;
 
 class procedure TScryptImpl.Salsa208(AB: PCardinal);
