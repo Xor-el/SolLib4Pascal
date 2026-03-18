@@ -30,14 +30,14 @@ type
   public
     class function EncodeData(const AData: TBytes): string; virtual; abstract;
     class function DecodeData(const AEncoded: string): TBytes; virtual; abstract;
-    class function IsValid(const AEncoded: string): Boolean; virtual; abstract;
+    class function IsValidCharset(const AEncoded: string): Boolean; virtual; abstract;
   end;
   /// <summary>Base58 encode/decode (static-style)</summary>
   TBase58Encoder = class(TDataEncoderAlgorithm)
   public
     class function EncodeData(const AData: TBytes): string; override;
     class function DecodeData(const AEncoded: string): TBytes; override;
-    class function IsValid(const AEncoded: string): Boolean; override;
+    class function IsValidCharset(const AEncoded: string): Boolean; override;
   end;
 
   /// <summary>Base64 encode/decode (static-style)</summary>
@@ -45,7 +45,7 @@ type
   public
     class function EncodeData(const AData: TBytes): string; override;
     class function DecodeData(const AEncoded: string): TBytes; override;
-    class function IsValid(const AEncoded: string): Boolean; override;
+    class function IsValidCharset(const AEncoded: string): Boolean; override;
   end;
 
   /// <summary>Hex encode/decode (static-style)</summary>
@@ -53,7 +53,7 @@ type
   public
     class function EncodeData(const AData: TBytes): string; override;
     class function DecodeData(const AEncoded: string): TBytes; override;
-    class function IsValid(const AEncoded: string): Boolean; override;
+    class function IsValidCharset(const AEncoded: string): Boolean; override;
   end;
 
   /// <summary>Solana cli keypair array-style encode/decode (static-style)</summary>
@@ -61,7 +61,7 @@ type
   public
     class function EncodeData(const AData: TBytes): string; override;
     class function DecodeData(const AEncoded: string): TBytes; override;
-    class function IsValid(const AEncoded: string): Boolean; override;
+    class function IsValidCharset(const AEncoded: string): Boolean; override;
   end;
 
 implementation
@@ -78,9 +78,9 @@ begin
   Result := TDataEncoderProviders.Base58.DecodeData(AEncoded);
 end;
 
-class function TBase58Encoder.IsValid(const AEncoded: string): Boolean;
+class function TBase58Encoder.IsValidCharset(const AEncoded: string): Boolean;
 begin
-  Result := TDataEncoderProviders.Base58.IsValid(AEncoded);
+  Result := TDataEncoderProviders.Base58.IsValidCharset(AEncoded);
 end;
 
 { TBase64Encoder }
@@ -95,9 +95,9 @@ begin
   Result := TDataEncoderProviders.Base64.DecodeData(AEncoded);
 end;
 
-class function TBase64Encoder.IsValid(const AEncoded: string): Boolean;
+class function TBase64Encoder.IsValidCharset(const AEncoded: string): Boolean;
 begin
-  Result := TDataEncoderProviders.Base64.IsValid(AEncoded);
+  Result := TDataEncoderProviders.Base64.IsValidCharset(AEncoded);
 end;
 
 { THexEncoder }
@@ -112,9 +112,9 @@ begin
   Result := TDataEncoderProviders.Hex.DecodeData(AEncoded);
 end;
 
-class function THexEncoder.IsValid(const AEncoded: string): Boolean;
+class function THexEncoder.IsValidCharset(const AEncoded: string): Boolean;
 begin
-  Result := TDataEncoderProviders.Hex.IsValid(AEncoded);
+  Result := TDataEncoderProviders.Hex.IsValidCharset(AEncoded);
 end;
 
 { TSolanaKeyPairJsonEncoder }
@@ -129,9 +129,9 @@ begin
   Result := TDataEncoderProviders.SolanaKeyPairJson.DecodeData(AEncoded);
 end;
 
-class function TSolanaKeyPairJsonEncoder.IsValid(const AEncoded: string): Boolean;
+class function TSolanaKeyPairJsonEncoder.IsValidCharset(const AEncoded: string): Boolean;
 begin
-  Result := TDataEncoderProviders.SolanaKeyPairJson.IsValid(AEncoded);
+  Result := TDataEncoderProviders.SolanaKeyPairJson.IsValidCharset(AEncoded);
 end;
 
 end.

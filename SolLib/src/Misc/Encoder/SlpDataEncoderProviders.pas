@@ -47,11 +47,11 @@ type
     function DecodeData(const AEncoded: string): TBytes;
 
     /// <summary>
-    /// Check if the encoded string is valid for this encoding.
+    /// Check if the encoded string contains only valid characters for this encoding charset.
     /// </summary>
     /// <param name="AEncoded">The encoded string to validate.</param>
     /// <returns>True if valid, false otherwise.</returns>
-    function IsValid(const AEncoded: string): Boolean;
+    function IsValidCharset(const AEncoded: string): Boolean;
   end;
 
   /// <summary>
@@ -83,7 +83,7 @@ type
 //     public
 //       function EncodeData(const AData: TBytes; AOffset, ACount: Integer): string;
 //       function DecodeData(const AEncoded: string): TBytes;
-//       function IsValid(const AEncoded: string): Boolean;
+//       function IsValidCharset(const AEncoded: string): Boolean;
 //     end;
 //
 //   // At application startup:
