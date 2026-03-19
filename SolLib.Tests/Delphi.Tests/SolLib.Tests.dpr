@@ -193,6 +193,7 @@ uses
   TokenWalletTests in '..\src\Token\TokenWalletTests.pas',
   JsonStructuralComparerTests in '..\src\Misc\JsonStructuralComparerTests.pas',
   DataEncoderProviderTests in '..\src\Misc\DataEncoderProviderTests.pas',
+  CryptoProviderTests in '..\src\Misc\CryptoProviderTests.pas',
   SolanaStreamingRpcClientTests in '..\src\Rpc\SolanaStreamingRpcClientTests.pas',
   SerializationUtilitiesTests in '..\src\Program\SerializationUtilitiesTests.pas',
   DeserializationUtilitiesTests in '..\src\Program\DeserializationUtilitiesTests.pas',

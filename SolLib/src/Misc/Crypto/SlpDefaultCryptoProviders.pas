@@ -24,7 +24,6 @@ interface
 uses
   System.SysUtils,
   ClpBitOperations,
-  ClpBigInteger,
   ClpIDigest,
   ClpDigestUtilities,
   ClpIMac,
@@ -106,22 +105,6 @@ type
   /// Default Ed25519 provider using CryptoLib4Pascal.
   /// </summary>
   TDefaultEd25519Provider = class(TInterfacedObject, IEd25519Provider)
-  strict private
-    // Curve constants for IsOnCurve
-    class var FQ, FQm2, FQp3, FD, FI, FUn, FTwo, FEight: TBigInteger;
-    class constructor Create;
-
-    // SHA-512(seed) with RFC8032 clamping
-    // - First 32 bytes = clamped scalar
-    // - Next 32 bytes  = prefix
-    class function GetExpandedPrivateKeyFromSeed(const ASeed32: TBytes): TBytes; static;
-    // IsOnCurve helpers
-    class function ExpMod(const ANumber, AExponent, AModulo: TBigInteger): TBigInteger; static;
-    class function Inv(const AX: TBigInteger): TBigInteger; static;
-    class function IsEven(const AX: TBigInteger): Boolean; static;
-    class function RecoverX(const AY: TBigInteger): TBigInteger; static;
-    class function IsOnCurveXY(const AX, AY: TBigInteger): Boolean; static;
-    class function BigIntFromLEUnsigned(const AKey: TBytes): TBigInteger; static;
   public
     function GenerateKeyPair(const ASeed32: TBytes): TEd25519KeyPair;
     function Sign(const ASecretKey64, AMessage: TBytes): TBytes;
@@ -395,131 +378,11 @@ begin
   Result := LVerifier.VerifySignature(ASignature64);
 end;
 
-class constructor TDefaultEd25519Provider.Create;
-  function BI(const AStr: string): TBigInteger; inline;
-  begin
-    Result := TBigInteger.Create(AStr);
-  end;
-begin
-  // Prime field order q
-  FQ := BI('57896044618658097711785492504343953926634992332820282019728792003956564819949');
-  // q - 2
-  FQm2 := BI('57896044618658097711785492504343953926634992332820282019728792003956564819947');
-  // q + 3
-  FQp3 := BI('57896044618658097711785492504343953926634992332820282019728792003956564819952');
-  // Edwards curve constant d (for ed25519)
-  FD := BI('-4513249062541557337682894930092624173785641285191125241628941591882900924598840740');
-  // sqrt(-1) mod q
-  FI := BI('19681161376707505956807079304988542015446066515923890162744021073123829784752');
-  // 2^255 - 1 (mask to clear x-sign bit in encoded Y)
-  FUn := BI('57896044618658097711785492504343953926634992332820282019728792003956564819967');
-  // small ints
-  FTwo := TBigInteger.ValueOf(2);
-  FEight := TBigInteger.ValueOf(8);
-end;
-
-class function TDefaultEd25519Provider.GetExpandedPrivateKeyFromSeed(const ASeed32: TBytes): TBytes;
-var
-  LDigest: IDigest;
-begin
-  if Length(ASeed32) <> 32 then
-    raise EArgumentException.Create('Seed must be 32 bytes');
-
-  // SHA-512 of seed
-  LDigest := TDigestUtilities.GetDigest('SHA-512');
-  LDigest.BlockUpdate(ASeed32, 0, 32);
-  SetLength(Result, LDigest.GetDigestSize);
-  LDigest.DoFinal(Result, 0);
-
-  if Length(Result) <> 64 then
-    raise EInvalidOpException.Create('SHA-512 did not return 64 bytes');
-
-  // RFC8032 clamping on Result[0..31]
-  Result[0] := Result[0] and $F8;
-  Result[31] := Result[31] and $3F;
-  Result[31] := Result[31] or $40;
-end;
-
-class function TDefaultEd25519Provider.ExpMod(const ANumber, AExponent, AModulo: TBigInteger): TBigInteger;
-begin
-  Result := ANumber.ModPow(AExponent, AModulo);
-end;
-
-class function TDefaultEd25519Provider.Inv(const AX: TBigInteger): TBigInteger;
-begin
-  // Fermat: x^(q-2) mod q
-  Result := ExpMod(AX, FQm2, FQ);
-end;
-
-class function TDefaultEd25519Provider.IsEven(const AX: TBigInteger): Boolean;
-begin
-  Result := not AX.TestBit(0);
-end;
-
-class function TDefaultEd25519Provider.RecoverX(const AY: TBigInteger): TBigInteger;
-var
-  LY2, LXX, LX, LChk: TBigInteger;
-begin
-  // LXX = (y^2 - 1) * inv(d*y^2 + 1) (mod q)
-  LY2 := AY.Multiply(AY);
-  LXX := LY2.Subtract(TBigInteger.One);
-  LXX := LXX.Multiply(Inv(FD.Multiply(LY2).Add(TBigInteger.One)));
-  LXX := LXX.&Mod(FQ);
-
-  // LX = LXX^((q+3)/8) mod q
-  LX := LXX.ModPow(FQp3.Divide(FEight), FQ);
-
-  // if (LX^2 - LXX) mod q != 0 then LX = (LX * i) mod q
-  LChk := LX.Multiply(LX).Subtract(LXX).&Mod(FQ);
-  if not LChk.Equals(TBigInteger.Zero) then
-    LX := LX.Multiply(FI).&Mod(FQ);
-
-  // choose the even representative
-  if not IsEven(LX) then
-    LX := FQ.Subtract(LX);
-
-  Result := LX;
-end;
-
-class function TDefaultEd25519Provider.IsOnCurveXY(const AX, AY: TBigInteger): Boolean;
-var
-  LXX, LYY, LDxxyy: TBigInteger;
-begin
-  // LYY - LXX - d*LYY*LXX - 1 == 0 (mod q)
-  LXX := AX.Multiply(AX);
-  LYY := AY.Multiply(AY);
-  LDxxyy := FD.Multiply(LYY).Multiply(LXX);
-
-  Result := LYY.Subtract(LXX).Subtract(LDxxyy).Subtract(TBigInteger.One).&Mod(FQ)
-    .Equals(TBigInteger.Zero);
-end;
-
-class function TDefaultEd25519Provider.BigIntFromLEUnsigned(const AKey: TBytes): TBigInteger;
-var
-  LBe: TBytes;
-  LI, LLen: Integer;
-begin
-  // Little-endian unsigned -> big-endian magnitude -> positive BigInteger
-  LLen := Length(AKey);
-  SetLength(LBe, LLen);
-
-  for LI := 0 to LLen - 1 do
-    LBe[LI] := AKey[LLen - 1 - LI];
-  // Use ctor (sign, magnitude) to force positive
-  Result := TBigInteger.Create(1, LBe);
-end;
-
 function TDefaultEd25519Provider.IsOnCurve(const APublicKey32: TBytes): Boolean;
-var
-  LY, LX: TBigInteger;
 begin
   if Length(APublicKey32) <> 32 then
     raise EArgumentException.Create('PublicKey must be 32 bytes');
-
-  // LY = (LE 32 bytes) & (2^255 - 1)
-  LY := BigIntFromLEUnsigned(APublicKey32).&And(FUn);
-  LX := RecoverX(LY);
-  Result := IsOnCurveXY(LX, LY);
+  Result := TEd25519.ValidatePublicKeyPartial(APublicKey32, 0);
 end;
 
 { TScryptImpl }
