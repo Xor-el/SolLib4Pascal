@@ -23,7 +23,6 @@ interface
 
 uses
   System.SysUtils,
-  ClpBitOperations,
   ClpIDigest,
   ClpDigestUtilities,
   ClpIMac,
@@ -34,6 +33,8 @@ uses
   ClpParametersWithIV,
   ClpIPkcs5S2ParametersGenerator,
   ClpPkcs5S2ParametersGenerator,
+  ClpIScryptParametersGenerator,
+  ClpScryptParametersGenerator,
   ClpICipherParameters,
   ClpIBufferedCipher,
   ClpCipherUtilities,
@@ -110,26 +111,6 @@ type
     function Sign(const ASecretKey64, AMessage: TBytes): TBytes;
     function Verify(const APublicKey32, AMessage, ASignature64: TBytes): Boolean;
     function IsOnCurve(const APublicKey32: TBytes): Boolean;
-  end;
-
-  /// <summary>
-  /// Scrypt key derivation implementation.
-  /// </summary>
-  TScryptImpl = class sealed
-  strict private
-    class function SingleIterationPbkdf2(const APassword, ASalt: TBytes; DKLen: Integer): TBytes; static;
-    class procedure BulkCopy(ADst, ASrc: Pointer; ALen: NativeInt); static;
-    class procedure BulkXor(ADst, ASrc: Pointer; ALen: NativeInt); static;
-    class procedure Encode32(AP: PByte; AX: Cardinal); static;
-    class function Decode32(AP: PByte): Cardinal; static;
-    class function RotateLeft32(AA: Cardinal; AB: Integer): Cardinal; static; inline;
-    class procedure Salsa208(AB: PCardinal); static;
-    class procedure BlockMix(ABin, ABout, AX: PCardinal; ARoundsR: Integer); static;
-    class function Integerify(AB: PCardinal; ARoundsR: Integer): UInt64; static;
-    class procedure SMix(AB: PByte; ARoundsR, AN: Integer; AV, AXY: PCardinal); static;
-  public
-    class function DeriveKey(const APassword, ASalt: TBytes;
-      AN, AR, AP, ADKLen: Integer): TBytes; static;
   end;
 
 implementation
@@ -237,8 +218,21 @@ end;
 
 function TDefaultKdfProvider.Scrypt(const APassword, ASalt: TBytes;
   AN, AR, AP, ADKLen: Integer): TBytes;
+var
+  LGen: IScryptParametersGenerator;
+  LParams: ICipherParameters;
+  LKeyParam: IKeyParameter;
 begin
-  Result := TScryptImpl.DeriveKey(APassword, ASalt, AN, AR, AP, ADKLen);
+  // ARelaxCostRestriction = True: the Ethereum Web3 Secret Storage standard
+  // uses N=262144, r=1, p=8 which violates the erroneous RFC 7914 constraint
+  // N < 2^(128*r/8). The RFC author confirmed this was accidental.
+  // See: https://github.com/golang/go/issues/33703#issuecomment-568198927
+  LGen := TScryptParametersGenerator.Create;
+  LGen.Init(APassword, ASalt, AN, AR, AP, True);
+  LParams := LGen.GenerateDerivedMacParameters(ADKLen * 8);
+  if not Supports(LParams, IKeyParameter, LKeyParam) then
+    raise EArgumentException.Create('Derived parameters do not support IKeyParameter.');
+  Result := LKeyParam.GetKey;
 end;
 
 { TDefaultCipherProvider }
@@ -383,265 +377,6 @@ begin
   if Length(APublicKey32) <> 32 then
     raise EArgumentException.Create('PublicKey must be 32 bytes');
   Result := TEd25519.ValidatePublicKeyPartial(APublicKey32, 0);
-end;
-
-{ TScryptImpl }
-
-class function TScryptImpl.SingleIterationPbkdf2(const APassword, ASalt: TBytes; DKLen: Integer): TBytes;
-var
-  LGen: IPkcs5S2ParametersGenerator;
-  LParams: ICipherParameters;
-  LKeyParam: IKeyParameter;
-begin
-  LGen := TPkcs5S2ParametersGenerator.Create(TDigestUtilities.GetDigest('SHA-256'));
-  LGen.Init(APassword, ASalt, 1);
-  LParams := LGen.GenerateDerivedMacParameters(DKLen * 8);
-  if not Supports(LParams, IKeyParameter, LKeyParam) then
-    raise EArgumentException.Create('Derived parameters do not support IKeyParameter.');
-  Result := LKeyParam.GetKey;
-end;
-
-class procedure TScryptImpl.BulkCopy(ADst, ASrc: Pointer; ALen: NativeInt);
-begin
-  Move(ASrc^, ADst^, ALen);
-end;
-
-class procedure TScryptImpl.BulkXor(ADst, ASrc: Pointer; ALen: NativeInt);
-var
-  LDst, LSrc: PByte;
-  LLen: NativeInt;
-begin
-  LDst := ADst; LSrc := ASrc; LLen := ALen;
-  while LLen >= 8 do
-  begin
-    PUInt64(LDst)^ := PUInt64(LDst)^ xor PUInt64(LSrc)^;
-    Inc(LDst, 8); Inc(LSrc, 8); Dec(LLen, 8);
-  end;
-  if LLen >= 4 then
-  begin
-    PCardinal(LDst)^ := PCardinal(LDst)^ xor PCardinal(LSrc)^;
-    Inc(LDst, 4); Inc(LSrc, 4); Dec(LLen, 4);
-  end;
-  if LLen >= 2 then
-  begin
-    PWord(LDst)^ := PWord(LDst)^ xor PWord(LSrc)^;
-    Inc(LDst, 2); Inc(LSrc, 2); Dec(LLen, 2);
-  end;
-  if LLen >= 1 then
-    LDst^ := LDst^ xor LSrc^;
-end;
-
-class procedure TScryptImpl.Encode32(AP: PByte; AX: Cardinal);
-begin
-  AP[0] := Byte(AX and $FF);
-  AP[1] := Byte((AX shr 8) and $FF);
-  AP[2] := Byte((AX shr 16) and $FF);
-  AP[3] := Byte((AX shr 24) and $FF);
-end;
-
-class function TScryptImpl.Decode32(AP: PByte): Cardinal;
-begin
-  Result :=
-    Cardinal(AP[0]) or
-    (Cardinal(AP[1]) shl 8) or
-    (Cardinal(AP[2]) shl 16) or
-    (Cardinal(AP[3]) shl 24);
-end;
-
-class function TScryptImpl.RotateLeft32(AA: Cardinal; AB: Integer): Cardinal;
-begin
-  Result := TBitOperations.RotateLeft32(AA, AB);
-end;
-
-class procedure TScryptImpl.Salsa208(AB: PCardinal);
-var
-  LX0, LX1, LX2, LX3, LX4, LX5, LX6, LX7, LX8, LX9, LX10, LX11, LX12, LX13, LX14, LX15: Cardinal;
-  LI: Integer;
-begin
-  LX0 := AB[0];  LX1 := AB[1];  LX2 := AB[2];  LX3 := AB[3];
-  LX4 := AB[4];  LX5 := AB[5];  LX6 := AB[6];  LX7 := AB[7];
-  LX8 := AB[8];  LX9 := AB[9];  LX10 := AB[10]; LX11 := AB[11];
-  LX12 := AB[12]; LX13 := AB[13]; LX14 := AB[14]; LX15 := AB[15];
-
-  for LI := 0 to 3 do
-  begin
-    // Operate on columns
-    LX4 := LX4  xor RotateLeft32(LX0 + LX12, 7);
-    LX8 := LX8  xor RotateLeft32(LX4 + LX0, 9);
-
-    LX12 := LX12 xor RotateLeft32(LX8 + LX4, 13);
-    LX0 := LX0  xor RotateLeft32(LX12 + LX8, 18);
-
-    LX9 := LX9  xor RotateLeft32(LX5 + LX1, 7);
-    LX13 := LX13 xor RotateLeft32(LX9 + LX5, 9);
-
-    LX1 := LX1  xor RotateLeft32(LX13 + LX9, 13);
-    LX5 := LX5  xor RotateLeft32(LX1 + LX13, 18);
-
-    LX14 := LX14 xor RotateLeft32(LX10 + LX6, 7);
-    LX2 := LX2  xor RotateLeft32(LX14 + LX10, 9);
-
-    LX6 := LX6  xor RotateLeft32(LX2 + LX14, 13);
-    LX10 := LX10 xor RotateLeft32(LX6 + LX2, 18);
-
-    LX3 := LX3  xor RotateLeft32(LX15 + LX11, 7);
-    LX7 := LX7  xor RotateLeft32(LX3 + LX15, 9);
-
-    LX11 := LX11 xor RotateLeft32(LX7 + LX3, 13);
-    LX15 := LX15 xor RotateLeft32(LX11 + LX7, 18);
-
-    // Operate on rows
-    LX1 := LX1  xor RotateLeft32(LX0 + LX3, 7);
-    LX2 := LX2  xor RotateLeft32(LX1 + LX0, 9);
-
-    LX3 := LX3  xor RotateLeft32(LX2 + LX1, 13);
-    LX0 := LX0  xor RotateLeft32(LX3 + LX2, 18);
-
-    LX6 := LX6  xor RotateLeft32(LX5 + LX4, 7);
-    LX7 := LX7  xor RotateLeft32(LX6 + LX5, 9);
-
-    LX4 := LX4  xor RotateLeft32(LX7 + LX6, 13);
-    LX5 := LX5  xor RotateLeft32(LX4 + LX7, 18);
-
-    LX11 := LX11 xor RotateLeft32(LX10 + LX9, 7);
-    LX8 := LX8  xor RotateLeft32(LX11 + LX10, 9);
-
-    LX9 := LX9  xor RotateLeft32(LX8 + LX11, 13);
-    LX10 := LX10 xor RotateLeft32(LX9 + LX8, 18);
-
-    LX12 := LX12 xor RotateLeft32(LX15 + LX14, 7);
-    LX13 := LX13 xor RotateLeft32(LX12 + LX15, 9);
-
-    LX14 := LX14 xor RotateLeft32(LX13 + LX12, 13);
-    LX15 := LX15 xor RotateLeft32(LX14 + LX13, 18);
-  end;
-
-  AB[0] := AB[0]  + LX0;   AB[1] := AB[1]  + LX1;   AB[2] := AB[2]  + LX2;   AB[3] := AB[3]  + LX3;
-  AB[4] := AB[4]  + LX4;   AB[5] := AB[5]  + LX5;   AB[6] := AB[6]  + LX6;   AB[7] := AB[7]  + LX7;
-  AB[8] := AB[8]  + LX8;   AB[9] := AB[9]  + LX9;   AB[10] := AB[10] + LX10;  AB[11] := AB[11] + LX11;
-  AB[12] := AB[12] + LX12;  AB[13] := AB[13] + LX13;  AB[14] := AB[14] + LX14;  AB[15] := AB[15] + LX15;
-end;
-
-class procedure TScryptImpl.BlockMix(ABin, ABout, AX: PCardinal; ARoundsR: Integer);
-var
-  LI: Integer;
-begin
-  // AX <- B_{2r-1}
-  BulkCopy(AX, @ABin[(2 * ARoundsR - 1) * 16], 64);
-
-  LI := 0;
-  while LI <= (2 * ARoundsR - 1) do
-  begin
-    // even half (LI even)
-    BulkXor(AX, @ABin[LI * 16], 64);
-    Salsa208(AX);
-    // Y_even -> ABout[(LI div 2) * 16]
-    BulkCopy(@ABout[(LI div 2) * 16], AX, 64);
-
-    Inc(LI);
-    if LI >= 2 * ARoundsR then Break;
-
-    // odd half (LI odd, LI is the next block)
-    BulkXor(AX, @ABin[LI * 16], 64);
-    Salsa208(AX);
-    // Y_odd -> ABout[r*16 + (LI div 2) * 16]
-    BulkCopy(@ABout[ARoundsR * 16 + (LI div 2) * 16], AX, 64);
-
-    Inc(LI);
-  end;
-end;
-
-class function TScryptImpl.Integerify(AB: PCardinal; ARoundsR: Integer): UInt64;
-var
-  LX: PCardinal;
-begin
-  // LX points to the last 64-byte chunk (B_{2r-1})
-  LX := PCardinal(PByte(AB) + (2 * ARoundsR - 1) * 64);
-  Result := (UInt64(LX[1]) shl 32) or UInt64(LX[0]);
-end;
-
-class procedure TScryptImpl.SMix(AB: PByte; ARoundsR, AN: Integer; AV, AXY: PCardinal);
-var
-  LX, LY, LZ: PCardinal;
-  LI, LK: Integer;
-  LJ, LIdx: Integer;
-begin
-  LX := AXY;
-  LY := @AXY[32 * ARoundsR];
-  LZ := @AXY[64 * ARoundsR];
-
-  // 1: LX <- AB
-  for LK := 0 to (32 * ARoundsR - 1) do
-    LX[LK] := Decode32(@AB[4 * LK]);
-
-  // 2: for LI = 0..AN-1
-  LI := 0;
-  while LI < AN do
-  begin
-    BulkCopy(@AV[LI * (32 * ARoundsR)], LX, 128 * ARoundsR);
-    BlockMix(LX, LY, LZ, ARoundsR);
-
-    Inc(LI);
-    BulkCopy(@AV[LI * (32 * ARoundsR)], LY, 128 * ARoundsR);
-    BlockMix(LY, LX, LZ, ARoundsR);
-
-    Inc(LI);
-  end;
-
-  // 6: for LI = 0..AN-1
-  LI := 0;
-  while LI < AN do
-  begin
-    LJ := Integer(Integerify(LX, ARoundsR) and UInt64(AN - 1));
-    LIdx := LJ * (32 * ARoundsR);
-    BulkXor(LX, @AV[LIdx], 128 * ARoundsR);
-    BlockMix(LX, LY, LZ, ARoundsR);
-
-    LJ := Integer(Integerify(LY, ARoundsR) and UInt64(AN - 1));
-    LIdx := LJ * (32 * ARoundsR);
-    BulkXor(LY, @AV[LIdx], 128 * ARoundsR);
-    BlockMix(LY, LX, LZ, ARoundsR);
-
-    Inc(LI, 2);
-  end;
-
-  // 10: B' <- LX
-  for LK := 0 to (32 * ARoundsR - 1) do
-    Encode32(@AB[4 * LK], LX[LK]);
-end;
-
-class function TScryptImpl.DeriveKey(const APassword, ASalt: TBytes;
-  AN, AR, AP, ADKLen: Integer): TBytes;
-var
-  LBA: TBytes;
-  LXY: TArray<Cardinal>;
-  LV: TArray<Cardinal>;
-  LI, LBlockLen: Integer;
-  LBi: PByte;
-begin
-  if (AN <= 1) or ((AN and (AN - 1)) <> 0) then
-    raise EArgumentException.Create('N must be > 1 and a power of 2');
-
-  if (AR <= 0) or (AP <= 0) then
-    raise EArgumentException.Create('r and p must be > 0');
-
-  // 1: B <- PBKDF2(P, S, 1, p*128*r)
-  LBlockLen := 128 * AR;
-  LBA := SingleIterationPbkdf2(APassword, ASalt, AP * LBlockLen);
-
-  // temp buffers
-  SetLength(LXY, 32 * AR * 2 + 16);
-  SetLength(LV, 32 * AR * AN);
-
-  // 2: for LI = 0..p-1: SMix(B_i, r, N)
-  for LI := 0 to AP - 1 do
-  begin
-    LBi := @LBA[LI * LBlockLen];
-    SMix(LBi, AR, AN, @LV[0], @LXY[0]);
-  end;
-
-  // 5: DK <- PBKDF2(P, B, 1, dkLen)
-  Result := SingleIterationPbkdf2(APassword, LBA, ADKLen);
 end;
 
 end.
