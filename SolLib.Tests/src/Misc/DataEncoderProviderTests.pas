@@ -26,7 +26,7 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SolLibTestCase;
 
 type

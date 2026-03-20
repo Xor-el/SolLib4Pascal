@@ -39,7 +39,7 @@ uses
   SlpTokenMintResolver,
   SlpSolConverter,
   SlpTransactionBuilder,
-  SlpListUtils,
+  SlpListUtilities,
   SlpNullable,
   SlpTokenProgram,
   SlpAssociatedTokenAccountProgram,
@@ -938,7 +938,7 @@ begin
   if APubKey = '' then
     raise EArgumentNilException.Create('APubkey');
 
-  Result := TListUtils.Any<TTokenAccount>(
+  Result := TListUtilities.Any<TTokenAccount>(
     FTokenAccounts,
     function(ATokenAcc: TTokenAccount): Boolean
     begin

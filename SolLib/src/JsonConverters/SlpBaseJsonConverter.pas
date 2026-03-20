@@ -30,7 +30,7 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
-  SlpValueUtils,
+  SlpValueUtilities,
   SlpJsonHelpers,
   SlpValueHelpers;
 
@@ -98,7 +98,7 @@ begin
     if LRT = nil then
       Exit;
 
-    if not TValueUtils.IsDictionaryLikeType(LRT, LAddMethod, LKeyType, LValType, LGetEnum) then
+    if not TValueUtilities.IsDictionaryLikeType(LRT, LAddMethod, LKeyType, LValType, LGetEnum) then
       Exit;
 
     if (LKeyType = nil) or (LKeyType <> TypeInfo(string)) then
@@ -172,7 +172,7 @@ begin
   try
     LRT := LCtx.GetType(AObj.ClassType);
     if (LRT = nil) or
-       not TValueUtils.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum) then
+       not TValueUtilities.IsListLikeType(LRT, LAddMethod, LElemType, LGetEnum) then
       Exit;
 
     // Committed to writing a JSON array

@@ -27,7 +27,7 @@ uses
   System.TypInfo,
   System.Generics.Collections,
   System.JSON.Serializers,
-  SlpValueUtils,
+  SlpValueUtilities,
   SlpRpcModel,
   SlpNullable,
   SlpJsonKit,
@@ -270,7 +270,7 @@ begin
   LV := TValue.From<T>(FValue);
 
  if not LV.IsEmpty then
-   TValueUtils.FreeParameter(LV);
+   TValueUtilities.FreeParameter(LV);
 
   inherited;
 end;
@@ -302,7 +302,7 @@ end;
 destructor TJsonRpcRequest.Destroy;
 begin
   if Assigned(FParams) then
-    TValueUtils.FreeParameters(FParams);
+    TValueUtilities.FreeParameters(FParams);
 
   inherited;
 end;
@@ -311,7 +311,7 @@ function TJsonRpcRequest.Clone: TJsonRpcRequest;
 
 function CloneParams(const AParams: TList<TValue>): TList<TValue>;
 begin
-  Result := TValueUtils.CloneValueList(AParams);
+  Result := TValueUtilities.CloneValueList(AParams);
 end;
 
 begin
@@ -335,7 +335,7 @@ end;
 destructor TJsonRpcBatchResponseItem.Destroy;
 begin
  if not FResult.IsEmpty then
-   TValueUtils.FreeParameter(FResult);
+   TValueUtilities.FreeParameter(FResult);
 
   inherited;
 end;

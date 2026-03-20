@@ -23,7 +23,7 @@ interface
 
 uses
   System.SysUtils,
-  SlpArrayUtils,
+  SlpArrayUtilities,
   SlpPublicKey,
   SlpBinaryPrimitives;
 
@@ -128,10 +128,10 @@ type
     /// Write a span of bytes to the byte array at the given offset.
     /// </summary>
     /// <param name="AData">The byte array to write data to.</param>
-    /// <param name="ASrcSpan">The <see cref="TBytes"/> to write.</param>
+    /// <param name="ASrcBytes">The <see cref="TBytes"/> to write.</param>
     /// <param name="AOffset">The offset at which to write the <see cref="TBytes"/>.</param>
     /// <exception cref="EArgumentOutOfRangeException">Thrown when the offset is too big for the data array.</exception>
-    class procedure WriteSpan(var AData: TBytes; const ASrcSpan: TBytes; AOffset: Integer); static;
+    class procedure WriteBytes(var AData: TBytes; const ASrcBytes: TBytes; AOffset: Integer); static;
     /// <summary>
     /// Write a <see cref="PublicKey"/> encoded as a 32 byte array to the byte array at the given offset.
     /// </summary>
@@ -241,10 +241,10 @@ begin
   TBinaryPrimitives.WriteDoubleLittleEndian(AData, AOffset, AValue);
 end;
 
-class procedure TSerialization.WriteSpan(var AData: TBytes; const ASrcSpan: TBytes; AOffset: Integer);
+class procedure TSerialization.WriteBytes(var AData: TBytes; const ASrcBytes: TBytes; AOffset: Integer);
 begin
-  CheckBounds(AData, AOffset, Length(ASrcSpan));
-  TArrayUtils.Copy<Byte>(ASrcSpan, 0, AData, AOffset, Length(ASrcSpan));
+  CheckBounds(AData, AOffset, Length(ASrcBytes));
+  TArrayUtilities.Copy<Byte>(ASrcBytes, 0, AData, AOffset, Length(ASrcBytes));
 end;
 
 class procedure TSerialization.WritePubKey(var AData: TBytes; const APubKey: IPublicKey; AOffset: Integer);
@@ -253,7 +253,7 @@ var
 begin
   LPubKeyBytes := APubKey.KeyBytes;
   CheckBounds(AData, AOffset, Length(LPubKeyBytes));
-  TArrayUtils.Copy<Byte>(LPubKeyBytes, 0, AData, AOffset, Length(LPubKeyBytes));
+  TArrayUtilities.Copy<Byte>(LPubKeyBytes, 0, AData, AOffset, Length(LPubKeyBytes));
 end;
 
 class function TSerialization.WriteBorshString(var AData: TBytes; const AValue: String; AOffset: Integer): Integer;
@@ -266,14 +266,14 @@ begin
     raise EArgumentOutOfRangeException.Create('AOffset');
 
   WriteU32(AData, UInt32(Length(LBytes)), AOffset);
-  WriteSpan(AData, LBytes, AOffset + SizeOf(UInt32));
+  WriteBytes(AData, LBytes, AOffset + SizeOf(UInt32));
   Result := Length(LBytes) + SizeOf(UInt32);
 end;
 
 class function TSerialization.WriteBorshByteVector(var AData: TBytes; const ABuffer: TBytes; AOffset: Integer): Integer;
 begin
   WriteU64(AData, UInt64(Length(ABuffer)), AOffset);
-  WriteSpan(AData, ABuffer, AOffset + SizeOf(UInt64));
+  WriteBytes(AData, ABuffer, AOffset + SizeOf(UInt64));
   Result := SizeOf(UInt64) + Length(ABuffer);
 end;
 
@@ -284,7 +284,7 @@ begin
   LStrBytes := TEncoding.UTF8.GetBytes(AData);
   SetLength(Result, Length(LStrBytes) + SizeOf(UInt64));
   WriteU64(Result, UInt64(Length(LStrBytes)), 0);
-  WriteSpan(Result, LStrBytes, 8);
+  WriteBytes(Result, LStrBytes, 8);
 end;
 
 end.

@@ -27,9 +27,9 @@ uses
   System.Generics.Collections,
   SlpPublicKey,
   SlpShortVectorEncoding,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpTransactionInstruction,
-  SlpArrayUtils;
+  SlpArrayUtilities;
 
 type
 
@@ -527,7 +527,7 @@ begin
   LNumReadOnlyUnsignedAccounts := AData[TMessageHeader.TLayout.ReadOnlyUnsignedAccountsOffset];
 
   // Read account keys
-  LAccLenSlice := TArrayUtils.Slice<Byte>(AData, HLen, SvesLen);
+  LAccLenSlice := TArrayUtilities.Slice<Byte>(AData, HLen, SvesLen);
   LAccLenDec := TShortVectorEncoding.DecodeLength(LAccLenSlice);
   LAccountAddressLength := LAccLenDec.Value;
   LAccountAddressLengthEncodedLength := LAccLenDec.Length;
@@ -544,7 +544,7 @@ begin
 
   for LI := 0 to LAccountAddressLength - 1 do
   begin
-    LKeySlice := TArrayUtils.Slice<Byte>(
+    LKeySlice := TArrayUtilities.Slice<Byte>(
       AData,
       HLen + LAccountAddressLengthEncodedLength + LI * PKLen,
       PKLen
@@ -553,14 +553,14 @@ begin
     Result.AccountKeys.Add(LPublicKey);
   end;
 
-  LBlockHashSlice := TArrayUtils.Slice<Byte>(
+  LBlockHashSlice := TArrayUtilities.Slice<Byte>(
     AData,
     HLen + LAccountAddressLengthEncodedLength + LAccountAddressLength * PKLen,
     PKLen
   );
   Result.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
 
-  LInstrLenSlice := TArrayUtils.Slice<Byte>(
+  LInstrLenSlice := TArrayUtilities.Slice<Byte>(
     AData,
     HLen + LAccountAddressLengthEncodedLength + (LAccountAddressLength * PKLen) + PKLen,
     SvesLen
@@ -576,13 +576,13 @@ begin
     PKLen +
     LInstructionsLengthEncodedLength;
 
-  LInstrData := TArrayUtils.Slice<Byte>(AData, LInstructionsOffset);
+  LInstrData := TArrayUtilities.Slice<Byte>(AData, LInstructionsOffset);
 
   for LI := 0 to LInstructionsLength - 1 do
   begin
     LCId := TCompiledInstruction.Deserialize(LInstrData);
     Result.Instructions.Add(LCId.Instruction);
-    LInstrData := TArrayUtils.Slice<Byte>(LInstrData, LCId.Length);
+    LInstrData := TArrayUtilities.Slice<Byte>(LInstrData, LCId.Length);
   end;
 end;
 
@@ -602,8 +602,8 @@ var
 begin
   LCopyLkp := TVersionedMessage.TMessageAddressTableLookup.Create;
   LCopyLkp.FAccountKey := FAccountKey.Clone;
-  LCopyLkp.FWritableIndexes := TArrayUtils.Copy<Byte>(FWritableIndexes);
-  LCopyLkp.FReadonlyIndexes := TArrayUtils.Copy<Byte>(FReadonlyIndexes);
+  LCopyLkp.FWritableIndexes := TArrayUtilities.Copy<Byte>(FWritableIndexes);
+  LCopyLkp.FReadonlyIndexes := TArrayUtilities.Copy<Byte>(FReadonlyIndexes);
   Result := LCopyLkp;
 end;
 
@@ -717,7 +717,7 @@ begin
       'Expected versioned message with version 0 but found version %d', [LVersion]
     );
 
-  LBody := TArrayUtils.Slice<Byte>(AData, 1, Length(AData) - 1);
+  LBody := TArrayUtilities.Slice<Byte>(AData, 1, Length(AData) - 1);
 
   // Read message header
   LNumRequiredSignatures := LBody[TMessageHeader.TLayout.RequiredSignaturesOffset];
@@ -725,7 +725,7 @@ begin
   LNumReadOnlyUnsignedAccounts := LBody[TMessageHeader.TLayout.ReadOnlyUnsignedAccountsOffset];
 
   // Decode account keys
-  LAccLenSlice := TArrayUtils.Slice<Byte>(LBody, HLen, SvesLen);
+  LAccLenSlice := TArrayUtilities.Slice<Byte>(LBody, HLen, SvesLen);
   LAccLenDec := TShortVectorEncoding.DecodeLength(LAccLenSlice);
   LAccountAddressLength := LAccLenDec.Value;
   LAccountAddressLengthEncodedLength := LAccLenDec.Length;
@@ -744,7 +744,7 @@ begin
   // Accounts
   for LI := 0 to LAccountAddressLength - 1 do
   begin
-    LKeySlice := TArrayUtils.Slice<Byte>(
+    LKeySlice := TArrayUtilities.Slice<Byte>(
       LBody,
       HLen + LAccountAddressLengthEncodedLength + LI * PKLen,
       PKLen
@@ -754,7 +754,7 @@ begin
   end;
 
   // Blockhash
-  LBlockHashSlice := TArrayUtils.Slice<Byte>(
+  LBlockHashSlice := TArrayUtilities.Slice<Byte>(
     LBody,
     HLen + LAccountAddressLengthEncodedLength + LAccountAddressLength * PKLen,
     PKLen
@@ -762,7 +762,7 @@ begin
   LRes.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
 
   // Instructions
-  LInstrLenSlice := TArrayUtils.Slice<Byte>(
+  LInstrLenSlice := TArrayUtilities.Slice<Byte>(
     LBody,
     HLen + LAccountAddressLengthEncodedLength + (LAccountAddressLength * PKLen) + PKLen,
     SvesLen
@@ -778,14 +778,14 @@ begin
     PKLen +
     LInstructionsLengthEncodedLength;
 
-  LInstrData := TArrayUtils.Slice<Byte>(LBody, LInstructionsOffset);
+  LInstrData := TArrayUtilities.Slice<Byte>(LBody, LInstructionsOffset);
   LInstructionsDataLength := 0;
 
   for LI := 0 to LInstructionsLength - 1 do
   begin
     LInstrDec := TCompiledInstruction.Deserialize(LInstrData);
     LRes.Instructions.Add(LInstrDec.Instruction);
-    LInstrData := TArrayUtils.Slice<Byte>(LInstrData, LInstrDec.Length);
+    LInstrData := TArrayUtilities.Slice<Byte>(LInstrData, LInstrDec.Length);
     Inc(LInstructionsDataLength, LInstrDec.Length);
   end;
 
@@ -798,34 +798,34 @@ begin
     LInstructionsLengthEncodedLength +
     LInstructionsDataLength;
 
-  LTableLookupData := TArrayUtils.Slice<Byte>(LBody, LTableLookupOffset);
+  LTableLookupData := TArrayUtilities.Slice<Byte>(LBody, LTableLookupOffset);
   LATLCountDec := TShortVectorEncoding.DecodeLength(LTableLookupData);
   LAddressTableLookupsCount := LATLCountDec.Value;
   LAddressTableLookupsEncodedCount := LATLCountDec.Length;
 
-  LTableLookupData := TArrayUtils.Slice<Byte>(LTableLookupData, LAddressTableLookupsEncodedCount);
+  LTableLookupData := TArrayUtilities.Slice<Byte>(LTableLookupData, LAddressTableLookupsEncodedCount);
 
   for LI := 0 to LAddressTableLookupsCount - 1 do
   begin
-    LAccountKeyBytes := TArrayUtils.Slice<Byte>(LTableLookupData, 0, PKLen);
+    LAccountKeyBytes := TArrayUtilities.Slice<Byte>(LTableLookupData, 0, PKLen);
     LLkp := TVersionedMessage.TMessageAddressTableLookup.Create;
     LLkp.AccountKey := TPublicKey.Create(LAccountKeyBytes);
 
-    LTableLookupData := TArrayUtils.Slice<Byte>(LTableLookupData, PKLen);
+    LTableLookupData := TArrayUtilities.Slice<Byte>(LTableLookupData, PKLen);
 
     LWritableLenDec := TShortVectorEncoding.DecodeLength(LTableLookupData);
     LWritableLen := LWritableLenDec.Value;
     LWritableEncLen := LWritableLenDec.Length;
-    LWritableSlice := TArrayUtils.Slice<Byte>(LTableLookupData, LWritableEncLen, LWritableLen);
+    LWritableSlice := TArrayUtilities.Slice<Byte>(LTableLookupData, LWritableEncLen, LWritableLen);
     LLkp.WritableIndexes := LWritableSlice;
-    LTableLookupData := TArrayUtils.Slice<Byte>(LTableLookupData, LWritableEncLen + LWritableLen);
+    LTableLookupData := TArrayUtilities.Slice<Byte>(LTableLookupData, LWritableEncLen + LWritableLen);
 
     LReadonlyLenDec := TShortVectorEncoding.DecodeLength(LTableLookupData);
     LReadonlyLen := LReadonlyLenDec.Value;
     LReadonlyEncLen := LReadonlyLenDec.Length;
-    LReadonlySlice := TArrayUtils.Slice<Byte>(LTableLookupData, LReadonlyEncLen, LReadonlyLen);
+    LReadonlySlice := TArrayUtilities.Slice<Byte>(LTableLookupData, LReadonlyEncLen, LReadonlyLen);
     LLkp.ReadonlyIndexes := LReadonlySlice;
-    LTableLookupData := TArrayUtils.Slice<Byte>(LTableLookupData, LReadonlyEncLen + LReadonlyLen);
+    LTableLookupData := TArrayUtilities.Slice<Byte>(LTableLookupData, LReadonlyEncLen + LReadonlyLen);
 
     LRes.AddressTableLookups.Add(LLkp);
   end;

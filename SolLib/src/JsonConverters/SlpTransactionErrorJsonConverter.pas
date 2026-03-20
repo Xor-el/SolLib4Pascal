@@ -61,7 +61,7 @@ const
 implementation
 
 uses
-  SlpEnumUtils,
+  SlpEnumUtilities,
   SlpRpcModel;
 
 { TTransactionErrorJsonConverter }
@@ -88,7 +88,7 @@ begin
     if AReader.TokenType = TJsonToken.&String then
     begin
       LEnumStr := AReader.Value.AsString;
-      if TEnumUtils.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
+      if TEnumUtilities.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
         LErr.&Type := LErrType;
       Exit(LErr);
     end;
@@ -102,7 +102,7 @@ begin
       raise EJsonException.Create(SUnexpectedErrorValue);
 
     LEnumStr := AReader.Value.AsString;
-    if TEnumUtils.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
+    if TEnumUtilities.TryGetEnumValue<TTransactionErrorType>(LEnumStr, LErrType) then
       LErr.&Type := LErrType;
 
     if LErr.&Type = TTransactionErrorType.InstructionError then
@@ -125,7 +125,7 @@ begin
       if AReader.TokenType = TJsonToken.&String then
       begin
         LEnumStr := AReader.Value.AsString;
-        if TEnumUtils.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
+        if TEnumUtilities.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
           LErr.InstructionError.&Type := LInstrType;
         AReader.Read; // string
         AReader.Read; // endarray
@@ -141,7 +141,7 @@ begin
         raise EJsonException.Create(SUnexpectedErrorValue);
 
       LEnumStr := AReader.Value.AsString;
-      if TEnumUtils.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
+      if TEnumUtilities.TryGetEnumValue<TInstructionErrorType>(LEnumStr, LInstrType) then
         LErr.InstructionError.&Type := LInstrType;
 
       AReader.Read;
@@ -217,7 +217,7 @@ begin
   // If not InstructionError, serialize as a simple string (enum name).
   if LErr.&Type <> TTransactionErrorType.InstructionError then
   begin
-    LErrTypeName := TEnumUtils.ToString<TTransactionErrorType>(LErr.&Type);
+    LErrTypeName := TEnumUtilities.ToString<TTransactionErrorType>(LErr.&Type);
     AWriter.WriteValue(LErrTypeName);
     Exit;
   end;
@@ -237,7 +237,7 @@ begin
     Exit;
   end;
 
-  LInstrTypeName := TEnumUtils.ToString<TInstructionErrorType>(LInstr.&Type);
+  LInstrTypeName := TEnumUtilities.ToString<TInstructionErrorType>(LInstr.&Type);
 
   AWriter.WriteStartObject;
   AWriter.WritePropertyName('InstructionError');

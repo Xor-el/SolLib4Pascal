@@ -26,15 +26,15 @@ uses
   System.Rtti,
   System.TypInfo,
   System.Generics.Collections,
-  SlpDataEncoderUtils,
-  SlpEnumUtils,
+  SlpDataEncoderUtilities,
+  SlpEnumUtilities,
   SlpRpcModel,
   SlpRpcEnum,
   SlpSolanaRpcClient,
   SlpSolanaRpcBatchComposer,
   SlpRpcMessage,
   SlpConfigObject,
-  SlpValueUtils,
+  SlpValueUtilities,
   SlpNullable,
   SlpSolLibTypes;
 
@@ -516,7 +516,7 @@ begin
   else
     raise EArgumentException.CreateFmt(
       'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
+      [TEnumUtilities.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 

@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   System.Rtti,
   System.TypInfo,
-  SlpEnumUtils,
+  SlpEnumUtilities,
   SlpPublicKey,
   SlpAccount,
   SlpAccountDomain,
@@ -1664,7 +1664,7 @@ var
 begin
   LInstruction := TDeserialization.GetU8(AData, TToken2022ProgramData.MethodOffset);
 
-  if not TEnumUtils.TryGetEnumFromOrdinal<TToken2022ProgramInstructions.TValues>(LInstruction, LInstructionValue) then
+  if not TEnumUtilities.TryGetEnumFromOrdinal<TToken2022ProgramInstructions.TValues>(LInstruction, LInstructionValue) then
   begin
     Result := TDecodedInstruction.Create;
     Result.PublicKey := ProgramIdKey;

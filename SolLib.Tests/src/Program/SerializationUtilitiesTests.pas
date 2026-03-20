@@ -66,8 +66,8 @@ type
     procedure TestWriteS64Exception;
     procedure TestWriteS64;
 
-    procedure TestWriteSpanException;
-    procedure TestWriteSpan;
+    procedure TestWriteBytesException;
+    procedure TestWriteBytes;
 
     procedure TestWritePublicKeyException;
     procedure TestWritePublicKey;
@@ -322,7 +322,7 @@ begin
   AssertEquals(TBytes.Create(1,0,0,0,0,0,0,0), LSUT, 'WriteS64 (LE)');
 end;
 
-procedure TSerializationUtilitiesTests.TestWriteSpanException;
+procedure TSerializationUtilitiesTests.TestWriteBytesException;
 var
   LSUT: TBytes;
 begin
@@ -330,18 +330,18 @@ begin
   AssertException(
     procedure
     begin
-      TSerialization.WriteSpan(LSUT, PublicKeyBytes, 1);
+      TSerialization.WriteBytes(LSUT, PublicKeyBytes, 1);
     end,
     EArgumentOutOfRangeException
   );
 end;
 
-procedure TSerializationUtilitiesTests.TestWriteSpan;
+procedure TSerializationUtilitiesTests.TestWriteBytes;
 var
   LSUT: TBytes;
 begin
   SetLength(LSUT, 32);
-  TSerialization.WriteSpan(LSUT, PublicKeyBytes, 0);
+  TSerialization.WriteBytes(LSUT, PublicKeyBytes, 0);
   AssertEquals(PublicKeyBytes, LSUT, 'WriteSpan');
 end;
 

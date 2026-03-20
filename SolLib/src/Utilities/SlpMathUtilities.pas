@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpMathUtils;
+unit SlpMathUtilities;
 
 {$I ../Include/SolLib.inc}
 
@@ -26,7 +26,7 @@ uses
   System.Math;
 
 type
-  TMathUtils = class sealed
+  TMathUtilities = class sealed
   private
     const
       /// <summary>
@@ -74,9 +74,9 @@ type
 
 implementation
 
-{ TMathUtils }
+{ TMathUtilities }
 
-class function TMathUtils.ULPAt(const AX: Double): Double;
+class function TMathUtilities.ULPAt(const AX: Double): Double;
 var
   LMantissa: Double;
   LExponent: Integer;
@@ -87,7 +87,7 @@ begin
   Result := Ldexp(1.0, LExponent) * DoubleEpsilon;
 end;
 
-class function TMathUtils.DoubleToUInt64(const AV: Double): UInt64;
+class function TMathUtilities.DoubleToUInt64(const AV: Double): UInt64;
 var
   LW, LSnap, LWInt: Double;
 begin
@@ -119,7 +119,7 @@ begin
     Result := (UInt64(1) shl 63) + UInt64(Int64(Trunc(LWInt - Two63)));
 end;
 
-class function TMathUtils.DoubleToNativeUInt(const AV: Double): NativeUInt;
+class function TMathUtilities.DoubleToNativeUInt(const AV: Double): NativeUInt;
 var
   LW, LWInt: Double;
 begin

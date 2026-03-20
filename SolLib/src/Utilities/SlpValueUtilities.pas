@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpValueUtils;
+unit SlpValueUtilities;
 
 {$I ../Include/SolLib.inc}
 
@@ -41,7 +41,7 @@ type
     procedure FreeEnumObject;
   end;
 
-  TValueUtils = class sealed
+  TValueUtilities = class sealed
   private
     class function TypedNil(ATypeInfo: PTypeInfo): TValue; static;
     class function FindParameterlessCtor(const AInstT: TRttiInstanceType): TRttiMethod; static;
@@ -244,9 +244,11 @@ begin
   CurrentField := nil;
 end;
 
+{ TValueUtilities }
+
 {=== Core RTTI helpers ===}
 
-class function TValueUtils.TypedNil(ATypeInfo: PTypeInfo): TValue;
+class function TValueUtilities.TypedNil(ATypeInfo: PTypeInfo): TValue;
 begin
   if ATypeInfo = nil then
     Exit(TValue.Empty);
@@ -254,7 +256,7 @@ begin
   Result := Result.Cast(ATypeInfo);
 end;
 
-class function TValueUtils.TryGetBooleanProperty(const AObj: TObject; const APropName: string;
+class function TValueUtilities.TryGetBooleanProperty(const AObj: TObject; const APropName: string;
   out AB: Boolean; const ACtx: TRttiContext): Boolean;
 var
   LT: TRttiType;
@@ -276,7 +278,7 @@ begin
   end;
 end;
 
-class function TValueUtils.MarkVisited(const APtr: Pointer;
+class function TValueUtilities.MarkVisited(const APtr: Pointer;
   const ASeen: TDictionary<Pointer, Byte>): Boolean;
 begin
   if (APtr = nil) or (ASeen = nil) then
@@ -286,7 +288,7 @@ begin
     ASeen.Add(APtr, 0);
 end;
 
-class function TValueUtils.FindParameterlessCtor(const AInstT: TRttiInstanceType): TRttiMethod;
+class function TValueUtilities.FindParameterlessCtor(const AInstT: TRttiInstanceType): TRttiMethod;
 var
   LMethod: TRttiMethod;
 begin
@@ -297,7 +299,7 @@ begin
       Exit(LMethod);
 end;
 
-class function TValueUtils.MakeInstanceForPopulate(ANativeType: PTypeInfo;
+class function TValueUtilities.MakeInstanceForPopulate(ANativeType: PTypeInfo;
   const ACtx: TRttiContext): TValue;
 var
   LRType: TRttiType;
@@ -326,7 +328,7 @@ begin
   end;
 end;
 
-class function TValueUtils.MakeInstanceForPopulate(ANativeType: PTypeInfo): TValue;
+class function TValueUtilities.MakeInstanceForPopulate(ANativeType: PTypeInfo): TValue;
 var
   LCtx: TRttiContext;
 begin
@@ -338,7 +340,7 @@ begin
   end;
 end;
 
-class function TValueUtils.CreateCollectionInstance(const AType: TRttiType): TObject;
+class function TValueUtilities.CreateCollectionInstance(const AType: TRttiType): TObject;
 var
   LInstT: TRttiInstanceType;
   LCtor: TRttiMethod;
@@ -358,7 +360,7 @@ end;
 
 {=== Detection ===}
 
-class function TValueUtils.IsListLikeType(const ARType: TRttiType;
+class function TValueUtilities.IsListLikeType(const ARType: TRttiType;
   out AAddMethod: TRttiMethod; out AElemType: PTypeInfo;
   out AGetEnum: TRttiMethod): Boolean;
 var
@@ -387,7 +389,7 @@ begin
   Result := Assigned(AAddMethod) and Assigned(AGetEnum);
 end;
 
-class function TValueUtils.IsDictionaryLikeType(const ARType: TRttiType;
+class function TValueUtilities.IsDictionaryLikeType(const ARType: TRttiType;
   out AAddMethod: TRttiMethod; out AKeyType, AValType: PTypeInfo;
   out AGetEnum: TRttiMethod): Boolean;
 var
@@ -420,7 +422,7 @@ end;
 
 {=== Enumeration helpers ===}
 
-class function TValueUtils.GetEnumeratorInfo(const ARType: TRttiType;
+class function TValueUtilities.GetEnumeratorInfo(const ARType: TRttiType;
   const AInstance: TObject; const ACtx: TRttiContext): TEnumeratorInfo;
 var
   LGetEnum: TRttiMethod;
@@ -472,7 +474,7 @@ begin
   end;
 end;
 
-class function TValueUtils.ExtractPairKV(const APairValue: TValue; out AKey, AVal: TValue;
+class function TValueUtilities.ExtractPairKV(const APairValue: TValue; out AKey, AVal: TValue;
   const ACtx: TRttiContext): Boolean;
 var
   LPairT: TRttiType;
@@ -510,7 +512,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.SafeCast(var AValue: TValue; ATargetTypeInfo: PTypeInfo);
+class procedure TValueUtilities.SafeCast(var AValue: TValue; ATargetTypeInfo: PTypeInfo);
 begin
   if Assigned(ATargetTypeInfo) and (ATargetTypeInfo <> TypeInfo(TValue)) and
      (not AValue.IsEmpty) and (AValue.TypeInfo <> ATargetTypeInfo) then
@@ -519,7 +521,7 @@ end;
 
 {=== Assign / Clone primitives ===}
 
-class procedure TValueUtils.AssignListLike(ADstList: TObject; const ASrcList: TObject;
+class procedure TValueUtilities.AssignListLike(ADstList: TObject; const ASrcList: TObject;
   const AListType: TRttiType; const ACtx: TRttiContext);
 var
   LAddM: TRttiMethod;
@@ -548,7 +550,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.AssignDictionaryLike(ADstDict: TObject; const ASrcDict: TObject;
+class procedure TValueUtilities.AssignDictionaryLike(ADstDict: TObject; const ASrcDict: TObject;
   const ADictType: TRttiType; const ACtx: TRttiContext);
 var
   LAddM, LGetEnumM: TRttiMethod;
@@ -583,7 +585,7 @@ begin
   end;
 end;
 
-class function TValueUtils.CloneDynArray(const ASrc: TValue; ATypeInfo: PTypeInfo;
+class function TValueUtilities.CloneDynArray(const ASrc: TValue; ATypeInfo: PTypeInfo;
   const ACtx: TRttiContext): TValue;
 var
   LArrT: TRttiDynamicArrayType;
@@ -623,7 +625,7 @@ end;
 
 {=== Ownership flags ===}
 
-class procedure TValueUtils.CopyOwnershipFlags(const ASrcObj: TObject; ADstObj: TObject;
+class procedure TValueUtilities.CopyOwnershipFlags(const ASrcObj: TObject; ADstObj: TObject;
   const ACtx: TRttiContext);
 var
   LSrcT, LDstT: TRttiType;
@@ -674,7 +676,7 @@ end;
 
 {=== Public API ===}
 
-class function TValueUtils.CloneValue(const AValue: TValue;
+class function TValueUtilities.CloneValue(const AValue: TValue;
   const ACtx: TRttiContext): TValue;
 var
   LRType: TRttiType;
@@ -740,7 +742,7 @@ begin
   end;
 end;
 
-class function TValueUtils.CloneValue(const AValue: TValue): TValue;
+class function TValueUtilities.CloneValue(const AValue: TValue): TValue;
 var
   LCtx: TRttiContext;
 begin
@@ -752,7 +754,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.AssignObjectProps(ADstObj: TObject; const ASrcObj: TObject;
+class procedure TValueUtilities.AssignObjectProps(ADstObj: TObject; const ASrcObj: TObject;
   const ADstType: TRttiType; const ACtx: TRttiContext);
 var
   LP: TRttiProperty;
@@ -828,7 +830,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.AssignObjectFields(ADstObj: TObject; const ASrcObj: TObject;
+class procedure TValueUtilities.AssignObjectFields(ADstObj: TObject; const ASrcObj: TObject;
   const ADstType: TRttiType; const ACtx: TRttiContext);
 var
   LF: TRttiField;
@@ -919,7 +921,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.AssignValue(var ADest: TValue; const ASrc: TValue;
+class procedure TValueUtilities.AssignValue(var ADest: TValue; const ASrc: TValue;
   const ACtx: TRttiContext);
 var
   LDstType: TRttiType;
@@ -952,7 +954,7 @@ begin
   end;
 end;
 
-class function TValueUtils.CloneValueList(const AParams: TList<TValue>): TList<TValue>;
+class function TValueUtilities.CloneValueList(const AParams: TList<TValue>): TList<TValue>;
 var
   LCtx: TRttiContext;
   LV: TValue;
@@ -970,7 +972,7 @@ begin
   end;
 end;
 
-class function TValueUtils.UnwrapValue(const AValue: TValue): TValue;
+class function TValueUtilities.UnwrapValue(const AValue: TValue): TValue;
 const
   MAX_UNWRAPS = 1;
 var
@@ -993,7 +995,7 @@ end;
 
 {=== Free helpers (records, pairs, containers) ===}
 
-class procedure TValueUtils.FreeRecordFields(const ARecVal: TValue;
+class procedure TValueUtilities.FreeRecordFields(const ARecVal: TValue;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 var
   LT: TRttiType;
@@ -1007,7 +1009,7 @@ begin
     FreeValueTree(LF.GetValue(LP), ASeen, ACtx);
 end;
 
-class procedure TValueUtils.FreePairKeyValue(const APairValue: TValue;
+class procedure TValueUtilities.FreePairKeyValue(const APairValue: TValue;
   const AFreeKey, AFreeVal: Boolean;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 var
@@ -1023,7 +1025,7 @@ begin
     FreeValueTree(LV, ASeen, ACtx);
 end;
 
-class procedure TValueUtils.DetectListOwnership(const AObj: TObject;
+class procedure TValueUtilities.DetectListOwnership(const AObj: TObject;
       out AOwnsItems, AHasOwnsProp: Boolean; const ACtx: TRttiContext);
 var
   LB: Boolean;
@@ -1037,7 +1039,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.DetectDictOwnership(const AObj: TObject;
+class procedure TValueUtilities.DetectDictOwnership(const AObj: TObject;
       out AOwnsKeys, AOwnsValues, AHasKeysProp, AHasValuesProp: Boolean;
       const ACtx: TRttiContext);
 var
@@ -1061,7 +1063,7 @@ begin
   end;
 end;
 
-class function TValueUtils.HasAddWithArity(const AObj: TObject; const AArity: Integer;
+class function TValueUtilities.HasAddWithArity(const AObj: TObject; const AArity: Integer;
   const ACtx: TRttiContext): Boolean;
 var
   LT: TRttiType;
@@ -1077,19 +1079,19 @@ begin
       Exit(True);
 end;
 
-class function TValueUtils.IsListLikeObject(const AObj: TObject;
+class function TValueUtilities.IsListLikeObject(const AObj: TObject;
   const ACtx: TRttiContext): Boolean;
 begin
   Result := HasAddWithArity(AObj, 1, ACtx);
 end;
 
-class function TValueUtils.IsDictionaryLikeObject(const AObj: TObject;
+class function TValueUtilities.IsDictionaryLikeObject(const AObj: TObject;
   const ACtx: TRttiContext): Boolean;
 begin
   Result := HasAddWithArity(AObj, 2, ACtx);
 end;
 
-class procedure TValueUtils.DrainList(const AObj: TObject;
+class procedure TValueUtilities.DrainList(const AObj: TObject;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 var
   LRType: TRttiType;
@@ -1114,7 +1116,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.DrainDict(const AObj: TObject; const AFreeKeys, AFreeValues: Boolean;
+class procedure TValueUtilities.DrainDict(const AObj: TObject; const AFreeKeys, AFreeValues: Boolean;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 var
   LRType: TRttiType;
@@ -1142,7 +1144,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.MarkOwnedListItems(const AObj: TObject;
+class procedure TValueUtilities.MarkOwnedListItems(const AObj: TObject;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 var
   LRType: TRttiType;
@@ -1173,7 +1175,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.MarkOwnedDictEntries(const AObj: TObject;
+class procedure TValueUtilities.MarkOwnedDictEntries(const AObj: TObject;
   const AOwnsKeys, AOwnsValues: Boolean;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 var
@@ -1214,7 +1216,7 @@ begin
   end;
 end;
 
-class procedure TValueUtils.FreeValueTree(const AValue: TValue;
+class procedure TValueUtilities.FreeValueTree(const AValue: TValue;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 var
   LCur: TValue;
@@ -1323,14 +1325,14 @@ begin
   // Non-object scalars/strings/etc.: nothing to free
 end;
 
-class procedure TValueUtils.FreeParameterInternal(const AParam: TValue;
+class procedure TValueUtilities.FreeParameterInternal(const AParam: TValue;
   const ASeen: TDictionary<Pointer, Byte>; const ACtx: TRttiContext);
 begin
   if AParam.IsEmpty then Exit;
   FreeValueTree(AParam, ASeen, ACtx);
 end;
 
-class procedure TValueUtils.FreeParameter(var AParam: TValue);
+class procedure TValueUtilities.FreeParameter(var AParam: TValue);
 var
   LCtx: TRttiContext;
   LSeen: TDictionary<Pointer, Byte>;
@@ -1351,7 +1353,7 @@ begin
   AParam := TValue.Empty;
 end;
 
-class procedure TValueUtils.FreeParameters(var AParams: TList<TValue>);
+class procedure TValueUtilities.FreeParameters(var AParams: TList<TValue>);
 var
   LCtx: TRttiContext;
   LI: Integer;
@@ -1383,7 +1385,7 @@ begin
   AParams := nil;
 end;
 
-class procedure TValueUtils.FreeParameters(var AParams: TDictionary<string, TValue>);
+class procedure TValueUtilities.FreeParameters(var AParams: TDictionary<string, TValue>);
 var
   LCtx: TRttiContext;
   LSeen: TDictionary<Pointer, Byte>;
@@ -1409,7 +1411,7 @@ begin
   AParams := nil;
 end;
 
-class function TValueUtils.ToStringExtended(const AValue: TValue): string;
+class function TValueUtilities.ToStringExtended(const AValue: TValue): string;
 
   function BackingObjectFromInterface(const AIntf: IInterface): TObject;
   begin

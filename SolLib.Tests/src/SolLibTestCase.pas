@@ -27,8 +27,8 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpArrayUtils,
-  SlpDataEncoderUtils,
+  SlpArrayUtilities,
+  SlpDataEncoderUtilities,
   JsonStructuralComparer;
 
 type
@@ -174,13 +174,13 @@ end;
 procedure TSolLibTestCase.AssertEquals(const AExpected, AActual: TBytes;
   const AMsg: string);
 begin
-  CheckTrue(TArrayUtils.AreArraysEqual(AExpected, AActual), AMsg);
+  CheckTrue(TArrayUtilities.AreArraysEqual(AExpected, AActual), AMsg);
 end;
 
 procedure TSolLibTestCase.AssertNotEquals(const AExpected, AActual: TBytes;
   const AMsg: string);
 begin
-  CheckFalse(TArrayUtils.AreArraysEqual(AExpected, AActual), AMsg);
+  CheckFalse(TArrayUtilities.AreArraysEqual(AExpected, AActual), AMsg);
 end;
 
 procedure TSolLibTestCase.AssertTrue(ACondition: Boolean; const AMsg: string);

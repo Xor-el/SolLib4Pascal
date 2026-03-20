@@ -28,10 +28,10 @@ uses
   System.Generics.Defaults,
   SlpPublicKey,
   SlpShortVectorEncoding,
-  SlpArrayUtils,
-  SlpCryptoUtils,
-  SlpListUtils,
-  SlpDataEncoderUtils,
+  SlpArrayUtilities,
+  SlpCryptoUtilities,
+  SlpListUtilities,
+  SlpDataEncoderUtilities,
   SlpMessageDomain,
   SlpAccount,
   SlpSysVars,
@@ -931,7 +931,7 @@ begin
       LAccounts.Add(TAccountMeta.Create(
         AMessage.AccountKeys[LK],
         AMessage.IsAccountWritable(LK),
-        (TListUtils.Any<ISignaturePubKeyPair>(Result.Signatures,
+        (TListUtilities.Any<ISignaturePubKeyPair>(Result.Signatures,
           function(APair: ISignaturePubKeyPair): Boolean
           begin
             Result := APair.PublicKey.Equals(AMessage.AccountKeys[LK]);
@@ -944,7 +944,7 @@ begin
       LCompiledInstruction.Data
     );
 
-    if (LI = 0) and TListUtils.Any<IAccountMeta>(LAccounts,
+    if (LI = 0) and TListUtilities.Any<IAccountMeta>(LAccounts,
       function(AAccMeta: IAccountMeta): Boolean
       begin
         Result := SameStr(AAccMeta.PublicKey.Key, TSysVars.RecentBlockHashesKey.Key);
@@ -1004,7 +1004,7 @@ var
 begin
   // Read number of signatures
   LVecDecode := TShortVectorEncoding.DecodeLength(
-    TArrayUtils.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
+    TArrayUtilities.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
   );
   LSignaturesLength := LVecDecode.Value;
   LEncodedLength := LVecDecode.Length;
@@ -1012,7 +1012,7 @@ begin
   SetLength(LSignatures, LSignaturesLength);
   for LI := 0 to LSignaturesLength - 1 do
   begin
-    LSignature := TArrayUtils.Slice<Byte>(
+    LSignature := TArrayUtilities.Slice<Byte>(
       AData,
       LEncodedLength + (LI * TTransactionBuilder.SignatureLength),
       TTransactionBuilder.SignatureLength
@@ -1028,7 +1028,7 @@ begin
     Exit(TVersionedTransaction.Deserialize(AData));
 
   LMsg := TMessage.Deserialize(
-    TArrayUtils.Slice<Byte>(
+    TArrayUtilities.Slice<Byte>(
       AData,
       LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)
     )
@@ -1135,7 +1135,7 @@ begin
         LAccounts.Add(TAccountMeta.Create(
           AMessage.AccountKeys[LK],
           AMessage.IsAccountWritable(LK),
-          (TListUtils.Any<ISignaturePubKeyPair>(Result.Signatures,
+          (TListUtilities.Any<ISignaturePubKeyPair>(Result.Signatures,
             function(APair: ISignaturePubKeyPair): Boolean
             begin
               Result := APair.PublicKey.Equals(AMessage.AccountKeys[LK]);
@@ -1149,7 +1149,7 @@ begin
         LCompiledInstruction.KeyIndices
       );
 
-      if (LI = 0) and TListUtils.Any<IAccountMeta>(LAccounts,
+      if (LI = 0) and TListUtilities.Any<IAccountMeta>(LAccounts,
         function(AAccMeta: IAccountMeta): Boolean
         begin
           Result := SameStr(AAccMeta.PublicKey.Key, TSysVars.RecentBlockHashesKey.Key);
@@ -1191,7 +1191,7 @@ var
   LVersionedMessage: IVersionedMessage;
 begin
   LVecDecode := TShortVectorEncoding.DecodeLength(
-    TArrayUtils.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
+    TArrayUtilities.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
   );
   LSignaturesLength := LVecDecode.Value;
   LEncodedLength := LVecDecode.Length;
@@ -1199,7 +1199,7 @@ begin
   SetLength(LSignatures, LSignaturesLength);
   for LI := 0 to LSignaturesLength - 1 do
   begin
-    LSignature := TArrayUtils.Slice<Byte>(
+    LSignature := TArrayUtilities.Slice<Byte>(
       AData,
       LEncodedLength + (LI * TTransactionBuilder.SignatureLength),
       TTransactionBuilder.SignatureLength
@@ -1208,7 +1208,7 @@ begin
   end;
 
   LMessageOffset := LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength);
-  LMsg := TVersionedMessage.Deserialize(TArrayUtils.Slice<Byte>(AData, LMessageOffset));
+  LMsg := TVersionedMessage.Deserialize(TArrayUtilities.Slice<Byte>(AData, LMessageOffset));
   if not Supports(LMsg, IVersionedMessage, LVersionedMessage) then
     raise EArgumentException.Create('Deserialized message does not support IVersionedMessage.');
   Result := Populate(LVersionedMessage, LSignatures);

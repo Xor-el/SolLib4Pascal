@@ -33,8 +33,8 @@ uses
 {$ELSE}
   System.Net.URLClient,
 {$ENDIF}
-  SlpDataEncoderUtils,
-  SlpEnumUtils,
+  SlpDataEncoderUtilities,
+  SlpEnumUtilities,
   SlpRpcModel,
   SlpRpcEnum,
   SlpRpcMessage,
@@ -45,7 +45,7 @@ uses
   SlpHttpApiClient,
   SlpRateLimiter,
   SlpNullable,
-  SlpValueUtils,
+  SlpValueUtilities,
   SlpLogger;
 
 type
@@ -1744,7 +1744,7 @@ begin
   else
     raise EArgumentException.CreateFmt(
       'SendTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
+      [TEnumUtilities.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 
@@ -1814,7 +1814,7 @@ begin
   else
     raise EArgumentException.CreateFmt(
       'SimulateTransaction only supports Base58 or Base64 encoding. Unsupported encoding: %s',
-      [TEnumUtils.ToString<TBinaryEncoding>(AEncoding)]
+      [TEnumUtilities.ToString<TBinaryEncoding>(AEncoding)]
     );
   end;
 

@@ -25,7 +25,7 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   System.Rtti,
-  SlpArrayUtils,
+  SlpArrayUtilities,
   SlpPublicKey,
   SlpAccountDomain,
   SlpTransactionInstruction,
@@ -163,7 +163,7 @@ var
   LUseV1: Boolean;
 begin
 
-  LUseV1 := TArrayUtils.Any<IPublicKey>(AKeys,
+  LUseV1 := TArrayUtilities.Any<IPublicKey>(AKeys,
     function(AKey: IPublicKey): Boolean
     begin
       Result := SameStr(AKey.Key, ProgramIdKey.Key);

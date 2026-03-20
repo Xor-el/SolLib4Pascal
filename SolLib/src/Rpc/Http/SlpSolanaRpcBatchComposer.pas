@@ -30,7 +30,7 @@ uses
   System.JSON,
   System.JSON.Readers,
   System.JSON.Serializers,
-  SlpValueUtils,
+  SlpValueUtilities,
   SlpSolanaRpcClient,
   SlpRpcMessage,
   SlpRpcModel,
@@ -496,7 +496,7 @@ begin
   TValue.Make(nil, ANativeType, LTarget);
   LIsClass := (ANativeType^.Kind = tkClass);
   if LIsClass then
-    LTarget := TValueUtils.MakeInstanceForPopulate(ANativeType);
+    LTarget := TValueUtilities.MakeInstanceForPopulate(ANativeType);
 
   LJson := TJSONValue(AInput.AsObject);
   try

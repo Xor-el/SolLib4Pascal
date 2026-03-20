@@ -25,9 +25,9 @@ uses
   System.SysUtils,
   System.Classes,
   System.Generics.Collections,
-  SlpDataEncoderUtils,
-  SlpCryptoUtils,
-  SlpArrayUtils;
+  SlpDataEncoderUtilities,
+  SlpCryptoUtilities,
+  SlpArrayUtilities;
 
 type
   IPublicKey = interface
@@ -206,7 +206,7 @@ begin
     raise EArgumentException.Create('invalid key length, key');
 
   SetLength(FKeyBytes, PublicKeyLength);
-  TArrayUtils.Copy<Byte>(AKey, 0, FKeyBytes, 0, PublicKeyLength);
+  TArrayUtilities.Copy<Byte>(AKey, 0, FKeyBytes, 0, PublicKeyLength);
 end;
 
 constructor TPublicKey.Create(const AKey: string);
@@ -224,7 +224,7 @@ function TPublicKey.Clone: IPublicKey;
 begin
   Result := TPublicKey.Create();
   Result.Key := FKey;
-  Result.KeyBytes := TArrayUtils.Copy<Byte>(FKeyBytes);
+  Result.KeyBytes := TArrayUtilities.Copy<Byte>(FKeyBytes);
 end;
 
 function TPublicKey.GetKey: string;
@@ -462,7 +462,7 @@ begin
   LLen := Length(LSeeds);
   if LLen >= Length(ProgramDerivedAddressBytes) then
   begin
-    LSlice := TArrayUtils.Slice<Byte>(LSeeds, LLen - Length(ProgramDerivedAddressBytes));
+    LSlice := TArrayUtilities.Slice<Byte>(LSeeds, LLen - Length(ProgramDerivedAddressBytes));
 
     if Length(LSlice) <> Length(ProgramDerivedAddressBytes) then
     Exit(False);

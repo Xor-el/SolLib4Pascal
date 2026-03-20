@@ -26,7 +26,7 @@ uses
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  SlpCryptoUtils,
+  SlpCryptoUtilities,
   SolLibTestCase;
 
 type

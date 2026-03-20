@@ -24,7 +24,7 @@ interface
 uses
   System.SysUtils,
   System.Rtti,
-  SlpValueUtils;
+  SlpValueUtilities;
 
 type
   /// Helper for TValue with utilities such as unboxing nested TValue wrappers.
@@ -46,17 +46,17 @@ implementation
 
 function TValueHelper.Unwrap: TValue;
 begin
-  Result := TValueUtils.UnwrapValue(Self);
+  Result := TValueUtilities.UnwrapValue(Self);
 end;
 
 function TValueHelper.Clone: TValue;
 begin
-  Result := TValueUtils.CloneValue(Self);
+  Result := TValueUtilities.CloneValue(Self);
 end;
 
 function TValueHelper.ToStringExtended: string;
 begin
-  Result := TValueUtils.ToStringExtended(Self);
+  Result := TValueUtilities.ToStringExtended(Self);
 end;
 
 end.

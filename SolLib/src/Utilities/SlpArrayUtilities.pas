@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpArrayUtils;
+unit SlpArrayUtilities;
 
 {$I ../Include/SolLib.inc}
 
@@ -27,7 +27,7 @@ uses
   System.Generics.Defaults;
 
 type
-  TArrayUtils = class sealed
+  TArrayUtilities = class sealed
   private
     class procedure CheckRange(ACond: Boolean; const AMsg: string); static; inline;
   public
@@ -146,15 +146,15 @@ type
 
 implementation
 
-{ TArrayUtils }
+{ TArrayUtilities }
 
-class procedure TArrayUtils.CheckRange(ACond: Boolean; const AMsg: string);
+class procedure TArrayUtilities.CheckRange(ACond: Boolean; const AMsg: string);
 begin
   if not ACond then
     raise ERangeError.Create(AMsg);
 end;
 
-class function TArrayUtils.AreArraysEqual<T>(
+class function TArrayUtilities.AreArraysEqual<T>(
   const A, B: TArray<T>;
   const AComparer: IEqualityComparer<T>
 ): Boolean;
@@ -183,7 +183,7 @@ begin
   Result := True;
 end;
 
-class function TArrayUtils.AreArraysEqual(const AFirst, ASecond: TBytes): Boolean;
+class function TArrayUtilities.AreArraysEqual(const AFirst, ASecond: TBytes): Boolean;
 var
   LLen: Integer;
 begin
@@ -197,7 +197,7 @@ begin
   Result := CompareMem(@AFirst[0], @ASecond[0], LLen);
 end;
 
-class function TArrayUtils.AreArraysEqual(const AFirst, ASecond: TArray<Integer>): Boolean;
+class function TArrayUtilities.AreArraysEqual(const AFirst, ASecond: TArray<Integer>): Boolean;
 var
   LLen: Integer;
 begin
@@ -211,7 +211,7 @@ begin
   Result := CompareMem(@AFirst[0], @ASecond[0], LLen * SizeOf(Integer));
 end;
 
-class function TArrayUtils.Concat<T>(const AFirst, ASecond: TArray<T>): TArray<T>;
+class function TArrayUtilities.Concat<T>(const AFirst, ASecond: TArray<T>): TArray<T>;
 var
   LA, LB, LI: Integer;
 begin
@@ -224,12 +224,12 @@ begin
     Result[LA + LI] := ASecond[LI];
 end;
 
-class function TArrayUtils.Slice<T>(const ASource: TArray<T>; AOffset: Integer): TArray<T>;
+class function TArrayUtilities.Slice<T>(const ASource: TArray<T>; AOffset: Integer): TArray<T>;
 begin
   Result := Slice<T>(ASource, AOffset, Length(ASource) - AOffset);
 end;
 
-class function TArrayUtils.Slice<T>(const ASource: TArray<T>; AOffset, ACount: Integer): TArray<T>;
+class function TArrayUtilities.Slice<T>(const ASource: TArray<T>; AOffset, ACount: Integer): TArray<T>;
 var
   LLen: Integer;
 begin
@@ -248,7 +248,7 @@ end;
 
 {==================== COPY (PROCEDURES) ====================}
 
-class procedure TArrayUtils.Copy<T>(
+class procedure TArrayUtilities.Copy<T>(
   const ASource: TArray<T>;
   var ADest: TArray<T>);
 begin
@@ -257,7 +257,7 @@ begin
     Copy<T>(ASource, 0, ADest, 0, Length(ASource));
 end;
 
-class procedure TArrayUtils.Copy<T>(
+class procedure TArrayUtilities.Copy<T>(
   const ASource: TArray<T>; ASrcIndex: Integer;
   var ADest: TArray<T>; ADestIndex: Integer;
   ACount: Integer);
@@ -298,7 +298,7 @@ begin
   end;
 end;
 
-class procedure TArrayUtils.Copy<T>(
+class procedure TArrayUtilities.Copy<T>(
   const ASource: TArray<T>;
   var ADest: TArray<T>;
   ADestIndex: Integer);
@@ -306,7 +306,7 @@ begin
   Copy<T>(ASource, 0, ADest, ADestIndex, Length(ASource));
 end;
 
-class procedure TArrayUtils.Copy<T>(
+class procedure TArrayUtilities.Copy<T>(
   const ASource: TArray<T>; ASrcIndex: Integer;
   var ADest: TArray<T>; ADestIndex: Integer);
 begin
@@ -316,13 +316,13 @@ end;
 
 {==================== COPY (FUNCTIONS) ====================}
 
-class function TArrayUtils.Copy<T>(
+class function TArrayUtilities.Copy<T>(
   const ASource: TArray<T>): TArray<T>;
 begin
   Result := Copy<T>(ASource, 0, Length(ASource));
 end;
 
-class function TArrayUtils.Copy<T>(
+class function TArrayUtilities.Copy<T>(
   const ASource: TArray<T>; ACount: Integer): TArray<T>;
 begin
   CheckRange(ACount >= 0, 'ACount must be >= 0');
@@ -330,7 +330,7 @@ begin
   Result := Copy<T>(ASource, 0, ACount);
 end;
 
-class function TArrayUtils.Copy<T>(
+class function TArrayUtilities.Copy<T>(
   const ASource: TArray<T>; AIndex, ACount: Integer): TArray<T>;
 var
   LLen, LI: Integer;
@@ -345,7 +345,7 @@ begin
     Result[LI] := ASource[AIndex + LI];
 end;
 
-class function TArrayUtils.Copy<T>(
+class function TArrayUtilities.Copy<T>(
   const ASource: TArray<T>;
   const ACloner: TFunc<T, T>): TArray<T>;
 var
@@ -382,7 +382,7 @@ begin
   end;
 end;
 
-class function TArrayUtils.IndexOf<T>(
+class function TArrayUtilities.IndexOf<T>(
   const AValues: TArray<T>;
   const APredicate: TFunc<T, Boolean>;
   out AIndex: Integer): Boolean;
@@ -390,7 +390,7 @@ begin
   Result := IndexOf<T>(AValues, APredicate, 0, Length(AValues), AIndex);
 end;
 
-class function TArrayUtils.IndexOf<T>(
+class function TArrayUtilities.IndexOf<T>(
   const AValues: TArray<T>;
   const APredicate: TFunc<T, Boolean>;
   AStartIndex, ACount: Integer;
@@ -415,24 +415,24 @@ begin
   Result := False;
 end;
 
-class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>);
+class procedure TArrayUtilities.Fill<T>(var AArr: TArray<T>);
 begin
   if Length(AArr) > 0 then
     Fill<T>(AArr, 0, Length(AArr), Default(T));
 end;
 
-class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>; const AValue: T);
+class procedure TArrayUtilities.Fill<T>(var AArr: TArray<T>; const AValue: T);
 begin
   if Length(AArr) > 0 then
     Fill<T>(AArr, 0, Length(AArr), AValue);
 end;
 
-class procedure TArrayUtils.Fill<T>(var AArr: TArray<T>; AOffset, ACount: Integer);
+class procedure TArrayUtilities.Fill<T>(var AArr: TArray<T>; AOffset, ACount: Integer);
 begin
   Fill<T>(AArr, AOffset, ACount, Default(T));
 end;
 
-class procedure TArrayUtils.Fill<T>(
+class procedure TArrayUtilities.Fill<T>(
   var AArr: TArray<T>;
   AOffset, ACount: Integer;
   const AValue: T);
@@ -445,7 +445,7 @@ begin
     AArr[LI] := AValue;
 end;
 
-class function TArrayUtils.Reverse<T>(const ASource: TArray<T>): TArray<T>;
+class function TArrayUtilities.Reverse<T>(const ASource: TArray<T>): TArray<T>;
 var
   LI, LLen: Integer;
 begin
@@ -455,7 +455,7 @@ begin
     Result[LI] := ASource[LLen - 1 - LI];
 end;
 
-class function TArrayUtils.Any<T>(const AArr: TArray<T>; const APred: TPredicate<T>): Boolean;
+class function TArrayUtilities.Any<T>(const AArr: TArray<T>; const APred: TPredicate<T>): Boolean;
 var
   LItem: T;
 begin
@@ -465,7 +465,7 @@ begin
   Result := False;
 end;
 
-class function TArrayUtils.ConstantTimeEquals(const AFirst, ASecond: TBytes): Boolean;
+class function TArrayUtilities.ConstantTimeEquals(const AFirst, ASecond: TBytes): Boolean;
 var
   LLenA, LLenB, LLen, LI: Integer;
   LDiff: Cardinal;

@@ -23,14 +23,14 @@ uses
   System.SysUtils,
   System.Classes,
   System.Generics.Collections,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpShortVectorEncoding,
   SlpPublicKey,
   SlpAccountDomain,
   SlpTransactionInstruction,
   SlpMessageDomain,
   SlpTransactionDomain,
-  SlpListUtils;
+  SlpListUtilities;
 
 type
   IMessageBuilder = interface
@@ -371,7 +371,7 @@ begin
   try
     try
       LFeePayerIndex :=
-        TListUtils.FindIndex<IAccountMeta>(LKeysList,
+        TListUtilities.FindIndex<IAccountMeta>(LKeysList,
           function(AAccMeta: IAccountMeta): Boolean
           begin
             Result := AAccMeta.PublicKey.Equals(FFeePayer);

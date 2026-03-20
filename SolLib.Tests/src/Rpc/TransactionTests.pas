@@ -33,7 +33,6 @@ uses
   SlpMessageDomain,
   SlpTransactionDomain,
   SlpTransactionInstruction,
-  SlpArrayUtils,
   SlpTokenProgram,
   SlpMemoProgram,
   SlpSysVars,
@@ -139,7 +138,7 @@ var
   LFull: TBytes;
 begin
   LFull := GetCraftTransactionBytes;
-  Result := TArrayUtils.Slice<Byte>(LFull, 193);
+  Result := System.Copy(LFull, 193, System.Length(LFull) - 193);
 end;
 
 procedure TTransactionTests.TransactionDeserializeExceptionTest;

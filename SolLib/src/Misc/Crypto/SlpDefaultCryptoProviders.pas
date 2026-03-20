@@ -46,7 +46,7 @@ uses
   ClpEd25519Signer,
   ClpIEd25519Parameters,
   ClpEd25519Parameters,
-  SlpArrayUtils,
+  SlpArrayUtilities,
   SlpCryptoProviders;
 
 type
@@ -320,9 +320,9 @@ begin
   // SecretKey = Seed || PublicKey
   SetLength(Result.SecretKey, 64);
   if Length(ASeed32) > 0 then
-    TArrayUtils.Copy<Byte>(ASeed32, 0, Result.SecretKey, 0, 32);
+    TArrayUtilities.Copy<Byte>(ASeed32, 0, Result.SecretKey, 0, 32);
   if Length(LPk) > 0 then
-    TArrayUtils.Copy<Byte>(LPk, 0, Result.SecretKey, 32, 32);
+    TArrayUtilities.Copy<Byte>(LPk, 0, Result.SecretKey, 32, 32);
 
   Result.PublicKey := LPk;
 end;
@@ -338,7 +338,7 @@ begin
 
   // First 32 bytes are the seed
   SetLength(LSeed, 32);
-  TArrayUtils.Copy<Byte>(ASecretKey64, 0, LSeed, 0, 32);
+  TArrayUtilities.Copy<Byte>(ASecretKey64, 0, LSeed, 0, 32);
 
   // Private key from seed
   LPriv := TEd25519PrivateKeyParameters.Create(LSeed, 0);

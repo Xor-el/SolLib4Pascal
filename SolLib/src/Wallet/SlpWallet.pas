@@ -23,12 +23,12 @@ interface
 
 uses
   System.SysUtils,
-  SlpEnumUtils,
+  SlpEnumUtilities,
   SlpWalletEnum,
   SlpWordList,
   SlpAccount,
-  SlpArrayUtils,
-  SlpCryptoUtils,
+  SlpArrayUtilities,
+  SlpCryptoUtilities,
   SlpEd25519Bip32,
   SlpMnemonic,
   SlpCryptoProviders;
@@ -326,7 +326,7 @@ begin
   if FSeedMode <> TSeedMode.Ed25519Bip32 then
     raise Exception.CreateFmt
       ('seed mode: %s cannot derive Ed25519 based BIP32 keys',
-      [TEnumUtils.ToString<TSeedMode>(FSeedMode)]);
+      [TEnumUtilities.ToString<TSeedMode>(FSeedMode)]);
 
   if not Assigned(FEd25519Bip32) then
     raise EInvalidOpException.Create('Ed25519Bip32 not initialized');
@@ -377,7 +377,7 @@ begin
   end
   else
   begin
-    LFirstSeed32 := TArrayUtils.Slice<Byte>(FSeed, 0, 32);
+    LFirstSeed32 := TArrayUtilities.Slice<Byte>(FSeed, 0, 32);
 
     LKeyPair := TEd25519Crypto.GenerateKeyPair(LFirstSeed32);
     LSK64 := LKeyPair.SecretKey;

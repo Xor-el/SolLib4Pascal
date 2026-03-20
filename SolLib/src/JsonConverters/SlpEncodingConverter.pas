@@ -29,7 +29,7 @@ uses
   System.JSON.Readers,
   System.JSON.Writers,
   System.JSON.Serializers,
-  SlpEnumUtils,
+  SlpEnumUtilities,
   SlpValueHelpers,
   SlpRpcEnum,
   SlpSolLibTypes,
@@ -77,7 +77,7 @@ begin
     raise EJsonException.Create('EncodingConverter called for non-enum type.');
 
   LS := AReader.Value.AsString;
-  if not TEnumUtils.TryGetEnumValue<TBinaryEncoding>(LS, LEnc,
+  if not TEnumUtilities.TryGetEnumValue<TBinaryEncoding>(LS, LEnc,
     function(AInput: string): string
     begin
       Result := StringReplace(AInput, '+', '', [rfReplaceAll]);

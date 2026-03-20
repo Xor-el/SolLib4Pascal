@@ -24,9 +24,9 @@ interface
 uses
   System.SysUtils,
   System.Generics.Collections,
-  SlpArrayUtils,
-  SlpCryptoUtils,
-  SlpDataEncoderUtils,
+  SlpArrayUtilities,
+  SlpCryptoUtilities,
+  SlpDataEncoderUtilities,
   SlpPrivateKey,
   SlpPublicKey,
   SlpCryptoProviders;
@@ -141,7 +141,7 @@ begin
 
   SetLength(LPK, 32);
   if Length(LPK) > 0 then
-    TArrayUtils.Copy<Byte>(LSK, 32, LPK, 0, 32);
+    TArrayUtilities.Copy<Byte>(LSK, 32, LPK, 0, 32);
 
   Result := TAccount.Create(LSK, LPK);
 end;
@@ -210,7 +210,7 @@ begin
     begin
       SetLength(LPK, 32);
       if Length(LPK) > 0 then
-        TArrayUtils.Copy<Byte>(LKeyBytes, 32, LPK, 0, 32);
+        TArrayUtilities.Copy<Byte>(LKeyBytes, 32, LPK, 0, 32);
 
       LAcc := TAccount.Create(LKeyBytes, LPK);
       Result.Add(LAcc);

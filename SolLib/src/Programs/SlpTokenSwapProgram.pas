@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   System.Rtti,
   System.TypInfo,
-  SlpEnumUtils,
+  SlpEnumUtilities,
   SlpPublicKey,
   SlpAccountDomain,
   SlpTransactionInstruction,
@@ -461,8 +461,8 @@ begin
   SetLength(Result, 99);
   TSerialization.WriteU8(Result, Byte(TTokenSwapProgramInstructions.TValues.Initialize), MethodOffset);
   TSerialization.WriteU8(Result, ANonce, 1);
-  TSerialization.WriteSpan(Result, LFees, 2);
-  TSerialization.WriteSpan(Result, LCurve, 66);
+  TSerialization.WriteBytes(Result, LFees, 2);
+  TSerialization.WriteBytes(Result, LCurve, 66);
 end;
 
 class function TTokenSwapProgramData.EncodeSwapData(
@@ -868,7 +868,7 @@ var
 begin
   LInstr := TDeserialization.GetU8(AData, TTokenSwapProgramData.MethodOffset);
 
-  if not TEnumUtils.TryGetEnumFromOrdinal<TTokenSwapProgramInstructions.TValues>(LInstr, LVal) then
+  if not TEnumUtilities.TryGetEnumFromOrdinal<TTokenSwapProgramInstructions.TValues>(LInstr, LVal) then
   begin
     Result := TDecodedInstruction.Create;
     Result.PublicKey := ProgramIdKey;

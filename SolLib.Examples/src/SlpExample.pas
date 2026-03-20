@@ -25,7 +25,7 @@ uses
   System.TypInfo,
   System.Generics.Collections,
   SlpHttpApiClient,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpValueHelpers,
   SlpInstructionDecoder,
   SlpMessageDomain,
@@ -35,7 +35,7 @@ uses
   SlpSolanaRpcClient,
   SlpPublicKey,
   SlpClientFactory,
-  SlpEnumUtils,
+  SlpEnumUtilities,
   SlpRpcEnum,
   SlpRpcModel,
   SlpNullable,
@@ -211,7 +211,7 @@ begin
     if LSim.Result.Value.&Error <> nil then
     begin
       Writeln(Format('Transaction Simulation:%s%sError: %s',
-        [NEWLINE, TAB, TEnumUtils.ToString<TTransactionErrorType>(LSim.Result.Value.&Error.&Type)]));
+        [NEWLINE, TAB, TEnumUtilities.ToString<TTransactionErrorType>(LSim.Result.Value.&Error.&Type)]));
 
       Result := True;
     end;

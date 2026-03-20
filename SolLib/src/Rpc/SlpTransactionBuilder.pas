@@ -32,7 +32,7 @@ uses
   SlpPublicKey,
   SlpTransactionDomain,
   SlpShortVectorEncoding,
-  SlpDataEncoderUtils;
+  SlpDataEncoderUtilities;
 
 type
   /// <summary>

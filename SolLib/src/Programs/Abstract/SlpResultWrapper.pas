@@ -29,7 +29,7 @@ uses
   SlpRequestResult,
   SlpRpcMessage,
   SlpRpcModel,
-  SlpValueUtils;
+  SlpValueUtilities;
 
 type
   /// <summary>
@@ -37,7 +37,7 @@ type
   /// </summary>
   /// <typeparam name="T">The underlying type of the request.</typeparam>
   /// <typeparam name="T2">The underlying type of the request.</typeparam>
-  IResultWrapper<T; T2> = interface
+  IResultWrapper<T, T2> = interface
     ['{B4C1E0C0-2E87-4E4E-91B0-5E55E4B3E4A0}']
     /// <summary>
     /// The original response to the request.
@@ -80,7 +80,7 @@ type
   /// </summary>
   /// <typeparam name="T">The underlying type of the request.</typeparam>
   /// <typeparam name="T2">The underlying type of the request.</typeparam>
-  TResultWrapper<T; T2> = class(TInterfacedObject, IResultWrapper<T, T2>)
+  TResultWrapper<T, T2> = class(TInterfacedObject, IResultWrapper<T, T2>)
   private
     FOriginalRequest: IRequestResult<T>;
     FParsedResult: T2;
@@ -211,7 +211,7 @@ begin
   LValue := TValue.From<T2>(FParsedResult);
 
   if not LValue.IsEmpty then
-    TValueUtils.FreeParameter(LValue);
+    TValueUtilities.FreeParameter(LValue);
 
   inherited;
 end;
