@@ -23,8 +23,8 @@ interface
 
 uses
   System.SysUtils,
-  SlpCryptoUtils,
-  SlpArrayUtils,
+  SlpCryptoUtilities,
+  SlpArrayUtilities,
   SlpSolLibExceptions;
 
 type
@@ -102,7 +102,7 @@ begin
   try
     Result := TAesCtr.Decrypt(LEncryptKey, AIV, ACipherText);
   finally
-    TArrayUtils.Fill<Byte>(LEncryptKey);
+    TArrayUtilities.Fill<Byte>(LEncryptKey);
   end;
 end;
 
@@ -116,7 +116,7 @@ begin
   try
     Result := Decrypt(AMac, AIV, ACipherText, LDerivedKey);
   finally
-    TArrayUtils.Fill<Byte>(LDerivedKey);
+    TArrayUtilities.Fill<Byte>(LDerivedKey);
   end;
 end;
 
@@ -132,10 +132,10 @@ begin
     try
       Result := Decrypt(AMac, AIV, ACipherText, LDerivedKey);
     finally
-      TArrayUtils.Fill<Byte>(LDerivedKey);
+      TArrayUtilities.Fill<Byte>(LDerivedKey);
     end;
   finally
-    TArrayUtils.Fill<Byte>(LPwdBytes);
+    TArrayUtilities.Fill<Byte>(LPwdBytes);
   end;
 end;
 
@@ -174,7 +174,7 @@ begin
       Move(ACipherText[0], LBuf[AesCtrKeyLen], Length(ACipherText));
     Result := CalculateKeccakHash(LBuf);
   finally
-    TArrayUtils.Fill<Byte>(LBuf);
+    TArrayUtilities.Fill<Byte>(LBuf);
   end;
 end;
 
@@ -188,7 +188,7 @@ begin
   try
     Result := TPbkdf2SHA256.DeriveKey(LPwd, ASalt, ACount, ADKLen);
   finally
-    TArrayUtils.Fill<Byte>(LPwd);
+    TArrayUtilities.Fill<Byte>(LPwd);
   end;
 end;
 
@@ -211,11 +211,11 @@ begin
 
   LGeneratedMac := GenerateMac(ADerivedKey, ACipherText);
   try
-    if not TArrayUtils.ConstantTimeEquals(LGeneratedMac, AMac) then
+    if not TArrayUtilities.ConstantTimeEquals(LGeneratedMac, AMac) then
       raise EDecryptionException.Create(
         'Cannot derive the same MAC from cipher and derived key.');
   finally
-    TArrayUtils.Fill<Byte>(LGeneratedMac);
+    TArrayUtilities.Fill<Byte>(LGeneratedMac);
   end;
 end;
 

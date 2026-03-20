@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   SlpShortVectorEncoding,
   SlpAccountDomain,
-  SlpArrayUtils;
+  SlpArrayUtilities;
 
 type
   ITransactionInstruction = interface
@@ -181,9 +181,9 @@ begin
   end;
 
   Result := Make(
-              TArrayUtils.Copy<Byte>(FProgramId),
+              TArrayUtilities.Copy<Byte>(FProgramId),
               LNewKeys,
-              TArrayUtils.Copy<Byte>(FData)
+              TArrayUtilities.Copy<Byte>(FData)
             );
 end;
 
@@ -288,7 +288,7 @@ begin
   LProgramIdIndex := AData[TCompiledInstruction.Layout.ProgramIdIndexOffset];
   Inc(LInstructionLength, 1);
 
-  LEncodedKeyIndicesLength := TArrayUtils.Slice<Byte>(AData, LInstructionLength,
+  LEncodedKeyIndicesLength := TArrayUtilities.Slice<Byte>(AData, LInstructionLength,
     TShortVectorEncoding.SpanLength);
   with TShortVectorEncoding.DecodeLength(LEncodedKeyIndicesLength) do
   begin
@@ -297,13 +297,13 @@ begin
   end;
   Inc(LInstructionLength, LKeyIndicesLengthEncodedLength);
 
-  LKeyIndices := TArrayUtils.Slice<Byte>(AData, LInstructionLength, LKeyIndicesLength);
+  LKeyIndices := TArrayUtilities.Slice<Byte>(AData, LInstructionLength, LKeyIndicesLength);
   Inc(LInstructionLength, LKeyIndicesLength);
 
   if Length(AData) > LInstructionLength + TShortVectorEncoding.SpanLength then
-    LEncodedDataLength := TArrayUtils.Slice<Byte>(AData, LInstructionLength, TShortVectorEncoding.SpanLength)
+    LEncodedDataLength := TArrayUtilities.Slice<Byte>(AData, LInstructionLength, TShortVectorEncoding.SpanLength)
   else
-    LEncodedDataLength := TArrayUtils.Slice<Byte>(AData, LInstructionLength, Length(AData) - LInstructionLength);
+    LEncodedDataLength := TArrayUtilities.Slice<Byte>(AData, LInstructionLength, Length(AData) - LInstructionLength);
 
   with TShortVectorEncoding.DecodeLength(LEncodedDataLength) do
   begin
@@ -312,14 +312,14 @@ begin
   end;
   Inc(LInstructionLength, LDataLengthEncodedLength);
 
-  LInstructionEncodedData := TArrayUtils.Slice<Byte>(AData, LInstructionLength, LDataLength);
+  LInstructionEncodedData := TArrayUtilities.Slice<Byte>(AData, LInstructionLength, LDataLength);
   Inc(LInstructionLength, LDataLength);
 
   Result.Instruction := Make(
     LProgramIdIndex,
-    TArrayUtils.Slice<Byte>(LEncodedKeyIndicesLength, 0, LKeyIndicesLengthEncodedLength),
+    TArrayUtilities.Slice<Byte>(LEncodedKeyIndicesLength, 0, LKeyIndicesLengthEncodedLength),
     LKeyIndices,
-    TArrayUtils.Slice<Byte>(LEncodedDataLength, 0, LDataLengthEncodedLength),
+    TArrayUtilities.Slice<Byte>(LEncodedDataLength, 0, LDataLengthEncodedLength),
     LInstructionEncodedData
   );
   Result.Length := LInstructionLength;

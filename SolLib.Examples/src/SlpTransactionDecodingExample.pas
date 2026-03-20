@@ -30,7 +30,7 @@ uses
   SlpRpcMessage,
   SlpAccount,
   SlpPublicKey,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpTransactionDomain,
   SlpTransactionInstruction,
   SlpTransactionBuilder,

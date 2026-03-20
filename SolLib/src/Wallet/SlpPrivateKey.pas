@@ -23,9 +23,9 @@ interface
 
 uses
   System.SysUtils,
-  SlpDataEncoderUtils,
-  SlpArrayUtils,
-  SlpCryptoUtils;
+  SlpDataEncoderUtilities,
+  SlpArrayUtilities,
+  SlpCryptoUtilities;
 
 type
   IPrivateKey = interface
@@ -119,7 +119,7 @@ begin
     raise EArgumentException.Create('invalid key length, key');
 
   SetLength(FKeyBytes, PrivateKeyLength);
-  TArrayUtils.Copy<Byte>(AKey, 0, FKeyBytes, 0, PrivateKeyLength);
+  TArrayUtilities.Copy<Byte>(AKey, 0, FKeyBytes, 0, PrivateKeyLength);
 end;
 
 constructor TPrivateKey.Create(const AKey: string);
@@ -134,7 +134,7 @@ function TPrivateKey.Clone: IPrivateKey;
 begin
   Result := TPrivateKey.Create();
   Result.Key := FKey;
-  Result.KeyBytes := TArrayUtils.Copy<Byte>(FKeyBytes);
+  Result.KeyBytes := TArrayUtilities.Copy<Byte>(FKeyBytes);
 end;
 
 function TPrivateKey.GetKey: string;

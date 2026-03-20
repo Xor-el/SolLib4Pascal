@@ -30,7 +30,7 @@ uses
   System.JSON.Readers,
   System.JSON.Serializers,
   SlpBaseJsonConverter,
-  SlpMathUtils;
+  SlpMathUtilities;
 
 type
   /// <summary>
@@ -123,7 +123,7 @@ begin
   end
   else if ATypeInfo = TypeInfo(UInt64) then
   begin
-    Exit(TValue.From<UInt64>(TMathUtils.DoubleToUInt64(AValue)));
+    Exit(TValue.From<UInt64>(TMathUtilities.DoubleToUInt64(AValue)));
   end
   else if ATypeInfo = TypeInfo(NativeInt) then
   begin
@@ -133,7 +133,7 @@ begin
   end
   else if ATypeInfo = TypeInfo(NativeUInt) then
   begin
-    Exit(TValue.From<UInt64>(TMathUtils.DoubleToNativeUInt(AValue)));
+    Exit(TValue.From<UInt64>(TMathUtilities.DoubleToNativeUInt(AValue)));
   end
   // Floating types: clamp to finite range and preserve fraction
   else if ATypeInfo = TypeInfo(Single) then

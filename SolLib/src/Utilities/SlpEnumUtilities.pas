@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpEnumUtils;
+unit SlpEnumUtilities;
 
 {$I ../Include/SolLib.inc}
 
@@ -31,7 +31,7 @@ type
   /// Utility class for enum operations.
   /// Works with ordinals; callers cast to their enum type e.g. TMyEnum(ordinal).
   /// </summary>
-  TEnumUtils = class sealed(TObject)
+  TEnumUtilities = class sealed(TObject)
   strict private
     class function DefaultReplacer(const AInput: string): string; static;
   public
@@ -93,16 +93,16 @@ type
 
 implementation
 
-{ TEnumUtils }
+{ TEnumUtilities }
 
-class function TEnumUtils.DefaultReplacer(const AInput: string): string;
+class function TEnumUtilities.DefaultReplacer(const AInput: string): string;
 begin
   Result := StringReplace(AInput, '+', '_', [rfReplaceAll]);
   Result := StringReplace(Result, '-', '_', [rfReplaceAll]);
   Result := StringReplace(Result, '/', '_', [rfReplaceAll]);
 end;
 
-class function TEnumUtils.GetEnumValues(ATypeInfo: PTypeInfo): TArray<Int32>;
+class function TEnumUtilities.GetEnumValues(ATypeInfo: PTypeInfo): TArray<Int32>;
 var
   LTypeData: PTypeData;
   LI, LCount: Int32;
@@ -126,7 +126,7 @@ begin
   SetLength(Result, LCount);
 end;
 
-class function TEnumUtils.TryGetEnumValue(ATypeInfo: PTypeInfo;
+class function TEnumUtilities.TryGetEnumValue(ATypeInfo: PTypeInfo;
   const AInput: String; out AResult: Int32;
   const AReplacer: TFunc<string, string>): Boolean;
 var
@@ -158,14 +158,14 @@ begin
   Result := True;
 end;
 
-class function TEnumUtils.ToString(ATypeInfo: PTypeInfo; AOrdinal: Int32): String;
+class function TEnumUtilities.ToString(ATypeInfo: PTypeInfo; AOrdinal: Int32): String;
 begin
   if (ATypeInfo = nil) or (ATypeInfo^.Kind <> tkEnumeration) then
     Exit('');
   Result := GetEnumName(ATypeInfo, AOrdinal);
 end;
 
-class function TEnumUtils.GetEnumValues<T>: TArray<T>;
+class function TEnumUtilities.GetEnumValues<T>: TArray<T>;
 var
   LOrds: TArray<Int32>;
   LI: Int32;
@@ -176,7 +176,7 @@ begin
     Move(LOrds[LI], Result[LI], SizeOf(T));
 end;
 
-class function TEnumUtils.TryGetEnumValue<T>(const AInput: String;
+class function TEnumUtilities.TryGetEnumValue<T>(const AInput: String;
   out AResult: T; const AReplacer: TFunc<string, string>): Boolean;
 var
   LOrd: Int32;
@@ -188,7 +188,7 @@ begin
     AResult := Default(T);
 end;
 
-class function TEnumUtils.TryGetEnumFromOrdinal<T>(AOrdinal: Int32;
+class function TEnumUtilities.TryGetEnumFromOrdinal<T>(AOrdinal: Int32;
   out AResult: T): Boolean;
 begin
   // We use GetEnumName to validate the ordinal rather than a simple MinValue/MaxValue
@@ -202,7 +202,7 @@ begin
     AResult := Default(T);
 end;
 
-class function TEnumUtils.ToString<T>(const AValue: T): String;
+class function TEnumUtilities.ToString<T>(const AValue: T): String;
 var
   LOrd: Int32;
 begin

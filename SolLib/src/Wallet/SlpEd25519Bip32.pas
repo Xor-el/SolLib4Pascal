@@ -23,8 +23,8 @@ interface
 
 uses
   System.SysUtils,
-  SlpCryptoUtils,
-  SlpArrayUtils,
+  SlpCryptoUtilities,
+  SlpArrayUtilities,
   SlpBinaryPrimitives;
 
 type
@@ -103,9 +103,9 @@ implementation
 procedure TKeyChain.Wipe;
 begin
   if Key <> nil then
-    TArrayUtils.Fill<Byte>(Key, 0);
+    TArrayUtilities.Fill<Byte>(Key, 0);
   if ChainCode <> nil then
-    TArrayUtils.Fill<Byte>(ChainCode, 0);
+    TArrayUtilities.Fill<Byte>(ChainCode, 0);
 end;
 
 { TEd25519Bip32 }
@@ -130,7 +130,7 @@ begin
   try
     Result := SplitHmac(LKeyBuf, ASeed);
   finally
-    TArrayUtils.Fill<Byte>(LKeyBuf, 0);
+    TArrayUtilities.Fill<Byte>(LKeyBuf, 0);
   end;
 end;
 
@@ -147,7 +147,7 @@ begin
     TBinaryPrimitives.WriteUInt32BigEndian(LBuf, 1 + HalfLen, AIndex);
     Result := SplitHmac(AChainCode, LBuf);
   finally
-    TArrayUtils.Fill<Byte>(LBuf, 0);
+    TArrayUtilities.Fill<Byte>(LBuf, 0);
   end;
 end;
 
@@ -164,7 +164,7 @@ begin
     Move(LMac[0], Result.Key[0], HalfLen);
     Move(LMac[HalfLen], Result.ChainCode[0], HalfLen);
   finally
-    TArrayUtils.Fill<Byte>(LMac, 0);
+    TArrayUtilities.Fill<Byte>(LMac, 0);
   end;
 end;
 

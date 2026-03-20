@@ -26,7 +26,7 @@ uses
   System.Rtti,
   SlpRpcModel,
   SlpHttpApiResponse,
-  SlpValueUtils;
+  SlpValueUtilities;
 
 type
   IRequestResult<T> = interface
@@ -168,7 +168,7 @@ begin
  LV := TValue.From<T>(FResult);
 
  if not LV.IsEmpty then
-   TValueUtils.FreeParameter(LV);
+   TValueUtilities.FreeParameter(LV);
 
   inherited;
 end;

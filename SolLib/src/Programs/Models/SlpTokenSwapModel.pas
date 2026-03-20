@@ -26,8 +26,7 @@ uses
   SlpPublicKey,
   SlpBinaryPrimitives,
   SlpSerialization,
-
-  SlpArrayUtils;
+  SlpArrayUtilities;
 
 type
   /// <summary>
@@ -451,7 +450,7 @@ function TSwapCurve.Serialize: TBytes;
 begin
   SetLength(Result, 33);
   TSerialization.WriteU8(Result, Byte(FCurveType), 0);
-  TSerialization.WriteSpan(Result, FCalculator.Serialize, 1);
+  TSerialization.WriteBytes(Result, FCalculator.Serialize, 1);
 end;
 
 class function TSwapCurve.Deserialize(const ABytes: TBytes): ISwapCurve;
@@ -546,15 +545,15 @@ begin
   LAcc.FIsInitialized := AData[1] = 1;
   LAcc.FNonce := AData[2];
 
-  LAcc.FTokenProgramId := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 3, 32));
-  LAcc.FTokenAAccount := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 35, 32));
-  LAcc.FTokenBAccount := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 67, 32));
-  LAcc.FPoolMint := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 99, 32));
-  LAcc.FTokenAMint := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 131, 32));
-  LAcc.FTokenBMint := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 163, 32));
-  LAcc.FPoolFeeAccount := TPublicKey.Create(TArrayUtils.Slice<Byte>(AData, 195, 32));
-  LAcc.FFees := TFees.Deserialize(TArrayUtils.Slice<Byte>(AData, 227, 64));
-  LAcc.FSwapCurve := TSwapCurve.Deserialize(TArrayUtils.Slice<Byte>(AData, 291, Length(AData) - 291));
+  LAcc.FTokenProgramId := TPublicKey.Create(TArrayUtilities.Slice<Byte>(AData, 3, 32));
+  LAcc.FTokenAAccount := TPublicKey.Create(TArrayUtilities.Slice<Byte>(AData, 35, 32));
+  LAcc.FTokenBAccount := TPublicKey.Create(TArrayUtilities.Slice<Byte>(AData, 67, 32));
+  LAcc.FPoolMint := TPublicKey.Create(TArrayUtilities.Slice<Byte>(AData, 99, 32));
+  LAcc.FTokenAMint := TPublicKey.Create(TArrayUtilities.Slice<Byte>(AData, 131, 32));
+  LAcc.FTokenBMint := TPublicKey.Create(TArrayUtilities.Slice<Byte>(AData, 163, 32));
+  LAcc.FPoolFeeAccount := TPublicKey.Create(TArrayUtilities.Slice<Byte>(AData, 195, 32));
+  LAcc.FFees := TFees.Deserialize(TArrayUtilities.Slice<Byte>(AData, 227, 64));
+  LAcc.FSwapCurve := TSwapCurve.Deserialize(TArrayUtilities.Slice<Byte>(AData, 291, Length(AData) - 291));
 
   Result := LAcc;
 end;

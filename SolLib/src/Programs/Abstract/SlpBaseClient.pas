@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   System.Rtti,
   System.TypInfo,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpSolanaRpcClient,
   SlpSolanaStreamingRpcClient,
   SlpRequestResult,

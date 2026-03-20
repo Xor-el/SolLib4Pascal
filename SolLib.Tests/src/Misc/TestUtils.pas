@@ -26,7 +26,7 @@ uses
   SlpJsonKit,
   SlpJsonStringEnumConverter,
   SlpEncodingConverter,
-  SlpIOUtils;
+  SlpIOUtilities;
 
 type
   /// Minimal, test helpers.
@@ -115,7 +115,7 @@ end;
 
 class function TTestUtils.ReadAllText(const AFileName: string; const AEncoding: TEncoding): string;
 begin
-  Result := TIOUtils.ReadAllText(AFileName, AEncoding);
+  Result := TIOUtilities.ReadAllText(AFileName, AEncoding);
 end;
 
 end.

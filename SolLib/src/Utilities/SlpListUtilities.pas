@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpListUtils;
+unit SlpListUtilities;
 
 {$I ../Include/SolLib.inc}
 
@@ -27,7 +27,7 @@ uses
   SlpSolLibTypes;
 
 type
-  TListUtils = class
+  TListUtilities = class
   public
     class function Any<T>(const AList: TList<T>; const APred: TPredicate<T>): Boolean; overload; static;
     class function Any<T: class>(const AList: TObjectList<T>; const APred: TPredicate<T>): Boolean; overload; static;
@@ -41,9 +41,9 @@ type
 
 implementation
 
-{ TListUtils }
+{ TListUtilities }
 
-class function TListUtils.Any<T>(const AList: TList<T>; const APred: TPredicate<T>): Boolean;
+class function TListUtilities.Any<T>(const AList: TList<T>; const APred: TPredicate<T>): Boolean;
 var
   LItem: T;
 begin
@@ -53,7 +53,7 @@ begin
   Result := False;
 end;
 
-class function TListUtils.Any<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): Boolean;
+class function TListUtilities.Any<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): Boolean;
 var
   LItem: T;
 begin
@@ -63,7 +63,7 @@ begin
   Result := False;
 end;
 
-class function TListUtils.Filter<T>(const AList: TList<T>; const APred: TPredicate<T>): TList<T>;
+class function TListUtilities.Filter<T>(const AList: TList<T>; const APred: TPredicate<T>): TList<T>;
 var
   LItem: T;
 begin
@@ -73,7 +73,7 @@ begin
       Result.Add(LItem);
 end;
 
-class function TListUtils.Filter<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): TObjectList<T>;
+class function TListUtilities.Filter<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): TObjectList<T>;
 var
   LItem: T;
 begin
@@ -83,7 +83,7 @@ begin
       Result.Add(LItem);
 end;
 
-class function TListUtils.FindIndex<T>(const AList: TList<T>; const APred: TPredicate<T>): Integer;
+class function TListUtilities.FindIndex<T>(const AList: TList<T>; const APred: TPredicate<T>): Integer;
 var
   LI: Integer;
 begin
@@ -93,7 +93,7 @@ begin
   Result := -1;
 end;
 
-class function TListUtils.FindIndex<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): Integer;
+class function TListUtilities.FindIndex<T>(const AList: TObjectList<T>; const APred: TPredicate<T>): Integer;
 var
   LI: Integer;
 begin

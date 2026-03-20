@@ -26,9 +26,9 @@ uses
   System.JSON.Serializers,
   SlpKeyStoreModel,
   SlpJsonKeyStoreSerializer,
-  SlpCryptoUtils,
-  SlpArrayUtils,
-  SlpDataEncoderUtils,
+  SlpCryptoUtilities,
+  SlpArrayUtilities,
+  SlpDataEncoderUtilities,
   SlpKeyStoreCrypto;
 
 type
@@ -156,11 +156,11 @@ begin
     try
       LCipherText := GenerateCipher(APrivateKey, LIV, LCipherKey);
     finally
-      TArrayUtils.Fill<Byte>(LCipherKey);
+      TArrayUtilities.Fill<Byte>(LCipherKey);
     end;
     LMac := TKeyStoreCrypto.GenerateMac(LDerivedKey, LCipherText);
   finally
-    TArrayUtils.Fill<Byte>(LDerivedKey);
+    TArrayUtilities.Fill<Byte>(LDerivedKey);
   end;
 
   LCryptoInfo := TCryptoInfo<T>.Create(GetCipherType, LCipherText, LIV, LMac, LSalt, AKdfParams, GetKdfType);

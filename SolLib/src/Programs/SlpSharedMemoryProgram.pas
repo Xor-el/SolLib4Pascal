@@ -122,7 +122,7 @@ begin
   TSerialization.WriteU64(Result, AOffset, OffsetFieldPos);
 
   // Write payload bytes at position 8
-  TSerialization.WriteSpan(Result, APayload, PayloadPos);
+  TSerialization.WriteBytes(Result, APayload, PayloadPos);
 end;
 
 class procedure TSharedMemoryProgramData.DecodeWriteData(

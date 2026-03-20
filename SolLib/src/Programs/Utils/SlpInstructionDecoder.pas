@@ -26,7 +26,7 @@ uses
   System.Generics.Collections,
   System.Generics.Defaults,
   System.Rtti,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpPublicKey,
   SlpRpcModel,
   SlpMessageDomain,

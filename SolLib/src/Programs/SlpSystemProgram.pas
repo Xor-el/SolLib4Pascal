@@ -26,7 +26,7 @@ uses
   System.Rtti,
   System.TypInfo,
   System.Generics.Collections,
-  SlpEnumUtils,
+  SlpEnumUtilities,
   SlpPublicKey,
   SlpAccountDomain,
   SlpSerialization,
@@ -587,7 +587,7 @@ begin
   SetLength(Result, 84 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.CreateAccountWithSeed), MethodOffset);
   TSerialization.WritePubKey(Result, ABaseAccount, 4);
-  TSerialization.WriteSpan(Result, LEncodedSeed, 36);
+  TSerialization.WriteBytes(Result, LEncodedSeed, 36);
   TSerialization.WriteU64(Result, ALamports, 36 + Length(LEncodedSeed));
   TSerialization.WriteU64(Result, ASpace, 44 + Length(LEncodedSeed));
   TSerialization.WritePubKey(Result, AOwner, 52 + Length(LEncodedSeed));
@@ -636,7 +636,7 @@ begin
   SetLength(Result, 76 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.AllocateWithSeed), MethodOffset);
   TSerialization.WritePubKey(Result, ABaseAccount, 4);
-  TSerialization.WriteSpan(Result, LEncodedSeed, 36);
+  TSerialization.WriteBytes(Result, LEncodedSeed, 36);
   TSerialization.WriteU64(Result, ASpace, 36 + Length(LEncodedSeed));
   TSerialization.WritePubKey(Result, AOwner, 44 + Length(LEncodedSeed));
 end;
@@ -650,7 +650,7 @@ begin
   SetLength(Result, 68 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.AssignWithSeed), MethodOffset);
   TSerialization.WritePubKey(Result, ABaseAccount, 4);
-  TSerialization.WriteSpan(Result, LEncodedSeed, 36);
+  TSerialization.WriteBytes(Result, LEncodedSeed, 36);
   TSerialization.WritePubKey(Result, AOwner, 36 + Length(LEncodedSeed));
 end;
 
@@ -663,7 +663,7 @@ begin
   SetLength(Result, 44 + Length(LEncodedSeed));
   TSerialization.WriteU32(Result, UInt32(TSystemProgramInstructions.TValues.TransferWithSeed), MethodOffset);
   TSerialization.WriteU64(Result, ALamports, 4);
-  TSerialization.WriteSpan(Result, LEncodedSeed, 12);
+  TSerialization.WriteBytes(Result, LEncodedSeed, 12);
   TSerialization.WritePubKey(Result, AOwner, 12 + Length(LEncodedSeed));
 end;
 
@@ -964,7 +964,7 @@ var
 begin
   LInstruction := TDeserialization.GetU32(AData, TSystemProgramData.MethodOffset);
 
-  if not TEnumUtils.TryGetEnumFromOrdinal<TSystemProgramInstructions.TValues>(LInstruction, LInstructionValue) then
+  if not TEnumUtilities.TryGetEnumFromOrdinal<TSystemProgramInstructions.TValues>(LInstruction, LInstructionValue) then
   begin
     Result := TDecodedInstruction.Create;
     Result.PublicKey := ProgramIdKey;

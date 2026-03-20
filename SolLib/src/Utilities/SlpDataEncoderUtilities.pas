@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpDataEncoderUtils;
+unit SlpDataEncoderUtilities;
 
 {$I ../Include/SolLib.inc}
 

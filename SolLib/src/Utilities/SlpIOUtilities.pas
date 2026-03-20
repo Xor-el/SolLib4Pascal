@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpIOUtils;
+unit SlpIOUtilities;
 
 {$I ../Include/SolLib.inc}
 
@@ -26,7 +26,7 @@ uses
   System.SysUtils;
 
 type
-  TIOUtils = class
+  TIOUtilities = class
   public
     class function ReadAllText(const AFilePath: string): string; overload; static;
     class function ReadAllText(const AFilePath: string; const AEncoding: TEncoding): string; overload; static;
@@ -42,43 +42,43 @@ type
 
 implementation
 
-{ TIOUtils }
+{ TIOUtilities }
 
-class function TIOUtils.ReadAllText(const AFilePath: string): string;
+class function TIOUtilities.ReadAllText(const AFilePath: string): string;
 begin
   Result := TFile.ReadAllText(AFilePath);
 end;
 
-class function TIOUtils.ReadAllText(const AFilePath: string;
+class function TIOUtilities.ReadAllText(const AFilePath: string;
   const AEncoding: TEncoding): string;
 begin
   Result := TFile.ReadAllText(AFilePath, AEncoding);
 end;
 
-class procedure TIOUtils.WriteAllBytes(const AFilePath: string;
+class procedure TIOUtilities.WriteAllBytes(const AFilePath: string;
   const AContent: TBytes);
 begin
   TFile.WriteAllBytes(AFilePath, AContent);
 end;
 
-class procedure TIOUtils.WriteAllText(const AFilePath: string;
+class procedure TIOUtilities.WriteAllText(const AFilePath: string;
   const AContent: string);
 begin
   TFile.WriteAllText(AFilePath, AContent);
 end;
 
-class procedure TIOUtils.WriteAllText(const AFilePath, AContent: string;
+class procedure TIOUtilities.WriteAllText(const AFilePath, AContent: string;
   const AEncoding: TEncoding);
 begin
   TFile.WriteAllText(AFilePath, AContent, AEncoding);
 end;
 
-class function TIOUtils.CombinePath(const AFirstPath, ASecondPath: string): string;
+class function TIOUtilities.CombinePath(const AFirstPath, ASecondPath: string): string;
 begin
   Result := TPath.Combine(AFirstPath, ASecondPath);
 end;
 
-class function TIOUtils.GetFullPath(const APath: string): string;
+class function TIOUtilities.GetFullPath(const APath: string): string;
 begin
   Result := TPath.GetFullPath(APath);
 end;

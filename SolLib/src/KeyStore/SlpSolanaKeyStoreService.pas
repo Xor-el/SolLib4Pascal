@@ -23,9 +23,9 @@ interface
 
 uses
   System.SysUtils,
-  SlpIOUtils,
+  SlpIOUtilities,
   SlpWalletEnum,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpWallet;
 
 type
@@ -76,7 +76,7 @@ begin
     raise EArgumentNilException.Create('path');
 
   Result := InitializeWallet(
-    TSolanaKeyPairJsonEncoder.DecodeData(TIOUtils.ReadAllText(APath, TEncoding.UTF8)),
+    TSolanaKeyPairJsonEncoder.DecodeData(TIOUtilities.ReadAllText(APath, TEncoding.UTF8)),
     APassphrase);
 end;
 
@@ -88,7 +88,7 @@ begin
   if AWallet = nil then
     raise EArgumentNilException.Create('wallet');
 
-  TIOUtils.WriteAllBytes(APath,
+  TIOUtilities.WriteAllBytes(APath,
     TEncoding.ASCII.GetBytes(
       TSolanaKeyPairJsonEncoder.EncodeData(AWallet.Account.PrivateKey.KeyBytes)));
 end;

@@ -24,7 +24,7 @@ interface
 uses
   System.SysUtils,
   System.JSON.Serializers,
-  SlpDataEncoderUtils;
+  SlpDataEncoderUtilities;
 
 type
   TKdfParams = class

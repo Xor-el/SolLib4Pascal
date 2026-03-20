@@ -25,7 +25,7 @@ uses
   System.SysUtils,
   System.JSON,
   System.DateUtils,
-  SlpIOUtils,
+  SlpIOUtilities,
   SlpKeyStoreKdfChecker,
   SlpKeyStoreEnum,
   SlpKeyStoreService,
@@ -126,7 +126,7 @@ begin
   if AFilePath = '' then
     raise EArgumentNilException.Create('filePath');
 
-  Result := DecryptKeyStoreFromJson(APassword, TIOUtils.ReadAllText(AFilePath, TEncoding.UTF8));
+  Result := DecryptKeyStoreFromJson(APassword, TIOUtilities.ReadAllText(AFilePath, TEncoding.UTF8));
 end;
 
 function TSecretKeyStoreService.DecryptKeyStoreFromJson(const APassword, AJson: string): TBytes;

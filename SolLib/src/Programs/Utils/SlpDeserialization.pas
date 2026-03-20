@@ -24,7 +24,7 @@ interface
 uses
   System.SysUtils,
   SlpBinaryPrimitives,
-  SlpArrayUtils,
+  SlpArrayUtilities,
   SlpPublicKey;
 
 type
@@ -104,14 +104,6 @@ type
     /// <param name="AData">The buffer to read from.</param>
     /// <param name="AOffset">The offset at which the 64-bit signed integer begins.</param>
     class function GetS64(const AData: TBytes; AOffset: Integer): Int64; static;
-
-    /// <summary>
-    /// Get a subarray from the buffer at the given offset with the given length.
-    /// </summary>
-    /// <param name="AData">The buffer to read from.</param>
-    /// <param name="AOffset">The offset at which the desired span begins.</param>
-    /// <param name="ALen">The desired length for the new span.</param>
-    class function GetSpan(const AData: TBytes; AOffset, ALen: Integer): TBytes; static;
 
     /// <summary>
     /// Get a <see cref="TPublicKey"/> encoded as a 32-byte array from the buffer at the given offset.
@@ -223,16 +215,10 @@ begin
   Result := TBinaryPrimitives.ReadInt64LittleEndian(AData, AOffset);
 end;
 
-class function TDeserialization.GetSpan(const AData: TBytes; AOffset, ALen: Integer): TBytes;
-begin
-  CheckBounds(AData, AOffset, ALen);
-  Result := TArrayUtils.Slice<Byte>(AData, AOffset, ALen);
-end;
-
 class function TDeserialization.GetBytes(const AData: TBytes; AOffset, ALen: Integer): TBytes;
 begin
   CheckBounds(AData, AOffset, ALen);
-  Result := TArrayUtils.Slice<Byte>(AData, AOffset, ALen);
+  Result := TArrayUtilities.Slice<Byte>(AData, AOffset, ALen);
 end;
 
 class function TDeserialization.GetPubKey(const AData: TBytes; AOffset: Integer): IPublicKey;
@@ -240,7 +226,7 @@ var
   LKeyBytes: TBytes;
 begin
   CheckBounds(AData, AOffset, TPublicKey.PublicKeyLength);
-  LKeyBytes := TArrayUtils.Slice<Byte>(AData, AOffset, TPublicKey.PublicKeyLength);
+  LKeyBytes := TArrayUtilities.Slice<Byte>(AData, AOffset, TPublicKey.PublicKeyLength);
   Result := TPublicKey.Create(LKeyBytes);
 end;
 
@@ -273,7 +259,7 @@ begin
   CheckBounds(AData, AOffset, SizeOf(UInt64));
 
   LStringLength := Integer(GetU64(AData, AOffset));
-  LStringBytes := TArrayUtils.Slice<Byte>(AData, AOffset + SizeOf(UInt64), LStringLength);
+  LStringBytes := TArrayUtilities.Slice<Byte>(AData, AOffset + SizeOf(UInt64), LStringLength);
 
   Result.EncodedString := TEncoding.UTF8.GetString(LStringBytes);
   Result.Length := LStringLength + SizeOf(UInt64);
@@ -288,7 +274,7 @@ begin
   CheckBounds(AData, AOffset, SizeOf(Cardinal));
 
   LStringLength := Integer(GetU32(AData, AOffset));
-  LStringBytes := TArrayUtils.Slice<Byte>(AData, AOffset + SizeOf(UInt32), LStringLength);
+  LStringBytes := TArrayUtilities.Slice<Byte>(AData, AOffset + SizeOf(UInt32), LStringLength);
   AResultStr := TEncoding.UTF8.GetString(LStringBytes);
 
   Result := LStringLength + SizeOf(Cardinal);

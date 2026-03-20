@@ -24,7 +24,7 @@ interface
 uses
   System.SysUtils,
   System.Math,
-  SlpMathUtils;
+  SlpMathUtilities;
 
 type
   /// <summary>
@@ -76,7 +76,7 @@ begin
   if LRounded > High(UInt64) then
     raise EConvertError.Create('Value exceeds UInt64 range');
 
-  Result := TMathUtils.DoubleToUInt64(LRounded);
+  Result := TMathUtilities.DoubleToUInt64(LRounded);
 end;
 
 class function TSolConverter.ConvertToSol(const ALamports: UInt64): Double;

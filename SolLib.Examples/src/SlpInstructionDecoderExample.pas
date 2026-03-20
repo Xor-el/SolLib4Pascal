@@ -33,7 +33,7 @@ uses
   SlpTransactionBuilder,
   SlpRequestResult,
   SlpExample,
-  SlpIOUtils;
+  SlpIOUtilities;
 
 type
   /// <summary>
@@ -126,7 +126,7 @@ begin
 
     // write raw JSON to ./response<slot>.json (if available)
     if LBlock.RawRpcResponse <> '' then
-      TIOUtils.WriteAllText(Format('./response%d.json', [LSlot]), LBlock.RawRpcResponse);
+      TIOUtilities.WriteAllText(Format('./response%d.json', [LSlot]), LBlock.RawRpcResponse);
 
     Writeln(Format('BlockHash >> %s', [LBlock.Result.Blockhash]));
     Writeln(Format('%s%sDECODING INSTRUCTIONS FROM TRANSACTIONS IN BLOCK %s%s',

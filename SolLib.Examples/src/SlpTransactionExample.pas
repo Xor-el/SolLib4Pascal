@@ -37,7 +37,7 @@ uses
   SlpMessageDomain,
   SlpTransactionBuilder,
   SlpRequestResult,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpExample,
   SlpComputeBudgetEstimator;
 

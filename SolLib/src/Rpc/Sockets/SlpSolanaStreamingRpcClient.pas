@@ -44,7 +44,7 @@ uses
   SlpSubscriptionEvent,
   SlpWebSocketApiClient,
   SlpMulticast,
-  SlpValueUtils,
+  SlpValueUtilities,
   SlpNullable,
   SlpLogger,
   SlpSolLibTypes;
@@ -604,7 +604,7 @@ end;
 destructor TSubscriptionState.Destroy;
 begin
   if Assigned(FAdditionalParameters) then
-   TValueUtils.FreeParameters(FAdditionalParameters);
+   TValueUtilities.FreeParameters(FAdditionalParameters);
   inherited;
 end;
 
@@ -777,7 +777,7 @@ begin
   try
     ASub.HandleData(LV);
   finally
-    TValueUtils.FreeParameter(LV);
+    TValueUtilities.FreeParameter(LV);
   end;
 end;
 
@@ -1107,7 +1107,7 @@ begin
             LRpcClient,
             AChannel,
             ACallback,
-            TValueUtils.CloneValueList(AParams)
+            TValueUtilities.CloneValueList(AParams)
           );
 
   // Build the JSON-RPC subscribe request and send it

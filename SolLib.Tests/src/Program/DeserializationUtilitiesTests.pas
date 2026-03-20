@@ -64,7 +64,7 @@ type
     procedure TestReadS64;
 
     procedure TestReadSpanException;
-    procedure TestReadSpan;
+    procedure TestReadBytes;
 
     procedure TestReadPublicKeyException;
     procedure TestReadPublicKey;
@@ -313,19 +313,19 @@ begin
   AssertException(
     procedure
     begin
-      TDeserialization.GetSpan(LPk, 1, 32);
+      TDeserialization.GetBytes(LPk, 1, 32);
     end,
     EArgumentOutOfRangeException
   );
 end;
 
-procedure TDeserializationUtilitiesTests.TestReadSpan;
+procedure TDeserializationUtilitiesTests.TestReadBytes;
 var
   LPk, LSpan: TBytes;
 begin
   LPk := PublicKeyBytes;
-  LSpan := TDeserialization.GetSpan(LPk, 0, 32);
-  AssertEquals(LPk, LSpan, 'GetSpan');
+  LSpan := TDeserialization.GetBytes(LPk, 0, 32);
+  AssertEquals(LPk, LSpan, 'GetBytes');
 end;
 
 procedure TDeserializationUtilitiesTests.TestReadPublicKeyException;

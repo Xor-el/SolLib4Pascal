@@ -27,9 +27,9 @@ uses
   SlpWordList,
   SlpWalletEnum,
   SlpNullable,
-  SlpCryptoUtils,
+  SlpCryptoUtilities,
   SlpBitWriter,
-  SlpArrayUtils,
+  SlpArrayUtilities,
   SlpKdTable,
   SlpSolLibTypes;
 
@@ -331,7 +331,7 @@ begin
     LWriter.Free;
   end;
 
-  FIsValidChecksum := TArrayUtils.AreArraysEqual(LExpectedIndices, FIndices);
+  FIsValidChecksum := TArrayUtilities.AreArraysEqual(LExpectedIndices, FIndices);
   Result := FIsValidChecksum.Value;
 end;
 
@@ -341,7 +341,7 @@ var
 begin
   LPW := NormalizeUTF8(FMnemonic);
   // salt = "mnemonic" || NFKD(passphrase)
-  LSalt := TArrayUtils.Concat<Byte>(
+  LSalt := TArrayUtilities.Concat<Byte>(
     TEncoding.UTF8.GetBytes('mnemonic'),
     NormalizeUTF8(APassphrase)
   );

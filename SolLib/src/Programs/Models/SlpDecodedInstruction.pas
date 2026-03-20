@@ -27,7 +27,7 @@ uses
   System.Generics.Collections,
   SlpPublicKey,
   SlpValueHelpers,
-  SlpValueUtils;
+  SlpValueUtilities;
 
 type
   IDecodedInstruction = interface
@@ -112,7 +112,7 @@ implementation
 destructor TDecodedInstruction.Destroy;
 begin
   if Assigned(FInnerInstructions) then FInnerInstructions.Free;
-  if Assigned(FValues) then TValueUtils.FreeParameters(FValues);
+  if Assigned(FValues) then TValueUtilities.FreeParameters(FValues);
   inherited;
 end;
 

@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpCryptoUtils;
+unit SlpCryptoUtilities;
 
 {$I ../Include/SolLib.inc}
 

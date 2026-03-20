@@ -28,7 +28,7 @@ uses
   SlpWordList,
   SlpPublicKey,
   SlpSecretKeyStoreService,
-  SlpDataEncoderUtils;
+  SlpDataEncoderUtilities;
 
 type
   /// <summary>

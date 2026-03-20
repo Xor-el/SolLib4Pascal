@@ -25,7 +25,7 @@ uses
   System.SysUtils,
   System.Generics.Defaults,
   System.TypInfo,
-  SlpEnumUtils;
+  SlpEnumUtilities;
 
 type
   /// <summary>
@@ -79,7 +79,7 @@ begin
     raise EInvalidOp.CreateFmt(
       'TNullable<%s> only supports value types (got %s). ' +
       'Disallowed: class/interface/string/dyn array/variant/etc.',
-      [GetTypeName(TypeInfo(T)), TEnumUtils.ToString<TTypeKind>(LK)]
+      [GetTypeName(TypeInfo(T)), TEnumUtilities.ToString<TTypeKind>(LK)]
     );
   end;
 end;

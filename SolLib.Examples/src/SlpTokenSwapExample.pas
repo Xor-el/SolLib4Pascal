@@ -34,7 +34,7 @@ uses
   SlpTokenProgram,
   SlpTokenSwapProgram,
   SlpTokenSwapModel,
-  SlpDataEncoderUtils,
+  SlpDataEncoderUtilities,
   SlpExample;
 
 type
