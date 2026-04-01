@@ -15,26 +15,28 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-{$IFDEF FPC}
-  {$MESSAGE FATAL 'This Library does not support Free Pascal Compiler (FPC). Please use Delphi instead.'}
+{$MESSAGE FATAL 'This Library does not support Free Pascal Compiler (FPC). Please use Delphi instead.'}
 
-  {$IFDEF ENDIAN_BIG}
-    {$MESSAGE FATAL 'This Library does not support "Big Endian" processors yet.'}
-  {$ENDIF}
-
-  {$MODE DELPHI}
-  {$MACRO ON}
-  {$NOTES OFF}
-  {$OPTIMIZATION LEVEL3}
-  {$OPTIMIZATION NOUSELOADMODIFYSTORE}
-  {$OPTIMIZATION ORDERFIELDS}
-  {$OPTIMIZATION DEADVALUES}
-  {$IFDEF CPUI386}  {$OPTIMIZATION USEEBP} {$ENDIF}
-  {$IFDEF CPUX86_64} {$OPTIMIZATION USERBP} {$ENDIF}
+{$IFDEF ENDIAN_BIG}
+  {$MESSAGE FATAL 'This Library does not support "Big Endian" processors yet.'}
+{$ENDIF}
 
 {========================== Resource Loading Strategy =========================}
 
-  // FPC supports embedded resources via TResourceStream
-  {$DEFINE USE_EMBEDDED_RESOURCES}
+// FPC supports embedded resources via TResourceStream
+{$DEFINE USE_EMBEDDED_RESOURCES}
 
-{$ENDIF}
+{========================= Compiler Mode & Optimizations ======================}
+
+{$MODE DELPHI}
+{$MACRO ON}
+{$NOTES OFF}
+
+(*
+{$OPTIMIZATION LEVEL3}
+{$OPTIMIZATION NOUSELOADMODIFYSTORE}
+{$OPTIMIZATION ORDERFIELDS}
+{$OPTIMIZATION DEADVALUES}
+{$IFDEF CPUI386}  {$OPTIMIZATION USEEBP} {$ENDIF}
+{$IFDEF CPUX86_64} {$OPTIMIZATION USERBP} {$ENDIF}
+*)
