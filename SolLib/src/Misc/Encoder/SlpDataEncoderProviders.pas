@@ -88,10 +88,11 @@ type
 //
 //   // At application startup:
 //   TDataEncoderProviders.Base58 := TMyCustomBase58EncoderProvider.Create;
+//   TDataEncoderProviders.Base64 := TMyCustomBase64EncoderProvider.Create;
 //
 // The default implementations from SlpDefaultDataEncoderProviders are loaded
-// when USE_DEFAULT_DATA_ENCODER_PROVIDERS is defined. Define
-// USE_CUSTOM_DATA_ENCODER_PROVIDERS to supply your own implementations.
+// when USE_DEFAULT_DATA_ENCODER_PROVIDERS is defined.
+// Define USE_CUSTOM_DATA_ENCODER_PROVIDERS to supply your own implementations.
 //
 // =============================================================================
 
@@ -111,10 +112,6 @@ begin
   FBase64 := TDefaultBase64EncoderProvider.Create;
   FHex := TDefaultHexEncoderProvider.Create;
   FSolanaKeyPairJson := TDefaultSolanaKeyPairJsonEncoderProvider.Create;
-  {$ELSEIF DEFINED(USE_CUSTOM_DATA_ENCODER_PROVIDERS)}
-  // User must assign providers before using TDataEncoderProviders
-  {$ELSE}
-  {$MESSAGE ERROR 'Either USE_DEFAULT_DATA_ENCODER_PROVIDERS or USE_CUSTOM_DATA_ENCODER_PROVIDERS must be defined'}
   {$ENDIF}
 end;
 
