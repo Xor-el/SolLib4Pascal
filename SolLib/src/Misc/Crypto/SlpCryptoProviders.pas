@@ -134,11 +134,11 @@ type
 //
 //   // At application startup:
 //   TCryptoProviders.Hash := TMyCustomHashProvider.Create;
+//   TCryptoProviders.Hmac := TMyCustomHmacProvider.Create;
 //
-// The default CryptoLib4Pascal implementations from SlpDefaultCryptoProviders
-// are loaded when USE_DEFAULT_CRYPTO_PROVIDERS is defined.
-// Define USE_CUSTOM_CRYPTO_PROVIDERS to supply your own implementations
-// (especially if you want to avoid CryptoLib4Pascal as a compile-time dependency).
+// The default implementations from SlpDefaultCryptoProviders are loaded
+// when USE_DEFAULT_CRYPTO_PROVIDERS is defined.
+// Define USE_CUSTOM_CRYPTO_PROVIDERS to supply your own implementations.
 //
 // =============================================================================
 
@@ -158,14 +158,6 @@ begin
   FCipher := TDefaultCipherProvider.Create;
   FRandom := TDefaultRandomProvider.Create;
   FEd25519 := TDefaultEd25519Provider.Create;
-  {$ELSEIF DEFINED(USE_CUSTOM_CRYPTO_PROVIDERS)}
-  // User must assign providers before using TCryptoProviders
-  // Example:
-  //   FHash := TMyCustomHashProvider.Create;
-  //   FHmac := TMyCustomHmacProvider.Create;
-  //   etc.
-  {$ELSE}
-  {$MESSAGE ERROR 'Either USE_DEFAULT_CRYPTO_PROVIDERS or USE_CUSTOM_CRYPTO_PROVIDERS must be defined'}
   {$ENDIF}
 end;
 
