@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Official mark: wallet and chain. Key bow, key body, linked account nodes.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="slt sld">
+  <title id="slt">SolLib4Pascal</title>
+  <desc id="sld">Badge with key, wallet slot, and linked chain nodes for a Solana SDK.</desc>
+  <defs>
+    <linearGradient id="solbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5b21b6"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="26" fill="url(#solbg)"/>
+  <path fill="none" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" d="M 38 48 C 28 48 28 64 38 64 C 28 64 28 80 38 80"/>
+  <rect x="44" y="52" width="18" height="24" rx="4" fill="#312e81" stroke="#5eead4" stroke-width="2"/>
+  <circle cx="53" cy="64" r="4" fill="#22d3ee"/>
+  <circle cx="78" cy="52" r="8" fill="#312e81" stroke="#a78bfa" stroke-width="2"/>
+  <circle cx="96" cy="64" r="8" fill="#312e81" stroke="#a78bfa" stroke-width="2"/>
+  <circle cx="78" cy="76" r="8" fill="#312e81" stroke="#a78bfa" stroke-width="2"/>
+  <path fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round" d="M 84 56 L 90 60 M 90 68 L 84 72 M 84 72 L 88 76"/>
+</svg>

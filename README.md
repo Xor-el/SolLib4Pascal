@@ -1,53 +1,81 @@
-SolLib4Pascal: Solana for Modern Object Pascal [![License](http://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Xor-el/SolLib4Pascal/blob/master/LICENSE)
-========================================
+<p align="center">
+  <img src="assets/branding/logo.svg" width="160" alt="SolLib4Pascal logo" />
+  <h1 align="center">SolLib4Pascal</h1>
+  <p align="center">
+    <strong>Solana blockchain SDK for Object Pascal</strong>
+  </p>
+  <p align="center">
+    <!-- CI: uncomment when a GitHub Actions workflow exists for this repo.
+    <a href="https://github.com/Xor-el/SolLib4Pascal/actions/workflows/make.yml"><img src="https://github.com/Xor-el/SolLib4Pascal/actions/workflows/make.yml/badge.svg" alt="Build Status"></a>
+    -->
+    <a href="https://github.com/Xor-el/SolLib4Pascal/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+    <a href="https://www.embarcadero.com/products/delphi"><img src="https://img.shields.io/badge/Delphi-10.4%2B-red.svg" alt="Delphi"></a>
+  </p>
+</p>
 
-# Introduction
+---
 
-⚡ **Bringing Solana to Object Pascal.**
+SolLib4Pascal is a Solana blockchain SDK for Object Pascal, providing JSON RPC clients, wallet management, transaction building, and program interfaces for seamless Solana integration in Delphi applications, released under the permissive [MIT License](https://github.com/Xor-el/SolLib4Pascal/blob/main/LICENSE).
 
-**SolLib** is an Object Pascal SDK for the **Solana blockchain**, designed to integrate seamlessly with the Object Pascal ecosystem.  
+## Table of Contents
 
-Whether you’re a seasoned developer or just getting started, **SolLib** provides clear examples, and powerful APIs that make building on Solana with Object Pascal simple and efficient.
-
+- [Features](#features)
+- [Available Programs](#available-programs)
+- [Getting Started](#getting-started)
+- [Quick Examples](#quick-examples)
+- [Running Tests](#running-tests)
+- [Contributing](#contributing)
+- [Sponsors](#sponsors)
+- [Tip Jar](#tip-jar)
+- [License](#license)
+- [Branding](assets/branding/README.md)
 
 ## Features
-- JSON RPC API coverage
-- Streaming JSON RPC API coverage
-- Wallet and accounts
-- Keystore
-- Transaction decoding/encoding (base64 and wire format)
-- Message decoding/encoding (base64 and wire format)
-- Instruction decompilation
-- Programs
-    - Native Programs
-      - System Program
-    - Loader Programs
-      - BPF Loader Program
-    - Solana Program Library (SPL)
-      - Compute Budget Program
-      - Address Lookup Table Program
-      - Memo Program
-      - Token Program
-      - Token Swap Program
-      - Associated Token Account Program
-      - Shared Memory Program
 
+- **JSON RPC API** -- full coverage of Solana JSON RPC methods
+- **Streaming JSON RPC API** -- WebSocket-based subscription support
+- **Wallet and accounts** -- HD wallet derivation from mnemonic phrases
+- **Keystore** -- secure key storage
+- **Transaction encoding/decoding** -- base64 and wire format support
+- **Message encoding/decoding** -- base64 and wire format support
+- **Instruction decompilation** -- decode instructions back to structured data
+- **Program interfaces** -- typed wrappers for native and SPL programs
 
-## Supported Compilers
-- Delphi 10.4 and Above
+## Available Programs
 
-## Build Dependencies
+### Native Programs
+
+`System Program`
+
+### Loader Programs
+
+`BPF Loader Program`
+
+### Solana Program Library (SPL)
+
+`Compute Budget Program` | `Address Lookup Table Program` | `Memo Program` | `Token Program` | `Token Swap Program` | `Associated Token Account Program` | `Shared Memory Program`
+
+## Getting Started
+
+### Prerequisites
+
+| Compiler | Minimum Version |
+| --- | --- |
+| Delphi | 10.4 or later |
+
+### Compile-Time Dependencies
+
 - [SimpleBaseLib4Pascal](https://github.com/Xor-el/SimpleBaseLib4Pascal)
 - [HashLib4Pascal](https://github.com/Xor-el/HashLib4Pascal)
 - [CryptoLib4Pascal](https://github.com/Xor-el/CryptoLib4Pascal)
 
-## Installation
+### Installation
 
-Add the **SolLib** sources and it's dependencies to your compiler search path.
+Add the **SolLib** sources and its dependencies to your compiler search path.
 
-## Quickstart
+## Quick Examples
 
-A minimal example to fetch a balance and send a memo:
+### Fetch Balance and Send a Memo
 
 ```pascal
 var
@@ -101,14 +129,32 @@ begin
 end;
 ```
 
-## Examples
+## Running Tests
 
-Samples can be found in the `SolLib.Examples` folder.
+Tests are provided for Delphi.
 
-## License
+- **Delphi:** Open and run `SolLib.Tests/Delphi.Tests/SolLib.Tests.dpr` in the IDE.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Additional samples can be found in the `SolLib.Examples` folder.
+
+## Contributing
+
+Contributions are welcome. Please open an [issue](https://github.com/Xor-el/SolLib4Pascal/issues) for bug reports or feature requests, and submit pull requests.
 
 ## Sponsors
 
-* [InstallAware](https://www.installaware.com/)
+- [InstallAware](https://www.installaware.com/)
+
+## Tip Jar
+
+If you find this library useful and would like to support its continued development, tips are greatly appreciated! 🙏
+
+| Cryptocurrency | Wallet Address |
+|---|---|
+| <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/icon/btc.png" width="20" alt="Bitcoin" /> **Bitcoin (BTC)** | `bc1quqhe342vw4ml909g334w9ygade64szqupqulmu` |
+| <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/icon/eth.png" width="20" alt="Ethereum" /> **Ethereum (ETH)** | `0x53651185b7467c27facab542da5868bfebe2bb69` |
+| <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/icon/sol.png" width="20" alt="Solana" /> **Solana (SOL)** | `BPZHjY1eYCdQjLecumvrTJRi5TXj3Yz1vAWcmyEB9Miu` |
+
+## License
+
+This project is licensed under the [MIT License](https://github.com/Xor-el/SolLib4Pascal/blob/main/LICENSE).

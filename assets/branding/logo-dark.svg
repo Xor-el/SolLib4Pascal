@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Dark UI: brighter key and chain on near black violet badge.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="sltd sldd">
+  <title id="sltd">SolLib4Pascal</title>
+  <desc id="sldd">Wallet and chain mark tuned for dark backgrounds.</desc>
+  <defs>
+    <linearGradient id="solbgd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0a0618"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="26" fill="url(#solbgd)"/>
+  <path fill="none" stroke="#fde68a" stroke-width="4" stroke-linecap="round" d="M 38 48 C 28 48 28 64 38 64 C 28 64 28 80 38 80"/>
+  <rect x="44" y="52" width="18" height="24" rx="4" fill="#312e81" stroke="#5eead4" stroke-width="2"/>
+  <circle cx="53" cy="64" r="4" fill="#67e8f9"/>
+  <circle cx="78" cy="52" r="8" fill="#1e293b" stroke="#d8b4fe" stroke-width="2"/>
+  <circle cx="96" cy="64" r="8" fill="#1e293b" stroke="#d8b4fe" stroke-width="2"/>
+  <circle cx="78" cy="76" r="8" fill="#1e293b" stroke="#d8b4fe" stroke-width="2"/>
+  <path fill="none" stroke="#99f6e4" stroke-width="2" stroke-linecap="round" d="M 84 56 L 90 60 M 90 68 L 84 72 M 84 72 L 88 76"/>
+</svg>
