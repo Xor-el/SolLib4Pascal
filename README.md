@@ -15,7 +15,7 @@
 
 ---
 
-SolLib4Pascal is a Solana blockchain SDK for Object Pascal, providing JSON RPC clients, wallet management, transaction building, and program interfaces for seamless Solana integration in Delphi applications, released under the permissive [MIT License](https://github.com/Xor-el/SolLib4Pascal/blob/main/LICENSE).
+SolLib4Pascal is a Solana blockchain SDK for Object Pascal, providing JSON RPC clients, wallet management, transaction building, and program interfaces for seamless Solana integration in Object Pascal applications, released under the permissive [MIT License](https://github.com/Xor-el/SolLib4Pascal/blob/main/LICENSE).
 
 ## Table of Contents
 
