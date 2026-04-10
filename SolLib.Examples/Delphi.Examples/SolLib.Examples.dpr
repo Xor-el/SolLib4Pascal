@@ -145,9 +145,7 @@ uses
   TransactionExtendedExample in '..\src\TransactionExtendedExample.pas',
   AssociatedTokenAccountsExample in '..\src\AssociatedTokenAccountsExample.pas',
   MultisigExample in '..\src\MultisigExample.pas',
-  TokenSwapExample in '..\src\TokenSwapExample.pas',
-  SlpSecureBridgeWebSocketClient in '..\..\SolLib\src\Misc\Sockets\SlpSecureBridgeWebSocketClient.pas',
-  SlpSgcWebSocketClient in '..\..\SolLib\src\Misc\Sockets\SlpSgcWebSocketClient.pas';
+  TokenSwapExample in '..\src\TokenSwapExample.pas';
 
 begin
   TExampleLogger.SetDefaultLogger((TConsoleLoggerFactory.Create(TLogLevel.Info) as ILoggerFactory).CreateLogger('Examples'));
