@@ -15,13 +15,14 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTokenMintHelper;
+unit TokenMintHelper;
 
 interface
 
 uses
   System.SysUtils,
   System.Generics.Collections,
+  ExampleBase,
   SlpAccount,
   SlpPublicKey,
   SlpTokenProgram,
@@ -30,8 +31,7 @@ uses
   SlpRequestResult,
   SlpRpcMessage,
   SlpTransactionBuilder,
-  SlpSolanaRpcClient,
-  SlpExample;
+  SlpSolanaRpcClient;
 
 type
   /// <summary>
@@ -133,8 +133,8 @@ begin
       LSigners.Free;
     end;
 
-    Result.Signature := TBaseExample.SubmitTxSendAndLog(LTx);
-    TBaseExample.PollConfirmedTx(Result.Signature);
+    Result.Signature := TExampleBase.SubmitTxSendAndLog(LTx);
+    TExampleBase.PollConfirmedTx(Result.Signature);
 
     Result.Status := TMintStatus.Created;
     Writeln('Mint created and initialized successfully.');

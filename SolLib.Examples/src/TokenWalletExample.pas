@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTokenWalletExample;
+unit TokenWalletExample;
 
 interface
 
@@ -23,7 +23,7 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   System.StrUtils,
-  SlpExample,
+  ExampleBase,
   SlpWallet,
   SlpTokenDomain,
   SlpAccount,
@@ -35,7 +35,7 @@ type
   /// Loads token accounts for a wallet on TestNet, prints individual accounts,
   /// filtered accounts (by symbol+mint), and consolidated balances.
   /// </summary>
-  TTokenWalletExample = class(TBaseExample)
+  TTokenWalletExample = class(TExampleBase)
   private
    const
    // TestNet token minted by examples (symbol STT, 2 decimals)
@@ -43,7 +43,7 @@ type
     Name = 'Solnet Test Token';
     Symbol = 'STT';
     DecimalPlaces = 2;
-    MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+    MnemonicWords = TExampleBase.MNEMONIC_WORDS;
   public
     procedure Run; override;
   end;

@@ -15,12 +15,13 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTransactionExample;
+unit TransactionExample;
 
 interface
 
 uses
   System.SysUtils,
+  ExampleBase,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -38,20 +39,19 @@ uses
   SlpTransactionBuilder,
   SlpRequestResult,
   SlpDataEncoderUtilities,
-  SlpExample,
   SlpComputeBudgetEstimator;
 
 const
   /// <summary>
   /// Mnemonic.
   /// </summary>
-  MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+  MnemonicWords = TExampleBase.MNEMONIC_WORDS;
 
 type
   /// <summary>
   /// Simple transfer + memo using TTransactionBuilder.
   /// </summary>
-  TTransactionBuilderExample = class(TBaseExample)
+  TTransactionBuilderExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -59,7 +59,7 @@ type
   /// <summary>
   /// Simple transfer + memo (via account private key) using TTransactionBuilder.
   /// </summary>
-  TTransactionBuilderUsingPrivateKeyExample = class(TBaseExample)
+  TTransactionBuilderUsingPrivateKeyExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -67,7 +67,7 @@ type
   /// <summary>
   /// Transfer using a durable nonce (AdvanceNonce + NonceInformation).
   /// </summary>
-  TTransferWithDurableNonceExample = class(TBaseExample)
+  TTransferWithDurableNonceExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -75,7 +75,7 @@ type
   /// <summary>
   /// Transfer with priority fees (Compute Budget).
   /// </summary>
-  TTransferWithPriorityFeesExample = class(TBaseExample)
+  TTransferWithPriorityFeesExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -87,7 +87,7 @@ type
   /// https://solana.com/developers/guides/advanced/how-to-optimize-compute
   /// https://solana.com/developers/cookbook/transactions/add-priority-fees
   /// </summary>
-  TTransferWithEstimatedPriorityFeesExample = class(TBaseExample)
+  TTransferWithEstimatedPriorityFeesExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -99,7 +99,7 @@ type
   /// https://solana.com/developers/guides/advanced/how-to-optimize-compute
   /// https://solana.com/developers/cookbook/transactions/add-priority-fees
   /// </summary>
-  TTransferWithEstimatedPriorityFeesExampleV2 = class(TBaseExample)
+  TTransferWithEstimatedPriorityFeesExampleV2 = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -108,7 +108,7 @@ type
    /// Build+send a tx with ComputeBudget, check balances, fetch the tx via RPC,
   /// and decode its instructions using the built-in instruction decoder.
   /// </summary>
-  TTxBuilderComputeBudgetBalanceAndDecodeExample = class(TBaseExample)
+  TTxBuilderComputeBudgetBalanceAndDecodeExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -116,7 +116,7 @@ type
   /// <summary>
   /// Burn example that compiles message, populates signatures, serializes & submits.
   /// </summary>
-  TBurnExample = class(TBaseExample)
+  TBurnExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -124,7 +124,7 @@ type
   /// <summary>
   /// Build, compile message, sign manually, add signature, serialize, simulate, send.
   /// </summary>
-  TAddSignatureExample = class(TBaseExample)
+  TAddSignatureExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -170,7 +170,7 @@ end;
 
 procedure TTransactionBuilderUsingPrivateKeyExample.Run;
 const
-  SenderPrivateKey = TBaseExample.ACCOUNT_PRIVATE_KEY;
+  SenderPrivateKey = TExampleBase.ACCOUNT_PRIVATE_KEY;
   ReceiverPublicKey = '9KmfMX4Ne5ocb8C7PwjmJTWTpQTQcPhkeD2zY35mawhq';
 var
   LRpc: IRpcClient;
@@ -468,7 +468,7 @@ var
 begin
   // 1) Setup
   LRpc := TestNetRpcClient;
-  LWallet := TWallet.Create(TBaseExample.MNEMONIC_WORDS);
+  LWallet := TWallet.Create(TExampleBase.MNEMONIC_WORDS);
 
   LFrom := LWallet.GetAccountByIndex(0);
   LTo := LWallet.GetAccountByIndex(1);

@@ -22,10 +22,10 @@ interface
 uses
   System.SysUtils,
   System.TypInfo,
+  ExampleBase,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
-  SlpExample,
   SlpRequestResult,
   SlpRpcModel,
   SlpRpcMessage,

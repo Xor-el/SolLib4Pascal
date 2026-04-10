@@ -130,24 +130,27 @@ uses
   SlpSharedMemoryProgram in '..\..\SolLib\src\Programs\SlpSharedMemoryProgram.pas',
   SlpAddressLookupTableProgram in '..\..\SolLib\src\Programs\SlpAddressLookupTableProgram.pas',
   SlpBPFLoaderProgram in '..\..\SolLib\src\Programs\SlpBPFLoaderProgram.pas',
-  SlpExampleExplorer in '..\src\SlpExampleExplorer.pas',
-  SlpTokenMintHelper in '..\src\SlpTokenMintHelper.pas',
-  SlpConsoleLogger in '..\src\SlpConsoleLogger.pas',
-  SlpExample in '..\src\SlpExample.pas',
-  SlpInstructionDecoderExample in '..\src\SlpInstructionDecoderExample.pas',
-  SlpGetTokenAccountsByOwnerExample in '..\src\SlpGetTokenAccountsByOwnerExample.pas',
-  SlpSolanaKeygenWalletExample in '..\src\SlpSolanaKeygenWalletExample.pas',
-  SlpSolletKeyGenerationExample in '..\src\SlpSolletKeyGenerationExample.pas',
-  SlpSolletKeygenKeystoreExample in '..\src\SlpSolletKeygenKeystoreExample.pas',
-  SlpTokenWalletExample in '..\src\SlpTokenWalletExample.pas',
-  SlpTransactionDecodingExample in '..\src\SlpTransactionDecodingExample.pas',
-  SlpTransactionExample in '..\src\SlpTransactionExample.pas',
-  SlpTransactionExtendedExample in '..\src\SlpTransactionExtendedExample.pas',
-  SlpAssociatedTokenAccountsExample in '..\src\SlpAssociatedTokenAccountsExample.pas',
-  SlpMultisigExample in '..\src\SlpMultisigExample.pas',
-  SlpTokenSwapExample in '..\src\SlpTokenSwapExample.pas';
+  ExampleExplorer in '..\src\ExampleExplorer.pas',
+  TokenMintHelper in '..\src\TokenMintHelper.pas',
+  ConsoleLogger in '..\src\ConsoleLogger.pas',
+  ExampleBase in '..\src\ExampleBase.pas',
+  InstructionDecoderExample in '..\src\InstructionDecoderExample.pas',
+  GetTokenAccountsByOwnerExample in '..\src\GetTokenAccountsByOwnerExample.pas',
+  SolanaKeygenWalletExample in '..\src\SolanaKeygenWalletExample.pas',
+  SolletKeyGenerationExample in '..\src\SolletKeyGenerationExample.pas',
+  SolletKeygenKeystoreExample in '..\src\SolletKeygenKeystoreExample.pas',
+  TokenWalletExample in '..\src\TokenWalletExample.pas',
+  TransactionDecodingExample in '..\src\TransactionDecodingExample.pas',
+  TransactionExample in '..\src\TransactionExample.pas',
+  TransactionExtendedExample in '..\src\TransactionExtendedExample.pas',
+  AssociatedTokenAccountsExample in '..\src\AssociatedTokenAccountsExample.pas',
+  MultisigExample in '..\src\MultisigExample.pas',
+  TokenSwapExample in '..\src\TokenSwapExample.pas',
+  SlpSecureBridgeWebSocketClient in '..\..\SolLib\src\Misc\Sockets\SlpSecureBridgeWebSocketClient.pas',
+  SlpSgcWebSocketClient in '..\..\SolLib\src\Misc\Sockets\SlpSgcWebSocketClient.pas';
 
 begin
+  TExampleLogger.SetDefaultLogger((TConsoleLoggerFactory.Create(TLogLevel.Info) as ILoggerFactory).CreateLogger('Examples'));
   try
     TExampleExplorer.Execute;
   except

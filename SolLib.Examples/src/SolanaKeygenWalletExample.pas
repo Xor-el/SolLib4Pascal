@@ -15,13 +15,13 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpSolanaKeygenWalletExample;
+unit SolanaKeygenWalletExample;
 
 interface
 
 uses
   System.SysUtils,
-  SlpExample,
+  ExampleBase,
   SlpWallet,
   SlpMnemonic,
   SlpWordList,
@@ -34,7 +34,7 @@ type
   /// verifying the Base58-encoded public/private keys against expected values
   /// compatible with solana-keygen / SOLLET.
   /// </summary>
-  TSolanaKeygenWalletExample = class(TBaseExample)
+  TSolanaKeygenWalletExample = class(TExampleBase)
   private
   const
   ExpectedSolKeygenPublicKey = 'AZzmpdbZWARkPzL8GKRHjjwY74st4URgk9v7QBubeWba';
@@ -42,7 +42,7 @@ type
     '2RitwnKZwoigHk9S3ftvFQhoTy5QQKAipNjZHDgCet8hyciUbJSuhMWDKRL8JKE784pK8jJPFaNerFsS6KXhY9K6';
   // Mnemonic and passphrase used to derive the wallet (BIP-39)
   PassPhrase = 'thisiseightbytesithink';
-  MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+  MnemonicWords = TExampleBase.MNEMONIC_WORDS;
 
   public
     procedure Run; override;

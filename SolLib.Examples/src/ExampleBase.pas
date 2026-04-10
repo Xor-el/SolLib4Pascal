@@ -1,4 +1,4 @@
-﻿{ * ************************************************************************ * }
+{ * ************************************************************************ * }
 { *                              SolLib Library                              * }
 { *                       Author - Ugochukwu Mmaduekwe                       * }
 { *              Github Repository <https://github.com/Xor-el>               * }
@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpExample;
+unit ExampleBase;
 
 interface
 
@@ -41,11 +41,19 @@ uses
   SlpNullable,
   SlpRequestResult,
   SlpLogger,
-  SlpConsoleLogger,
   SlpDecodedInstruction,
-  SlpRpcMessage;
+  SlpRpcMessage,
+  ConsoleLogger;
 
- type
+type
+  TExampleLogger = class
+  private
+    class var FDefaultLogger: ILogger;
+  public
+    class procedure SetDefaultLogger(const ALogger: ILogger);
+    class function GetDefaultLogger: ILogger;
+  end;
+
   IExample = interface
     ['{8B6C7B7B-2C8A-4D5D-9B1E-9E3B8D6A1C21}']
     procedure Run;
@@ -58,13 +66,15 @@ uses
     end;
 
 type
-  TBaseExample = class abstract(TInterfacedObject, IExample)
+  TExampleBase = class abstract(TInterfacedObject, IExample)
   private
 
     class var FTestNetRpcClient, FMainNetRpcClient: IRpcClient;
-    class var FLogger: ILogger;
 
-    class constructor Create;
+    class procedure EnsureRpcClients;
+    class function GetTestNetRpcClient: IRpcClient; static;
+    class function GetMainNetRpcClient: IRpcClient; static;
+
     class destructor Destroy;
 
     class function GetStringRepresentation(const AValue: TValue): string;
@@ -78,10 +88,8 @@ type
       QUADTAB = TRIPLETAB + TAB;
       NEWLINE = sLineBreak;
 
-    class property Logger: ILogger read FLogger;
-
-    class property TestNetRpcClient: IRpcClient read FTestNetRpcClient;
-    class property MainNetRpcClient: IRpcClient read FMainNetRpcClient;
+    class property TestNetRpcClient: IRpcClient read GetTestNetRpcClient;
+    class property MainNetRpcClient: IRpcClient read GetMainNetRpcClient;
 
   public
 
@@ -91,6 +99,8 @@ type
         'forward deal onion eight catalog surface unit card window walnut wealth medal';
 
       ACCOUNT_PRIVATE_KEY = '5S1UT7L6bQ8sVaPjpJyYFEEYh8HAXRXPFUEuj6kHQXs6ZE9F6a2wWrjdokAmSPP5HVP46bYxsrU8yr2FxxYmVBi6';
+
+    function Logger: ILogger;
 
     procedure Run; virtual; abstract;
     /// <summary>
@@ -138,29 +148,58 @@ type
 
 implementation
 
-{ TExampleHelpers }
+{ TExampleLogger }
 
-class constructor TBaseExample.Create;
-var
- LHttpClient: IHttpApiClient;
- LLoggerFactory: ILoggerFactory;
+class procedure TExampleLogger.SetDefaultLogger(const ALogger: ILogger);
 begin
-  LHttpClient := THttpApiClient.Create();
-  LLoggerFactory := TConsoleLoggerFactory.Create;
-  FLogger := LLoggerFactory.CreateLogger('Examples');
-
-  FTestNetRpcClient := TClientFactory.GetClient(TCluster.TestNet, LHttpClient, FLogger);
-  FMainNetRpcClient := TClientFactory.GetClient(TCluster.MainNet, LHttpClient, FLogger);
+  FDefaultLogger := ALogger;
 end;
 
-class destructor TBaseExample.Destroy;
+class function TExampleLogger.GetDefaultLogger: ILogger;
 begin
-  FLogger := nil;
+  Result := FDefaultLogger;
+end;
+
+{ TExampleBase }
+
+function TExampleBase.Logger: ILogger;
+begin
+  Result := TExampleLogger.GetDefaultLogger;
+end;
+
+class procedure TExampleBase.EnsureRpcClients;
+var
+  LHttpClient: IHttpApiClient;
+begin
+  if FTestNetRpcClient <> nil then
+    Exit;
+
+  LHttpClient := THttpApiClient.Create;
+  FTestNetRpcClient := TClientFactory.GetClient(TCluster.TestNet, LHttpClient,
+    TExampleLogger.GetDefaultLogger);
+  FMainNetRpcClient := TClientFactory.GetClient(TCluster.MainNet, LHttpClient,
+    TExampleLogger.GetDefaultLogger);
+end;
+
+class function TExampleBase.GetTestNetRpcClient: IRpcClient;
+begin
+  EnsureRpcClients;
+  Result := FTestNetRpcClient;
+end;
+
+class function TExampleBase.GetMainNetRpcClient: IRpcClient;
+begin
+  EnsureRpcClients;
+  Result := FMainNetRpcClient;
+end;
+
+class destructor TExampleBase.Destroy;
+begin
   FTestNetRpcClient := nil;
   FMainNetRpcClient := nil;
 end;
 
-class function TBaseExample.GetStringRepresentation(const AValue: TValue): string;
+class function TExampleBase.GetStringRepresentation(const AValue: TValue): string;
 begin
   case AValue.Kind of
     tkDynArray:
@@ -173,7 +212,7 @@ begin
   end;
 end;
 
-class function TBaseExample.PrettyPrintTransactionSimulationLogs(
+class function TExampleBase.PrettyPrintTransactionSimulationLogs(
   const ALogMessages: TArray<string>): string;
 var
   LBuilder: TStringBuilder;
@@ -189,7 +228,7 @@ begin
   end;
 end;
 
-class function TBaseExample.SimulateTxAndLog(const ATx: TBytes): Boolean;
+class function TExampleBase.SimulateTxAndLog(const ATx: TBytes): Boolean;
 var
   LTxBase64, LLogs: string;
   LSim: IRequestResult<TResponseValue<TSimulationLogs>>;
@@ -200,7 +239,7 @@ begin
   Writeln(Format('Tx Data: %s', [LTxBase64]));
 
   // simulate
-  LSim := FTestNetRpcClient.SimulateTransaction(ATx);
+  LSim := TestNetRpcClient.SimulateTransaction(ATx);
   if (LSim <> nil) and (LSim.Result <> nil) and (LSim.Result.Value <> nil) then
   begin
     LLogs := PrettyPrintTransactionSimulationLogs(LSim.Result.Value.Logs);
@@ -222,7 +261,7 @@ begin
   end;
 end;
 
-class function TBaseExample.SubmitTxSendAndLog(const ATx: TBytes): string;
+class function TExampleBase.SubmitTxSendAndLog(const ATx: TBytes): string;
 var
   LSend: IRequestResult<string>;
   LHasError: Boolean;
@@ -236,7 +275,7 @@ begin
 
 
   // send
-  LSend := FTestNetRpcClient.SendTransaction(ATx, TNullable<UInt32>.None, TNullable<UInt64>.None);
+  LSend := TestNetRpcClient.SendTransaction(ATx, TNullable<UInt32>.None, TNullable<UInt64>.None);
   if (LSend <> nil) then
   begin
     Writeln(Format('Tx Signature: %s', [LSend.Result]));
@@ -249,7 +288,7 @@ begin
   end;
 end;
 
-class procedure TBaseExample.PollConfirmedTx(const ASignature: string);
+class procedure TExampleBase.PollConfirmedTx(const ASignature: string);
 const
   TIMEOUT_MS = 60000; // 60 seconds
   POLL_INTERVAL_MS = 5000;
@@ -263,13 +302,13 @@ begin
   end;
 
   LElapsed := 0;
-  LMeta := FTestNetRpcClient.GetTransaction(ASignature);
+  LMeta := TestNetRpcClient.GetTransaction(ASignature);
 
   while ((LMeta = nil) or (not LMeta.WasSuccessful)) and (LElapsed < TIMEOUT_MS) do
   begin
     Sleep(POLL_INTERVAL_MS);
     Inc(LElapsed, POLL_INTERVAL_MS);
-    LMeta := FTestNetRpcClient.GetTransaction(ASignature);
+    LMeta := TestNetRpcClient.GetTransaction(ASignature);
   end;
 
   if (LMeta = nil) or (not LMeta.WasSuccessful) then
@@ -277,7 +316,7 @@ begin
       [ASignature, TIMEOUT_MS div 1000]));
 end;
 
-class function TBaseExample.DecodeMessageFromWire(const AMsgData: TBytes): IMessage;
+class function TExampleBase.DecodeMessageFromWire(const AMsgData: TBytes): IMessage;
 var
   LBase64: string;
   LMsg: IMessage;
@@ -303,7 +342,7 @@ begin
   Result := LMsg;
 end;
 
-class procedure TBaseExample.DecodeInstructionsFromMessageAndLog(
+class procedure TExampleBase.DecodeInstructionsFromMessageAndLog(
   const AMessage: IMessage);
 var
   LDecoded: TList<IDecodedInstruction>;
@@ -337,7 +376,7 @@ begin
   end;
 end;
 
-class procedure TBaseExample.DecodeInstructionsFromTransactionMetaInfoAndLog(
+class procedure TExampleBase.DecodeInstructionsFromTransactionMetaInfoAndLog(
   const ATxMeta: TTransactionMetaInfo);
 var
   LDecoded: TList<IDecodedInstruction>;
@@ -398,7 +437,7 @@ begin
   end;
 end;
 
-class function TBaseExample.LogTransactionAndSerialize(
+class function TExampleBase.LogTransactionAndSerialize(
   const ATx: ITransaction): TBytes;
 var
   LPair: ISignaturePubKeyPair;

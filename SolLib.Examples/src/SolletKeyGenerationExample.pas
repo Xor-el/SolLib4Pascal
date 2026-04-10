@@ -15,33 +15,30 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpSolletKeygenKeystoreExample;
+unit SolletKeyGenerationExample;
 
 interface
 
 uses
   System.SysUtils,
-  SlpExample,
+  ExampleBase,
   SlpWallet,
   SlpAccount,
   SlpMnemonic,
   SlpWordList,
-  SlpPublicKey,
-  SlpSecretKeyStoreService,
-  SlpDataEncoderUtilities;
+  SlpPublicKey;
 
 type
   /// <summary>
-  /// Demonstrates encrypting a Sollet-compatible mnemonic into a keystore JSON,
-  /// decrypting it back, restoring the wallet, and verifying derived addresses
-  /// (indexes 0..9) match expected Base58 (public/private) pairs.
+  /// Generates Sollet-compatible accounts from a BIP-39 mnemonic (no passphrase)
+  /// and verifies Base58 public/private keys at derivation indexes 0..9 against
+  /// expected pairs.
   /// </summary>
-  TSolletKeygenKeystoreExample = class(TBaseExample)
-private
+  TSolletKeyGenerationExample = class(TExampleBase)
+  private
 
-const
-  Password = 'password';
-
+ const
+  // Expected (Public, Private) Base58 pairs for derivation indexes 0..9
   Expected: array[0..9] of TExpectedKeyPair = (
     (Pub: '6bhhceZToGG9RsTe1nfNFXEMjavhj6CV55EsvearAt2z';
      Priv: '5S1UT7L6bQ8sVaPjpJyYFEEYh8HAXRXPFUEuj6kHQXs6ZE9F6a2wWrjdokAmSPP5HVP46bYxsrU8yr2FxxYmVBi6'),
@@ -64,86 +61,52 @@ const
     (Pub: '7MrtfwpJBw2hn4eopB2CVEKR1kePJV5kKmKX3wUAFsJ9';
      Priv: '4skUmBVmaLoriN9Ge8xcF4xQFJmF554rnRRa2u1yDbre2zj2wUpgCXUaPETLSAWNudCkNAkWM5oJFJRaeZY1g9JR')
   );
+  MnemonicWords = TExampleBase.MNEMONIC_WORDS;
 
-  MnemonicWords = TBaseExample.MNEMONIC_WORDS;
   public
-    /// <summary>Runs the example.</summary>
     procedure Run; override;
   end;
 
 implementation
 
-{ TSolletKeygenKeystoreExample }
+{ TSolletKeyGenerationExample }
 
-procedure TSolletKeygenKeystoreExample.Run;
+procedure TSolletKeyGenerationExample.Run;
 var
   LMnemonic: IMnemonic;
   LWallet: IWallet;
-  LKeystoreSvc: TSecretKeyStoreService;
-  LEncryptedJson, LAddrFromKeystore, LRestoredMnemonicStr: string;
-  LSeed, LDecryptedBytes, LRestoredSeed: TBytes;
-  LRestoredMnemonic: IMnemonic;
-  LRestoredWallet: IWallet;
   LAccount: IAccount;
-  LI: Integer;
   LOk: Boolean;
+  LI: Integer;
+  LPubB58, LPrivB58: string;
 begin
-  // Build Sollet-compatible mnemonic (no passphrase hardening).
+  // Sollet derivation uses the mnemonic only (no passphrase hardening here)
   LMnemonic := TMnemonic.Create(MnemonicWords, TWordList.English);
-
-  // Create wallet from mnemonic and derive the mnemonic seed
   LWallet := TWallet.Create(LMnemonic);
-  LSeed := LWallet.DeriveMnemonicSeed;
 
-  Writeln('Seed: ', TSolanaKeyPairJsonEncoder.EncodeData(LSeed));
-  Writeln('Address: ', LWallet.Account.PublicKey.Key);
-
-  LKeystoreSvc := TSecretKeyStoreService.Create;
-  try
-    // 1) Encrypt the MNEMONIC (as UTF-8 bytes) into a keystore JSON.
-    LEncryptedJson := LKeystoreSvc.EncryptAndGenerateDefaultKeyStoreAsJson(
-      Password,
-      TEncoding.UTF8.GetBytes(LMnemonic.ToString),
-      LWallet.Account.PublicKey.Key
-    );
-
-    // Resolve the address field from the generated keystore JSON.
-    LAddrFromKeystore := TSecretKeyStoreService.GetAddressFromKeyStore(LEncryptedJson);
-
-    Writeln('Keystore JSON: ', LEncryptedJson);
-    Writeln('Keystore Address: ', LAddrFromKeystore);
-
-    // 2) Decrypt from keystore JSON back to the original mnemonic bytes.
-    LDecryptedBytes := LKeystoreSvc.DecryptKeyStoreFromJson(Password, LEncryptedJson);
-  finally
-    LKeystoreSvc.Free;
-  end;
-
-  LRestoredMnemonicStr := TEncoding.UTF8.GetString(LDecryptedBytes);
-
-  // 3) Restore wallet from the restored mnemonic string.
-  LRestoredMnemonic := TMnemonic.Create(LRestoredMnemonicStr, TWordList.English);
-  LRestoredWallet := TWallet.Create(LRestoredMnemonic);
-  LRestoredSeed := LRestoredWallet.DeriveMnemonicSeed;
-
-  Writeln('Seed: ', TSolanaKeyPairJsonEncoder.EncodeData(LRestoredSeed));
-
-  // Mimic Sollet key generation and verify the first 10 accounts.
   LOk := True;
+
+  // Mimic Sollet key generation across the first 10 accounts
   for LI := 0 to 9 do
   begin
-    LAccount := LRestoredWallet.GetAccountByIndex(LI);
-    Writeln('RESTORED SOLLET address ', LAccount.PublicKey.Key);
+    LAccount := LWallet.GetAccountByIndex(LI);
 
-    if (not SameStr(LAccount.PublicKey.Key, Expected[LI].Pub)) or
-       (not SameStr(LAccount.PrivateKey.Key, Expected[LI].Priv)) then
+    // Read Base58 keys (Base58 is case-sensitive; use exact equality)
+    LPubB58 := LAccount.PublicKey.Key;
+    LPrivB58 := LAccount.PrivateKey.Key;
+
+    Writeln('SOLLET publicKey>b58 ', LPubB58);
+    Writeln('SOLLET privateKey>b58 ', LPrivB58);
+
+    if (not SameStr(LPubB58, Expected[LI].Pub)) or
+       (not SameStr(LPrivB58, Expected[LI].Priv)) then
       LOk := False;
   end;
 
   if LOk then
-    Writeln('GOOD RESTORE FOR THE SOLLET')
+    Writeln('GOOD FOR THE SOLLET')
   else
-    Writeln('NOT GOOD RESTORE FOR THE SOLLET');
+    Writeln('NOT GOOD FOR THE SOLLET');
 end;
 
 end.

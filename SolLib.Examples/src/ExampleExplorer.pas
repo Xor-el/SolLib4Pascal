@@ -15,7 +15,7 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpExampleExplorer;
+unit ExampleExplorer;
 
 interface
 
@@ -24,7 +24,7 @@ uses
   System.Rtti,
   System.TypInfo,
   System.Generics.Collections,
-  SlpExample;
+  ExampleBase;
 
 type
   TExampleExplorer = class sealed
@@ -61,7 +61,7 @@ begin
   LC := AType.MetaclassType;
 
   // Skip the abstract root itself (exact match only)
-  if LC = TBaseExample then
+  if LC = TExampleBase then
     Exit;
 
   // Find a public parameterless constructor

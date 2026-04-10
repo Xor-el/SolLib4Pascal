@@ -15,14 +15,14 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTransactionDecodingExample;
+unit TransactionDecodingExample;
 
 interface
 
 uses
   System.SysUtils,
   System.Generics.Collections,
-  SlpExample,
+  ExampleBase,
   SlpSolanaRpcClient,
   SlpWallet,
   SlpRequestResult,
@@ -55,10 +55,10 @@ type
   ///     <item>Re-simulating the decoded transaction for validation.</item>
   ///   </list>
   /// </remarks>
-  TTransactionDecodingExample = class(TBaseExample)
+  TTransactionDecodingExample = class(TExampleBase)
   private
    const
-     MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+     MnemonicWords = TExampleBase.MNEMONIC_WORDS;
   public
     /// <summary>Runs the example.</summary>
     procedure Run; override;

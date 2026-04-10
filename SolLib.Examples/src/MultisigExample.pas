@@ -15,12 +15,13 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpMultisigExample;
+unit MultisigExample;
 
 interface
 
 uses
   System.SysUtils,
+  ExampleBase,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -35,20 +36,19 @@ uses
   SlpMessageDomain,
   SlpTransactionBuilder,
   SlpRequestResult,
-  SlpDataEncoderUtilities,
-  SlpExample;
+  SlpDataEncoderUtilities;
 
 const
   /// <summary>
   /// Mnemonic.
   /// </summary>
-  MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+  MnemonicWords = TExampleBase.MNEMONIC_WORDS;
 
 type
   /// <summary>
   /// Create multisig, create mint, initialize mint with multisig as authority, then MintTo via multisig signers.
   /// </summary>
-  TCreateInitializeAndMintToMultiSigExample = class(TBaseExample)
+  TCreateInitializeAndMintToMultiSigExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -56,7 +56,7 @@ type
   /// <summary>
   /// MintToChecked via multisig signers.
   /// </summary>
-  TMintToCheckedMultisigExample = class(TBaseExample)
+  TMintToCheckedMultisigExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -64,7 +64,7 @@ type
   /// <summary>
   /// Create a token-account-owned-by-multisig; transfer in; then transfer out using multisig signers.
   /// </summary>
-  TTransferCheckedMultiSigExample = class(TBaseExample)
+  TTransferCheckedMultiSigExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -72,7 +72,7 @@ type
   /// <summary>
   /// Separate multisigs for mint authority and freeze authority; mint, freeze, thaw, set freeze authority to none.
   /// </summary>
-  TFreezeAuthorityExample = class(TBaseExample)
+  TFreezeAuthorityExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -80,7 +80,7 @@ type
   /// <summary>
   /// ApproveChecked with a token-account multisig, transfer by delegate, then revoke.
   /// </summary>
-  TApproveCheckedMultisigExample = class(TBaseExample)
+  TApproveCheckedMultisigExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -88,7 +88,7 @@ type
   /// <summary>
   /// MintToChecked via mint multisig, then BurnChecked via token-account multisig.
   /// </summary>
-  TSimpleMintToAndBurnCheckedMultisigExample = class(TBaseExample)
+  TSimpleMintToAndBurnCheckedMultisigExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -96,7 +96,7 @@ type
   /// <summary>
   /// BurnChecked full balance and CloseAccount using token-account multisig.
   /// </summary>
-  TBurnCheckedAndCloseAccountMultisigExample = class(TBaseExample)
+  TBurnCheckedAndCloseAccountMultisigExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -104,7 +104,7 @@ type
   /// <summary>
   /// Fetch a multisig account and deserialize it.
   /// </summary>
-  TGetMultiSignatureAccountExample = class(TBaseExample)
+  TGetMultiSignatureAccountExample = class(TExampleBase)
   public
     procedure Run; override;
   end;

@@ -15,14 +15,14 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpGetTokenAccountsByOwnerExample;
+unit GetTokenAccountsByOwnerExample;
 
 interface
 
 uses
   System.SysUtils,
   System.Generics.Collections,
-  SlpExample,
+  ExampleBase,
   SlpRequestResult,
   SlpRpcModel,
   SlpRpcMessage,
@@ -31,10 +31,10 @@ uses
   SlpPublicKey;
 
 type
-  TGetTokenAccountsByOwnerExample = class(TBaseExample)
+  TGetTokenAccountsByOwnerExample = class(TExampleBase)
   private
     const
-      MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+      MnemonicWords = TExampleBase.MNEMONIC_WORDS;
       TokenProgramId = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
   public
     procedure Run; override;

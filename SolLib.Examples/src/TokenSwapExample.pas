@@ -15,13 +15,14 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTokenSwapExample;
+unit TokenSwapExample;
 
 interface
 
 uses
   System.SysUtils,
   System.Generics.Collections,
+  ExampleBase,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -34,21 +35,20 @@ uses
   SlpTokenProgram,
   SlpTokenSwapProgram,
   SlpTokenSwapModel,
-  SlpDataEncoderUtilities,
-  SlpExample;
+  SlpDataEncoderUtilities;
 
 type
   /// <summary>
   /// End-to-end example that sets up two mints, user token accounts,
   /// initializes a Token Swap pool, and exercises swap/deposit/withdraw flows.
   /// </summary>
-  TTokenSwapExample = class(TBaseExample)
+  TTokenSwapExample = class(TExampleBase)
   private
     const
     /// <summary>
     /// Mnemonic.
     /// </summary>
-    MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+    MnemonicWords = TExampleBase.MNEMONIC_WORDS;
   public
     procedure Run; override;
   end;

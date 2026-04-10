@@ -15,13 +15,15 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpTransactionExtendedExample;
+unit TransactionExtendedExample;
 
 interface
 
 uses
   System.SysUtils,
   System.Generics.Collections,
+  ExampleBase,
+  TokenMintHelper,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -33,21 +35,19 @@ uses
   SlpNonceAccount,
   SlpRpcMessage,
   SlpTransactionBuilder,
-  SlpRequestResult,
-  SlpExample,
-  SlpTokenMintHelper;
+  SlpRequestResult;
 
 const
   /// <summary>
   /// Mnemonic.
   /// </summary>
-  MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+  MnemonicWords = TExampleBase.MNEMONIC_WORDS;
 
 type
   /// <summary>
   /// Create Mint + Initialize Mint + Create Token Account + Initialize + MintTo + Memo.
   /// </summary>
-  TCreateInitializeAndMintToExample = class(TBaseExample)
+  TCreateInitializeAndMintToExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -55,7 +55,7 @@ type
   /// <summary>
   /// Simple MintTo into an existing token account + Memo.
   /// </summary>
-  TSimpleMintToExample = class(TBaseExample)
+  TSimpleMintToExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -63,7 +63,7 @@ type
   /// <summary>
   /// Create a new token account, Initialize, Transfer tokens + Memo.
   /// </summary>
-  TTransferTokenExample = class(TBaseExample)
+  TTransferTokenExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -71,7 +71,7 @@ type
   /// <summary>
   /// Same as transfer but using TransferChecked (with decimals).
   /// </summary>
-  TTransferTokenCheckedExample = class(TBaseExample)
+  TTransferTokenCheckedExample = class(TExampleBase)
   public
     procedure Run; override;
   end;
@@ -79,7 +79,7 @@ type
   /// <summary>
   /// Create and initialize a Nonce account.
   /// </summary>
-  TCreateNonceAccountExample = class(TBaseExample)
+  TCreateNonceAccountExample = class(TExampleBase)
   public
     procedure Run; override;
   end;

@@ -15,13 +15,14 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpInstructionDecoderExample;
+unit InstructionDecoderExample;
 
 interface
 
 uses
   System.SysUtils,
   System.Generics.Collections,
+  ExampleBase,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -32,7 +33,6 @@ uses
   SlpMessageDomain,
   SlpTransactionBuilder,
   SlpRequestResult,
-  SlpExample,
   SlpIOUtilities;
 
 type
@@ -47,15 +47,15 @@ type
   ///     <item>Decodes and prints the instructions from the compiled message.</item>
   ///   </list>
   /// </remarks>
-  TInstructionDecoderFromMessageExample = class(TBaseExample)
+  TInstructionDecoderFromMessageExample = class(TExampleBase)
   private
     const
-      MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+      MnemonicWords = TExampleBase.MNEMONIC_WORDS;
   public
     procedure Run; override;
   end;
 
-  TInstructionDecoderFromBlockExample = class(TBaseExample)
+  TInstructionDecoderFromBlockExample = class(TExampleBase)
   public
     procedure Run; override;
   end;

@@ -15,13 +15,14 @@
 
 (* &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& *)
 
-unit SlpAssociatedTokenAccountsExample;
+unit AssociatedTokenAccountsExample;
 
 interface
 
 uses
   System.SysUtils,
   System.Generics.Collections,
+  ExampleBase,
   SlpWallet,
   SlpAccount,
   SlpPublicKey,
@@ -32,8 +33,7 @@ uses
   SlpRpcModel,
   SlpRpcMessage,
   SlpTransactionBuilder,
-  SlpRequestResult,
-  SlpExample;
+  SlpRequestResult;
 
 type
   /// <summary>
@@ -50,10 +50,10 @@ type
   ///     <item>Transferring tokens to the ATA</item>
   ///   </list>
   /// </remarks>
-  TAssociatedTokenAccountsExample = class(TBaseExample)
+  TAssociatedTokenAccountsExample = class(TExampleBase)
   private
     const
-      MnemonicWords = TBaseExample.MNEMONIC_WORDS;
+      MnemonicWords = TExampleBase.MNEMONIC_WORDS;
   public
     procedure Run; override;
   end;
