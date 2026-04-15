@@ -26,7 +26,7 @@ unit SlpKdTable;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpResourceLoader,
   SlpSolLibExceptions;
 

@@ -22,9 +22,9 @@ unit SlpNullableConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.TypInfo,
+  SysUtils,
+  Rtti,
+  TypInfo,
   System.JSON,
   System.JSON.Types,
   System.JSON.Readers,

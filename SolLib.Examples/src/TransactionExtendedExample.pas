@@ -20,8 +20,8 @@ unit TransactionExtendedExample;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   ExampleBase,
   TokenMintHelper,
   SlpWallet,

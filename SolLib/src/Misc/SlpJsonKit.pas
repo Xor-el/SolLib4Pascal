@@ -22,11 +22,11 @@ unit SlpJsonKit;
 interface
 
 uses
-  System.SysUtils,
-  System.Math,
-  System.Generics.Collections,
-  System.Rtti,
-  System.TypInfo,
+  SysUtils,
+  Math,
+  Generics.Collections,
+  Rtti,
+  TypInfo,
   System.JSON.Serializers,
   System.JSON.Writers,
   SlpStringTransformer;

@@ -20,10 +20,10 @@ unit JsonStructuralComparer;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   System.JSON,
-  System.Math;
+  Math;
 
 type
   TJsonCompareDiffOptions = record

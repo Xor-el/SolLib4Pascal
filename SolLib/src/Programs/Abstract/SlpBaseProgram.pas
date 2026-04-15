@@ -22,7 +22,7 @@ unit SlpBaseProgram;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpPublicKey;
 
 type

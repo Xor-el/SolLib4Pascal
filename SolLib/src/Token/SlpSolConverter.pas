@@ -22,8 +22,8 @@ unit SlpSolConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.Math,
+  SysUtils,
+  Math,
   SlpMathUtilities;
 
 type

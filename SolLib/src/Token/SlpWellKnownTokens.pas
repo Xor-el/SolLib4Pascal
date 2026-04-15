@@ -22,8 +22,8 @@ unit SlpWellKnownTokens;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   SlpTokenDomain,
   SlpTokenMintResolver;
 

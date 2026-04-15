@@ -22,7 +22,7 @@ unit SlpPrivateKey;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpDataEncoderUtilities,
   SlpArrayUtilities,
   SlpCryptoUtilities;

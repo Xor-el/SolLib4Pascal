@@ -22,7 +22,7 @@ unit SlpKeyStoreModel;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   System.JSON.Serializers,
   SlpDataEncoderUtilities;
 

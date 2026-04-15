@@ -22,9 +22,9 @@ unit SlpNullable;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Defaults,
-  System.TypInfo,
+  SysUtils,
+  Generics.Defaults,
+  TypInfo,
   SlpEnumUtilities;
 
 type

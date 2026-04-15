@@ -20,8 +20,8 @@ unit SolanaRpcClientSignaturesTests;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

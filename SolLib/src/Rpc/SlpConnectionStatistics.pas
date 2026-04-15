@@ -22,10 +22,10 @@ unit SlpConnectionStatistics;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.SyncObjs,
-  System.DateUtils,
+  SysUtils,
+  Generics.Collections,
+  SyncObjs,
+  DateUtils,
   SlpTimeTicker;
 
 type

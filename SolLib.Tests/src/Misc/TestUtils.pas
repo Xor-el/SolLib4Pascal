@@ -20,8 +20,8 @@ unit TestUtils;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   System.JSON.Serializers,
   SlpJsonKit,
   SlpJsonStringEnumConverter,

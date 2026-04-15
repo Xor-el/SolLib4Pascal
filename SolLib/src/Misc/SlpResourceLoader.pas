@@ -22,10 +22,10 @@ unit SlpResourceLoader;
 interface
 
 uses
-  System.Classes,
+  Classes,
   System.IOUtils,
-  System.SysUtils,
-  System.Types;
+  SysUtils,
+  Types;
 
 type
   /// <summary>

@@ -22,10 +22,10 @@ unit SlpTokenListItemExtensionsConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.TypInfo,
-  System.Rtti,
+  SysUtils,
+  Generics.Collections,
+  TypInfo,
+  Rtti,
   System.JSON,
   System.JSON.Types,
   System.JSON.Readers,

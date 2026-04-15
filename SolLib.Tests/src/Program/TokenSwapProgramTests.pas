@@ -20,9 +20,9 @@ unit TokenSwapProgramTests;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.Generics.Collections,
+  SysUtils,
+  Rtti,
+  Generics.Collections,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

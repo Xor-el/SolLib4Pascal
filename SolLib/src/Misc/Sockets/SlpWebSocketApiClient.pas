@@ -22,7 +22,7 @@ unit SlpWebSocketApiClient;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpWebSocketClientBase,
   SlpSolLibTypes;
 

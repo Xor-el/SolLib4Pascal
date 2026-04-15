@@ -22,10 +22,10 @@ unit SlpMulticast;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Generics.Defaults,
-  System.SyncObjs,
+  SysUtils,
+  Generics.Collections,
+  Generics.Defaults,
+  SyncObjs,
   SlpSolLibTypes;
 
 type

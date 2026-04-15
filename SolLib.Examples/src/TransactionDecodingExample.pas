@@ -20,8 +20,8 @@ unit TransactionDecodingExample;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   ExampleBase,
   SlpSolanaRpcClient,
   SlpWallet,

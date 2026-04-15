@@ -20,7 +20,7 @@ unit MultisigExample;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   ExampleBase,
   SlpWallet,
   SlpAccount,

@@ -20,9 +20,9 @@ unit TokenWalletTests;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections,
+  SysUtils,
+  Classes,
+  Generics.Collections,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

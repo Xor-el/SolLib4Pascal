@@ -22,8 +22,8 @@ unit SlpRequestResult;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
+  SysUtils,
+  Rtti,
   SlpRpcModel,
   SlpHttpApiResponse,
   SlpValueUtilities;

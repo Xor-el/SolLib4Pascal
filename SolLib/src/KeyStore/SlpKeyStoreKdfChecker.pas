@@ -22,8 +22,8 @@ unit SlpKeyStoreKdfChecker;
 interface
 
 uses
-  System.SysUtils,
-  System.StrUtils,
+  SysUtils,
+  StrUtils,
   System.JSON,
   System.JSON.Serializers,
   SlpSolLibExceptions,

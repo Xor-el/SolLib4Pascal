@@ -22,10 +22,10 @@ unit SlpRpcMessage;
 interface
 
 uses
-  System.Rtti,
-  System.SysUtils,
-  System.TypInfo,
-  System.Generics.Collections,
+  Rtti,
+  SysUtils,
+  TypInfo,
+  Generics.Collections,
   System.JSON.Serializers,
   SlpValueUtilities,
   SlpRpcModel,

@@ -22,7 +22,7 @@ unit SlpStringTransformer;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   TStringTransform = reference to function(const AInput: string): string;

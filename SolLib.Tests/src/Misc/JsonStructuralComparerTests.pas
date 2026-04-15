@@ -20,13 +20,13 @@ unit JsonStructuralComparerTests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
   TestFramework,
 {$ENDIF}
-  System.Generics.Collections,
+  Generics.Collections,
   JsonStructuralComparer,
   SolLibTestCase;
 

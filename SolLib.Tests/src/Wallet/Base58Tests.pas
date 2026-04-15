@@ -20,7 +20,7 @@ unit Base58Tests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

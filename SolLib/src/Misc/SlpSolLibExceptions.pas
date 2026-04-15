@@ -22,7 +22,7 @@ unit SlpSolLibExceptions;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpRequestResult,
   SlpRpcMessage;
 

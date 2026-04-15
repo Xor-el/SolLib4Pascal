@@ -22,8 +22,8 @@ unit SlpMathUtilities;
 interface
 
 uses
-  System.SysUtils,
-  System.Math;
+  SysUtils,
+  Math;
 
 type
   TMathUtilities = class sealed

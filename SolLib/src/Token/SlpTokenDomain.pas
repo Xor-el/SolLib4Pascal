@@ -22,8 +22,8 @@ unit SlpTokenDomain;
 interface
 
 uses
- System.SysUtils,
- System.Generics.Collections,
+ SysUtils,
+ Generics.Collections,
  SlpSolLibTypes;
 
 type

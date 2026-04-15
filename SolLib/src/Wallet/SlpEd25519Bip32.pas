@@ -22,7 +22,7 @@ unit SlpEd25519Bip32;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpCryptoUtilities,
   SlpArrayUtilities,
   SlpBinaryPrimitives;

@@ -22,8 +22,8 @@ unit SlpIdGenerator;
 interface
 
 uses
-  System.SysUtils,
-  System.SyncObjs;
+  SysUtils,
+  SyncObjs;
 
 type
   /// <summary>

@@ -20,8 +20,8 @@ unit SolLibProgramTestCase;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
+  SysUtils,
+  Rtti,
   TestResourceLoader,
   SolLibTestCase;
 

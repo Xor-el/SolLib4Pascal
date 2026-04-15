@@ -22,10 +22,10 @@ unit SlpJsonRpcRequestParamsConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.TypInfo,
-  System.Rtti,
-  System.Generics.Collections,
+  SysUtils,
+  TypInfo,
+  Rtti,
+  Generics.Collections,
   System.JSON,
   System.JSON.Readers,
   System.JSON.Serializers,

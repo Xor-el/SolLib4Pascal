@@ -20,8 +20,8 @@ unit TokenMintHelper;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   ExampleBase,
   SlpAccount,
   SlpPublicKey,

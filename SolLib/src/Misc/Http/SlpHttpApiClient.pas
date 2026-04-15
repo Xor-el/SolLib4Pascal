@@ -22,7 +22,7 @@ unit SlpHttpApiClient;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   SlpFPCHttpClient,
 {$ELSE}

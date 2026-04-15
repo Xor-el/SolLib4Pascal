@@ -20,9 +20,9 @@ unit FlagTests;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.TypInfo,
+  SysUtils,
+  Rtti,
+  TypInfo,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

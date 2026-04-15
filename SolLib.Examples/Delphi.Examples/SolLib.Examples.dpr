@@ -7,7 +7,7 @@
 {$R *.res}
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpTokenModel in '..\..\SolLib\src\Token\SlpTokenModel.pas',
   SlpTokenMintResolver in '..\..\SolLib\src\Token\SlpTokenMintResolver.pas',
   SlpTokenDomain in '..\..\SolLib\src\Token\SlpTokenDomain.pas',

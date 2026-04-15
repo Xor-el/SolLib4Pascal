@@ -22,10 +22,10 @@ unit SlpJsonClampNumberConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.Math,
-  System.Rtti,
-  System.TypInfo,
+  SysUtils,
+  Math,
+  Rtti,
+  TypInfo,
   System.JSON.Types,
   System.JSON.Readers,
   System.JSON.Serializers,

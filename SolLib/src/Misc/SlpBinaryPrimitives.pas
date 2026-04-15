@@ -22,7 +22,7 @@ unit SlpBinaryPrimitives;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   TBinaryPrimitives = class

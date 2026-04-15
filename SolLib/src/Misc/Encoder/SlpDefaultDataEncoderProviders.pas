@@ -22,8 +22,8 @@ unit SlpDefaultDataEncoderProviders;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
+  SysUtils,
+  Classes,
   SbpBase16,
   SbpBase16Alphabet,
   SbpBase58,

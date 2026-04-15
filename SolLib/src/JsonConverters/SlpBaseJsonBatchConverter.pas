@@ -22,9 +22,9 @@ unit SlpBaseJsonBatchConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.Generics.Collections,
+  SysUtils,
+  Rtti,
+  Generics.Collections,
   System.JSON,
   System.JSON.Types,
   System.JSON.Readers,

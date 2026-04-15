@@ -20,8 +20,8 @@ unit SolLibRpcHttpMockTestCase;
 interface
 
 uses
-  System.SysUtils,
-  System.StrUtils,
+  SysUtils,
+  StrUtils,
 {$IFDEF FPC}
   URIParser,
 {$ELSE}

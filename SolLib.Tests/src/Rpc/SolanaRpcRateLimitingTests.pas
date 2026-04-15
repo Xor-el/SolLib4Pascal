@@ -20,7 +20,7 @@ unit SolanaRpcRateLimitingTests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   System.Diagnostics,
 {$IFDEF FPC}
   testregistry,

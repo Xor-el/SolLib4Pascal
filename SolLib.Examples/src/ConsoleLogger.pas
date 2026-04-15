@@ -20,7 +20,7 @@ unit ConsoleLogger;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpLogger;
 
 type

@@ -22,9 +22,9 @@ unit SlpTransactionBuilder;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections,
+  SysUtils,
+  Classes,
+  Generics.Collections,
   SlpMessageBuilder,
   SlpMessageDomain,
   SlpAccount,

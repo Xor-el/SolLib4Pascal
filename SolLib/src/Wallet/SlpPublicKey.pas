@@ -22,9 +22,9 @@ unit SlpPublicKey;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections,
+  SysUtils,
+  Classes,
+  Generics.Collections,
   SlpDataEncoderUtilities,
   SlpCryptoUtilities,
   SlpArrayUtilities;

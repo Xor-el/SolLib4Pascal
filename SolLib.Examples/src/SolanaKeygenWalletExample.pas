@@ -20,7 +20,7 @@ unit SolanaKeygenWalletExample;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   ExampleBase,
   SlpWallet,
   SlpMnemonic,

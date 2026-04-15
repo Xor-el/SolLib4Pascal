@@ -22,8 +22,8 @@ unit SlpJsonRpcBatchRequestConverter;
 interface
 
 uses
-  System.Rtti,
-  System.TypInfo,
+  Rtti,
+  TypInfo,
   System.JSON.Types,
   System.JSON.Readers,
   System.JSON.Serializers,

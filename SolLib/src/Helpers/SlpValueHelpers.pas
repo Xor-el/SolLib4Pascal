@@ -22,8 +22,8 @@ unit SlpValueHelpers;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
+  SysUtils,
+  Rtti,
   SlpValueUtilities;
 
 type

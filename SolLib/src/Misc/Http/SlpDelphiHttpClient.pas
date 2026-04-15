@@ -22,8 +22,8 @@ unit SlpDelphiHttpClient;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
+  SysUtils,
+  Classes,
   System.Net.URLClient,
   System.Net.HttpClient,
   SlpHttpApiResponse,

@@ -22,9 +22,9 @@ unit SlpJsonRpcBatchResponseItemResultConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.TypInfo,
-  System.Rtti,
+  SysUtils,
+  TypInfo,
+  Rtti,
   System.JSON,
   System.JSON.Readers,
   System.JSON.Serializers,

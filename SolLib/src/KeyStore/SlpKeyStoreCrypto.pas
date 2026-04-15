@@ -22,7 +22,7 @@ unit SlpKeyStoreCrypto;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpCryptoUtilities,
   SlpArrayUtilities,
   SlpSolLibExceptions;

@@ -22,10 +22,10 @@ unit SlpRpcModel;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Rtti,
-  System.Generics.Collections,
+  SysUtils,
+  Classes,
+  Rtti,
+  Generics.Collections,
   System.JSON.Serializers,
   System.JSON.Converters,
   SlpRpcEnum,

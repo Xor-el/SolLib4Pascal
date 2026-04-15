@@ -20,10 +20,10 @@ unit RpcClientMocks;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections,
-  System.SyncObjs,
+  SysUtils,
+  Classes,
+  Generics.Collections,
+  SyncObjs,
   System.JSON.Serializers,
   SlpRequestResult,
   SlpTokenWalletRpcProxy,

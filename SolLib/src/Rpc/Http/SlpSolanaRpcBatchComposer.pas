@@ -22,11 +22,11 @@ unit SlpSolanaRpcBatchComposer;
 interface
 
 uses
-  System.Classes,
-  System.SysUtils,
-  System.Rtti,
-  System.TypInfo,
-  System.Generics.Collections,
+  Classes,
+  SysUtils,
+  Rtti,
+  TypInfo,
+  Generics.Collections,
   System.JSON,
   System.JSON.Readers,
   System.JSON.Serializers,

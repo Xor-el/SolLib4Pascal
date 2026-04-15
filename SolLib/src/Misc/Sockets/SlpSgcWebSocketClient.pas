@@ -22,8 +22,8 @@ unit SlpSgcWebSocketClient;
 interface
 
 uses
-  System.Classes,
-  System.SysUtils,
+  Classes,
+  SysUtils,
   SlpLogger,
   SlpWebSocketClientBase,
   sgcWebSocket,

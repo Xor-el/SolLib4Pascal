@@ -22,7 +22,7 @@ unit TestResourceLoader;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpResourceLoader;
 
 type

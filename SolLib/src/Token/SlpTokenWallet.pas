@@ -22,10 +22,10 @@ unit SlpTokenWallet;
 interface
 
 uses
-  System.SysUtils,
-  System.SyncObjs,
-  System.Generics.Collections,
-  System.Generics.Defaults,
+  SysUtils,
+  SyncObjs,
+  Generics.Collections,
+  Generics.Defaults,
   SlpPublicKey,
   SlpRpcModel,
   SlpRpcEnum,

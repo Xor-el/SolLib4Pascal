@@ -22,7 +22,7 @@ unit SlpHttpApiResponse;
 interface
 
 uses
-  System.Math;
+  Math;
 
 type
   /// <summary>

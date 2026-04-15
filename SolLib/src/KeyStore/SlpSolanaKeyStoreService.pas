@@ -22,7 +22,7 @@ unit SlpSolanaKeyStoreService;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpIOUtilities,
   SlpWalletEnum,
   SlpDataEncoderUtilities,

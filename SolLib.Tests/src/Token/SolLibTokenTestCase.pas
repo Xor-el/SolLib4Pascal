@@ -20,7 +20,7 @@ unit SolLibTokenTestCase;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   TestResourceLoader,
   SolLibRpcHttpMockTestCase;
 

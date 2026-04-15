@@ -20,7 +20,7 @@ unit SolLibStreamingRpcClientTestCase;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   TestResourceLoader,
   SolLibRpcSocketMockTestCase;
 

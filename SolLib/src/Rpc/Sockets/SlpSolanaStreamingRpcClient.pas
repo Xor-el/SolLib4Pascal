@@ -22,11 +22,11 @@ unit SlpSolanaStreamingRpcClient;
 interface
 
 uses
-  System.SysUtils,
-  System.SyncObjs,
-  System.Rtti,
-  System.TypInfo,
-  System.Generics.Collections,
+  SysUtils,
+  SyncObjs,
+  Rtti,
+  TypInfo,
+  Generics.Collections,
   System.JSON,
   System.JSON.Serializers,
 {$IFDEF FPC}

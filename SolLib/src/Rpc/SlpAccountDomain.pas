@@ -22,10 +22,10 @@ unit SlpAccountDomain;
 interface
 
 uses
-  System.SysUtils,
-  System.Math,
-  System.Generics.Collections,
-  System.Generics.Defaults,
+  SysUtils,
+  Math,
+  Generics.Collections,
+  Generics.Defaults,
   SlpPublicKey;
 
 type

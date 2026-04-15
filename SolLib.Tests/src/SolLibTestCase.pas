@@ -20,7 +20,7 @@ unit SolLibTestCase;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   fpcunit,
   testregistry,
