@@ -22,10 +22,10 @@ unit SlpComputeBudgetEstimator;
 interface
 
 uses
-  System.SysUtils,
-  System.StrUtils,
-  System.Math,
-  System.Generics.Collections,
+  SysUtils,
+  StrUtils,
+  Math,
+  Generics.Collections,
   SlpRpcModel,
   SlpRequestResult,
   SlpRpcMessage,

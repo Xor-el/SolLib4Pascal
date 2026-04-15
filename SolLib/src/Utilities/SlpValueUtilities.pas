@@ -22,10 +22,10 @@ unit SlpValueUtilities;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.TypInfo,
-  System.Generics.Collections,
+  SysUtils,
+  Rtti,
+  TypInfo,
+  Generics.Collections,
   System.JSON;
 
 type

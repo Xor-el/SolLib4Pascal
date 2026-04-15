@@ -22,9 +22,9 @@ unit SlpComparerFactory;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   System.Hash,
-  System.Generics.Defaults;
+  Generics.Defaults;
 
 type
   /// <summary>

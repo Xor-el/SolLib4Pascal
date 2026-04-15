@@ -22,7 +22,7 @@ unit SlpWallet;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpEnumUtilities,
   SlpWalletEnum,
   SlpWordList,

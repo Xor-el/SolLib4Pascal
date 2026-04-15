@@ -22,7 +22,7 @@ unit SlpTokenSwapModel;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpPublicKey,
   SlpBinaryPrimitives,
   SlpSerialization,

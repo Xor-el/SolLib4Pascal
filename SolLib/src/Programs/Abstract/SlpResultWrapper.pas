@@ -22,10 +22,10 @@ unit SlpResultWrapper;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.TypInfo,
-  System.Generics.Collections,
+  SysUtils,
+  Rtti,
+  TypInfo,
+  Generics.Collections,
   SlpRequestResult,
   SlpRpcMessage,
   SlpRpcModel,

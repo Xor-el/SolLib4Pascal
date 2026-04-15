@@ -20,7 +20,7 @@ unit DataEncoderProviderTests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

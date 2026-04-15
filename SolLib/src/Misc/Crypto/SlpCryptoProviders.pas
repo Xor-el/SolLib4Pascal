@@ -22,7 +22,7 @@ unit SlpCryptoProviders;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   /// <summary>

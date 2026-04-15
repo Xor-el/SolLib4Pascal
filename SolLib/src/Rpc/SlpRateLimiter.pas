@@ -22,10 +22,10 @@ unit SlpRateLimiter;
 interface
 
 uses
-  System.SysUtils,
-  System.DateUtils,
-  System.Generics.Collections,
-  System.Classes;
+  SysUtils,
+  DateUtils,
+  Generics.Collections,
+  Classes;
 
 type
   /// <summary>

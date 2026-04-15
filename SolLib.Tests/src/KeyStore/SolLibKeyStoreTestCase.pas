@@ -20,7 +20,7 @@ unit SolLibKeyStoreTestCase;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   TestResourceLoader,
   SolLibTestCase;
 

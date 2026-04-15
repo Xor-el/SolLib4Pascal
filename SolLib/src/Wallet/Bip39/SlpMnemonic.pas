@@ -22,8 +22,8 @@ unit SlpMnemonic;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
+  SysUtils,
+  Classes,
   SlpWordList,
   SlpWalletEnum,
   SlpNullable,

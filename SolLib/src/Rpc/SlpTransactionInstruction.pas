@@ -22,8 +22,8 @@ unit SlpTransactionInstruction;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   SlpShortVectorEncoding,
   SlpAccountDomain,
   SlpArrayUtilities;

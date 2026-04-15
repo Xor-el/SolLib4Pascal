@@ -20,7 +20,7 @@ unit SolLibWalletTestCase;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   TestResourceLoader,
   SolLibTestCase;
 

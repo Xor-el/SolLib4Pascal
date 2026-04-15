@@ -20,9 +20,9 @@ unit TokenWalletExample;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.StrUtils,
+  SysUtils,
+  Generics.Collections,
+  StrUtils,
   ExampleBase,
   SlpWallet,
   SlpTokenDomain,

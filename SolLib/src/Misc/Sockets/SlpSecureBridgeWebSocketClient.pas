@@ -22,7 +22,7 @@ unit SlpSecureBridgeWebSocketClient;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpLogger,
   SlpWebSocketClientBase,
   ScUtils,

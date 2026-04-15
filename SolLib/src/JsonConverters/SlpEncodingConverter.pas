@@ -22,9 +22,9 @@ unit SlpEncodingConverter;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.TypInfo,
+  SysUtils,
+  Rtti,
+  TypInfo,
   System.JSON.Types,
   System.JSON.Readers,
   System.JSON.Writers,

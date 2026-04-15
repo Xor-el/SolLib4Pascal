@@ -20,8 +20,8 @@ unit InstructionDecoderExample;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   ExampleBase,
   SlpWallet,
   SlpAccount,

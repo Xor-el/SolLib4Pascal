@@ -22,8 +22,8 @@ unit SlpTokenProgramModel;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   SlpPublicKey,
   SlpDeserialization,
   SlpSystemProgram,

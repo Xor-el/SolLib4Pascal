@@ -20,7 +20,7 @@ unit SolLibRpcClientTestCase;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   TestResourceLoader,
   SolLibRpcHttpMockTestCase;
 

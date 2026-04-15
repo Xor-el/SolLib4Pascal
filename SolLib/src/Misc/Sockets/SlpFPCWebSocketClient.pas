@@ -22,8 +22,8 @@ unit SlpFPCWebSocketClient;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
+  SysUtils,
+  Classes,
   URIParser,
   opensslsockets,
   fpwebsocketclient,

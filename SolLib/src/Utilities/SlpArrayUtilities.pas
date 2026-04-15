@@ -22,9 +22,9 @@ unit SlpArrayUtilities;
 interface
 
 uses
-  System.SysUtils,
-  System.Math,
-  System.Generics.Defaults;
+  SysUtils,
+  Math,
+  Generics.Defaults;
 
 type
   TArrayUtilities = class sealed

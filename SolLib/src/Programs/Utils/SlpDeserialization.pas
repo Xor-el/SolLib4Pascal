@@ -22,7 +22,7 @@ unit SlpDeserialization;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpBinaryPrimitives,
   SlpArrayUtilities,
   SlpPublicKey;

@@ -20,9 +20,9 @@ unit TokenProgramTests;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Rtti,
+  SysUtils,
+  Generics.Collections,
+  Rtti,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

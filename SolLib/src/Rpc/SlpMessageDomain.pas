@@ -22,9 +22,9 @@ unit SlpMessageDomain;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections,
+  SysUtils,
+  Classes,
+  Generics.Collections,
   SlpPublicKey,
   SlpShortVectorEncoding,
   SlpDataEncoderUtilities,

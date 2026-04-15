@@ -22,9 +22,9 @@ unit SlpTimeTicker;
 interface
 
 uses
-  System.SysUtils,
-  System.SyncObjs,
-  System.Classes;
+  SysUtils,
+  SyncObjs,
+  Classes;
 
 type
   TTickerErrorEvent = procedure(ASender: TObject; const AException: Exception) of object;

@@ -22,11 +22,11 @@ unit SlpSolanaRpcClient;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Rtti,
-  System.TypInfo,
-  System.Generics.Collections,
+  SysUtils,
+  Classes,
+  Rtti,
+  TypInfo,
+  Generics.Collections,
   System.JSON.Serializers,
 {$IFDEF FPC}
   URIParser,

@@ -22,7 +22,7 @@ unit SlpShortVectorEncoding;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   /// <summary>

@@ -22,7 +22,7 @@ unit SlpClientFactory;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpEnumUtilities,
   SlpSolanaRpcClient,
   SlpSolanaStreamingRpcClient,

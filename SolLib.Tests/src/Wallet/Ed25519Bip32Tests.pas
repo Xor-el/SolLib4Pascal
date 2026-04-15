@@ -20,7 +20,7 @@ unit Ed25519Bip32Tests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

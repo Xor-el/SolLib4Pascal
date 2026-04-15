@@ -22,7 +22,7 @@ unit SlpLogger;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   TLogLevel = (Trace, Debug, Info, Warn, Error, Fatal);

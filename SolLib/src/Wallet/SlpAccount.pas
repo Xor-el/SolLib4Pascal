@@ -22,8 +22,8 @@ unit SlpAccount;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   SlpArrayUtilities,
   SlpCryptoUtilities,
   SlpDataEncoderUtilities,

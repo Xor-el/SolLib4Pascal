@@ -22,7 +22,7 @@ unit SlpJsonKeyStoreSerializer;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   System.JSON.Serializers,
   SlpKeyStoreModel,
   SlpJsonKit;

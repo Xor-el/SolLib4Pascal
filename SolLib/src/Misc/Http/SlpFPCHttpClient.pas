@@ -22,8 +22,8 @@ unit SlpFPCHttpClient;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
+  SysUtils,
+  Classes,
   opensslsockets,
   fphttpclient,
   SlpHttpClientBase,

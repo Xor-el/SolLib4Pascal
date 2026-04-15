@@ -20,7 +20,7 @@ unit CryptoProviderTests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
@@ -139,7 +139,7 @@ const
       Label_: 'Serum DEX v3 (9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin)';
       Source: 'real-world' ),
 
-    // From solana-labs/solana issue #17106 — this point is on the Ed25519
+    // From solana-labs/solana issue #17106 ï¿½ this point is on the Ed25519
     // curve and Solana accepts it, but pynacl/libsodium rejects it because
     // libsodium's crypto_core_ed25519_is_valid_point() performs a full
     // prime-order subgroup check that Solana intentionally does not.
@@ -150,7 +150,7 @@ const
 
     ( Hex: 'DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEFF';
       ExpectedOnCurve: True;
-      Label_: '0xDEADBEEF pattern with high bit set — happens to land on curve';
+      Label_: '0xDEADBEEF pattern with high bit set ï¿½ happens to land on curve';
       Source: 'generated' )
   );
 
@@ -218,7 +218,7 @@ const
 
     ( Hex: '278117FC144C72340F67D0F2316E8386CEFFBF2B2428C9C51FEF7C597F1D426E';
       ExpectedOnCurve: True;
-      Label_: 'RFC 8032 Section 7.1 — 1024-byte message test';
+      Label_: 'RFC 8032 Section 7.1 ï¿½ 1024-byte message test';
       Source: 'real-world (RFC 8032)' )
   );
 
@@ -253,22 +253,22 @@ const
 
     ( Hex: 'C9A3F86AAE465F0E56513864510F3997561FA2C9E85EA21DC2292309F3CD6022';
       ExpectedOnCurve: True;
-      Label_: '[2]B — doubled basepoint';
+      Label_: '[2]B ï¿½ doubled basepoint';
       Source: 'well-known' ),
 
     ( Hex: '0300000000000000000000000000000000000000000000000000000000000000';
       ExpectedOnCurve: True;
-      Label_: 'y = 3 (valid x exists — on curve)';
+      Label_: 'y = 3 (valid x exists ï¿½ on curve)';
       Source: 'generated' ),
 
     ( Hex: '0500000000000000000000000000000000000000000000000000000000000000';
       ExpectedOnCurve: True;
-      Label_: 'y = 5 (valid x exists — on curve)';
+      Label_: 'y = 5 (valid x exists ï¿½ on curve)';
       Source: 'generated' ),
 
     ( Hex: '0000000000000000000000000000000000000000000000000000000000000001';
       ExpectedOnCurve: False;
-      Label_: 'y = 2^248 in little-endian — not a valid curve point';
+      Label_: 'y = 2^248 in little-endian ï¿½ not a valid curve point';
       Source: 'generated' )
   );
 

@@ -22,9 +22,9 @@ unit SlpJsonHelpers;
 interface
 
 uses
-  System.SysUtils,
-  System.TypInfo,
-  System.Rtti,
+  SysUtils,
+  TypInfo,
+  Rtti,
   System.JSON,
   System.JSON.Types,
   System.JSON.Readers,

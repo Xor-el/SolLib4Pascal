@@ -20,7 +20,7 @@ unit SolLibFlagProgramTestCase;
 interface
 
 uses
-  System.Rtti,
+  Rtti,
   SolLibProgramTestCase;
 
 type

@@ -22,9 +22,9 @@ unit SlpTokenWalletRpcProxy;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Rtti,
+  SysUtils,
+  Generics.Collections,
+  Rtti,
   SlpNullable,
   SlpRpcEnum,
   SlpRpcModel,

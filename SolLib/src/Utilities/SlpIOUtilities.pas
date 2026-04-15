@@ -23,7 +23,7 @@ interface
 
 uses
   System.IOUtils,
-  System.SysUtils;
+  SysUtils;
 
 type
   TIOUtilities = class

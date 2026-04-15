@@ -22,10 +22,10 @@ unit SlpToken2022Program;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Rtti,
-  System.TypInfo,
+  SysUtils,
+  Generics.Collections,
+  Rtti,
+  TypInfo,
   SlpEnumUtilities,
   SlpPublicKey,
   SlpAccount,

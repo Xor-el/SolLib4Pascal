@@ -22,7 +22,7 @@ unit SlpSerialization;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpArrayUtilities,
   SlpPublicKey,
   SlpBinaryPrimitives;

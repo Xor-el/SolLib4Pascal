@@ -22,10 +22,10 @@ unit SlpWordList;
 interface
 
 uses
-  System.SysUtils,
-  System.SyncObjs,
-  System.Classes,
-  System.Generics.Collections,
+  SysUtils,
+  SyncObjs,
+  Classes,
+  Generics.Collections,
   SlpWalletEnum,
   SlpHardcodedWordlistSource;
 

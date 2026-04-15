@@ -22,10 +22,10 @@ unit SlpJsonRpcClient;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.Classes,
-  System.Generics.Collections,
+  SysUtils,
+  Rtti,
+  Classes,
+  Generics.Collections,
   System.JSON.Serializers,
 {$IFDEF FPC}
   URIParser,

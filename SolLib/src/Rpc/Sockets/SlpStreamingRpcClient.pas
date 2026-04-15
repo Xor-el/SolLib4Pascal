@@ -22,9 +22,9 @@ unit SlpStreamingRpcClient;
 interface
 
 uses
-  System.SysUtils,
-  System.SyncObjs,
-  System.Generics.Collections,
+  SysUtils,
+  SyncObjs,
+  Generics.Collections,
   System.JSON.Serializers,
 {$IFDEF FPC}
   URIParser,

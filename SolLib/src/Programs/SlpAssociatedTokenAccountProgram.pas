@@ -22,9 +22,9 @@ unit SlpAssociatedTokenAccountProgram;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Rtti,
+  SysUtils,
+  Generics.Collections,
+  Rtti,
   SlpPublicKey,
   SlpAccountDomain,
   SlpTransactionInstruction,

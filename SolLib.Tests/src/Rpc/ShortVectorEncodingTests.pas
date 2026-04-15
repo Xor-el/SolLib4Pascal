@@ -20,7 +20,7 @@ unit ShortVectorEncodingTests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}

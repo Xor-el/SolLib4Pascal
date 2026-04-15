@@ -22,10 +22,10 @@ unit SlpInstructionDecoder;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Generics.Defaults,
-  System.Rtti,
+  SysUtils,
+  Generics.Collections,
+  Generics.Defaults,
+  Rtti,
   SlpDataEncoderUtilities,
   SlpPublicKey,
   SlpRpcModel,

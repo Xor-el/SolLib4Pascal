@@ -20,7 +20,7 @@ unit TransactionExample;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   ExampleBase,
   SlpWallet,
   SlpAccount,

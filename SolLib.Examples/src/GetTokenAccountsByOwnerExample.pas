@@ -20,8 +20,8 @@ unit GetTokenAccountsByOwnerExample;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   ExampleBase,
   SlpRequestResult,
   SlpRpcModel,

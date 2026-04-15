@@ -22,9 +22,9 @@ unit SlpTokenModel;
 interface
 
 uses
-  System.SysUtils,
-  System.Rtti,
-  System.Generics.Collections,
+  SysUtils,
+  Rtti,
+  Generics.Collections,
   System.JSON.Serializers,
   SlpValueHelpers,
   SlpJsonListConverter,

@@ -20,9 +20,9 @@ unit SlpMessageBuilder;
 interface
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Generics.Collections,
+  SysUtils,
+  Classes,
+  Generics.Collections,
   SlpDataEncoderUtilities,
   SlpShortVectorEncoding,
   SlpPublicKey,

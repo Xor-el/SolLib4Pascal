@@ -22,8 +22,8 @@ unit SlpJsonConverterFactory;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   System.JSON.Serializers,
   System.JSON.Converters,
   SlpJsonKit,

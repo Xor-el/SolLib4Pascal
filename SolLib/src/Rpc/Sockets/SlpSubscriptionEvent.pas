@@ -22,7 +22,7 @@ unit SlpSubscriptionEvent;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   SlpRpcEnum;
 
 type

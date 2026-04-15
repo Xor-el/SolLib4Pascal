@@ -22,8 +22,8 @@ unit SlpEnumUtilities;
 interface
 
 uses
-  System.SysUtils,
-  System.TypInfo,
+  SysUtils,
+  TypInfo,
   SlpSolLibTypes;
 
 type

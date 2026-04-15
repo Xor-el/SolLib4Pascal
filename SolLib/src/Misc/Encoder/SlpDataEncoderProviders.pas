@@ -22,7 +22,7 @@ unit SlpDataEncoderProviders;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   /// <summary>

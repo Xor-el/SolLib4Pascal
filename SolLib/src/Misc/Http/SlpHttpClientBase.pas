@@ -22,8 +22,8 @@ unit SlpHttpClientBase;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   System.NetEncoding,
   SlpHttpApiResponse;
 

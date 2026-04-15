@@ -22,8 +22,8 @@ unit SlpBPFLoaderProgram;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   SlpPublicKey,
   SlpAccountDomain,
   SlpTransactionInstruction,

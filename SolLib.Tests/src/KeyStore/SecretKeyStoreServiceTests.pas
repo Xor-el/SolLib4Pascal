@@ -20,7 +20,7 @@ unit SecretKeyStoreServiceTests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   System.JSON,
 {$IFDEF FPC}
   testregistry,

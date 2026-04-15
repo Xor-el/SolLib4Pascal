@@ -20,8 +20,8 @@ unit SlpHelloWorldExample;
 interface
 
 uses
-  System.SysUtils,
-  System.TypInfo,
+  SysUtils,
+  TypInfo,
   ExampleBase,
   SlpWallet,
   SlpAccount,

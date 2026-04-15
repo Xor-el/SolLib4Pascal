@@ -22,9 +22,9 @@ unit SlpStringTransformerTests;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
-  System.Json.Readers,
+  SysUtils,
+  Generics.Collections,
+  System.JSON.Readers,
   System.JSON.Serializers,
 {$IFDEF FPC}
   fpcunit,

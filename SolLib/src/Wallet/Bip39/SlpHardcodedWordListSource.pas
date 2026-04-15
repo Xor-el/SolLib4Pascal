@@ -26,8 +26,8 @@ unit SlpHardcodedWordlistSource;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections;
+  SysUtils,
+  Generics.Collections;
 
 type
   IWordlistSource = interface

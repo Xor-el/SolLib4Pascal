@@ -20,7 +20,7 @@ unit Bip39Tests;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   System.JSON,
 {$IFDEF FPC}
   testregistry,

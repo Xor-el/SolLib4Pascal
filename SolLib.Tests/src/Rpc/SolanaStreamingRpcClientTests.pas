@@ -20,8 +20,8 @@ unit SolanaStreamingRpcClientTests;
 interface
 
 uses
-  System.SysUtils,
-  System.SyncObjs,
+  SysUtils,
+  SyncObjs,
 {$IFDEF FPC}
   testregistry,
 {$ELSE}
