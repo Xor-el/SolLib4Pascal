@@ -165,7 +165,7 @@ type
     class function CloneValueList(const AParams: TList<TValue>): TList<TValue>; static;
 
     /// <summary>
-    /// Peels off up to four layers of TValue-inside-TValue boxing and
+    /// Peels off up to `MAX_UNWRAPS` layers of TValue-inside-TValue boxing and
     /// returns the innermost value.
     /// </summary>
     class function UnwrapValue(const AValue: TValue): TValue; static;
