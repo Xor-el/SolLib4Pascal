@@ -127,7 +127,6 @@
         <AUP_READ_PHONE_STATE>true</AUP_READ_PHONE_STATE>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
-        <DCC_UnitSearchPath>C:\DelphiDevLibs\CryptoLib4Pascal;C:\DelphiDevLibs\HashLib4Pascal;C:\DelphiDevLibs\SimpleBaseLib4Pascal;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <AUP_NEARBY_WIFI_DEVICES>true</AUP_NEARBY_WIFI_DEVICES>
         <SanitizedProjectName>SolLib_Tests_Mobile</SanitizedProjectName>
     </PropertyGroup>
@@ -881,6 +880,384 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Debug" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Debug" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Release" Class="File">
+                    <Platform Name="Android64">
+                        <RemoteDir>assets\internal\SolLib</RemoteDir>
+                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Release" Class="File">
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
+                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Android64\Release\AndroidManifest.xml" Configuration="Release" Class="ProjectAndroidManifest">
                     <Platform Name="Android64">
                         <Overwrite>true</Overwrite>
@@ -1036,385 +1413,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Simplified.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_SIMPLIFIED_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Chinese_Traditional.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CHINESE_TRADITIONAL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Czech.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_CZECH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\English.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_ENGLISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\French.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_FRENCH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Japanese.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_JAPANESE_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Portuguese_Brazil.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_PORTUGUESE_BRAZIL_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\WordLists\Bip39\Spanish.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>BIP39_SPANISH_WORDLIST</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Debug" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Debug" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Release" Class="File">
-                    <Platform Name="Android64">
-                        <RemoteDir>assets\internal\SolLib</RemoteDir>
-                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSDevice64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\SolLib\src\Resources\Normalization\KdTable.txt" Configuration="Release" Class="File">
-                    <Platform Name="iOSSimARM64">
-                        <RemoteDir>StartUpDocuments\SolLib</RemoteDir>
-                        <RemoteName>KD_SUBSTITUTION_TABLE</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>
