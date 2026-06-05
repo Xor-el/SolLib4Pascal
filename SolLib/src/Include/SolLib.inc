@@ -33,12 +33,12 @@
 {========================== Resource Loading Strategy =========================}
 
   // Platforms that support embedded .res resources (TResourceStream)
-  {$IF DEFINED(MSWINDOWS)}
+  {$IF DEFINED(MSWINDOWS) OR DEFINED(MACOS) OR DEFINED(LINUX)}
     {$DEFINE USE_EMBEDDED_RESOURCES}
   {$IFEND}
 
   // Platforms that require file-based asset loading
-  {$IF DEFINED(ANDROID) OR DEFINED(IOS) OR DEFINED(MACOS) OR DEFINED(LINUX)}
+  {$IF DEFINED(ANDROID) OR DEFINED(IOS)}
     {$DEFINE USE_FILE_RESOURCES}
   {$IFEND}
 
