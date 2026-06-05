@@ -1,4 +1,4 @@
-unit SolLibTestMobileRunner;
+unit MobileTestRunner;
 
 interface
 

@@ -8,8 +8,8 @@ program SolLib.Tests.Mobile;
 uses
   System.StartUpCopy,
   FMX.Forms,
-  MobileTestHostFormUnit in 'MobileTestHostFormUnit.pas' {MobileTestHostForm},
-  SolLibTestMobileRunner in 'SolLibTestMobileRunner.pas',
+  MobileTestHostFormUnit in 'Mobile\MobileTestHostFormUnit.pas' {MobileTestHostForm},
+  MobileTestRunner in 'Mobile\MobileTestRunner.pas',
   SlpTokenModel in '..\..\SolLib\src\Token\SlpTokenModel.pas',
   SlpTokenMintResolver in '..\..\SolLib\src\Token\SlpTokenMintResolver.pas',
   SlpTokenDomain in '..\..\SolLib\src\Token\SlpTokenDomain.pas',

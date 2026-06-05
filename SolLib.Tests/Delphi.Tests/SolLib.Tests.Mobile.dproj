@@ -346,10 +346,10 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="MobileTestHostFormUnit.pas">
+        <DCCReference Include="Mobile\MobileTestHostFormUnit.pas">
             <Form>MobileTestHostForm</Form>
         </DCCReference>
-        <DCCReference Include="SolLibTestMobileRunner.pas"/>
+        <DCCReference Include="Mobile\MobileTestRunner.pas"/>
         <DCCReference Include="..\..\SolLib\src\Token\SlpTokenModel.pas"/>
         <DCCReference Include="..\..\SolLib\src\Token\SlpTokenMintResolver.pas"/>
         <DCCReference Include="..\..\SolLib\src\Token\SlpTokenDomain.pas"/>
