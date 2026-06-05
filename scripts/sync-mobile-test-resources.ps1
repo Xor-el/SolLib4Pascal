@@ -9,7 +9,7 @@
 # Re-run when files under SolLib.Tests/src/Resources change (or AppDeployFolderName changes),
 # then rebuild the mobile test host.
 #
-# Library resources (BIP39 wordlists, KD table) are NOT included — use sync-mobile-library-resources.ps1.
+# Library resources (BIP39 wordlists, KD table) are NOT included.
 
 param(
     [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
