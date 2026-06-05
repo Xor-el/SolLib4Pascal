@@ -17,7 +17,11 @@
 
 unit TestResourceLoader;
 
+{$I ../../../SolLib/src/Include/SolLib.inc}
+
+{$IFDEF USE_EMBEDDED_RESOURCES}
 {$R '../Resources/TestResources.res'}
+{$ENDIF}
 
 interface
 
@@ -27,13 +31,14 @@ uses
 
 type
   /// <summary>
-  /// Utility class for loading test data from embedded resources.
+  /// Utility class for loading test data resources.
   /// </summary>
   TTestResourceLoader = class
   private
     /// <summary>
     /// Converts a relative file path to a resource name.
     /// Example: 'JsonConverter/AccountInfo_Data_Base64.json' -> 'JSONCONVERTER_ACCOUNTINFO_DATA_BASE64_JSON'
+    /// Must stay in sync with scripts/sync-mobile-test-resources.ps1 ConvertTo-ResourceName.
     /// </summary>
     class function PathToResourceName(const APath: string): string; static;
 

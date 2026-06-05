@@ -69,7 +69,7 @@
 *.tvsconfig
 *.dsk
 *.dsv
-*.dproj
+#*.dproj
 *.ini
 
 # Delphi history and backups
