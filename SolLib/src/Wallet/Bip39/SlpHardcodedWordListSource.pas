@@ -39,7 +39,7 @@ type
   private
     type
       /// <summary>
-      /// Maps a Win32 resource name to the dictionary key used by TWordList.LoadWordList.
+      /// Maps a resource name to the dictionary key used by TWordList.LoadWordList.
       /// </summary>
       TResourceEntry = record
         ResourceName: string;

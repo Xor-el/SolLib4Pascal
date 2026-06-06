@@ -513,6 +513,11 @@ type
       const ASub: ISubscriptionState;
       const AMsg: TJsonRpcRequest): ISubscriptionState; overload;
 
+    /// <summary>
+    /// Serializes and sends a JSON-RPC message without tracking it as a pending subscription.
+    /// </summary>
+    procedure SendRpcMessage(const AMsg: TJsonRpcRequest);
+
     procedure Unsubscribe(const ASubscription: ISubscriptionState);
 
     /// <summary>
@@ -788,14 +793,16 @@ begin
   for LPair in FConfirmed do
     if Assigned(LPair.Value) then
     begin
-      LPair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
+      if LPair.Value.State <> TSubscriptionStatus.Unsubscribed then
+        LPair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
       FConfirmed[LPair.Key] := nil;
     end;
 
   for LPair in FUnconfirmed do
     if Assigned(LPair.Value) then
     begin
-      LPair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
+      if LPair.Value.State <> TSubscriptionStatus.Unsubscribed then
+        LPair.Value.ChangeState(TSubscriptionStatus.Unsubscribed, 'Connection terminated');
       FUnconfirmed[LPair.Key] := nil;
     end;
 
@@ -1348,6 +1355,18 @@ begin
             );
 end;
 
+procedure TSolanaStreamingRpcClient.SendRpcMessage(const AMsg: TJsonRpcRequest);
+var
+  LPayload: string;
+begin
+  LPayload := FSerializer.Serialize(AMsg);
+
+  if Assigned(FLogger) and FLogger.IsEnabled(TLogLevel.Info) then
+    FLogger.LogInformation(TEventId.Create(AMsg.Id.Value, AMsg.Method), '[Sending]{0}', [LPayload]);
+
+  FClient.Send(LPayload);
+end;
+
 procedure TSolanaStreamingRpcClient.Unsubscribe(const ASubscription: ISubscriptionState);
 var
   LMethod: string;
@@ -1366,7 +1385,15 @@ begin
 
   LReq := BuildRequest(LMethod, LParams);
   try
-    Subscribe(ASubscription, LReq);
+    try
+      SendRpcMessage(LReq);
+    except
+      on E: Exception do
+        if Assigned(FLogger) then
+          FLogger.LogDebug(TEventId.Create(LReq.Id.Value, LReq.Method),
+            'Unable to send unsubscribe message (id={0}, method={1}): {2}',
+            [LReq.Id.Value.ToString, LReq.Method, E.Message]);
+    end;
   finally
     LReq.Free;
   end;
@@ -1376,16 +1403,9 @@ function TSolanaStreamingRpcClient.Subscribe(
   const ASub: ISubscriptionState;
   const AMsg: TJsonRpcRequest
 ): ISubscriptionState;
-var
-  LPayload: string;
 begin
-  LPayload := FSerializer.Serialize(AMsg);
-
-  if Assigned(FLogger) and FLogger.IsEnabled(TLogLevel.Info) then
-    FLogger.LogInformation(TEventId.Create(AMsg.Id.Value, AMsg.Method), '[Sending]{0}', [LPayload]);
-
   try
-    FClient.Send(LPayload);
+    SendRpcMessage(AMsg);
     AddSubscription(ASub, AMsg.Id.Value);
   except
     on E: Exception do

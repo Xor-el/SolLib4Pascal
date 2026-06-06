@@ -397,11 +397,15 @@ begin
     LWs.TriggerAll;
 
     // Assert we observed the Unsubscribed state transition
-    AssertEquals(Ord(TWaitResult.wrSignaled), Ord(LWaitUnsubscribed.WaitFor(3000)), 'Unsubscribe signal not observed');
+    case LWaitUnsubscribed.WaitFor(3000) of
+      wrSignaled: ; // ok
+    else
+      Fail('Unsubscribe signal not observed');
+    end;
     AssertTrue(LUnsubscribed, 'Subscription did not reach Unsubscribed state');
   finally
-    LWaitUnsubscribed.Free;
     LSut.Disconnect;
+    LWaitUnsubscribed.Free;
   end;
 end;
 
@@ -1276,8 +1280,8 @@ begin
     AssertEquals(Ord(TSubscriptionStatus.Unsubscribed), Ord(LLastChange.Status), 'Subscription status mismatch');
     AssertEquals(Ord(TSubscriptionStatus.Unsubscribed), Ord(LSub.State), 'Sub.State mismatch');
   finally
-    LChangedSignal.Free;
     LSut.Disconnect;
+    LChangedSignal.Free;
   end;
 end;
 
@@ -1382,8 +1386,8 @@ begin
     AssertEquals(Ord(TSubscriptionStatus.Unsubscribed), Ord(LLastChange.Status), 'Subscription status mismatch');
     AssertEquals(Ord(TSubscriptionStatus.Unsubscribed), Ord(LSub.State), 'Sub.State mismatch');
   finally
-    LChangedSignal.Free;
     LSut.Disconnect;
+    LChangedSignal.Free;
   end;
 end;
 
@@ -1473,8 +1477,8 @@ begin
     AssertEquals(Ord(TSubscriptionStatus.Unsubscribed), Ord(LLastChange.Status), 'Subscription status mismatch');
     AssertEquals(Ord(TSubscriptionStatus.Unsubscribed), Ord(LSub.State), 'Sub.State mismatch');
   finally
-    LChangedSignal.Free;
     LSut.Disconnect;
+    LChangedSignal.Free;
   end;
 end;
 
@@ -1548,8 +1552,8 @@ begin
 
     AssertEquals(Ord(TSubscriptionStatus.ErrorSubscribing), Ord(LSub.State), 'Subscription state mismatch');
   finally
-    LGotChange.Free;
     LSut.Disconnect;
+    LGotChange.Free;
   end;
 end;
 

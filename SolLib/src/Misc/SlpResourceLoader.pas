@@ -291,7 +291,7 @@ begin
   FInstance := TFileResourceLoader.Create;
   {$ELSE}
   {$MESSAGE ERROR 'Either USE_EMBEDDED_RESOURCES or USE_FILE_RESOURCES must be defined'}
-  {$ENDIF}
+  {$IFEND}
 end;
 
 end.
