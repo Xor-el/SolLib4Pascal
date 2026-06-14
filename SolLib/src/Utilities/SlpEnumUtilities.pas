@@ -24,6 +24,7 @@ interface
 uses
   SysUtils,
   TypInfo,
+  SlpBinaryPrimitives,
   SlpSolLibTypes;
 
 type
@@ -34,6 +35,16 @@ type
   TEnumUtilities = class sealed(TObject)
   strict private
     class function DefaultReplacer(const AInput: string): string; static;
+
+    /// <summary>
+    /// Writes an enum ordinal into AResult using a size-aware, native-order store.
+    /// </summary>
+    class procedure WriteOrdinal<T>(out AResult: T; AOrdinal: Int32); static;
+
+    /// <summary>
+    /// Reads an enum ordinal from AValue using a size-aware, native-order load.
+    /// </summary>
+    class function ReadOrdinal<T>(const AValue: T): Int32; static;
   public
     /// <summary>
     /// Returns an array of ordinals for all defined values of the enum.
@@ -46,22 +57,31 @@ type
 
     /// <summary>
     /// Tries to parse a string as an enum ordinal. Only parses single named
+    /// constants: non-empty, first character a letter, no comma.
+    /// the input is normalized by replacing '+', '-' and '/' with '_'.
+    /// Returns True and the ordinal in AResult when successful; otherwise
+    /// False and AResult is 0.
+    /// </summary>
+    class function TryGetEnumValue(ATypeInfo: PTypeInfo; const AInput: String;
+      out AResult: Int32): Boolean; overload; static;
+
+    /// <summary>
+    /// Tries to parse a string as an enum ordinal. Only parses single named
     /// constants: non-empty, first character a letter, no comma. When AReplacer
     /// is nil, the input is normalized by replacing '+', '-' and '/' with '_'
     /// before parsing; when AReplacer is assigned, it is applied to the input.
     /// Returns True and the ordinal in AResult when successful; otherwise
     /// False and AResult is 0.
     /// </summary>
-    class function TryGetEnumValue(ATypeInfo: PTypeInfo; const AInput: String;
+    class function TryGetEnumValue(ATypeInfo: PTypeInfo; const AInput: string;
       out AResult: Int32;
-      const AReplacer: TFunc<string, string> = nil): Boolean; overload; static;
+      const AReplacer: TFunc<string, string>): Boolean; overload; static;
 
     /// <summary>
     /// Converts an enum ordinal to its declared name string.
     /// Returns empty string if ATypeInfo is nil, not an enum, or ordinal has no name.
     /// </summary>
-    class function ToString(ATypeInfo: PTypeInfo; AOrdinal: Int32): String;
-      reintroduce; overload; static;
+    class function ToString(ATypeInfo: PTypeInfo; AOrdinal: Int32): string; overload; static;
 
     // Generic overloads (T must be an enum); delegate to PTypeInfo versions.
 
@@ -71,12 +91,18 @@ type
     class function GetEnumValues<T>: TArray<T>; overload; static;
 
     /// <summary>
+    /// Tries to parse a string as an enum value. Default normalization ('+', '-', '/' to '_') is used.
+    /// On failure, AResult is Default(T).
+    /// </summary>
+    class function TryGetEnumValue<T>(const AInput: string; out AResult: T): Boolean; overload; static;
+
+    /// <summary>
     /// Tries to parse a string as an enum value. When AReplacer is nil, default
     /// normalization ('+', '-', '/' to '_') is used.
     /// On failure, AResult is Default(T).
     /// </summary>
-    class function TryGetEnumValue<T>(const AInput: String; out AResult: T;
-      const AReplacer: TFunc<string, string> = nil): Boolean; overload; static;
+    class function TryGetEnumValue<T>(const AInput: string; out AResult: T;
+      const AReplacer: TFunc<string, string>): Boolean; overload; static;
 
     /// <summary>
     /// Tries to interpret an ordinal as a valid named value of the enum.
@@ -88,7 +114,7 @@ type
     /// <summary>
     /// Converts an enum value to its declared name string.
     /// </summary>
-    class function ToString<T>(const AValue: T): String; reintroduce; overload; static;
+    class function ToString<T>(const AValue: T): string; overload; static;
   end;
 
 implementation
@@ -100,6 +126,26 @@ begin
   Result := StringReplace(AInput, '+', '_', [rfReplaceAll]);
   Result := StringReplace(Result, '-', '_', [rfReplaceAll]);
   Result := StringReplace(Result, '/', '_', [rfReplaceAll]);
+end;
+
+class procedure TEnumUtilities.WriteOrdinal<T>(out AResult: T; AOrdinal: Int32);
+begin
+  case SizeOf(T) of
+    1: PByte(@AResult)^ := Byte(AOrdinal);
+    2: TBinaryPrimitives.StoreUInt16(PWord(@AResult), UInt16(AOrdinal));
+  else
+    TBinaryPrimitives.StoreUInt32(PCardinal(@AResult), UInt32(AOrdinal));
+  end;
+end;
+
+class function TEnumUtilities.ReadOrdinal<T>(const AValue: T): Int32;
+begin
+  case SizeOf(T) of
+    1: Result := PByte(@AValue)^;
+    2: Result := TBinaryPrimitives.LoadUInt16(PWord(@AValue));
+  else
+    Result := Int32(TBinaryPrimitives.LoadUInt32(PCardinal(@AValue)));
+  end;
 end;
 
 class function TEnumUtilities.GetEnumValues(ATypeInfo: PTypeInfo): TArray<Int32>;
@@ -114,7 +160,6 @@ begin
   end;
 
   LTypeData := GetTypeData(ATypeInfo);
-  // Pre-allocate for the full range; trim at the end
   SetLength(Result, LTypeData^.MaxValue - LTypeData^.MinValue + 1);
   LCount := 0;
   for LI := LTypeData^.MinValue to LTypeData^.MaxValue do
@@ -127,7 +172,13 @@ begin
 end;
 
 class function TEnumUtilities.TryGetEnumValue(ATypeInfo: PTypeInfo;
-  const AInput: String; out AResult: Int32;
+  const AInput: string; out AResult: Int32): Boolean;
+begin
+  Result := TryGetEnumValue(ATypeInfo, AInput, AResult, nil);
+end;
+
+class function TEnumUtilities.TryGetEnumValue(ATypeInfo: PTypeInfo;
+  const AInput: string; out AResult: Int32;
   const AReplacer: TFunc<string, string>): Boolean;
 var
   LProcessed: String;
@@ -158,7 +209,7 @@ begin
   Result := True;
 end;
 
-class function TEnumUtilities.ToString(ATypeInfo: PTypeInfo; AOrdinal: Int32): String;
+class function TEnumUtilities.ToString(ATypeInfo: PTypeInfo; AOrdinal: Int32): string;
 begin
   if (ATypeInfo = nil) or (ATypeInfo^.Kind <> tkEnumeration) then
     Exit('');
@@ -171,19 +222,32 @@ var
   LI: Int32;
 begin
   LOrds := GetEnumValues(TypeInfo(T));
-  SetLength(Result, Length(LOrds));
-  for LI := 0 to High(LOrds) do
-    Move(LOrds[LI], Result[LI], SizeOf(T));
+  SetLength(Result, System.Length(LOrds));
+  for LI := 0 to System.High(LOrds) do
+    WriteOrdinal<T>(Result[LI], LOrds[LI]);
 end;
 
-class function TEnumUtilities.TryGetEnumValue<T>(const AInput: String;
+class function TEnumUtilities.TryGetEnumValue<T>(const AInput: string; out AResult: T): Boolean;
+var
+  LOrd: Int32;
+begin
+  // TODO: FPC 3.2.x fails when compiling TryGetEnumValue<T>(...), when upgrading minimum FPC to a version
+  // that compiles it, remove this inlined implementation and forward to TryGetEnumValue<T>(AInput, AResult, nil).
+  Result := TryGetEnumValue(TypeInfo(T), AInput, LOrd, nil);
+  if Result then
+    WriteOrdinal<T>(AResult, LOrd)
+  else
+    AResult := Default(T);
+end;
+
+class function TEnumUtilities.TryGetEnumValue<T>(const AInput: string;
   out AResult: T; const AReplacer: TFunc<string, string>): Boolean;
 var
   LOrd: Int32;
 begin
   Result := TryGetEnumValue(TypeInfo(T), AInput, LOrd, AReplacer);
   if Result then
-    Move(LOrd, AResult, SizeOf(T))
+    WriteOrdinal<T>(AResult, LOrd)
   else
     AResult := Default(T);
 end;
@@ -197,17 +261,16 @@ begin
   // correctly rejecting them, whereas a range check would incorrectly accept them.
   Result := ToString(TypeInfo(T), AOrdinal) <> '';
   if Result then
-    Move(AOrdinal, AResult, SizeOf(T))
+    WriteOrdinal<T>(AResult, AOrdinal)
   else
     AResult := Default(T);
 end;
 
-class function TEnumUtilities.ToString<T>(const AValue: T): String;
+class function TEnumUtilities.ToString<T>(const AValue: T): string;
 var
   LOrd: Int32;
 begin
-  LOrd := 0;
-  Move(AValue, LOrd, SizeOf(T));
+  LOrd := ReadOrdinal<T>(AValue);
   Result := ToString(TypeInfo(T), LOrd);
 end;
 

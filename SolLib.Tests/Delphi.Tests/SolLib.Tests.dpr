@@ -124,6 +124,7 @@ uses
   SlpDelphiHttpClient in '..\..\SolLib\src\Misc\Http\SlpDelphiHttpClient.pas',
   SlpComparerFactory in '..\..\SolLib\src\Misc\SlpComparerFactory.pas',
   SlpBinaryPrimitives in '..\..\SolLib\src\Misc\SlpBinaryPrimitives.pas',
+  SlpBitOperations in '..\..\SolLib\src\Misc\SlpBitOperations.pas',
   SlpLogger in '..\..\SolLib\src\Misc\Logger\SlpLogger.pas',
   SlpSolConverter in '..\..\SolLib\src\Token\SlpSolConverter.pas',
   SlpTokenWallet in '..\..\SolLib\src\Token\SlpTokenWallet.pas',

@@ -37,6 +37,14 @@
   {$STRINGCHECKS OFF}
   {$WARN DUPLICATE_CTOR_DTOR OFF}
 
+{============================== CPU Architecture ==============================}
+
+  {$DEFINE SOLLIB_LITTLE_ENDIAN}
+
+  {$IFDEF CPUARM}
+    {$DEFINE SOLLIB_REQUIRES_PROPER_ALIGNMENT}
+  {$ENDIF}
+
 {========================== Resource Loading Strategy =========================}
 
   // Platforms that support embedded .res resources (TResourceStream)
