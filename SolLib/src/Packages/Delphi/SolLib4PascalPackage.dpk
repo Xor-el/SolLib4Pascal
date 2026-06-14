@@ -134,6 +134,7 @@ contains
   SlpDelphiHttpClient in '..\..\Misc\Http\SlpDelphiHttpClient.pas',
   SlpComparerFactory in '..\..\Misc\SlpComparerFactory.pas',
   SlpBinaryPrimitives in '..\..\Misc\SlpBinaryPrimitives.pas',
+  SlpBitOperations in '..\..\Misc\SlpBitOperations.pas',
   SlpLogger in '..\..\Misc\Logger\SlpLogger.pas',
   SlpSolConverter in '..\..\Token\SlpSolConverter.pas',
   SlpTokenWallet in '..\..\Token\SlpTokenWallet.pas',

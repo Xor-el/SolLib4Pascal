@@ -21,6 +21,16 @@
   {$MESSAGE FATAL 'This Library does not support "Big Endian" processors yet.'}
 {$ENDIF}
 
+{============================== CPU Architecture ==============================}
+
+{$IFDEF FPC_LITTLE_ENDIAN}
+  {$DEFINE SOLLIB_LITTLE_ENDIAN}
+{$ENDIF}
+
+{$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}
+  {$DEFINE SOLLIB_REQUIRES_PROPER_ALIGNMENT}
+{$ENDIF}
+
 {========================== Resource Loading Strategy =========================}
 
 // FPC supports embedded resources via TResourceStream
