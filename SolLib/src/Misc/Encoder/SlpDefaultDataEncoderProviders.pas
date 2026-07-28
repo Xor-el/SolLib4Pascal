@@ -30,7 +30,7 @@ uses
   SbpBase58Alphabet,
   SbpBase64,
   SbpBase64Alphabet,
-  SbpSimpleBaseLibTypes,
+  SbpSimpleBaseLibExceptions,
   SlpSolLibTypes,
   SlpDataEncoderProviders;
 
