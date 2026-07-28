@@ -136,8 +136,14 @@ type
     ['{3B1B9D03-0F7E-4A26-9B9E-9907A2C4C91D}']
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
+    function GetVersion: Byte;
+    procedure SetVersion(const AValue: Byte);
 
     property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
+    /// <summary>
+    /// The message version encoded in the low 7 bits of the versioned prefix.
+    /// </summary>
+    property Version: Byte read GetVersion write SetVersion;
   end;
 
   /// <summary>
@@ -212,7 +218,7 @@ type
 
     function IsAccountWritable(AIndex: Integer): Boolean;
     function IsAccountSigner(AIndex: Integer): Boolean;
-    function Serialize: TBytes;
+    function Serialize: TBytes; virtual;
   protected
     /// <summary>
     /// Internal virtual deserialization hook — subclasses override this to provide their parser.
@@ -222,8 +228,8 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
 
-    class function Deserialize(const AData: TBytes): IMessage; overload; static;
-    class function Deserialize(const ABase64: string): IMessage; overload; static;
+    class function Deserialize(const AData: TBytes): IMessage; overload;
+    class function Deserialize(const ABase64: string): IMessage; overload;
   end;
 
 type
@@ -255,13 +261,22 @@ type
 
   private
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
+    FVersion: Byte;
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
+    function GetVersion: Byte;
+    procedure SetVersion(const AValue: Byte);
   protected
     class function DoDeserialize(const AData: TBytes): IMessage; override;
   public
     constructor Create; override;
     destructor Destroy; override;
+
+    /// <summary>
+    /// Serialize the versioned message into the wire format
+    /// (dynamic <c>$80 or Version</c> prefix, address-table-lookup trailer).
+    /// </summary>
+    function Serialize: TBytes; override;
 
     /// <summary>
     /// Deserialize the message version
@@ -275,6 +290,22 @@ type
     public
       class function SerializeAddressTableLookups(AList: TList<IMessageAddressTableLookup>): TBytes; static;
     end;
+  end;
+
+  /// <summary>
+  /// Represents a version 0 message.
+  /// </summary>
+  TMessageV0 = class(TVersionedMessage)
+  public
+    constructor Create; override;
+  end;
+
+  /// <summary>
+  /// Represents a version 1 message.
+  /// </summary>
+  TMessageV1 = class(TVersionedMessage)
+  public
+    constructor Create; override;
   end;
 
 implementation
@@ -662,6 +693,95 @@ begin
   FAddressTableLookups := AValue;
 end;
 
+function TVersionedMessage.GetVersion: Byte;
+begin
+  Result := FVersion;
+end;
+
+procedure TVersionedMessage.SetVersion(const AValue: Byte);
+begin
+  FVersion := AValue;
+end;
+
+function TVersionedMessage.Serialize: TBytes;
+var
+  LAccountAddressesLength, LInstructionsLength, LAccountKeyBytes, LHdr, LBlockHashBytes, LAtlBytes: TBytes;
+  LAccountKeysBuf, LMsgBuf: TMemoryStream;
+  LI: Integer;
+  LCI: ICompiledInstruction;
+  LEstAccountKeysSize, LEstMsgSize: Integer;
+  LProgramIdIndex: Byte;
+  LVersionPrefix: Byte;
+begin
+  LAccountAddressesLength := TShortVectorEncoding.EncodeLength(FAccountKeys.Count);
+  LInstructionsLength := TShortVectorEncoding.EncodeLength(FInstructions.Count);
+
+  LEstAccountKeysSize := FAccountKeys.Count * TPublicKey.PublicKeyLength;
+
+  LAccountKeysBuf := TMemoryStream.Create;
+  try
+    LAccountKeysBuf.Size := LEstAccountKeysSize;
+    LAccountKeysBuf.Position := 0;
+
+    for LI := 0 to FAccountKeys.Count - 1 do
+    begin
+      LAccountKeyBytes := FAccountKeys[LI].KeyBytes;
+      LAccountKeysBuf.WriteBuffer(LAccountKeyBytes[0], Length(LAccountKeyBytes));
+    end;
+
+    LBlockHashBytes := TBase58Encoder.DecodeData(FRecentBlockhash);
+    LAtlBytes := TAddressTableLookupUtils.SerializeAddressTableLookups(FAddressTableLookups);
+
+    // Initial capacity hint only; the stream grows to fit the actual instruction data.
+    LEstMsgSize := 1 + TMessageHeader.TLayout.HeaderLength +
+                  TPublicKey.PublicKeyLength + Length(LAccountAddressesLength) +
+                  Length(LInstructionsLength) + FInstructions.Count + LEstAccountKeysSize +
+                  Length(LAtlBytes);
+
+    LMsgBuf := TMemoryStream.Create;
+    try
+      LMsgBuf.Size := LEstMsgSize;
+      LMsgBuf.Position := 0;
+
+      // Versioned prefix: high bit set, low 7 bits carry the version.
+      LVersionPrefix := Byte($80 or FVersion);
+      LMsgBuf.WriteBuffer(LVersionPrefix, 1);
+
+      LHdr := FHeader.ToBytes();
+      LMsgBuf.WriteBuffer(LHdr[0], Length(LHdr));
+
+      LMsgBuf.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
+      LMsgBuf.WriteBuffer(LAccountKeysBuf.Memory^, LAccountKeysBuf.Size);
+      LMsgBuf.WriteBuffer(LBlockHashBytes[0], Length(LBlockHashBytes));
+      LMsgBuf.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
+
+      for LI := 0 to FInstructions.Count - 1 do
+      begin
+        LCI := FInstructions[LI];
+
+        LProgramIdIndex := LCI.ProgramIdIndex;
+        LMsgBuf.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
+
+        LMsgBuf.WriteBuffer(LCI.KeyIndicesCount[0], Length(LCI.KeyIndicesCount));
+        LMsgBuf.WriteBuffer(LCI.KeyIndices[0], Length(LCI.KeyIndices));
+        LMsgBuf.WriteBuffer(LCI.DataLength[0], Length(LCI.DataLength));
+        LMsgBuf.WriteBuffer(LCI.Data[0], Length(LCI.Data));
+      end;
+
+      if Length(LAtlBytes) > 0 then
+        LMsgBuf.WriteBuffer(LAtlBytes[0], Length(LAtlBytes));
+
+      SetLength(Result, LMsgBuf.Size);
+      LMsgBuf.Position := 0;
+      LMsgBuf.ReadBuffer(Result[0], LMsgBuf.Size);
+    finally
+      LMsgBuf.Free;
+    end;
+  finally
+    LAccountKeysBuf.Free;
+  end;
+end;
+
 class function TVersionedMessage.DoDeserialize(const AData: TBytes): IMessage;
 const
   PKLen = TPublicKey.PublicKeyLength;
@@ -711,11 +831,8 @@ begin
   if LPrefix = LMaskedPrefix then
     raise ENotSupportedException.Create('Expected versioned message but received legacy message');
 
+  // Preserve the decoded version (v0, v1, ...); no longer reject non-v0 messages.
   LVersion := LMaskedPrefix;
-  if LVersion <> 0 then
-    raise ENotSupportedException.CreateFmt(
-      'Expected versioned message with version 0 but found version %d', [LVersion]
-    );
 
   LBody := TArrayUtilities.Slice<Byte>(AData, 1, Length(AData) - 1);
 
@@ -736,6 +853,7 @@ begin
   LRes.AccountKeys := TList<IPublicKey>.Create;
   LRes.Instructions := TList<ICompiledInstruction>.Create;
   LRes.AddressTableLookups := TList<IMessageAddressTableLookup>.Create;
+  LRes.Version := LVersion;
 
   LRes.Header.RequiredSignatures := LNumRequiredSignatures;
   LRes.Header.ReadOnlySignedAccounts := LNumReadOnlySignedAccounts;
@@ -798,6 +916,14 @@ begin
     LInstructionsLengthEncodedLength +
     LInstructionsDataLength;
 
+  // v0 messages may omit the address-table-lookup section entirely. Guard against
+  // slicing past the end of the body.
+  if LTableLookupOffset >= Length(LBody) then
+  begin
+    Result := LRes;
+    Exit;
+  end;
+
   LTableLookupData := TArrayUtilities.Slice<Byte>(LBody, LTableLookupOffset);
   LATLCountDec := TShortVectorEncoding.DecodeLength(LTableLookupData);
   LAddressTableLookupsCount := LATLCountDec.Value;
@@ -837,6 +963,9 @@ class function TVersionedMessage.DeserializeMessageVersion(const ASerializedMess
 var
   LPrefix, LMasked: Byte;
 begin
+  if Length(ASerializedMessage) = 0 then
+    raise Exception.Create('Empty message');
+
   LPrefix := ASerializedMessage[0];
   LMasked := LPrefix and VersionPrefixMask;
 
@@ -851,17 +980,23 @@ class function TVersionedMessage.TAddressTableLookupUtils.SerializeAddressTableL
 var
   LBuf: TMemoryStream;
   LEncLen: TBytes;
-  LI: Integer;
+  LI, LCount: Integer;
   LLkp: IMessageAddressTableLookup;
 begin
+  // Null-safe: a nil list serializes as a zero-length short-vec.
+  if AList <> nil then
+    LCount := AList.Count
+  else
+    LCount := 0;
+
   LBuf := TMemoryStream.Create;
   try
     LBuf.Position := 0;
 
-    LEncLen := TShortVectorEncoding.EncodeLength(AList.Count);
+    LEncLen := TShortVectorEncoding.EncodeLength(LCount);
     LBuf.WriteBuffer(LEncLen[0], Length(LEncLen));
 
-    for LI := 0 to AList.Count - 1 do
+    for LI := 0 to LCount - 1 do
     begin
       LLkp := AList[LI];
 
@@ -884,6 +1019,22 @@ begin
   finally
     LBuf.Free;
   end;
+end;
+
+{ TMessageV0 }
+
+constructor TMessageV0.Create;
+begin
+  inherited Create;
+  FVersion := 0;
+end;
+
+{ TMessageV1 }
+
+constructor TMessageV1.Create;
+begin
+  inherited Create;
+  FVersion := 1;
 end;
 
 end.
