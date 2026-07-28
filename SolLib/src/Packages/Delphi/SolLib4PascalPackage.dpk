@@ -153,6 +153,7 @@ contains
   SlpTokenProgram in '..\..\Programs\SlpTokenProgram.pas',
   SlpSystemProgram in '..\..\Programs\SlpSystemProgram.pas',
   SlpToken2022Program in '..\..\Programs\SlpToken2022Program.pas',
+  SlpToken2022ExtensionType in '..\..\Programs\SlpToken2022ExtensionType.pas',
   SlpTokenSwapProgram in '..\..\Programs\SlpTokenSwapProgram.pas',
   SlpAssociatedTokenAccountProgram in '..\..\Programs\SlpAssociatedTokenAccountProgram.pas',
   SlpMemoProgram in '..\..\Programs\SlpMemoProgram.pas',

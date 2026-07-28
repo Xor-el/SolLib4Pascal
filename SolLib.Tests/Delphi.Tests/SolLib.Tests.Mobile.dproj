@@ -465,6 +465,7 @@
         <DCCReference Include="..\..\SolLib\src\Programs\SlpTokenProgram.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpSystemProgram.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpToken2022Program.pas"/>
+        <DCCReference Include="..\..\SolLib\src\Programs\SlpToken2022ExtensionType.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpTokenSwapProgram.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpAssociatedTokenAccountProgram.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpMemoProgram.pas"/>
@@ -529,6 +530,7 @@
         <DCCReference Include="..\src\Program\ComputeBudgetProgramTests.pas"/>
         <DCCReference Include="..\src\Program\SharedMemoryProgramTests.pas"/>
         <DCCReference Include="..\src\Program\AddressLookupTableProgramTests.pas"/>
+        <DCCReference Include="..\src\Program\Token2022ProgramTests.pas"/>
         <DCCReference Include="..\src\Program\BPFLoaderProgramTests.pas"/>
         <DCCReference Include="..\src\Program\TokenSwapProgramTests.pas"/>
         <DCCReference Include="..\src\JsonConverter\JsonConverterTests.pas"/>

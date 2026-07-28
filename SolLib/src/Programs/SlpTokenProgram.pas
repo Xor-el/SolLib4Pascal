@@ -34,32 +34,49 @@ uses
   SlpSysVars,
   SlpDeserialization,
   SlpSerialization,
-  SlpDecodedInstruction;
+  SlpDecodedInstruction,
+  SlpToken2022ExtensionType;
 
 type
   /// <summary>
-  /// Represents the types of authorities for <see cref="TTokenProgram.SetAuthority"/> instructions.
+  /// Represents the types of authorities for <see cref="TTokenProgram.SetAuthority"/> and
+  /// <see cref="TToken2022Program.SetAuthority"/> instructions.
   /// </summary>
   TAuthorityType = (
-    /// <summary>
-    /// Authority to mint new tokens.
-    /// </summary>
+    /// <summary>Authority to mint new tokens.</summary>
     MintTokens = 0,
-
-    /// <summary>
-    /// Authority to freeze any account associated with the mint.
-    /// </summary>
+    /// <summary>Authority to freeze any account associated with the mint.</summary>
     FreezeAccount = 1,
-
-    /// <summary>
-    /// Owner of a given account token.
-    /// </summary>
+    /// <summary>Owner of a given account token.</summary>
     AccountOwner = 2,
-
-    /// <summary>
-    /// Authority to close a given account.
-    /// </summary>
-    CloseAccount = 3
+    /// <summary>Authority to close a given account.</summary>
+    CloseAccount = 3,
+    /// <summary>Authority to set the transfer fee.</summary>
+    TransferFeeConfig = 4,
+    /// <summary>Authority to withdraw withheld tokens from a mint.</summary>
+    WithheldWithdraw = 5,
+    /// <summary>Authority to close a mint account.</summary>
+    CloseMint = 6,
+    /// <summary>Authority to set the interest rate.</summary>
+    InterestRate = 7,
+    /// <summary>Authority to transfer or burn any tokens for a mint.</summary>
+    PermanentDelegate = 8,
+    /// <summary>Authority to update confidential transfer mint and approve accounts for confidential transfers.</summary>
+    ConfidentialTransferMint = 9,
+    /// <summary>Authority to set the transfer hook program id.</summary>
+    TransferHookProgramId = 10,
+    /// <summary>Authority to set the withdraw withheld authority encryption key.</summary>
+    ConfidentialTransferFeeConfig = 11,
+    /// <summary>Authority to set the metadata address.</summary>
+    MetadataPointer = 12,
+    /// <summary>Authority to set the group address.</summary>
+    GroupPointer = 13,
+    /// <summary>Authority to set the group member address.</summary>
+    GroupMemberPointer = 14,
+    /// <summary>Authority to set the UI amount scale.</summary>
+    ScaledUiAmount = 15,
+    /// <summary>Authority to pause or resume minting / transferring / burning.</summary>
+    Pause = 16
   );
   {====================================================================================================================}
   {                                                TokenProgramInstructions                                            }
@@ -144,7 +161,17 @@ type
         /// <summary>Convert an Amount to UiAmount string, using the given mint.</summary>
         AmountToUiAmount = 23,
         /// <summary>Convert a UiAmount (string) to a raw u64 Amount, using the given mint.</summary>
-        UiAmountToAmount = 24
+        UiAmountToAmount = 24,
+        /// <summary>Initialize the close authority on a mint.</summary>
+        InitializeMintCloseAuthority = 25,
+        /// <summary>Transfer fee extension instruction gate (unimplemented).</summary>
+        TransferFeeExtension = 26,
+        /// <summary>Confidential transfer extension instruction gate (unimplemented).</summary>
+        ConfidentialTransferExtension = 27,
+        /// <summary>Default account state extension instruction gate (unimplemented).</summary>
+        DefaultAccountStateExtension = 28,
+        /// <summary>Reallocate a token account to fit the given extension types.</summary>
+        Reallocate = 29
       );
 
   private
@@ -164,11 +191,12 @@ type
   /// Implements the token program data encodings.
   /// </summary>
   TTokenProgramData = class sealed
-  private
+  public
     /// <summary>
     /// The offset at which the value which defines the method begins.
     /// </summary>
     const MethodOffset = 0;
+  private
     /// <summary>
     /// Encodes the transaction instruction data for the methods which only require the amount.
     /// </summary>
@@ -184,6 +212,10 @@ type
     /// <param name="ADecimals">The decimals of the token.</param>
     /// <returns>The byte array with the encoded data.</returns>
     class function EncodeAmountCheckedLayout(AMethod: Byte; const AAmount: UInt64; ADecimals: Byte): TBytes; static;
+    /// <summary>
+    /// Encodes the data for methods that require only an owner public key (discriminator + 32-byte owner).
+    /// </summary>
+    class function EncodeInitializeAccountOwnerData(AMethod: Byte; const AOwner: IPublicKey): TBytes; static;
   public
    {---------------------------- Encoders ---------------------------------------------}
     /// <summary>
@@ -309,6 +341,28 @@ type
     /// </summary>
     /// <returns>The byte array with the encoded data.</returns>
     class function EncodeSyncNativeData: TBytes; static;
+
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.InitializeAccount2"/> method (discriminator + 32-byte owner).</summary>
+    class function EncodeInitializeAccount2Data(const AOwner: IPublicKey): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.InitializeAccount3"/> method (discriminator + 32-byte owner).</summary>
+    class function EncodeInitializeAccount3Data(const AOwner: IPublicKey): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.InitializeMultiSignature2"/> method.</summary>
+    class function EncodeInitializeMultiSignature2Data(const AM: Integer): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.InitializeMint2"/> method.</summary>
+    class function EncodeInitializeMint2Data(const AMintAuthority, AFreezeAuthority: IPublicKey;
+      const ADecimals, AFreezeAuthorityOption: Integer): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.GetAccountDataSize"/> method (discriminator + u16 per extension).</summary>
+    class function EncodeGetAccountDataSizeData(const AExtensionTypes: TArray<TToken2022ExtensionType>): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.InitializeImmutableOwner"/> method.</summary>
+    class function EncodeInitializeImmutableOwnerData: TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.AmountToUiAmount"/> method.</summary>
+    class function EncodeAmountToUiAmountData(const AAmount: UInt64): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.UiAmountToAmount"/> method (discriminator + raw UTF-8 bytes).</summary>
+    class function EncodeUiAmountToAmountData(const AUiAmount: string): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.InitializeMintCloseAuthority"/> method.</summary>
+    class function EncodeInitializeMintCloseAuthorityData(const ACloseAuthority: IPublicKey): TBytes; static;
+    /// <summary>Encode the data for the <see cref="TTokenProgramInstructions.TValues.Reallocate"/> method (discriminator + u16 per extension).</summary>
+    class function EncodeReallocateData(const AExtensionTypes: TArray<TToken2022ExtensionType>): TBytes; static;
 
     {---------------------------- Decoders ---------------------------------------------}
 
@@ -555,6 +609,18 @@ type
     /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
     class procedure DecodeInitializeImmutableOwner(const ADecoded: IDecodedInstruction; const AData: TBytes;
       const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
+
+    /// <summary>
+    /// Decodes the instruction data for the <see cref="TTokenProgramInstructions.TValues.InitializeMintCloseAuthority"/> method.
+    /// </summary>
+    class procedure DecodeInitializeMintCloseAuthority(const ADecoded: IDecodedInstruction; const AData: TBytes;
+      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
+
+    /// <summary>
+    /// Decodes the instruction data for the <see cref="TTokenProgramInstructions.TValues.Reallocate"/> method.
+    /// </summary>
+    class procedure DecodeReallocate(const ADecoded: IDecodedInstruction; const AData: TBytes;
+      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
   end;
 
   {====================================================================================================================}
@@ -650,6 +716,26 @@ type
     class function InitializeAccount(const AAccount, AMint, AAuthority: IPublicKey): ITransactionInstruction; static;
 
     /// <summary>
+    /// Initializes an instruction to initialize a new token account whose owner is passed in the
+    /// instruction data (requires the Rent sysvar).
+    /// </summary>
+    /// <param name="AAccount">The public key of the account to initialize.</param>
+    /// <param name="AMint">The public key of the token mint.</param>
+    /// <param name="AOwner">The owner passed via instruction data.</param>
+    /// <returns>The transaction instruction.</returns>
+    class function InitializeAccount2(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction; static;
+
+    /// <summary>
+    /// Initializes an instruction to initialize a new token account whose owner is passed in the
+    /// instruction data (does not require the Rent sysvar).
+    /// </summary>
+    /// <param name="AAccount">The public key of the account to initialize.</param>
+    /// <param name="AMint">The public key of the token mint.</param>
+    /// <param name="AOwner">The owner passed via instruction data.</param>
+    /// <returns>The transaction instruction.</returns>
+    class function InitializeAccount3(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction; static;
+
+    /// <summary>
     /// Initializes an instruction to initialize a multi signature token account.
     /// </summary>
     /// <param name="AMultiSignature">Public key of the multi signature account.</param>
@@ -668,6 +754,16 @@ type
     /// <param name="AFreezeAuthority">The token freeze authority.</param>
     class function InitializeMint(const AMint: IPublicKey; const ADecimals: Integer;
                                   const AMintAuthority: IPublicKey; const AFreezeAuthority: IPublicKey = nil): ITransactionInstruction; static;
+
+    /// <summary>
+    /// Initializes an instruction to initialize a mint that does not require the Rent sysvar.
+    /// </summary>
+    /// <param name="AMint">The public key of the token mint.</param>
+    /// <param name="ADecimals">The token decimals.</param>
+    /// <param name="AMintAuthority">The public key of the token mint authority.</param>
+    /// <param name="AFreezeAuthority">The token freeze authority.</param>
+    class function InitializeMint2(const AMint: IPublicKey; const ADecimals: Integer;
+                                   const AMintAuthority: IPublicKey; const AFreezeAuthority: IPublicKey = nil): ITransactionInstruction; static;
 
     /// <summary>
     /// Initializes an instruction to mint tokens to a destination account.
@@ -866,6 +962,11 @@ begin
   FNames.Add(TValues.InitializeImmutableOwner, 'Initialize Immutable Owner');
   FNames.Add(TValues.AmountToUiAmount, 'Amount To Ui Amount');
   FNames.Add(TValues.UiAmountToAmount, 'Ui Amount To Amount');
+  FNames.Add(TValues.InitializeMintCloseAuthority, 'Initialize Mint Close Authority');
+  FNames.Add(TValues.TransferFeeExtension, 'Transfer Fee Extension');
+  FNames.Add(TValues.ConfidentialTransferExtension, 'Confidential Transfer Extension');
+  FNames.Add(TValues.DefaultAccountStateExtension, 'Default Account State Extension');
+  FNames.Add(TValues.Reallocate, 'Reallocate');
 end;
 
 class destructor TTokenProgramInstructions.Destroy;
@@ -989,6 +1090,98 @@ end;
 class function TTokenProgramData.EncodeSyncNativeData: TBytes;
 begin
   Result := TBytes.Create(Byte(TTokenProgramInstructions.TValues.SyncNative));
+end;
+
+class function TTokenProgramData.EncodeInitializeAccountOwnerData(AMethod: Byte; const AOwner: IPublicKey): TBytes;
+begin
+  SetLength(Result, 33);
+  TSerialization.WriteU8(Result, AMethod, MethodOffset);
+  TSerialization.WritePubKey(Result, AOwner, 1);
+end;
+
+class function TTokenProgramData.EncodeInitializeAccount2Data(const AOwner: IPublicKey): TBytes;
+begin
+  Result := EncodeInitializeAccountOwnerData(Byte(TTokenProgramInstructions.TValues.InitializeAccount2), AOwner);
+end;
+
+class function TTokenProgramData.EncodeInitializeAccount3Data(const AOwner: IPublicKey): TBytes;
+begin
+  Result := EncodeInitializeAccountOwnerData(Byte(TTokenProgramInstructions.TValues.InitializeAccount3), AOwner);
+end;
+
+class function TTokenProgramData.EncodeInitializeMultiSignature2Data(const AM: Integer): TBytes;
+begin
+  SetLength(Result, 2);
+  TSerialization.WriteU8(Result, Byte(TTokenProgramInstructions.TValues.InitializeMultiSignature2), MethodOffset);
+  TSerialization.WriteU8(Result, Byte(AM), 1);
+end;
+
+class function TTokenProgramData.EncodeInitializeMint2Data(const AMintAuthority, AFreezeAuthority: IPublicKey;
+  const ADecimals, AFreezeAuthorityOption: Integer): TBytes;
+begin
+  SetLength(Result, 67);
+  TSerialization.WriteU8(Result, Byte(TTokenProgramInstructions.TValues.InitializeMint2), MethodOffset);
+  TSerialization.WriteU8(Result, Byte(ADecimals), 1);
+  TSerialization.WritePubKey(Result, AMintAuthority, 2);
+  TSerialization.WriteU8(Result, Byte(AFreezeAuthorityOption), 34);
+  TSerialization.WritePubKey(Result, AFreezeAuthority, 35);
+end;
+
+class function TTokenProgramData.EncodeGetAccountDataSizeData(const AExtensionTypes: TArray<TToken2022ExtensionType>): TBytes;
+var
+  LI: Integer;
+begin
+  SetLength(Result, 1 + Length(AExtensionTypes) * 2);
+  TSerialization.WriteU8(Result, Byte(TTokenProgramInstructions.TValues.GetAccountDataSize), MethodOffset);
+  for LI := 0 to High(AExtensionTypes) do
+    TSerialization.WriteU16(Result, Word(Ord(AExtensionTypes[LI])), 1 + LI * 2);
+end;
+
+class function TTokenProgramData.EncodeInitializeImmutableOwnerData: TBytes;
+begin
+  Result := TBytes.Create(Byte(TTokenProgramInstructions.TValues.InitializeImmutableOwner));
+end;
+
+class function TTokenProgramData.EncodeAmountToUiAmountData(const AAmount: UInt64): TBytes;
+begin
+  Result := EncodeAmountLayout(Byte(TTokenProgramInstructions.TValues.AmountToUiAmount), AAmount);
+end;
+
+class function TTokenProgramData.EncodeUiAmountToAmountData(const AUiAmount: string): TBytes;
+var
+  LUiAmountBytes: TBytes;
+begin
+  LUiAmountBytes := TEncoding.UTF8.GetBytes(AUiAmount);
+  SetLength(Result, 1 + Length(LUiAmountBytes));
+  TSerialization.WriteU8(Result, Byte(TTokenProgramInstructions.TValues.UiAmountToAmount), MethodOffset);
+  if Length(LUiAmountBytes) > 0 then
+    Move(LUiAmountBytes[0], Result[1], Length(LUiAmountBytes));
+end;
+
+class function TTokenProgramData.EncodeInitializeMintCloseAuthorityData(const ACloseAuthority: IPublicKey): TBytes;
+begin
+  if ACloseAuthority = nil then
+  begin
+    SetLength(Result, 2);
+    TSerialization.WriteU8(Result, Byte(TTokenProgramInstructions.TValues.InitializeMintCloseAuthority), MethodOffset);
+    TSerialization.WriteU8(Result, 0, 1);
+    Exit;
+  end;
+
+  SetLength(Result, 34);
+  TSerialization.WriteU8(Result, Byte(TTokenProgramInstructions.TValues.InitializeMintCloseAuthority), MethodOffset);
+  TSerialization.WriteU8(Result, 1, 1);
+  TSerialization.WritePubKey(Result, ACloseAuthority, 2);
+end;
+
+class function TTokenProgramData.EncodeReallocateData(const AExtensionTypes: TArray<TToken2022ExtensionType>): TBytes;
+var
+  LI: Integer;
+begin
+  SetLength(Result, 1 + Length(AExtensionTypes) * 2);
+  TSerialization.WriteU8(Result, Byte(TTokenProgramInstructions.TValues.Reallocate), MethodOffset);
+  for LI := 0 to High(AExtensionTypes) do
+    TSerialization.WriteU16(Result, Word(Ord(AExtensionTypes[LI])), 1 + LI * 2);
 end;
 
 {=== TokenProgramData - Decoders ===}
@@ -1365,9 +1558,19 @@ class procedure TTokenProgramData.DecodeUiAmountToAmount(
   const AData: TBytes;
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
+var
+  LLen: Integer;
+  LAmount: string;
 begin
-  ADecoded.Values.Add('Mint',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Amount', TValue.From<string>(TDeserialization.DecodeBincodeString(AData, 1).EncodedString));
+  ADecoded.Values.Add('Mint', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
+
+  // The amount is a raw UTF-8 string that runs from offset 1 to the end (no length prefix).
+  LLen := Length(AData) - 1;
+  if LLen > 0 then
+    LAmount := TEncoding.UTF8.GetString(Copy(AData, 1, LLen))
+  else
+    LAmount := '';
+  ADecoded.Values.Add('Amount', TValue.From<string>(LAmount));
 end;
 
 class procedure TTokenProgramData.DecodeGetAccountDataSize(
@@ -1375,8 +1578,29 @@ class procedure TTokenProgramData.DecodeGetAccountDataSize(
   const AData: TBytes;
   const AKeys: TArray<IPublicKey>;
   const AKeyIndices: TBytes);
+var
+  LExtensions: TArray<TToken2022ExtensionType>;
+  LOffset, LCount: Integer;
+  LValue: Word;
+  LExt: TToken2022ExtensionType;
 begin
   ADecoded.Values.Add('Mint', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
+
+  LCount := 0;
+  SetLength(LExtensions, 0);
+  LOffset := 1;
+  while LOffset + 1 < Length(AData) do
+  begin
+    LValue := TDeserialization.GetU16(AData, LOffset);
+    if TEnumUtilities.TryGetEnumFromOrdinal<TToken2022ExtensionType>(LValue, LExt) then
+    begin
+      SetLength(LExtensions, LCount + 1);
+      LExtensions[LCount] := LExt;
+      Inc(LCount);
+    end;
+    Inc(LOffset, 2);
+  end;
+  ADecoded.Values.Add('Extension Types', TValue.From<TArray<TToken2022ExtensionType>>(LExtensions));
 end;
 
 class procedure TTokenProgramData.DecodeInitializeImmutableOwner(
@@ -1386,6 +1610,53 @@ class procedure TTokenProgramData.DecodeInitializeImmutableOwner(
   const AKeyIndices: TBytes);
 begin
   ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
+end;
+
+class procedure TTokenProgramData.DecodeInitializeMintCloseAuthority(
+  const ADecoded: IDecodedInstruction;
+  const AData: TBytes;
+  const AKeys: TArray<IPublicKey>;
+  const AKeyIndices: TBytes);
+var
+  LHasCloseAuthority: Boolean;
+begin
+  ADecoded.Values.Add('Mint', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
+  LHasCloseAuthority := (Length(AData) > 1) and (TDeserialization.GetU8(AData, 1) = 1);
+  ADecoded.Values.Add('Close Authority Option', TValue.From<Boolean>(LHasCloseAuthority));
+  if LHasCloseAuthority then
+    ADecoded.Values.Add('Close Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 2)));
+end;
+
+class procedure TTokenProgramData.DecodeReallocate(
+  const ADecoded: IDecodedInstruction;
+  const AData: TBytes;
+  const AKeys: TArray<IPublicKey>;
+  const AKeyIndices: TBytes);
+var
+  LExtensions: TArray<TToken2022ExtensionType>;
+  LOffset, LCount: Integer;
+  LValue: Word;
+  LExt: TToken2022ExtensionType;
+begin
+  ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
+  ADecoded.Values.Add('Payer',   TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
+  ADecoded.Values.Add('Owner',   TValue.From<IPublicKey>(AKeys[AKeyIndices[3]]));
+
+  LCount := 0;
+  SetLength(LExtensions, 0);
+  LOffset := 1;
+  while LOffset + 1 < Length(AData) do
+  begin
+    LValue := TDeserialization.GetU16(AData, LOffset);
+    if TEnumUtilities.TryGetEnumFromOrdinal<TToken2022ExtensionType>(LValue, LExt) then
+    begin
+      SetLength(LExtensions, LCount + 1);
+      LExtensions[LCount] := LExt;
+      Inc(LCount);
+    end;
+    Inc(LOffset, 2);
+  end;
+  ADecoded.Values.Add('Extension Types', TValue.From<TArray<TToken2022ExtensionType>>(LExtensions));
 end;
 
 
@@ -1465,6 +1736,29 @@ begin
   Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccountData);
 end;
 
+class function TTokenProgram.InitializeAccount2(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
+
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount2Data(AOwner));
+end;
+
+class function TTokenProgram.InitializeAccount3(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount3Data(AOwner));
+end;
+
 class function TTokenProgram.InitializeMultiSignature(const AMultiSignature: IPublicKey; const ASigners: TArray<IPublicKey>;
                                                       const AM: Integer): ITransactionInstruction;
 var
@@ -1503,6 +1797,31 @@ begin
   end;
 
   Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMintData(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
+end;
+
+class function TTokenProgram.InitializeMint2(const AMint: IPublicKey; const ADecimals: Integer;
+  const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+  LFreezeOpt: Integer;
+  LFreezeKey: IPublicKey;
+  LAccount: IAccount;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+
+  LFreezeOpt := Ord(Assigned(AFreezeAuthority));
+
+  if Assigned(AFreezeAuthority) then
+    LFreezeKey := AFreezeAuthority
+  else
+  begin
+    LAccount := TAccount.Create;
+    LFreezeKey := LAccount.PublicKey;
+  end;
+
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys,
+    TTokenProgramData.EncodeInitializeMint2Data(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
 end;
 
 class function TTokenProgram.MintTo(const AMint, ADestination: IPublicKey; const AAmount: UInt64;
@@ -1751,6 +2070,10 @@ begin
       TTokenProgramData.DecodeAmountToUiAmount(Result, AData, AKeys, AKeyIndices);
     TTokenProgramInstructions.TValues.UiAmountToAmount:
       TTokenProgramData.DecodeUiAmountToAmount(Result, AData, AKeys, AKeyIndices);
+    TTokenProgramInstructions.TValues.InitializeMintCloseAuthority:
+      TTokenProgramData.DecodeInitializeMintCloseAuthority(Result, AData, AKeys, AKeyIndices);
+    TTokenProgramInstructions.TValues.Reallocate:
+      TTokenProgramData.DecodeReallocate(Result, AData, AKeys, AKeyIndices);
   end;
 end;
 

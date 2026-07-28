@@ -102,8 +102,15 @@ type
     function GetAccountKeys: TList<IPublicKey>;
     procedure SetAccountKeys(const AValue: TList<IPublicKey>);
 
+    function GetVersion: Byte;
+    procedure SetVersion(const AValue: Byte);
+
     property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
     property AccountKeys: TList<IPublicKey> read GetAccountKeys write SetAccountKeys;
+    /// <summary>
+    /// The message version emitted in the low 7 bits of the versioned prefix.
+    /// </summary>
+    property Version: Byte read GetVersion write SetVersion;
   end;
 
 
@@ -112,11 +119,14 @@ type
   private
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
     FAccountKeys: TList<IPublicKey>;
+    FVersion: Byte;
 
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
     function GetAccountKeys: TList<IPublicKey>;
     procedure SetAccountKeys(const AValue: TList<IPublicKey>);
+    function GetVersion: Byte;
+    procedure SetVersion(const AValue: Byte);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -125,6 +135,7 @@ type
 
     property AddressTableLookups: TList<IMessageAddressTableLookup> read FAddressTableLookups write FAddressTableLookups;
     property AccountKeys: TList<IPublicKey> read FAccountKeys write FAccountKeys;
+    property Version: Byte read FVersion write FVersion;
   end;
 
 
@@ -493,6 +504,16 @@ begin
   FAccountKeys := AValue;
 end;
 
+function TVersionedMessageBuilder.GetVersion: Byte;
+begin
+  Result := FVersion;
+end;
+
+procedure TVersionedMessageBuilder.SetVersion(const AValue: Byte);
+begin
+  FVersion := AValue;
+end;
+
 function TVersionedMessageBuilder.Build: TBytes;
 var
   LKeysMeta: TList<IAccountMeta>;
@@ -587,8 +608,8 @@ begin
           LBuffer.Size := LMessageBufferSize;
           LMessageHeaderBytes := FMessageHeader.ToBytes;
 
-          // versioned prefix 0x80
-          LVersionPrefix := Byte($80);
+          // versioned prefix: high bit set, low 7 bits carry the version.
+          LVersionPrefix := Byte($80 or FVersion);
           LBuffer.WriteBuffer(LVersionPrefix, 1);
 
           LBuffer.WriteBuffer(LMessageHeaderBytes[0], Length(LMessageHeaderBytes));

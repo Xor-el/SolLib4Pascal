@@ -253,10 +253,16 @@ type
     ['{E2A6EAB2-C5D5-4E8F-86AB-523C9B7D5A71}']
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
+    function GetVersion: Byte;
+    procedure SetVersion(const AValue: Byte);
     /// <summary>
     /// Address Table Lookups
     /// </summary>
     property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
+    /// <summary>
+    /// The message version to use when compiling the versioned transaction.
+    /// </summary>
+    property Version: Byte read GetVersion write SetVersion;
   end;
 
   /// <summary>
@@ -420,9 +426,12 @@ type
   TVersionedTransaction = class(TTransaction, IVersionedTransaction)
   private
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
+    FVersion: Byte;
 
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
+    function GetVersion: Byte;
+    procedure SetVersion(const AValue: Byte);
 
   protected
     function CompileMessage: TBytes; override;
@@ -435,6 +444,10 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
+    /// <summary>
+    /// The message version to use when compiling the versioned transaction.
+    /// </summary>
+    property Version: Byte read FVersion write FVersion;
     /// <summary>
     /// Populate the Transaction from the given message and signatures.
     /// </summary>
@@ -1040,12 +1053,11 @@ end;
 
 constructor TVersionedTransaction.Create;
 begin
+  // inherited TTransaction.Create already builds FSignatures, FInstructions and FAccountKeys —
+  // only construct this class' own field here (avoids leaking the inherited lists).
   inherited Create;
   FAddressTableLookups := TList<IMessageAddressTableLookup>.Create;
-  FInstructions := TList<ITransactionInstruction>.Create;
-  FSignatures := TList<ISignaturePubKeyPair>.Create;
-  FAddressTableLookups := TList<IMessageAddressTableLookup>.Create;
-  FAccountKeys := TList<IPublicKey>.Create;
+  FVersion := 0;
 end;
 
 destructor TVersionedTransaction.Destroy;
@@ -1065,6 +1077,16 @@ begin
   FAddressTableLookups := AValue;
 end;
 
+function TVersionedTransaction.GetVersion: Byte;
+begin
+  Result := FVersion;
+end;
+
+procedure TVersionedTransaction.SetVersion(const AValue: Byte);
+begin
+  FVersion := AValue;
+end;
+
 function TVersionedTransaction.CompileMessage: TBytes;
 var
   LMessageBuilder: IVersionedMessageBuilder;
@@ -1072,6 +1094,7 @@ var
 begin
   LMessageBuilder := TVersionedMessageBuilder.Create;
   LMessageBuilder.FeePayer := FFeePayer;
+  LMessageBuilder.Version := FVersion;
 
   if FRecentBlockHash <> '' then
     LMessageBuilder.RecentBlockHash := FRecentBlockHash;

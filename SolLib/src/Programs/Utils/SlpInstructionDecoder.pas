@@ -38,6 +38,7 @@ uses
   SlpToken2022Program,
   SlpTokenSwapProgram,
   SlpAssociatedTokenAccountProgram,
+  SlpAddressLookupTableProgram,
   SlpSharedMemoryProgram,
   SlpComputeBudgetProgram;
 
@@ -139,6 +140,9 @@ begin
 
   // Associated Token Account
   FInstructionDictionary.Add(TAssociatedTokenAccountProgram.ProgramIdKey.Key, TAssociatedTokenAccountProgram.Decode);
+
+  // Address Lookup Table
+  FInstructionDictionary.Add(TAddressLookupTableProgram.ProgramIdKey.Key, TAddressLookupTableProgram.Decode);
 
   // Shared Memory Program
   FInstructionDictionary.Add(TSharedMemoryProgram.ProgramIdKey.Key, TSharedMemoryProgram.Decode);

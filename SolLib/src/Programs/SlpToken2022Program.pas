@@ -34,99 +34,12 @@ uses
   SlpSysVars,
   SlpDeserialization,
   SlpSerialization,
-  SlpDecodedInstruction;
+  SlpDecodedInstruction,
+  SlpSystemProgram,
+  SlpTokenProgram,
+  SlpToken2022ExtensionType;
 
-/// <summary>
-/// Represents the types of authorities for Token2022Program.SetAuthority instructions.
-/// </summary>
 type
-  TAuthorityType = (
-    /// <summary>
-    /// Authority to mint new tokens.
-    /// </summary>
-    MintTokens = 0,
-
-    /// <summary>
-    /// Authority to freeze any account associated with the mint.
-    /// </summary>
-    FreezeAccount = 1,
-
-    /// <summary>
-    /// Owner of a given account token.
-    /// </summary>
-    AccountOwner = 2,
-
-    /// <summary>
-    /// Authority to close a given account.
-    /// </summary>
-    CloseAccount = 3,
-
-    /// <summary>
-    /// Authority to set the transfer fee.
-    /// </summary>
-    TransferFeeConfig = 4,
-
-    /// <summary>
-    /// Authority to withdraw withheld tokens from a mint.
-    /// </summary>
-    WithheldWithdraw = 5,
-
-    /// <summary>
-    /// Authority to close a mint account.
-    /// </summary>
-    CloseMint = 6,
-
-    /// <summary>
-    /// Authority to set the interest rate.
-    /// </summary>
-    InterestRate = 7,
-
-    /// <summary>
-    /// Authority to transfer or burn any tokens for a mint.
-    /// </summary>
-    PermanentDelegate = 8,
-
-    /// <summary>
-    /// Authority to update confidential transfer mint and approve accounts for confidential transfers.
-    /// </summary>
-    ConfidentialTransferMint = 9,
-
-    /// <summary>
-    /// Authority to set the transfer hook program id.
-    /// </summary>
-    TransferHookProgramId = 10,
-
-    /// <summary>
-    /// Authority to set the withdraw withheld authority encryption key.
-    /// </summary>
-    ConfidentialTransferFeeConfig = 11,
-
-    /// <summary>
-    /// Authority to set the metadata address.
-    /// </summary>
-    MetadataPointer = 12,
-
-    /// <summary>
-    /// Authority to set the group address.
-    /// </summary>
-    GroupPointer = 13,
-
-    /// <summary>
-    /// Authority to set the group member address.
-    /// </summary>
-    GroupMemberPointer = 14,
-
-    /// <summary>
-    /// Authority to set the UI amount scale.
-    /// </summary>
-    ScaledUiAmount = 15,
-
-    /// <summary>
-    /// Authority to pause or resume minting / transferring / burning.
-    /// </summary>
-    Pause = 16
-  );
-
   {====================================================================================================================}
   {                                               Token2022ProgramInstructions                                         }
   {====================================================================================================================}
@@ -283,7 +196,26 @@ type
         /// Convert a UiAmount of tokens to a little-endian u64 raw Amount, using the given mint.
         /// In this version of the program, the mint can only specify the number of decimals.
         /// </summary>
-        UiAmountToAmount = 24
+        UiAmountToAmount = 24,
+
+        /// <summary>
+        /// Initialize the close authority on a mint.
+        /// </summary>
+        InitializeMintCloseAuthority = 25,
+
+        /// <summary>Transfer fee extension instruction gate (unimplemented).</summary>
+        TransferFeeExtension = 26,
+
+        /// <summary>Confidential transfer extension instruction gate (unimplemented).</summary>
+        ConfidentialTransferExtension = 27,
+
+        /// <summary>Default account state extension instruction gate (unimplemented).</summary>
+        DefaultAccountStateExtension = 28,
+
+        /// <summary>
+        /// Reallocate a token account to fit the given extension types.
+        /// </summary>
+        Reallocate = 29
       );
 
   private
@@ -296,365 +228,6 @@ type
     class destructor Destroy;
   end;
 
-  {====================================================================================================================}
-  {                                                 Token2022ProgramData                                              }
-  {====================================================================================================================}
-  /// <summary>
-  /// Implements the token program data encodings.
-  /// </summary>
-  TToken2022ProgramData = class sealed
-  public const
-    /// <summary>
-    /// The offset at which the value which defines the method begins.
-    /// </summary>
-    MethodOffset = 0;
-  private
-    /// <summary>
-    /// Encodes the transaction instruction data for the methods which only require the amount.
-    /// </summary>
-    /// <param name="AMethod">The method identifier.</param>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeAmountLayout(AMethod: Byte; const AAmount: UInt64): TBytes; static;
-    /// <summary>
-    /// Encodes the transaction instruction data for the methods which only require the amount and the number of decimals.
-    /// </summary>
-    /// <param name="AMethod">The method identifier.</param>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <param name="ADecimals">The decimals of the token.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeAmountCheckedLayout(AMethod: Byte; const AAmount: UInt64; ADecimals: Byte): TBytes; static;
-  public
-    {---------------------------- Encoders ---------------------------------------------}
-
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.Revoke"/> method.
-    /// </summary>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeRevokeData: TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.Approve"/> method.
-    /// </summary>
-    /// <param name="AAmount">The amount of tokens to approve the transfer of.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeApproveData(const AAmount: UInt64): TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.InitializeAccount"/> method.
-    /// </summary>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeInitializeAccountData: TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.InitializeMint"/> method.
-    /// </summary>
-    /// <param name="AMintAuthority">The mint authority for the token.</param>
-    /// <param name="AFreezeAuthority">The freeze authority for the token.</param>
-    /// <param name="ADecimals">The amount of decimals.</param>
-    /// <param name="AFreezeAuthorityOption">The freeze authority option for the token.</param>
-    /// <remarks>The <c>FreezeAuthorityOption</c> parameter is related to the existence or not of a freeze authority.</remarks>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeInitializeMintData(const AMintAuthority, AFreezeAuthority: IPublicKey;
-      const ADecimals, AFreezeAuthorityOption: Integer): TBytes; static;
-      /// <summary>
-      /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.Transfer"/> method.
-      /// </summary>
-      /// <param name="AAmount">The amount of tokens.</param>
-      /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeTransferData(const AAmount: UInt64): TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.TransferChecked"/> method.
-    /// </summary>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <param name="ADecimals">The number of decimals of the token.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeTransferCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.MintTo"/> method.
-    /// </summary>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeMintToData(const AAmount: UInt64): TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.InitializeMultiSignature"/> method.
-    /// </summary>
-    /// <param name="AM">The number of signers necessary to validate the account.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeInitializeMultiSignatureData(const AM: Integer): TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.SetAuthority"/> method.
-    /// </summary>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeSetAuthorityData(const AAuthorityType: TAuthorityType; const ANewAuthorityOption: Integer;
-      ANewAuthority: IPublicKey): TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.Burn"/> method.
-    /// </summary>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeBurnData(const AAmount: UInt64): TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.CloseAccount"/> method.
-    /// </summary>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeCloseAccountData: TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.FreezeAccount"/> method.
-    /// </summary>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeFreezeAccountData: TBytes; static;
-    /// <summary>
-    /// Encode the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.ThawAccount"/> method.
-    /// </summary>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeThawAccountData: TBytes; static;
-    /// <summary>
-    /// Encodes the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.ApproveChecked"/> method.
-    /// </summary>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <param name="ADecimals">The decimals of the token.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeApproveCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes; static;
-    /// <summary>
-    /// Encodes the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.MintToChecked"/> method.
-    /// </summary>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <param name="ADecimals">The decimals of the token.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeMintToCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes; static;
-    /// <summary>
-    /// Encodes the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.BurnChecked"/> method.
-    /// </summary>
-    /// <param name="AAmount">The amount of tokens.</param>
-    /// <param name="ADecimals">The decimals of the token.</param>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeBurnCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes; static;
-    /// <summary>
-    /// Encodes the transaction instruction data for the <see cref="Token2022ProgramInstructions.Values.SyncNative"/> method.
-    /// </summary>
-    /// <returns>The byte array with the encoded data.</returns>
-    class function EncodeSyncNativeData: TBytes; static;
-
-    {---------------------------- Decoders ---------------------------------------------}
-
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.InitializeMint"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeMintData(const ADecoded: IDecodedInstruction;
-      const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.InitializeAccount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeAccountData(const ADecoded: IDecodedInstruction;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.InitializeMultiSignature"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeMultiSignatureData(const ADecoded: IDecodedInstruction;
-      const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.Transfer"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeTransferData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.Approve"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeApproveData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.Revoke"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeRevokeData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-      const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.SetAuthority"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeSetAuthorityData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.MintTo"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeMintToData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.Burn"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeBurnData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.CloseAccount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeCloseAccountData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-      const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.FreezeAccount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeFreezeAccountData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-      const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.ThawAccount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeThawAccountData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-      const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.TransferChecked"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeTransferCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.ApproveChecked"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeApproveCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.MintToChecked"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeMintToCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.BurnChecked"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeBurnCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.SyncNative"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeSyncNativeData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-      const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.InitializeAccount2"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeAccount2(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.InitializeAccount3"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeAccount3(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.InitializeMultiSignature2"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeMultiSignature2(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.InitializeMint2"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeMint2(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.AmountToUiAmount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="keyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeAmountToUiAmount(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.UiAmountToAmount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeUiAmountToAmount(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.UiAmountToAmount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeGetAccountDataSize(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-    /// <summary>
-    /// Decodes the instruction instruction data  for the <see cref="Token2022ProgramInstructions.Values.UiAmountToAmount"/> method
-    /// </summary>
-    /// <param name="ADecodedInstruction">The decoded instruction to add data to.</param>
-    /// <param name="AData">The instruction data to decode.</param>
-    /// <param name="AKeys">The account keys present in the transaction.</param>
-    /// <param name="AKeyIndices">The indices of the account keys for the instruction as they appear in the transaction.</param>
-    class procedure DecodeInitializeImmutableOwner(const ADecoded: IDecodedInstruction; const AData: TBytes;
-      const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes); static;
-  end;
 
   {====================================================================================================================}
   {                                                   Token2022Program                                                }
@@ -666,7 +239,9 @@ type
   private
     const ProgramName = 'Token 2022 Program';
     class var FProgramIdKey: IPublicKey;
+    class var FNativeMintProgramIdKey: IPublicKey;
     class function GetProgramIdKey: IPublicKey; static;
+    class function GetNativeMintProgramIdKey: IPublicKey; static;
 
     /// <summary>
     /// Adds the list of signers to the list of keys.
@@ -681,6 +256,9 @@ type
   public
     /// <summary>The public key of the Token 2022 Program.</summary>
     class property ProgramIdKey: IPublicKey read GetProgramIdKey;
+
+    /// <summary>The public key of the Token-2022 native mint.</summary>
+    class property NativeMintProgramIdKey: IPublicKey read GetNativeMintProgramIdKey;
 
     /// <summary>Mint account layout size.</summary>
     const MintAccountDataSize = 82;
@@ -913,6 +491,42 @@ type
     /// <returns>The transaction instruction.</returns>
     class function SyncNative(const AAccount: IPublicKey): ITransactionInstruction; static;
 
+    /// <summary>Initializes a token account whose owner is passed in the instruction data (requires the Rent sysvar).</summary>
+    class function InitializeAccount2(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction; static;
+
+    /// <summary>Initializes a token account whose owner is passed in the instruction data (no Rent sysvar).</summary>
+    class function InitializeAccount3(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction; static;
+
+    /// <summary>Initializes a multi signature token account without the Rent sysvar.</summary>
+    class function InitializeMultiSignature2(const AMultiSignature: IPublicKey; const ASigners: TArray<IPublicKey>;
+                                             const AM: Integer): ITransactionInstruction; static;
+
+    /// <summary>Initializes a mint without the Rent sysvar.</summary>
+    class function InitializeMint2(const AMint: IPublicKey; const ADecimals: Integer;
+                                   const AMintAuthority: IPublicKey; const AFreezeAuthority: IPublicKey = nil): ITransactionInstruction; static;
+
+    /// <summary>Initializes the immutable owner extension for a token account.</summary>
+    class function InitializeImmutableOwner(const AAccount: IPublicKey): ITransactionInstruction; static;
+
+    /// <summary>Returns the required account data size for the given mint and extension types.</summary>
+    class function GetAccountDataSize(const AMint: IPublicKey;
+                                      const AExtensionTypes: TArray<TToken2022ExtensionType>): ITransactionInstruction; static;
+
+    /// <summary>Converts a raw amount to a UI amount string, using the given mint.</summary>
+    class function AmountToUiAmount(const AMint: IPublicKey; const AAmount: UInt64): ITransactionInstruction; static;
+
+    /// <summary>Converts a UI amount string to a raw amount, using the given mint.</summary>
+    class function UiAmountToAmount(const AMint: IPublicKey; const AUiAmount: string): ITransactionInstruction; static;
+
+    /// <summary>Initializes the close authority on a mint (a nil authority clears it).</summary>
+    class function InitializeMintCloseAuthority(const AMint: IPublicKey;
+                                                const ACloseAuthority: IPublicKey = nil): ITransactionInstruction; static;
+
+    /// <summary>Reallocates a token account to fit the given extension types.</summary>
+    class function Reallocate(const AAccount, APayer, AOwner: IPublicKey;
+                             const AExtensionTypes: TArray<TToken2022ExtensionType>;
+                             const ASigners: TArray<IPublicKey> = nil): ITransactionInstruction; static;
+
     /// <summary>
     /// Decodes an instruction created by the System Program.
     /// </summary>
@@ -955,6 +569,11 @@ begin
   FNames.Add(TValues.InitializeImmutableOwner, 'Initialize Immutable Owner');
   FNames.Add(TValues.AmountToUiAmount, 'Amount To Ui Amount');
   FNames.Add(TValues.UiAmountToAmount, 'Ui Amount To Amount');
+  FNames.Add(TValues.InitializeMintCloseAuthority, 'Initialize Mint Close Authority');
+  FNames.Add(TValues.TransferFeeExtension, 'Transfer Fee Extension');
+  FNames.Add(TValues.ConfidentialTransferExtension, 'Confidential Transfer Extension');
+  FNames.Add(TValues.DefaultAccountStateExtension, 'Default Account State Extension');
+  FNames.Add(TValues.Reallocate, 'Reallocate');
 end;
 
 class destructor TToken2022ProgramInstructions.Destroy;
@@ -962,452 +581,29 @@ begin
   FNames.Free;
 end;
 
-{=== Token2022ProgramData - Encoders ===}
-
-class function TToken2022ProgramData.EncodeAmountLayout(AMethod: Byte; const AAmount: UInt64): TBytes;
-begin
-  SetLength(Result, 9);
-  TSerialization.WriteU8(Result, AMethod, MethodOffset);
-  TSerialization.WriteU64(Result, AAmount, 1);
-end;
-
-class function TToken2022ProgramData.EncodeAmountCheckedLayout(AMethod: Byte; const AAmount: UInt64; ADecimals: Byte): TBytes;
-begin
-  SetLength(Result, 10);
-  TSerialization.WriteU8(Result, AMethod, MethodOffset);
-  TSerialization.WriteU64(Result, AAmount, 1);
-  TSerialization.WriteU8(Result, ADecimals, 9);
-end;
-
-class function TToken2022ProgramData.EncodeRevokeData: TBytes;
-begin
-  Result := TBytes.Create(Byte(TToken2022ProgramInstructions.TValues.Revoke));
-end;
-
-class function TToken2022ProgramData.EncodeApproveData(const AAmount: UInt64): TBytes;
-begin
-  Result := EncodeAmountLayout(Byte(TToken2022ProgramInstructions.TValues.Approve), AAmount)
-end;
-
-class function TToken2022ProgramData.EncodeInitializeAccountData: TBytes;
-begin
-  Result := TBytes.Create(Byte(TToken2022ProgramInstructions.TValues.InitializeAccount));
-end;
-
-class function TToken2022ProgramData.EncodeInitializeMintData(const AMintAuthority, AFreezeAuthority: IPublicKey;
-  const ADecimals, AFreezeAuthorityOption: Integer): TBytes;
-begin
-  SetLength(Result, 67);
-  TSerialization.WriteU8(Result, Byte(TToken2022ProgramInstructions.TValues.InitializeMint), MethodOffset);
-  TSerialization.WriteU8(Result, Byte(ADecimals), 1);
-  TSerialization.WritePubKey(Result, AMintAuthority, 2);
-  TSerialization.WriteU8(Result, Byte(AFreezeAuthorityOption), 34);
-  TSerialization.WritePubKey(Result, AFreezeAuthority, 35);
-end;
-
-class function TToken2022ProgramData.EncodeTransferData(const AAmount: UInt64): TBytes;
-begin
-  Result := EncodeAmountLayout(Byte(TToken2022ProgramInstructions.TValues.Transfer), AAmount);
-end;
-
-class function TToken2022ProgramData.EncodeTransferCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes;
-begin
-  Result := EncodeAmountCheckedLayout(Byte(TToken2022ProgramInstructions.TValues.TransferChecked), AAmount, Byte(ADecimals));
-end;
-
-class function TToken2022ProgramData.EncodeMintToData(const AAmount: UInt64): TBytes;
-begin
-  Result := EncodeAmountLayout(Byte(TToken2022ProgramInstructions.TValues.MintTo), AAmount);
-end;
-
-class function TToken2022ProgramData.EncodeInitializeMultiSignatureData(const AM: Integer): TBytes;
-begin
-  SetLength(Result, 2);
-  TSerialization.WriteU8(Result, Byte(TToken2022ProgramInstructions.TValues.InitializeMultiSignature), MethodOffset);
-  TSerialization.WriteU8(Result, Byte(AM), 1);
-end;
-
-class function TToken2022ProgramData.EncodeSetAuthorityData(const AAuthorityType: TAuthorityType;
-  const ANewAuthorityOption: Integer; ANewAuthority: IPublicKey): TBytes;
-begin
-  SetLength(Result, 35);
-  TSerialization.WriteU8(Result, Byte(TToken2022ProgramInstructions.TValues.SetAuthority), MethodOffset);
-  TSerialization.WriteU8(Result, Byte(AAuthorityType), 1);
-  TSerialization.WriteU8(Result, ANewAuthorityOption, 2);
-  TSerialization.WritePubKey(Result, ANewAuthority, 3);
-end;
-
-class function TToken2022ProgramData.EncodeBurnData(const AAmount: UInt64): TBytes;
-begin
-  Result := EncodeAmountLayout(Byte(TToken2022ProgramInstructions.TValues.Burn), AAmount);
-end;
-
-class function TToken2022ProgramData.EncodeCloseAccountData: TBytes;
-begin
-  Result := TBytes.Create(Byte(TToken2022ProgramInstructions.TValues.CloseAccount));
-end;
-
-class function TToken2022ProgramData.EncodeFreezeAccountData: TBytes;
-begin
-  Result := TBytes.Create(Byte(TToken2022ProgramInstructions.TValues.FreezeAccount));
-end;
-
-class function TToken2022ProgramData.EncodeThawAccountData: TBytes;
-begin
-  Result := TBytes.Create(Byte(TToken2022ProgramInstructions.TValues.ThawAccount));
-end;
-
-class function TToken2022ProgramData.EncodeApproveCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes;
-begin
-  Result := EncodeAmountCheckedLayout(Byte(TToken2022ProgramInstructions.TValues.ApproveChecked), AAmount, Byte(ADecimals));
-end;
-
-class function TToken2022ProgramData.EncodeMintToCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes;
-begin
-  Result := EncodeAmountCheckedLayout(Byte(TToken2022ProgramInstructions.TValues.MintToChecked), AAmount, Byte(ADecimals));
-end;
-
-class function TToken2022ProgramData.EncodeBurnCheckedData(const AAmount: UInt64; const ADecimals: Byte): TBytes;
-begin
-  Result := EncodeAmountCheckedLayout(Byte(TToken2022ProgramInstructions.TValues.BurnChecked), AAmount, Byte(ADecimals));
-end;
-
-class function TToken2022ProgramData.EncodeSyncNativeData: TBytes;
-begin
-  Result := TBytes.Create(Byte(TToken2022ProgramInstructions.TValues.SyncNative));
-end;
-
-{=== Token2022ProgramData - Decoders ===}
-
-class procedure TToken2022ProgramData.DecodeInitializeMintData(const ADecoded: IDecodedInstruction;
-  const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LHasFreeze: Boolean;
-begin
-  ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Decimals', TValue.From<Byte>(TDeserialization.GetU8(AData, 1)));
-  ADecoded.Values.Add('Mint Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 2)));
-  LHasFreeze := TDeserialization.GetBool(AData, 34);
-  ADecoded.Values.Add('Freeze Authority Option', TValue.From<Boolean>(LHasFreeze));
-  if LHasFreeze then
-    ADecoded.Values.Add('Freeze Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 35)));
-end;
-
-class procedure TToken2022ProgramData.DecodeInitializeAccountData(const ADecoded: IDecodedInstruction;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeInitializeMultiSignatureData(const ADecoded: IDecodedInstruction;
-  const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LI: Integer;
-  LNum: Byte;
-begin
-  ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  LNum := TDeserialization.GetU8(AData, 1);
-  ADecoded.Values.Add('Required Signers', LNum);
-  for LI := 2 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 1]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeTransferData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LI: Integer;
-  LAmount: UInt64;
-begin
-  ADecoded.Values.Add('Source',      TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Destination', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority',   TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-
-  LAmount := TDeserialization.GetU64(AData, 1);
-  ADecoded.Values.Add('Amount', LAmount);
-
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeApproveData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LI: Integer;
-  LAmount: UInt64;
-begin
-  ADecoded.Values.Add('Source',    TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Delegate',  TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-
-  LAmount := TDeserialization.GetU64(AData, 1);
-  ADecoded.Values.Add('Amount', LAmount);
-
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeRevokeData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-  const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Source',    TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  for LI := 2 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 1]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeSetAuthorityData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LAuthType: TAuthorityType;
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Account',           TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Current Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-
-  LAuthType := TAuthorityType(TDeserialization.GetU8(AData, 1));
-  ADecoded.Values.Add('Authority Type', TValue.From<TAuthorityType>(LAuthType));
-  ADecoded.Values.Add('New Authority Option', TValue.From<Byte>(TDeserialization.GetU8(AData, 2)));
-
-  if Length(AData) >= 34 then
-    ADecoded.Values.Add('New Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 3)));
-
-  for LI := 2 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 1]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeMintToData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LAmount: UInt64;
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Mint',           TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Destination',    TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Mint Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-
-  LAmount := TDeserialization.GetU64(AData, 1);
-  ADecoded.Values.Add('Amount', LAmount);
-
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeBurnData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LAmount: UInt64;
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Account',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-
-  LAmount := TDeserialization.GetU64(AData, 1);
-  ADecoded.Values.Add('Amount', LAmount);
-
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeCloseAccountData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-  const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Account',     TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Destination', TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority',   TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeFreezeAccountData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-  const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Account',         TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',            TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Freeze Authority',TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeThawAccountData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-  const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Account',         TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',            TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Freeze Authority',TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeTransferCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Source',      TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',        TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Destination', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  ADecoded.Values.Add('Authority',   TValue.From<IPublicKey>(AKeys[AKeyIndices[3]]));
-
-  ADecoded.Values.Add('Amount',   TValue.From<UInt64>(TDeserialization.GetU64(AData, 1)));
-  ADecoded.Values.Add('Decimals', TValue.From<Byte>(TDeserialization.GetU8(AData, 9)));
-
-  for LI := 4 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 3]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeApproveCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Source',    TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Delegate',  TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[3]]));
-
-  ADecoded.Values.Add('Amount',   TValue.From<UInt64>(TDeserialization.GetU64(AData, 1)));
-  ADecoded.Values.Add('Decimals', TValue.From<Byte>(TDeserialization.GetU8(AData, 9)));
-
-  for LI := 4 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 3]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeMintToCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LAmount: UInt64;
-  LDec: Byte;
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Mint',           TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Destination',    TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Mint Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-
-  LAmount := TDeserialization.GetU64(AData, 1);
-  LDec := TDeserialization.GetU8(AData, 9);
-  ADecoded.Values.Add('Amount',   LAmount);
-  ADecoded.Values.Add('Decimals', LDec);
-
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeBurnCheckedData(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Account',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(AKeys[AKeyIndices[2]]));
-
-  ADecoded.Values.Add('Amount',   TValue.From<UInt64>(TDeserialization.GetU64(AData, 1)));
-  ADecoded.Values.Add('Decimals', TValue.From<Byte>(TDeserialization.GetU8(AData, 9)));
-
-  for LI := 3 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 2]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeSyncNativeData(const ADecoded: IDecodedInstruction; const AKeys: TArray<IPublicKey>;
-  const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeInitializeAccount2(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Account',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 1)));
-end;
-
-class procedure TToken2022ProgramData.DecodeInitializeAccount3(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Account',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Mint',      TValue.From<IPublicKey>(AKeys[AKeyIndices[1]]));
-  ADecoded.Values.Add('Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 1)));
-end;
-
-class procedure TToken2022ProgramData.DecodeInitializeMultiSignature2(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LI: Integer;
-begin
-  ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Required Signers', TValue.From<Byte>(TDeserialization.GetU8(AData, 1)));
-  for LI := 1 to High(AKeyIndices) do
-    ADecoded.Values.Add(Format('Signer %d', [LI - 1]), TValue.From<IPublicKey>(AKeys[AKeyIndices[LI]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeInitializeMint2(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-var
-  LHasFreeze: Boolean;
-begin
-  ADecoded.Values.Add('Account',        TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Decimals',       TValue.From<Byte>(TDeserialization.GetU8(AData, 1)));
-  ADecoded.Values.Add('Mint Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 2)));
-
-  LHasFreeze := TDeserialization.GetBool(AData, 34);
-  ADecoded.Values.Add('Freeze Authority Option', TValue.From<Boolean>(LHasFreeze));
-  if LHasFreeze then
-    ADecoded.Values.Add('Freeze Authority', TValue.From<IPublicKey>(TDeserialization.GetPubKey(AData, 35)));
-end;
-
-class procedure TToken2022ProgramData.DecodeAmountToUiAmount(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Mint',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Amount', TValue.From<UInt64>(TDeserialization.GetU64(AData, 1)));
-end;
-
-class procedure TToken2022ProgramData.DecodeUiAmountToAmount(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Mint',   TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-  ADecoded.Values.Add('Amount', TValue.From<string>(TDeserialization.DecodeBincodeString(AData, 1).EncodedString));
-end;
-
-class procedure TToken2022ProgramData.DecodeGetAccountDataSize(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Mint', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-end;
-
-class procedure TToken2022ProgramData.DecodeInitializeImmutableOwner(const ADecoded: IDecodedInstruction; const AData: TBytes;
-  const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes);
-begin
-  ADecoded.Values.Add('Account', TValue.From<IPublicKey>(AKeys[AKeyIndices[0]]));
-end;
 
 { TToken2022Program }
 
 class constructor TToken2022Program.Create;
 begin
   FProgramIdKey := TPublicKey.Create('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
+  FNativeMintProgramIdKey := TPublicKey.Create('9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP');
 end;
 
 class destructor TToken2022Program.Destroy;
 begin
   FProgramIdKey := nil;
+  FNativeMintProgramIdKey := nil;
 end;
 
 class function TToken2022Program.GetProgramIdKey: IPublicKey;
 begin
   Result := FProgramIdKey;
+end;
+
+class function TToken2022Program.GetNativeMintProgramIdKey: IPublicKey;
+begin
+  Result := FNativeMintProgramIdKey;
 end;
 
 class function TToken2022Program.AddSigners(const AKeys: TList<IAccountMeta>;
@@ -1437,7 +633,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeTransferData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeTransferData(AAmount));
 end;
 
 class function TToken2022Program.TransferChecked(const ASource, ADestination: IPublicKey; const AAmount: UInt64; const ADecimals: Integer;
@@ -1450,7 +646,7 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(ATokenMint, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeTransferCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeTransferCheckedData(AAmount, ADecimals));
 end;
 
 class function TToken2022Program.InitializeAccount(const AAccount, AMint, AAuthority: IPublicKey): ITransactionInstruction;
@@ -1462,7 +658,7 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys.Add(TAccountMeta.ReadOnly(AAuthority, False));
   LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeInitializeAccountData);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccountData);
 end;
 
 class function TToken2022Program.InitializeMultiSignature(const AMultiSignature: IPublicKey; const ASigners: TArray<IPublicKey>;
@@ -1476,7 +672,7 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
   for LSigner in ASigners do
     LKeys.Add(TAccountMeta.ReadOnly(LSigner, False));
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeInitializeMultiSignatureData(AM));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMultiSignatureData(AM));
 end;
 
 class function TToken2022Program.InitializeMint(const AMint: IPublicKey; const ADecimals: Integer;
@@ -1501,7 +697,7 @@ begin
   end;
 
   Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys,
-    TToken2022ProgramData.EncodeInitializeMintData(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
+    TTokenProgramData.EncodeInitializeMintData(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
 end;
 
 class function TToken2022Program.MintTo(const AMint, ADestination: IPublicKey; const AAmount: UInt64;
@@ -1513,7 +709,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AMintAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeMintToData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeMintToData(AAmount));
 end;
 
 class function TToken2022Program.Approve(const ASource, ADelegate, AAuthority: IPublicKey; const AAmount: UInt64;
@@ -1525,7 +721,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys.Add(TAccountMeta.ReadOnly(ADelegate, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeApproveData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeApproveData(AAmount));
 end;
 
 class function TToken2022Program.Revoke(const ASource, AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
@@ -1535,7 +731,7 @@ begin
   LKeys := TList<IAccountMeta>.Create;
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeRevokeData);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeRevokeData);
 end;
 
 class function TToken2022Program.SetAuthority(const AAccount: IPublicKey; const AAuthorityType: TAuthorityType;
@@ -1560,7 +756,7 @@ begin
   end;
 
   Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys,
-    TToken2022ProgramData.EncodeSetAuthorityData(AAuthorityType, LOpt, LNewAuth));
+    TTokenProgramData.EncodeSetAuthorityData(AAuthorityType, LOpt, LNewAuth));
 end;
 
 class function TToken2022Program.Burn(const ASource, AMint: IPublicKey; const AAmount: UInt64;
@@ -1572,7 +768,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeBurnData(AAmount));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeBurnData(AAmount));
 end;
 
 class function TToken2022Program.CloseAccount(const AAccount, ADestination, AAuthority, AProgramId: IPublicKey;
@@ -1584,7 +780,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TToken2022ProgramData.EncodeCloseAccountData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeCloseAccountData);
 end;
 
 class function TToken2022Program.FreezeAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
@@ -1596,7 +792,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys := AddSigners(LKeys, AFreezeAuthority, ASigners);
-  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TToken2022ProgramData.EncodeFreezeAccountData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeFreezeAccountData);
 end;
 
 class function TToken2022Program.ThawAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
@@ -1608,7 +804,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys := AddSigners(LKeys, AFreezeAuthority, ASigners);
-  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TToken2022ProgramData.EncodeThawAccountData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeThawAccountData);
 end;
 
 class function TToken2022Program.ApproveChecked(const ASource, ADelegate: IPublicKey; const AAmount: UInt64; const ADecimals: Byte;
@@ -1621,7 +817,7 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys.Add(TAccountMeta.ReadOnly(ADelegate, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeApproveCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeApproveCheckedData(AAmount, ADecimals));
 end;
 
 class function TToken2022Program.MintToChecked(const AMint, ADestination, AMintAuthority: IPublicKey;
@@ -1633,7 +829,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AMintAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeMintToCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeMintToCheckedData(AAmount, ADecimals));
 end;
 
 class function TToken2022Program.BurnChecked(const AMint, AAccount, AAuthority: IPublicKey;
@@ -1645,7 +841,7 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeBurnCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeBurnCheckedData(AAmount, ADecimals));
 end;
 
 class function TToken2022Program.SyncNative(const AAccount: IPublicKey): ITransactionInstruction;
@@ -1654,7 +850,125 @@ var
 begin
   LKeys := TList<IAccountMeta>.Create;
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TToken2022ProgramData.EncodeSyncNativeData);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeSyncNativeData);
+end;
+
+class function TToken2022Program.InitializeAccount2(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount2Data(AOwner));
+end;
+
+class function TToken2022Program.InitializeAccount3(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount3Data(AOwner));
+end;
+
+class function TToken2022Program.InitializeMultiSignature2(const AMultiSignature: IPublicKey; const ASigners: TArray<IPublicKey>;
+  const AM: Integer): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+  LSigner: IPublicKey;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMultiSignature, False));
+  for LSigner in ASigners do
+    LKeys.Add(TAccountMeta.ReadOnly(LSigner, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMultiSignature2Data(AM));
+end;
+
+class function TToken2022Program.InitializeMint2(const AMint: IPublicKey; const ADecimals: Integer;
+  const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+  LFreezeOpt: Integer;
+  LFreezeKey: IPublicKey;
+  LAccount: IAccount;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+
+  LFreezeOpt := Ord(Assigned(AFreezeAuthority));
+  if Assigned(AFreezeAuthority) then
+    LFreezeKey := AFreezeAuthority
+  else
+  begin
+    LAccount := TAccount.Create;
+    LFreezeKey := LAccount.PublicKey;
+  end;
+
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys,
+    TTokenProgramData.EncodeInitializeMint2Data(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
+end;
+
+class function TToken2022Program.InitializeImmutableOwner(const AAccount: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeImmutableOwnerData);
+end;
+
+class function TToken2022Program.GetAccountDataSize(const AMint: IPublicKey;
+  const AExtensionTypes: TArray<TToken2022ExtensionType>): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeGetAccountDataSizeData(AExtensionTypes));
+end;
+
+class function TToken2022Program.AmountToUiAmount(const AMint: IPublicKey; const AAmount: UInt64): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeAmountToUiAmountData(AAmount));
+end;
+
+class function TToken2022Program.UiAmountToAmount(const AMint: IPublicKey; const AUiAmount: string): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeUiAmountToAmountData(AUiAmount));
+end;
+
+class function TToken2022Program.InitializeMintCloseAuthority(const AMint: IPublicKey;
+  const ACloseAuthority: IPublicKey): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AMint, False));
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMintCloseAuthorityData(ACloseAuthority));
+end;
+
+class function TToken2022Program.Reallocate(const AAccount, APayer, AOwner: IPublicKey;
+  const AExtensionTypes: TArray<TToken2022ExtensionType>; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+var
+  LKeys: TList<IAccountMeta>;
+begin
+  LKeys := TList<IAccountMeta>.Create;
+  LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  LKeys.Add(TAccountMeta.Writable(APayer, True));
+  LKeys.Add(TAccountMeta.ReadOnly(TSystemProgram.ProgramIdKey, False));
+  LKeys := AddSigners(LKeys, AOwner, ASigners);
+  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeReallocateData(AExtensionTypes));
 end;
 
 class function TToken2022Program.Decode(const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes): IDecodedInstruction;
@@ -1662,7 +976,7 @@ var
   LInstruction: Byte;
   LInstructionValue: TToken2022ProgramInstructions.TValues;
 begin
-  LInstruction := TDeserialization.GetU8(AData, TToken2022ProgramData.MethodOffset);
+  LInstruction := TDeserialization.GetU8(AData, TTokenProgramData.MethodOffset);
 
   if not TEnumUtilities.TryGetEnumFromOrdinal<TToken2022ProgramInstructions.TValues>(LInstruction, LInstructionValue) then
   begin
@@ -1684,55 +998,59 @@ begin
 
   case LInstructionValue of
     TToken2022ProgramInstructions.TValues.InitializeMint:
-      TToken2022ProgramData.DecodeInitializeMintData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeMintData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.InitializeAccount:
-      TToken2022ProgramData.DecodeInitializeAccountData(Result, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeAccountData(Result, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.InitializeMultiSignature:
-      TToken2022ProgramData.DecodeInitializeMultiSignatureData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeMultiSignatureData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.Transfer:
-      TToken2022ProgramData.DecodeTransferData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeTransferData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.Approve:
-      TToken2022ProgramData.DecodeApproveData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeApproveData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.Revoke:
-      TToken2022ProgramData.DecodeRevokeData(Result, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeRevokeData(Result, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.SetAuthority:
-      TToken2022ProgramData.DecodeSetAuthorityData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeSetAuthorityData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.MintTo:
-      TToken2022ProgramData.DecodeMintToData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeMintToData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.Burn:
-      TToken2022ProgramData.DecodeBurnData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeBurnData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.CloseAccount:
-      TToken2022ProgramData.DecodeCloseAccountData(Result, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeCloseAccountData(Result, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.FreezeAccount:
-      TToken2022ProgramData.DecodeFreezeAccountData(Result, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeFreezeAccountData(Result, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.ThawAccount:
-      TToken2022ProgramData.DecodeThawAccountData(Result, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeThawAccountData(Result, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.TransferChecked:
-      TToken2022ProgramData.DecodeTransferCheckedData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeTransferCheckedData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.ApproveChecked:
-      TToken2022ProgramData.DecodeApproveCheckedData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeApproveCheckedData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.MintToChecked:
-      TToken2022ProgramData.DecodeMintToCheckedData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeMintToCheckedData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.BurnChecked:
-      TToken2022ProgramData.DecodeBurnCheckedData(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeBurnCheckedData(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.SyncNative:
-      TToken2022ProgramData.DecodeSyncNativeData(Result, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeSyncNativeData(Result, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.InitializeAccount2:
-      TToken2022ProgramData.DecodeInitializeAccount2(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeAccount2(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.InitializeAccount3:
-      TToken2022ProgramData.DecodeInitializeAccount3(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeAccount3(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.InitializeMint2:
-      TToken2022ProgramData.DecodeInitializeMint2(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeMint2(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.InitializeMultiSignature2:
-      TToken2022ProgramData.DecodeInitializeMultiSignature2(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeMultiSignature2(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.GetAccountDataSize:
-      TToken2022ProgramData.DecodeGetAccountDataSize(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeGetAccountDataSize(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.InitializeImmutableOwner:
-      TToken2022ProgramData.DecodeInitializeImmutableOwner(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeInitializeImmutableOwner(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.AmountToUiAmount:
-      TToken2022ProgramData.DecodeAmountToUiAmount(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeAmountToUiAmount(Result, AData, AKeys, AKeyIndices);
     TToken2022ProgramInstructions.TValues.UiAmountToAmount:
-      TToken2022ProgramData.DecodeUiAmountToAmount(Result, AData, AKeys, AKeyIndices);
+      TTokenProgramData.DecodeUiAmountToAmount(Result, AData, AKeys, AKeyIndices);
+    TToken2022ProgramInstructions.TValues.InitializeMintCloseAuthority:
+      TTokenProgramData.DecodeInitializeMintCloseAuthority(Result, AData, AKeys, AKeyIndices);
+    TToken2022ProgramInstructions.TValues.Reallocate:
+      TTokenProgramData.DecodeReallocate(Result, AData, AKeys, AKeyIndices);
   end;
 end;
 
