@@ -1,0 +1,95 @@
+SolLib.Examples/Delphi.Examples/SolLib.Examples.dpr
+  s_1205ef712c624e::t_171649019ab9c5 77
+SolLib.Tests/src/Resources/Rpc/Http/Transaction/MainnetV1Tx.txt
+  s_1205ef712c624e::t_daf37979d75d1e 1
+SolLib/src/Rpc/SlpMessageDomain.pas
+  s_1205ef712c624e::t_086f0562e23e9f 837-939
+  s_1205ef712c624e::t_8ad6be42b85614 32
+  s_1205ef712c624e::t_8fdcec5e06eb25 33-34
+  s_1205ef712c624e::t_71dd1fbd70f348 941-963
+  s_1205ef712c624e::t_d3c5c83f3a65a3 144-145,152-155
+  s_1205ef712c624e::t_5774a5d55ab9e8 300-304
+  s_1205ef712c624e::t_1660e3b8cde7b6 1140-1246
+  s_1205ef712c624e::t_22e2c29480beb5 274,279-288,296
+  s_1205ef712c624e::t_6b8ea05af912ae 701,706-707,733-747,749-758
+SolLib/src/Packages/Delphi/SolLib4PascalPackage.dpk
+  s_1205ef712c624e::t_8ca1ec643f366e 106
+README.md
+  s_1205ef712c624e::t_a43fb72d276b1b 140-153,155-160,162-170
+  s_1205ef712c624e::t_fc1675aa5cad4f 132-139,154,161,171-172
+SolLib/src/Rpc/SlpMessageBuilder.pas
+  s_1205ef712c624e::t_9fc4aa89534679 549-550,556,572-578,580-592,594-596,599-605,607-609,611-619,621-623,625-626,629-630
+  s_1205ef712c624e::t_a864657f525900 108-109,117-120
+  s_1205ef712c624e::t_6bbaa442516a3a 33
+  s_1205ef712c624e::t_9b89adaf8c09b6 627
+  s_1205ef712c624e::t_7d1ca7bedc5c42 130,138-139,149
+  s_1205ef712c624e::t_cf456e6b5b9bdf 491-492,500-513
+  s_1205ef712c624e::t_ceebe8a43d97ce 514
+SolLib.Tests/src/Resources/TestResources.rc
+  s_1205ef712c624e::t_af1d5beb9a3d17 233
+  s_1205ef712c624e::t_dae6b9f0787b8e 3
+SolLib.Tests/Delphi.Tests/SolLib.Tests.Mobile.dproj
+  s_1205ef712c624e::t_8b42db94b93692 419,504
+SolLib/src/Rpc/SlpTransactionDomain.pas
+  s_1205ef712c624e::t_ddd160b4715b7b 259-260,269-272
+  s_1205ef712c624e::t_5b45438313fe8f 1038
+  s_1205ef712c624e::t_1afbb562fffc08 1035-1037,1039
+  s_1205ef712c624e::t_bb7c54fcdec3f3 465-468
+  s_1205ef712c624e::t_5806dc079b06b0 437,443-444,446-447,450
+  s_1205ef712c624e::t_6dff800488e1f3 1083,1088-1089,1115-1127
+  s_1205ef712c624e::t_a3158579fc99b3 1128,1157-1159,1163-1196
+  s_1205ef712c624e::t_40222d6a7089bf 1061,1063
+  s_1205ef712c624e::t_11688fc8eee0d0 1209,1212-1215
+  s_1205ef712c624e::t_b1d023890947f4 1297,1299-1321
+  s_1205ef712c624e::t_dca1486ccbf067 36
+  s_1205ef712c624e::t_0a157073a76224 1129
+  s_1205ef712c624e::t_c608019868eb49 1197
+SolLib/src/Rpc/SlpTransactionBuilder.pas
+  s_1205ef712c624e::t_ae28704afa7c0b 34-35
+  s_1205ef712c624e::t_c32dec8121c7c8 144-147
+  s_1205ef712c624e::t_6b5ad541b6d889 583,588-600,606-610,618-619
+  s_1205ef712c624e::t_9afe89a3e388be 265,273-274
+  s_1205ef712c624e::t_14c7d0a7c89fc1 495,499-504
+  s_1205ef712c624e::t_7cabd3763ec542 636-642
+SolLib/src/Rpc/Http/SlpSolanaRpcClient.pas
+  s_1205ef712c624e::t_cf7fdc16f4dc52 146,498,684,770
+SolLib.Tests/src/Resources/Rpc/Http/Transaction/GetTransactionRequest.json
+  s_1205ef712c624e::t_b46f84c5a44eeb 1
+SolLib/src/Rpc/SlpTransactionConfig.pas
+  s_1205ef712c624e::t_ed5eb620831093 112-120
+  s_1205ef712c624e::t_5ba9295eb39042 50-52
+  s_1205ef712c624e::t_97ecddc638883b 1-49,53-111,121-193
+SolLib.Tests/src/Resources/Rpc/Http/Transaction/GetTransactionRequest2.json
+  s_1205ef712c624e::t_b46f84c5a44eeb 1
+SolLib.Tests/Delphi.Tests/SolLib.Tests.dpr
+  s_1205ef712c624e::t_46bcd06f3a1b10 96,182
+SolLib/src/Rpc/SlpRpcEnum.pas
+  s_1205ef712c624e::t_d2c789c59a2087 26-40
+  s_1205ef712c624e::t_0d2144cfe9d6ac 25
+SolLib.Tests/src/Rpc/TransactionV1Tests.pas
+  s_1205ef712c624e::t_474dde715b6d15 158
+  s_1205ef712c624e::t_fe5650f72431ed 1-35,37-51,54-120,122-157,159-179
+  s_1205ef712c624e::t_edecfc2a87300c 36
+  s_1205ef712c624e::t_ac2b1e2efde148 121
+  s_1205ef712c624e::t_68208c7882d8d8 52-53
+SolLib.Tests/Delphi.Tests/SolLib.Tests.Mobile.dpr
+  s_1205ef712c624e::t_46bcd06f3a1b10 79,165
+SolLib.Tests/src/Resources/Rpc/Http/Blocks/GetBlockRequest.json
+  s_1205ef712c624e::t_b46f84c5a44eeb 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "68789dc5b4ac8ebbec5c45363f663ddcfed8031f",
+  "prompts": {},
+  "sessions": {
+    "s_1205ef712c624e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d082555-7e8b-4561-8d96-a3b3eaf9cb5f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Ugochukwu Mmaduekwe <ugo4brain@gmail.com>"
+    }
+  }
+}
