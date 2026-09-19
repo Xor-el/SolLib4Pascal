@@ -30,6 +30,7 @@ uses
   SlpTransactionInstruction,
   SlpMessageDomain,
   SlpTransactionDomain,
+  SlpTransactionConfig,
   SlpListUtilities;
 
 type
@@ -104,6 +105,8 @@ type
 
     function GetVersion: Byte;
     procedure SetVersion(const AValue: Byte);
+    function GetTransactionConfig: TTransactionConfig;
+    procedure SetTransactionConfig(const AValue: TTransactionConfig);
 
     property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
     property AccountKeys: TList<IPublicKey> read GetAccountKeys write SetAccountKeys;
@@ -111,6 +114,10 @@ type
     /// The message version emitted in the low 7 bits of the versioned prefix.
     /// </summary>
     property Version: Byte read GetVersion write SetVersion;
+    /// <summary>
+    /// The in-message transaction configuration (version 1 only).
+    /// </summary>
+    property TransactionConfig: TTransactionConfig read GetTransactionConfig write SetTransactionConfig;
   end;
 
 
@@ -120,6 +127,7 @@ type
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
     FAccountKeys: TList<IPublicKey>;
     FVersion: Byte;
+    FTransactionConfig: TTransactionConfig;
 
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
@@ -127,6 +135,8 @@ type
     procedure SetAccountKeys(const AValue: TList<IPublicKey>);
     function GetVersion: Byte;
     procedure SetVersion(const AValue: Byte);
+    function GetTransactionConfig: TTransactionConfig;
+    procedure SetTransactionConfig(const AValue: TTransactionConfig);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -136,6 +146,7 @@ type
     property AddressTableLookups: TList<IMessageAddressTableLookup> read FAddressTableLookups write FAddressTableLookups;
     property AccountKeys: TList<IPublicKey> read FAccountKeys write FAccountKeys;
     property Version: Byte read FVersion write FVersion;
+    property TransactionConfig: TTransactionConfig read FTransactionConfig write FTransactionConfig;
   end;
 
 
@@ -477,11 +488,28 @@ end;
 
 destructor TVersionedMessageBuilder.Destroy;
 begin
+  if Assigned(FTransactionConfig) then
+    FTransactionConfig.Free;
   if Assigned(FAccountKeys) then
     FAccountKeys.Free;
   if Assigned(FAddressTableLookups) then
     FAddressTableLookups.Free;
   inherited;
+end;
+
+function TVersionedMessageBuilder.GetTransactionConfig: TTransactionConfig;
+begin
+  Result := FTransactionConfig;
+end;
+
+procedure TVersionedMessageBuilder.SetTransactionConfig(const AValue: TTransactionConfig);
+begin
+  if FTransactionConfig <> AValue then
+  begin
+    if Assigned(FTransactionConfig) then
+      FTransactionConfig.Free;
+    FTransactionConfig := AValue;
+  end;
 end;
 
 function TVersionedMessageBuilder.GetAddressTableLookups: TList<IMessageAddressTableLookup>;
@@ -517,21 +545,15 @@ end;
 function TVersionedMessageBuilder.Build: TBytes;
 var
   LKeysMeta: TList<IAccountMeta>;
-  LAccountAddressesLength: TBytes;
-  LCompiledInstructionsLength: Integer;
   LCompiledInstructions: TList<ICompiledInstruction>;
+  LAccountKeys: TList<IPublicKey>;
+  LAtl: TList<IMessageAddressTableLookup>;
   LInstruction: ITransactionInstruction;
   LKeyCount, LI: Integer;
   LKeyIndices: TBytes;
-  LCompiledInstruction: ICompiledInstruction;
-  LAccountKeysBuffer, LBuffer: TMemoryStream;
-  LInstructionsLength: TBytes;
   LAM: IAccountMeta;
-  LMessageBufferSize, LAccountKeysBufferSize: Integer;
-  LMessageHeaderBytes: TBytes;
-  LEncodedRecentBlockhash, LAtl: TBytes;
-  LVersionPrefix, LProgramIdIndex: Byte;
   LVersioned: IVersionedTransactionInstruction;
+  LMessage: IVersionedMessage;
 begin
   if (FRecentBlockHash = '') and (FNonceInformation = nil) then
     raise Exception.Create('recent block hash or nonce information is required');
@@ -547,104 +569,65 @@ begin
 
   LKeysMeta := GetAccountKeysMeta;
   try
-    LAccountAddressesLength := TShortVectorEncoding.EncodeLength(LKeysMeta.Count);
-    LCompiledInstructionsLength := 0;
+    // Build the message and let it own the collections we create here; the builder keeps its own
+    // FAddressTableLookups / FTransactionConfig (fresh copies are handed to the message below).
+    LMessage := TVersionedMessage.Create;
+    LMessage.Version := FVersion;
+    LMessage.Header := FMessageHeader;
+    LMessage.RecentBlockhash := FRecentBlockHash;
+
     LCompiledInstructions := TList<ICompiledInstruction>.Create;
-    try
-      for LInstruction in FInstructions do
+    LMessage.Instructions := LCompiledInstructions;
+    LAccountKeys := TList<IPublicKey>.Create;
+    LMessage.AccountKeys := LAccountKeys;
+    LAtl := TList<IMessageAddressTableLookup>.Create;
+    LMessage.AddressTableLookups := LAtl;
+
+    for LInstruction in FInstructions do
+    begin
+      LKeyCount := LInstruction.Keys.Count;
+
+      if Supports(LInstruction, IVersionedTransactionInstruction, LVersioned) then
+        LKeyIndices := LVersioned.KeyIndices
+      else
       begin
-        LKeyCount := LInstruction.Keys.Count;
-
-        if Supports(LInstruction, IVersionedTransactionInstruction, LVersioned) then
-        begin
-          LKeyIndices := LVersioned.KeyIndices;
-        end
-        else
-        begin
-          SetLength(LKeyIndices, LKeyCount);
-          for LI := 0 to LKeyCount - 1 do
-            LKeyIndices[LI] := FindAccountIndex(LKeysMeta, LInstruction.Keys[LI].PublicKey.Key);
-        end;
-
-        LCompiledInstruction := TCompiledInstruction.Create(
-          FindAccountIndex(LKeysMeta, LInstruction.ProgramId),
-          TShortVectorEncoding.EncodeLength(LKeyCount),
-          LKeyIndices,
-          TShortVectorEncoding.EncodeLength(Length(LInstruction.Data)),
-          LInstruction.Data
-        );
-        LCompiledInstructions.Add(LCompiledInstruction);
-        Inc(LCompiledInstructionsLength, LCompiledInstruction.ItemCount);
+        SetLength(LKeyIndices, LKeyCount);
+        for LI := 0 to LKeyCount - 1 do
+          LKeyIndices[LI] := FindAccountIndex(LKeysMeta, LInstruction.Keys[LI].PublicKey.Key);
       end;
 
-      LAccountKeysBufferSize := FAccountKeysList.Count * 32;
-      LAccountKeysBuffer := TMemoryStream.Create;
-      try
-        LAccountKeysBuffer.Size := LAccountKeysBufferSize;
-        LInstructionsLength := TShortVectorEncoding.EncodeLength(LCompiledInstructions.Count);
-
-        for LAM in LKeysMeta do
-        begin
-          LAccountKeysBuffer.WriteBuffer(LAM.PublicKey.KeyBytes[0], Length(LAM.PublicKey.KeyBytes));
-
-          if LAM.IsSigner then
-          begin
-            FMessageHeader.RequiredSignatures := FMessageHeader.RequiredSignatures + 1;
-            if not LAM.IsWritable then
-              FMessageHeader.ReadOnlySignedAccounts := FMessageHeader.ReadOnlySignedAccounts + 1;
-          end
-          else
-          begin
-            if not LAM.IsWritable then
-              FMessageHeader.ReadOnlyUnsignedAccounts := FMessageHeader.ReadOnlyUnsignedAccounts + 1;
-          end;
-        end;
-
-        LMessageBufferSize := TMessageHeader.TLayout.HeaderLength + BlockHashLength +
-                             Length(LAccountAddressesLength) + Length(LInstructionsLength) +
-                             LCompiledInstructionsLength + LAccountKeysBufferSize;
-        LBuffer := TMemoryStream.Create;
-        try
-          LBuffer.Size := LMessageBufferSize;
-          LMessageHeaderBytes := FMessageHeader.ToBytes;
-
-          // versioned prefix: high bit set, low 7 bits carry the version.
-          LVersionPrefix := Byte($80 or FVersion);
-          LBuffer.WriteBuffer(LVersionPrefix, 1);
-
-          LBuffer.WriteBuffer(LMessageHeaderBytes[0], Length(LMessageHeaderBytes));
-          LBuffer.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
-          LBuffer.WriteBuffer(LAccountKeysBuffer.Memory^, LAccountKeysBuffer.Size);
-          LEncodedRecentBlockhash := TBase58Encoder.DecodeData(FRecentBlockHash);
-          LBuffer.WriteBuffer(LEncodedRecentBlockhash[0], Length(LEncodedRecentBlockhash));
-          LBuffer.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
-
-          for LCompiledInstruction in LCompiledInstructions do
-          begin
-            LProgramIdIndex := LCompiledInstruction.ProgramIdIndex;
-            LBuffer.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
-            LBuffer.WriteBuffer(LCompiledInstruction.KeyIndicesCount[0], Length(LCompiledInstruction.KeyIndicesCount));
-            LBuffer.WriteBuffer(LCompiledInstruction.KeyIndices[0], Length(LCompiledInstruction.KeyIndices));
-            LBuffer.WriteBuffer(LCompiledInstruction.DataLength[0], Length(LCompiledInstruction.DataLength));
-            LBuffer.WriteBuffer(LCompiledInstruction.Data[0], Length(LCompiledInstruction.Data));
-          end;
-
-          // address table lookups
-          LAtl := TVersionedMessage.TAddressTableLookupUtils.SerializeAddressTableLookups(FAddressTableLookups);
-          LBuffer.WriteBuffer(LAtl[0], Length(LAtl));
-
-          SetLength(Result, LBuffer.Size);
-          LBuffer.Position := 0;
-          LBuffer.ReadBuffer(Result[0], LBuffer.Size);
-        finally
-          LBuffer.Free;
-        end;
-      finally
-        LAccountKeysBuffer.Free;
-      end;
-    finally
-      LCompiledInstructions.Free;
+      LCompiledInstructions.Add(TCompiledInstruction.Create(
+        FindAccountIndex(LKeysMeta, LInstruction.ProgramId),
+        TShortVectorEncoding.EncodeLength(LKeyCount),
+        LKeyIndices,
+        TShortVectorEncoding.EncodeLength(Length(LInstruction.Data)),
+        LInstruction.Data));
     end;
+
+    for LAM in LKeysMeta do
+    begin
+      LAccountKeys.Add(LAM.PublicKey);
+
+      if LAM.IsSigner then
+      begin
+        FMessageHeader.RequiredSignatures := FMessageHeader.RequiredSignatures + 1;
+        if not LAM.IsWritable then
+          FMessageHeader.ReadOnlySignedAccounts := FMessageHeader.ReadOnlySignedAccounts + 1;
+      end
+      else if not LAM.IsWritable then
+        FMessageHeader.ReadOnlyUnsignedAccounts := FMessageHeader.ReadOnlyUnsignedAccounts + 1;
+    end;
+
+    // Copy the address table lookups (v0) so the message owns its own list.
+    if Assigned(FAddressTableLookups) then
+      LAtl.AddRange(FAddressTableLookups);
+
+    // Copy the transaction config (v1) so the message owns its own instance.
+    if Assigned(FTransactionConfig) then
+      LMessage.TransactionConfig := FTransactionConfig.Clone;
+
+    // Serialize dispatches on Version (v0 = ALT trailer, v1 = in-message config).
+    Result := LMessage.Serialize;
   finally
     LKeysMeta.Free;
   end;

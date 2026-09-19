@@ -1,6 +1,6 @@
 ; =============================================================================
 ; SolLib.Tests - Test Resources
-; Generated: 2025-12-27 20:47:19
+; Generated: 2026-09-19 13:51:26
 ; =============================================================================
 
 ; -----------------------------------------------------------------------------
@@ -230,6 +230,7 @@ RPC_HTTP_TRANSACTION_GETTRANSACTIONREQUEST2_JSON   RCDATA "Rpc/Http/Transaction/
 RPC_HTTP_TRANSACTION_GETTRANSACTIONRESPONSE_JSON   RCDATA "Rpc/Http/Transaction/GetTransactionResponse.json"
 RPC_HTTP_TRANSACTION_GETTRANSACTIONRESPONSE2_JSON   RCDATA "Rpc/Http/Transaction/GetTransactionResponse2.json"
 RPC_HTTP_TRANSACTION_GETTRANSACTIONVERSIONEDREQUEST_JSON   RCDATA "Rpc/Http/Transaction/GetTransactionVersionedRequest.json"
+RPC_HTTP_TRANSACTION_MAINNETV1TX_TXT   RCDATA "Rpc/Http/Transaction/MainnetV1Tx.txt"
 RPC_HTTP_TRANSACTION_GETTRANSACTIONVERSIONEDRESPONSE_JSON   RCDATA "Rpc/Http/Transaction/GetTransactionVersionedResponse.json"
 RPC_HTTP_TRANSACTION_SENDTRANSACTIONEXTRAPARAMSREQUEST_JSON   RCDATA "Rpc/Http/Transaction/SendTransactionExtraParamsRequest.json"
 RPC_HTTP_TRANSACTION_SENDTRANSACTIONEXTRAPARAMSRESPONSE_JSON   RCDATA "Rpc/Http/Transaction/SendTransactionExtraParamsResponse.json"

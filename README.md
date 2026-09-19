@@ -129,6 +129,47 @@ begin
 end;
 ```
 
+### Versioned (v0 / v1) Transactions
+
+`TVersionedTransactionBuilder` builds versioned transactions. Version 0 carries address lookup
+tables; version 1 (SIMD-0385, live on mainnet since epoch 1035) carries the compute-budget and
+priority-fee settings directly in the message via `TTransactionConfig` instead of Compute Budget
+Program instructions, and supports larger transactions (up to 4096 bytes).
+
+```pascal
+var
+  LV0Builder, LV1Builder: IVersionedTransactionBuilder;
+  LConfig: TTransactionConfig;
+  LV0Bytes, LV1Bytes: TBytes;
+begin
+  // Version 0: address lookup tables.
+  LV0Builder := TVersionedTransactionBuilder.Create(TTransactionVersion.V0);
+  LV0Bytes :=
+    LV0Builder
+      .SetRecentBlockHash(LBlockHash)
+      .SetFeePayer(LFrom.PublicKey)
+      .AddAddressTableLookup(LLookup)
+      .AddInstruction(TSystemProgram.Transfer(LFrom.PublicKey, LTo, 1000))
+      .Build(LFrom);
+
+  // Version 1: in-message transaction config (no Compute Budget instructions needed).
+  LConfig := TTransactionConfig.Create;
+  LConfig.ComputeUnitLimit := UInt32(20000);
+  LConfig.PriorityFee := UInt64(5000);
+  LConfig.HeapSize := UInt32(64 * 1024);
+  LConfig.LoadedAccountsDataSizeLimit := UInt32(64 * 1024);
+
+  LV1Builder := TVersionedTransactionBuilder.Create(TTransactionVersion.V1);
+  LV1Bytes :=
+    LV1Builder
+      .SetRecentBlockHash(LBlockHash)
+      .SetFeePayer(LFrom.PublicKey)
+      .SetTransactionConfig(LConfig)
+      .AddInstruction(TSystemProgram.Transfer(LFrom.PublicKey, LTo, 1000))
+      .Build(LFrom);
+end;
+```
+
 ## Running Tests
 
 Tests are provided for Delphi.

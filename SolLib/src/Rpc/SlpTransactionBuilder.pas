@@ -31,6 +31,8 @@ uses
   SlpTransactionInstruction,
   SlpPublicKey,
   SlpTransactionDomain,
+  SlpTransactionConfig,
+  SlpRpcEnum,
   SlpShortVectorEncoding,
   SlpDataEncoderUtilities;
 
@@ -139,7 +141,10 @@ type
     /// <summary>Sets the fee payer.</summary>
     function SetFeePayer(const APublicKey: IPublicKey): IVersionedTransactionBuilder;
 
-    /// <summary>Add a v0 instruction to the message.</summary>
+    /// <summary>Sets the in-message transaction configuration (version 1 only).</summary>
+    function SetTransactionConfig(const AConfig: TTransactionConfig): IVersionedTransactionBuilder;
+
+    /// <summary>Add an instruction to the message.</summary>
     function AddInstruction(const AInstruction: ITransactionInstruction): IVersionedTransactionBuilder;
 
     /// <summary>Add a single address table lookup to the message.</summary>
@@ -257,6 +262,7 @@ type
     function SetRecentBlockHash(const ARecentBlockHash: string): IVersionedTransactionBuilder;
     function SetNonceInformation(const ANonceInfo: INonceInformation): IVersionedTransactionBuilder;
     function SetFeePayer(const APublicKey: IPublicKey): IVersionedTransactionBuilder;
+    function SetTransactionConfig(const AConfig: TTransactionConfig): IVersionedTransactionBuilder;
     function AddInstruction(const AInstruction: ITransactionInstruction): IVersionedTransactionBuilder;
     function AddAddressTableLookup(const ALookup: IMessageAddressTableLookup): IVersionedTransactionBuilder;
     function AddAddressTableLookups(const ALookups: TList<IMessageAddressTableLookup>): IVersionedTransactionBuilder;
@@ -264,7 +270,8 @@ type
     function Build(const ASigner: IAccount): TBytes; overload;
     function Build(const ASigners: TList<IAccount>): TBytes; overload;
   public
-    constructor Create;
+    /// <summary>Creates a versioned transaction builder for the given version (default v0).</summary>
+    constructor Create(const AVersion: TTransactionVersion = TTransactionVersion.V0);
     destructor Destroy; override;
   end;
 
@@ -485,10 +492,16 @@ end;
 
 { TVersionedTransactionBuilder }
 
-constructor TVersionedTransactionBuilder.Create;
+constructor TVersionedTransactionBuilder.Create(const AVersion: TTransactionVersion);
 begin
   inherited Create;
   FMessageBuilder := TVersionedMessageBuilder.Create;
+  case AVersion of
+    TTransactionVersion.V0: FMessageBuilder.Version := 0;
+    TTransactionVersion.V1: FMessageBuilder.Version := 1;
+  else
+    raise EArgumentException.Create('A versioned transaction builder requires version V0 or V1.');
+  end;
   FSignatures := TList<string>.Create;
   FSerializedMessage := nil;
 end;
@@ -567,19 +580,34 @@ var
   LSig: string;
   LSigBytes: TBytes;
   LCapacity: Integer;
+  LIsV1: Boolean;
 begin
-  LSigLenEnc := TShortVectorEncoding.EncodeLength(FSignatures.Count);
-
   if Length(FSerializedMessage) = 0 then
     FSerializedMessage := FMessageBuilder.Build;
 
-  LCapacity := Length(LSigLenEnc) + (FSignatures.Count * SignatureLength) + Length(FSerializedMessage);
+  LIsV1 := FMessageBuilder.Version = 1;
+
+  if LIsV1 then
+  begin
+    // Version 1: message bytes followed by raw signatures, no signature count prefix.
+    LSigLenEnc := nil;
+    LCapacity := (FSignatures.Count * SignatureLength) + Length(FSerializedMessage);
+  end
+  else
+  begin
+    LSigLenEnc := TShortVectorEncoding.EncodeLength(FSignatures.Count);
+    LCapacity := Length(LSigLenEnc) + (FSignatures.Count * SignatureLength) + Length(FSerializedMessage);
+  end;
 
   LMS := TMemoryStream.Create;
   try
     LMS.Size := LCapacity;
 
-    LMS.WriteBuffer(LSigLenEnc[0], Length(LSigLenEnc));
+    if LIsV1 then
+      LMS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
+
+    if not LIsV1 then
+      LMS.WriteBuffer(LSigLenEnc[0], Length(LSigLenEnc));
 
     for LSig in FSignatures do
     begin
@@ -587,7 +615,8 @@ begin
       LMS.WriteBuffer(LSigBytes[0], Length(LSigBytes));
     end;
 
-    LMS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
+    if not LIsV1 then
+      LMS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
 
     SetLength(Result, LMS.Size);
     LMS.Position := 0;
@@ -601,6 +630,13 @@ function TVersionedTransactionBuilder.SetFeePayer(
   const APublicKey: IPublicKey): IVersionedTransactionBuilder;
 begin
   FMessageBuilder.FeePayer := APublicKey;
+  Result := Self;
+end;
+
+function TVersionedTransactionBuilder.SetTransactionConfig(
+  const AConfig: TTransactionConfig): IVersionedTransactionBuilder;
+begin
+  FMessageBuilder.TransactionConfig := AConfig;
   Result := Self;
 end;
 

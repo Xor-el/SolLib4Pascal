@@ -74,6 +74,7 @@ uses
   SlpIdGenerator in '..\..\SolLib\src\Rpc\SlpIdGenerator.pas',
   SlpMessageBuilder in '..\..\SolLib\src\Rpc\SlpMessageBuilder.pas',
   SlpMessageDomain in '..\..\SolLib\src\Rpc\SlpMessageDomain.pas',
+  SlpTransactionConfig in '..\..\SolLib\src\Rpc\SlpTransactionConfig.pas',
   SlpRateLimiter in '..\..\SolLib\src\Rpc\SlpRateLimiter.pas',
   SlpRpcEnum in '..\..\SolLib\src\Rpc\SlpRpcEnum.pas',
   SlpRpcMessage in '..\..\SolLib\src\Rpc\SlpRpcMessage.pas',
