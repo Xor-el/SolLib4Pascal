@@ -82,7 +82,7 @@ begin
   Writeln(Format('BlockHash >> %s', [LBlockHash.Result.Value.Blockhash]));
 
   // Build and compile transaction message
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LBuilder
       .SetRecentBlockHash(LBlockHash.Result.Value.Blockhash)

@@ -50,6 +50,13 @@ type
 
     /// <summary>Returns a copy of this configuration.</summary>
     function Clone: TTransactionConfig;
+
+    /// <summary>
+    /// Replaces an owned config field: frees the current instance (unless it is the same
+    /// object) and takes ownership of <paramref name="ANew"/>. Centralizes the free-on-replace
+    /// setter used by the builders and the message/transaction domains.
+    /// </summary>
+    class procedure ReplaceOwned(var AField: TTransactionConfig; const ANew: TTransactionConfig); static;
   end;
 
   /// <summary>
@@ -116,6 +123,16 @@ begin
   Result.FComputeUnitLimit := FComputeUnitLimit;
   Result.FLoadedAccountsDataSizeLimit := FLoadedAccountsDataSizeLimit;
   Result.FHeapSize := FHeapSize;
+end;
+
+class procedure TTransactionConfig.ReplaceOwned(var AField: TTransactionConfig;
+  const ANew: TTransactionConfig);
+begin
+  if AField <> ANew then
+  begin
+    AField.Free;
+    AField := ANew;
+  end;
 end;
 
 { TTransactionConfigMask }

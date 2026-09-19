@@ -35,6 +35,7 @@ uses
   SlpTransactionInstruction,
   SlpTransactionInstructionFactory,
   SlpTransactionBuilder,
+  SlpTransactionConfig,
   SlpTokenProgram,
   SlpMemoProgram,
   SlpSystemProgram,
@@ -104,6 +105,8 @@ type
     procedure TestTransactionInstructionTest;
     procedure TransactionBuilderAddSignatureTest;
     procedure TestTransactionWithPriorityFeesInformation;
+    procedure V0FacadeBuildsRoundTrippableTransaction;
+    procedure V1FacadeBuildsRoundTrippableTransaction;
   end;
 
 implementation
@@ -119,7 +122,7 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(0);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder.SetRecentBlockHash(Blockhash);
 
   AssertException(
@@ -143,7 +146,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(0);
   LToAccount := LWallet.GetAccountByIndex(1);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LTxBytes := LBuilder
     .SetRecentBlockHash(Blockhash)
     .SetFeePayer(LFromAccount.PublicKey)
@@ -165,7 +168,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(0);
   LToAccount := LWallet.GetAccountByIndex(1);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetFeePayer(LFromAccount.PublicKey)
     .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
@@ -190,7 +193,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(0);
   LToAccount := LWallet.GetAccountByIndex(1);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetRecentBlockHash(Blockhash)
     .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
@@ -218,7 +221,7 @@ begin
 
   LEmptySigners := TList<IAccount>.Create;
   try
-    LBuilder := TTransactionBuilder.Create;
+    LBuilder := TTransactionBuilders.Legacy;
     LBuilder
       .SetRecentBlockHash(Blockhash)
       .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
@@ -258,7 +261,7 @@ begin
   LOwnerAccount := LWallet.GetAccountByIndex(10);
   LInitialAccount := LWallet.GetAccountByIndex(18);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetRecentBlockHash(LBlockHash)
     .SetFeePayer(LOwnerAccount.PublicKey)
@@ -338,7 +341,7 @@ begin
     TSystemProgram.AdvanceNonceAccount(LNonceAccount.PublicKey, LOwnerAccount.PublicKey)
   );
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LTxBytes := LBuilder
     .SetFeePayer(LOwnerAccount.PublicKey)
     .SetNonceInformation(LNonceInfo)
@@ -402,7 +405,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(10);
   LToAccount := LWallet.GetAccountByIndex(8);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetRecentBlockHash(AddSignatureBlockHash)
     .SetFeePayer(LFromAccount.PublicKey)
@@ -439,7 +442,7 @@ begin
     TComputeBudgetProgram.SetComputeUnitPrice(100000)    // SetComputeUnitPrice
   );
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LTxBytes := LBuilder
     .SetRecentBlockHash(Blockhash)
     .SetFeePayer(LFromAccount.PublicKey)
@@ -449,6 +452,74 @@ begin
 
   LTxB64 := EncodeBase64(LTxBytes);
   AssertEquals(ExpectedTransactionWithPriorityFees, LTxB64);
+end;
+
+procedure TTransactionBuilderTests.V0FacadeBuildsRoundTrippableTransaction;
+var
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LTxBytes: TBytes;
+  LTx: ITransaction;
+  LVersioned: IVersionedTransaction;
+begin
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount := LWallet.GetAccountByIndex(1);
+
+  LTxBytes := TTransactionBuilders.V0
+    .SetRecentBlockHash(Blockhash)
+    .SetFeePayer(LFromAccount.PublicKey)
+    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 1000))
+    .Build(LFromAccount);
+
+  LTx := TVersionedTransaction.Deserialize(LTxBytes);
+  AssertNotNull(LTx);
+  AssertTrue(Supports(LTx, IVersionedTransaction, LVersioned), 'expected IVersionedTransaction');
+  AssertEquals(0, Integer(LVersioned.Version), 'expected version 0');
+
+  // Deserialize -> re-serialize must reproduce the built bytes exactly.
+  AssertEquals(LTxBytes, LTx.Serialize, 'v0 facade round-trip mismatch');
+end;
+
+procedure TTransactionBuilderTests.V1FacadeBuildsRoundTrippableTransaction;
+var
+  LWallet: IWallet;
+  LFromAccount, LToAccount: IAccount;
+  LConfig: TTransactionConfig;
+  LTxBytes: TBytes;
+  LTx: ITransaction;
+  LVersioned: IVersionedTransaction;
+begin
+  LWallet := TWallet.Create(MnemonicWords);
+  LFromAccount := LWallet.GetAccountByIndex(0);
+  LToAccount := LWallet.GetAccountByIndex(1);
+
+  // The builder takes ownership of the config passed to SetTransactionConfig.
+  LConfig := TTransactionConfig.Create;
+  LConfig.PriorityFee := UInt64(5000);
+  LConfig.ComputeUnitLimit := UInt32(20000);
+
+  LTxBytes := TTransactionBuilders.V1
+    .SetRecentBlockHash(Blockhash)
+    .SetFeePayer(LFromAccount.PublicKey)
+    .SetTransactionConfig(LConfig)
+    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 1000))
+    .Build(LFromAccount);
+
+  // A v1 transaction leads with the message, whose first byte is the v1 prefix.
+  AssertEquals($81, Integer(LTxBytes[0]), 'expected v1 transaction prefix');
+
+  LTx := TVersionedTransaction.Deserialize(LTxBytes);
+  AssertNotNull(LTx);
+  AssertTrue(Supports(LTx, IVersionedTransaction, LVersioned), 'expected IVersionedTransaction');
+  AssertEquals(1, Integer(LVersioned.Version), 'expected version 1');
+  AssertNotNull(LVersioned.TransactionConfig, 'expected a transaction config');
+  AssertTrue(LVersioned.TransactionConfig.PriorityFee.HasValue, 'expected a priority fee');
+  AssertEquals(UInt64(5000), LVersioned.TransactionConfig.PriorityFee.Value, 'priority fee mismatch');
+  AssertEquals(Int64(20000), Int64(LVersioned.TransactionConfig.ComputeUnitLimit.Value), 'compute unit limit mismatch');
+
+  // Deserialize -> re-serialize must reproduce the built bytes exactly.
+  AssertEquals(LTxBytes, LTx.Serialize, 'v1 facade round-trip mismatch');
 end;
 
 initialization

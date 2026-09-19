@@ -29,6 +29,9 @@ uses
 type
   TListUtilities = class
   public
+    /// <summary>Returns a new, caller-owned list containing the single item <paramref name="AItem"/>.</summary>
+    class function Singleton<T>(const AItem: T): TList<T>; static;
+
     class function Any<T>(const AList: TList<T>; const APred: TPredicate<T>): Boolean; overload; static;
     class function Any<T: class>(const AList: TObjectList<T>; const APred: TPredicate<T>): Boolean; overload; static;
 
@@ -42,6 +45,12 @@ type
 implementation
 
 { TListUtilities }
+
+class function TListUtilities.Singleton<T>(const AItem: T): TList<T>;
+begin
+  Result := TList<T>.Create;
+  Result.Add(AItem);
+end;
 
 class function TListUtilities.Any<T>(const AList: TList<T>; const APred: TPredicate<T>): Boolean;
 var

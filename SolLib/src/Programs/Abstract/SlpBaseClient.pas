@@ -610,7 +610,7 @@ var
   LSig: TBytes;
 begin
   // 1) Build transaction
-  LTB := TTransactionBuilder.Create;
+  LTB := TTransactionBuilders.Legacy;
   LTB.AddInstruction(AInstruction);
 
   // 2) Fetch recent blockhash

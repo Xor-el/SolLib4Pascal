@@ -107,7 +107,7 @@ begin
 
   Writeln('BlockHash >> ' + LBlock.Result.Value.Blockhash);
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LFrom.PublicKey)

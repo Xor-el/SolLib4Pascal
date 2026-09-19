@@ -39,6 +39,7 @@ uses
   SlpMessageBuilder,
   SlpTokenProgram,
   SlpToken2022Program,
+  SlpTokenPrograms,
   SlpToken2022ExtensionType,
   SolLibProgramTestCase;
 
@@ -63,6 +64,7 @@ type
     procedure TestInitializeMintCloseAuthoritySet;
     procedure TestReallocate;
     procedure TestLegacyInitializeAccount2;
+    procedure TestTokenProgramsFacadeMatchesDirect;
   end;
 
   /// <summary>Address Lookup Table PDA derivation coverage.</summary>
@@ -263,6 +265,28 @@ begin
   AssertEquals(LExpected, LInstr.Data, 'Data mismatch');
 end;
 
+procedure TToken2022ProgramTests.TestTokenProgramsFacadeMatchesDirect;
+var
+  LViaFacade, LDirect: ITransactionInstruction;
+begin
+  // The namespacing facade must resolve to the same program classes.
+  AssertEquals(TTokenProgram.ProgramIdKey.Key, TTokenPrograms.Legacy.ProgramIdKey.Key,
+    'Legacy program id mismatch');
+  AssertEquals(TToken2022Program.ProgramIdKey.Key, TTokenPrograms.Token2022.ProgramIdKey.Key,
+    'Token2022 program id mismatch');
+
+  // An instruction built through the facade must be byte-identical to the direct call.
+  LViaFacade := TTokenPrograms.Token2022.InitializeAccount2(MintKey, MintKey, OwnerKey);
+  LDirect := TToken2022Program.InitializeAccount2(MintKey, MintKey, OwnerKey);
+  AssertEquals(LDirect.ProgramId, LViaFacade.ProgramId, 'Token2022 ProgramId mismatch');
+  AssertEquals(LDirect.Data, LViaFacade.Data, 'Token2022 Data mismatch');
+
+  LViaFacade := TTokenPrograms.Legacy.InitializeAccount2(MintKey, MintKey, OwnerKey);
+  LDirect := TTokenProgram.InitializeAccount2(MintKey, MintKey, OwnerKey);
+  AssertEquals(LDirect.ProgramId, LViaFacade.ProgramId, 'Legacy ProgramId mismatch');
+  AssertEquals(LDirect.Data, LViaFacade.Data, 'Legacy Data mismatch');
+end;
+
 { TAddressLookupTableDeriveTests }
 
 procedure TAddressLookupTableDeriveTests.TestDeriveIsDeterministic;
@@ -327,17 +351,24 @@ end;
 
 function TVersionedMessageBackportTests.BuildVersioned(const AVersion: Byte): TBytes;
 var
-  LBuilder: IVersionedMessageBuilder;
   LInstr: ITransactionInstruction;
 begin
-  LBuilder := TVersionedMessageBuilder.Create;
-  LBuilder.FeePayer := TBPFLoaderProgram.ProgramIdKey;
-  LBuilder.RecentBlockHash := TSystemProgram.ProgramIdKey.Key;
   LInstr := TAddressLookupTableProgram.FreezeLookupTable(
               TAddressLookupTableProgram.ProgramIdKey, TBPFLoaderProgram.ProgramIdKey);
-  LBuilder.AddInstruction(LInstr);
-  LBuilder.Version := AVersion;
-  Result := LBuilder.Build;
+
+  // Exercise the version-typed message facets; the emitted bytes are version-identical.
+  if AVersion = 0 then
+    Result := TMessageBuilders.V0
+      .SetFeePayer(TBPFLoaderProgram.ProgramIdKey)
+      .SetRecentBlockHash(TSystemProgram.ProgramIdKey.Key)
+      .AddInstruction(LInstr)
+      .Build
+  else
+    Result := TMessageBuilders.V1
+      .SetFeePayer(TBPFLoaderProgram.ProgramIdKey)
+      .SetRecentBlockHash(TSystemProgram.ProgramIdKey.Key)
+      .AddInstruction(LInstr)
+      .Build;
 end;
 
 procedure TVersionedMessageBackportTests.TestVersion0Prefix;

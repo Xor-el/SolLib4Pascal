@@ -55,6 +55,7 @@ type
     procedure ConfigMaskReflectsSetOptions;
     procedure ConfigMaskDetectsInvalidPriorityFeeBits;
     procedure V1MessageSerializeDeserializeRoundTrip;
+    procedure V0MessageWithLookupsRoundTrip;
     procedure MainnetV1TransactionRoundTrip;
   end;
 
@@ -147,6 +148,52 @@ begin
 
   // Re-serializing must reproduce the exact bytes.
   AssertEquals(LBytes, LRoundTrip.Serialize, 'v1 message round-trip mismatch');
+end;
+
+procedure TTransactionV1Tests.V0MessageWithLookupsRoundTrip;
+var
+  LMsg, LRoundTrip: IVersionedMessage;
+  LLkp: IMessageAddressTableLookup;
+  LBytes: TBytes;
+  LMsgIntf: IMessage;
+begin
+  LMsg := TVersionedMessage.Create;
+  LMsg.Version := 0;
+  LMsg.Header := TMessageHeader.Create;
+  LMsg.Header.RequiredSignatures := 1;
+  LMsg.Header.ReadOnlySignedAccounts := 0;
+  LMsg.Header.ReadOnlyUnsignedAccounts := 1;
+  LMsg.AccountKeys := TList<IPublicKey>.Create;
+  LMsg.AccountKeys.Add(TPublicKey.Create('11111111111111111111111111111111'));
+  LMsg.AccountKeys.Add(TPublicKey.Create('So11111111111111111111111111111111111111112'));
+  LMsg.Instructions := TList<ICompiledInstruction>.Create;
+  LMsg.RecentBlockhash := 'So11111111111111111111111111111111111111112';
+
+  LMsg.AddressTableLookups := TList<IMessageAddressTableLookup>.Create;
+  LLkp := TVersionedMessage.TMessageAddressTableLookup.Create;
+  LLkp.AccountKey := TPublicKey.Create('So11111111111111111111111111111111111111112');
+  LLkp.WritableIndexes := TBytes.Create(3, 4);
+  LLkp.ReadonlyIndexes := TBytes.Create(5);
+  LMsg.AddressTableLookups.Add(LLkp);
+
+  LBytes := LMsg.Serialize;
+
+  // v0 prefix (0x80 | 0).
+  AssertEquals($80, Integer(LBytes[0]), 'v0 prefix mismatch');
+
+  LMsgIntf := TVersionedMessage.Deserialize(LBytes);
+  AssertNotNull(LMsgIntf);
+  AssertTrue(Supports(LMsgIntf, IVersionedMessage, LRoundTrip), 'expected IVersionedMessage');
+
+  AssertEquals(0, Integer(LRoundTrip.Version), 'version not preserved');
+  AssertEquals(1, LRoundTrip.AddressTableLookups.Count, 'lookup count mismatch');
+  AssertEquals('So11111111111111111111111111111111111111112',
+    LRoundTrip.AddressTableLookups[0].AccountKey.Key, 'lookup account mismatch');
+  AssertEquals(2, Length(LRoundTrip.AddressTableLookups[0].WritableIndexes), 'writable count mismatch');
+  AssertEquals(1, Length(LRoundTrip.AddressTableLookups[0].ReadonlyIndexes), 'readonly count mismatch');
+
+  // Re-serializing must reproduce the exact bytes.
+  AssertEquals(LBytes, LRoundTrip.Serialize, 'v0 message round-trip mismatch');
 end;
 
 procedure TTransactionV1Tests.MainnetV1TransactionRoundTrip;

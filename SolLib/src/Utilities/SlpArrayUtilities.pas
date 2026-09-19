@@ -22,6 +22,7 @@ unit SlpArrayUtilities;
 interface
 
 uses
+  Classes,
   SysUtils,
   Math,
   Generics.Defaults;
@@ -43,6 +44,12 @@ type
       const A, B: TArray<T>;
       const AComparer: IEqualityComparer<T> = nil
     ): Boolean; overload; static;
+
+    /// <summary>
+    /// Materializes the entire contents of <paramref name="AStream"/> into a byte array,
+    /// rewinding to the start first. Returns an empty array for an empty stream.
+    /// </summary>
+    class function StreamToBytes(const AStream: TStream): TBytes; static;
 
     /// <summary>Bitwise equality for byte arrays via CompareMem.</summary>
     class function AreArraysEqual(const AFirst, ASecond: TBytes): Boolean; overload; static;
@@ -181,6 +188,14 @@ begin
       Exit(False);
 
   Result := True;
+end;
+
+class function TArrayUtilities.StreamToBytes(const AStream: TStream): TBytes;
+begin
+  SetLength(Result, AStream.Size);
+  AStream.Position := 0;
+  if AStream.Size > 0 then
+    AStream.ReadBuffer(Result[0], AStream.Size);
 end;
 
 class function TArrayUtilities.AreArraysEqual(const AFirst, ASecond: TBytes): Boolean;

@@ -275,7 +275,7 @@ begin
   AssertEquals(0, LTestList.WhichAreAssociatedTokenAccounts.Count);
 
   // Inject ATA creation into a transaction builder
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
 
   LBuilder.SetFeePayer(LSigner.PublicKey)
       .SetRecentBlockHash(Blockhash);

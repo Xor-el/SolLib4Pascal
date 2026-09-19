@@ -856,7 +856,7 @@ begin
   LDestWallet := Load(FRpcClient, FMintResolver, ADestination, TBinaryEncoding.JsonParsed, TCommitment.Finalized);
   LBlockHash := FRpcClient.GetLatestBlockHash;
 
-  LTxB := TTransactionBuilder.Create;
+  LTxB := TTransactionBuilders.Legacy;
   LTxB.SetRecentBlockHash(LBlockHash.Result.Value.Blockhash)
        .SetFeePayer(AFeePayer);
 
