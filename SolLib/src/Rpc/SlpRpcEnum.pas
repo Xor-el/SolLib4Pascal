@@ -23,6 +23,22 @@ interface
 
 type
   /// <summary>
+  /// Represents the transaction version selected when building a transaction.
+  /// <remarks>
+  /// The wire version byte is 0 for <c>V0</c> and 1 for <c>V1</c>; <c>Legacy</c> selects the
+  /// non-versioned message path. (Ordinals are contiguous; the wire byte is mapped explicitly.)
+  /// </remarks>
+  /// </summary>
+  TTransactionVersion = (
+    /// <summary>Legacy (non-versioned) transaction.</summary>
+    Legacy,
+    /// <summary>Version 0 transaction (address lookup tables).</summary>
+    V0,
+    /// <summary>Version 1 transaction (in-message transaction config; SIMD-0385).</summary>
+    V1
+  );
+
+  /// <summary>
   /// Represents the filter account type.
   /// </summary>
   TAccountFilterType = (

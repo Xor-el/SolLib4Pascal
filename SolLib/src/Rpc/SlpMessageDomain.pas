@@ -29,6 +29,9 @@ uses
   SlpShortVectorEncoding,
   SlpDataEncoderUtilities,
   SlpTransactionInstruction,
+  SlpTransactionConfig,
+  SlpSerialization,
+  SlpDeserialization,
   SlpArrayUtilities;
 
 type
@@ -138,12 +141,18 @@ type
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
     function GetVersion: Byte;
     procedure SetVersion(const AValue: Byte);
+    function GetTransactionConfig: TTransactionConfig;
+    procedure SetTransactionConfig(const AValue: TTransactionConfig);
 
     property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
     /// <summary>
     /// The message version encoded in the low 7 bits of the versioned prefix.
     /// </summary>
     property Version: Byte read GetVersion write SetVersion;
+    /// <summary>
+    /// The in-message transaction configuration (version 1 only).
+    /// </summary>
+    property TransactionConfig: TTransactionConfig read GetTransactionConfig write SetTransactionConfig;
   end;
 
   /// <summary>
@@ -262,10 +271,21 @@ type
   private
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
     FVersion: Byte;
+    FTransactionConfig: TTransactionConfig;
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
     function GetVersion: Byte;
     procedure SetVersion(const AValue: Byte);
+    function GetTransactionConfig: TTransactionConfig;
+    procedure SetTransactionConfig(const AValue: TTransactionConfig);
+
+    /// <summary>Serialize a version 0 message (dynamic prefix + address-table-lookup trailer).</summary>
+    function SerializeV0: TBytes;
+    /// <summary>Serialize a version 1 message (in-message transaction config; SIMD-0385).</summary>
+    function SerializeV1: TBytes;
+
+    class function DeserializeV0(const AData: TBytes): IMessage; static;
+    class function DeserializeV1(const AData: TBytes): IMessage; static;
   protected
     class function DoDeserialize(const AData: TBytes): IMessage; override;
   public
@@ -273,10 +293,14 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    /// Serialize the versioned message into the wire format
-    /// (dynamic <c>$80 or Version</c> prefix, address-table-lookup trailer).
+    /// Serialize the versioned message into the wire format, dispatching on <c>Version</c>.
     /// </summary>
     function Serialize: TBytes; override;
+
+    /// <summary>The address table lookups (version 0 only).</summary>
+    property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
+    /// <summary>The in-message transaction configuration (version 1 only).</summary>
+    property TransactionConfig: TTransactionConfig read GetTransactionConfig write SetTransactionConfig;
 
     /// <summary>
     /// Deserialize the message version
@@ -674,10 +698,13 @@ constructor TVersionedMessage.Create;
 begin
   inherited Create;
   FAddressTableLookups := nil;
+  FTransactionConfig := nil;
 end;
 
 destructor TVersionedMessage.Destroy;
 begin
+  if Assigned(FTransactionConfig) then
+    FTransactionConfig.Free;
   if Assigned(FAddressTableLookups) then
     FAddressTableLookups.Free;
   inherited;
@@ -703,7 +730,32 @@ begin
   FVersion := AValue;
 end;
 
+function TVersionedMessage.GetTransactionConfig: TTransactionConfig;
+begin
+  Result := FTransactionConfig;
+end;
+
+procedure TVersionedMessage.SetTransactionConfig(const AValue: TTransactionConfig);
+begin
+  if FTransactionConfig <> AValue then
+  begin
+    if Assigned(FTransactionConfig) then
+      FTransactionConfig.Free;
+    FTransactionConfig := AValue;
+  end;
+end;
+
 function TVersionedMessage.Serialize: TBytes;
+begin
+  case FVersion of
+    0: Result := SerializeV0;
+    1: Result := SerializeV1;
+  else
+    raise ENotSupportedException.CreateFmt('Version %d is not supported for serialization.', [FVersion]);
+  end;
+end;
+
+function TVersionedMessage.SerializeV0: TBytes;
 var
   LAccountAddressesLength, LInstructionsLength, LAccountKeyBytes, LHdr, LBlockHashBytes, LAtlBytes: TBytes;
   LAccountKeysBuf, LMsgBuf: TMemoryStream;
@@ -782,7 +834,133 @@ begin
   end;
 end;
 
+function TVersionedMessage.SerializeV1: TBytes;
+var
+  LMask: TTransactionConfigMask;
+  LBuf: TMemoryStream;
+  LI: Integer;
+  LCI: ICompiledInstruction;
+  LHdr, LBlockHashBytes, LAccountKeyBytes, LScratch: TBytes;
+  LByte: Byte;
+begin
+  LMask := TTransactionConfigMask.FromConfig(FTransactionConfig);
+
+  LBuf := TMemoryStream.Create;
+  try
+    // Version prefix (high bit set, low 7 bits carry the version).
+    LByte := Byte($80 or FVersion);
+    LBuf.WriteBuffer(LByte, 1);
+
+    // Message header (3 bytes).
+    LHdr := FHeader.ToBytes();
+    LBuf.WriteBuffer(LHdr[0], Length(LHdr));
+
+    // Config mask (u32 LE).
+    SetLength(LScratch, 4);
+    TSerialization.WriteU32(LScratch, LMask.Value, 0);
+    LBuf.WriteBuffer(LScratch[0], 4);
+
+    // Lifetime specifier / blockhash (32 bytes).
+    LBlockHashBytes := TBase58Encoder.DecodeData(FRecentBlockhash);
+    LBuf.WriteBuffer(LBlockHashBytes[0], Length(LBlockHashBytes));
+
+    // Counts as single bytes: instruction count first, then account count.
+    LByte := Byte(FInstructions.Count);
+    LBuf.WriteBuffer(LByte, 1);
+    LByte := Byte(FAccountKeys.Count);
+    LBuf.WriteBuffer(LByte, 1);
+
+    // Account keys.
+    for LI := 0 to FAccountKeys.Count - 1 do
+    begin
+      LAccountKeyBytes := FAccountKeys[LI].KeyBytes;
+      LBuf.WriteBuffer(LAccountKeyBytes[0], Length(LAccountKeyBytes));
+    end;
+
+    // Config values, in mask order, only when present.
+    if Assigned(FTransactionConfig) then
+    begin
+      if FTransactionConfig.PriorityFee.HasValue then
+      begin
+        SetLength(LScratch, 8);
+        TSerialization.WriteU64(LScratch, FTransactionConfig.PriorityFee.Value, 0);
+        LBuf.WriteBuffer(LScratch[0], 8);
+      end;
+      if FTransactionConfig.ComputeUnitLimit.HasValue then
+      begin
+        SetLength(LScratch, 4);
+        TSerialization.WriteU32(LScratch, FTransactionConfig.ComputeUnitLimit.Value, 0);
+        LBuf.WriteBuffer(LScratch[0], 4);
+      end;
+      if FTransactionConfig.LoadedAccountsDataSizeLimit.HasValue then
+      begin
+        SetLength(LScratch, 4);
+        TSerialization.WriteU32(LScratch, FTransactionConfig.LoadedAccountsDataSizeLimit.Value, 0);
+        LBuf.WriteBuffer(LScratch[0], 4);
+      end;
+      if FTransactionConfig.HeapSize.HasValue then
+      begin
+        SetLength(LScratch, 4);
+        TSerialization.WriteU32(LScratch, FTransactionConfig.HeapSize.Value, 0);
+        LBuf.WriteBuffer(LScratch[0], 4);
+      end;
+    end;
+
+    // Instruction headers: programIdIndex (u8), key-indices length (u8), data length (u16 LE).
+    for LI := 0 to FInstructions.Count - 1 do
+    begin
+      LCI := FInstructions[LI];
+      LByte := LCI.ProgramIdIndex;
+      LBuf.WriteBuffer(LByte, 1);
+      LByte := Byte(Length(LCI.KeyIndices));
+      LBuf.WriteBuffer(LByte, 1);
+      SetLength(LScratch, 2);
+      TSerialization.WriteU16(LScratch, Word(Length(LCI.Data)), 0);
+      LBuf.WriteBuffer(LScratch[0], 2);
+    end;
+
+    // Instruction payloads: key indices then data.
+    for LI := 0 to FInstructions.Count - 1 do
+    begin
+      LCI := FInstructions[LI];
+      if Length(LCI.KeyIndices) > 0 then
+        LBuf.WriteBuffer(LCI.KeyIndices[0], Length(LCI.KeyIndices));
+      if Length(LCI.Data) > 0 then
+        LBuf.WriteBuffer(LCI.Data[0], Length(LCI.Data));
+    end;
+
+    SetLength(Result, LBuf.Size);
+    LBuf.Position := 0;
+    LBuf.ReadBuffer(Result[0], LBuf.Size);
+  finally
+    LBuf.Free;
+  end;
+end;
+
 class function TVersionedMessage.DoDeserialize(const AData: TBytes): IMessage;
+var
+  LPrefix, LMaskedPrefix, LVersion: Byte;
+begin
+  if Length(AData) = 0 then
+    raise Exception.Create('Empty message');
+
+  LPrefix := AData[0];
+  LMaskedPrefix := LPrefix and TVersionedMessage.VersionPrefixMask;
+
+  if LPrefix = LMaskedPrefix then
+    raise ENotSupportedException.Create('Expected versioned message but received legacy message');
+
+  LVersion := LMaskedPrefix;
+
+  case LVersion of
+    0: Result := DeserializeV0(AData);
+    1: Result := DeserializeV1(AData);
+  else
+    raise ENotSupportedException.CreateFmt('Version %d is not supported for deserialization.', [LVersion]);
+  end;
+end;
+
+class function TVersionedMessage.DeserializeV0(const AData: TBytes): IMessage;
 const
   PKLen = TPublicKey.PublicKeyLength;
   HLen = TMessageHeader.TLayout.HeaderLength;
@@ -954,6 +1132,113 @@ begin
     LTableLookupData := TArrayUtilities.Slice<Byte>(LTableLookupData, LReadonlyEncLen + LReadonlyLen);
 
     LRes.AddressTableLookups.Add(LLkp);
+  end;
+
+  Result := LRes;
+end;
+
+class function TVersionedMessage.DeserializeV1(const AData: TBytes): IMessage;
+const
+  PKLen = TPublicKey.PublicKeyLength;
+var
+  LOffset: Integer;
+  LVersion: Byte;
+  LMask: TTransactionConfigMask;
+  LConfig: TTransactionConfig;
+  LRes: IVersionedMessage;
+  LInstructionCount, LAccountCount: Byte;
+  LI: Integer;
+  LKeySlice, LBlockHashSlice, LKeyIndices, LData: TBytes;
+  LProgramIds, LAccCounts: TArray<Byte>;
+  LDataLengths: TArray<Word>;
+begin
+  LOffset := 0;
+  LVersion := AData[LOffset] and TVersionedMessage.VersionPrefixMask;
+  Inc(LOffset); // version prefix
+
+  LRes := TVersionedMessage.Create;
+  LRes.Header := TMessageHeader.Create;
+  LRes.AccountKeys := TList<IPublicKey>.Create;
+  LRes.Instructions := TList<ICompiledInstruction>.Create;
+  LRes.Version := LVersion;
+
+  // Message header (3 bytes).
+  LRes.Header.RequiredSignatures := AData[LOffset]; Inc(LOffset);
+  LRes.Header.ReadOnlySignedAccounts := AData[LOffset]; Inc(LOffset);
+  LRes.Header.ReadOnlyUnsignedAccounts := AData[LOffset]; Inc(LOffset);
+
+  // Config mask (u32 LE).
+  LMask := TTransactionConfigMask.Create(TDeserialization.GetU32(AData, LOffset));
+  Inc(LOffset, 4);
+  if LMask.HasUnknownBits or LMask.HasInvalidPriorityFeeBits then
+    raise EArgumentException.Create('Invalid transaction config mask.');
+
+  // Lifetime specifier / blockhash (32 bytes).
+  LBlockHashSlice := TArrayUtilities.Slice<Byte>(AData, LOffset, PKLen);
+  LRes.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
+  Inc(LOffset, PKLen);
+
+  // Counts (single bytes): instruction count first, then account count.
+  LInstructionCount := AData[LOffset]; Inc(LOffset);
+  LAccountCount := AData[LOffset]; Inc(LOffset);
+
+  // Account keys.
+  for LI := 0 to LAccountCount - 1 do
+  begin
+    LKeySlice := TArrayUtilities.Slice<Byte>(AData, LOffset, PKLen);
+    LRes.AccountKeys.Add(TPublicKey.Create(LKeySlice));
+    Inc(LOffset, PKLen);
+  end;
+
+  // Config values, in mask order.
+  LConfig := TTransactionConfig.Create;
+  if LMask.HasPriorityFee then
+  begin
+    LConfig.PriorityFee := TDeserialization.GetU64(AData, LOffset);
+    Inc(LOffset, 8);
+  end;
+  if LMask.HasComputeUnitLimit then
+  begin
+    LConfig.ComputeUnitLimit := TDeserialization.GetU32(AData, LOffset);
+    Inc(LOffset, 4);
+  end;
+  if LMask.HasLoadedAccountsDataSize then
+  begin
+    LConfig.LoadedAccountsDataSizeLimit := TDeserialization.GetU32(AData, LOffset);
+    Inc(LOffset, 4);
+  end;
+  if LMask.HasHeapSize then
+  begin
+    LConfig.HeapSize := TDeserialization.GetU32(AData, LOffset);
+    Inc(LOffset, 4);
+  end;
+  LRes.TransactionConfig := LConfig;
+
+  // Instruction headers: programIdIndex (u8), key-indices length (u8), data length (u16 LE).
+  SetLength(LProgramIds, LInstructionCount);
+  SetLength(LAccCounts, LInstructionCount);
+  SetLength(LDataLengths, LInstructionCount);
+  for LI := 0 to LInstructionCount - 1 do
+  begin
+    LProgramIds[LI] := AData[LOffset]; Inc(LOffset);
+    LAccCounts[LI] := AData[LOffset]; Inc(LOffset);
+    LDataLengths[LI] := TDeserialization.GetU16(AData, LOffset); Inc(LOffset, 2);
+  end;
+
+  // Instruction payloads: key indices then data.
+  for LI := 0 to LInstructionCount - 1 do
+  begin
+    LKeyIndices := TArrayUtilities.Slice<Byte>(AData, LOffset, LAccCounts[LI]);
+    Inc(LOffset, LAccCounts[LI]);
+    LData := TArrayUtilities.Slice<Byte>(AData, LOffset, LDataLengths[LI]);
+    Inc(LOffset, LDataLengths[LI]);
+
+    LRes.Instructions.Add(TCompiledInstruction.Create(
+      LProgramIds[LI],
+      TShortVectorEncoding.EncodeLength(LAccCounts[LI]),
+      LKeyIndices,
+      TShortVectorEncoding.EncodeLength(LDataLengths[LI]),
+      LData));
   end;
 
   Result := LRes;

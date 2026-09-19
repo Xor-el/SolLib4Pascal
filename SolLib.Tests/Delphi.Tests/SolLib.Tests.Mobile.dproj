@@ -416,6 +416,7 @@
         <DCCReference Include="..\..\SolLib\src\Rpc\SlpIdGenerator.pas"/>
         <DCCReference Include="..\..\SolLib\src\Rpc\SlpMessageBuilder.pas"/>
         <DCCReference Include="..\..\SolLib\src\Rpc\SlpMessageDomain.pas"/>
+        <DCCReference Include="..\..\SolLib\src\Rpc\SlpTransactionConfig.pas"/>
         <DCCReference Include="..\..\SolLib\src\Rpc\SlpRateLimiter.pas"/>
         <DCCReference Include="..\..\SolLib\src\Rpc\SlpRpcEnum.pas"/>
         <DCCReference Include="..\..\SolLib\src\Rpc\SlpRpcMessage.pas"/>
@@ -500,6 +501,7 @@
         <DCCReference Include="..\src\Rpc\SolanaRpcRateLimitingTests.pas"/>
         <DCCReference Include="..\src\Rpc\TransactionBuilderTests.pas"/>
         <DCCReference Include="..\src\Rpc\MessageTests.pas"/>
+        <DCCReference Include="..\src\Rpc\TransactionV1Tests.pas"/>
         <DCCReference Include="..\src\Rpc\ClientFactoryTests.pas"/>
         <DCCReference Include="..\src\Rpc\TransactionTests.pas"/>
         <DCCReference Include="..\src\Rpc\ShortVectorEncodingTests.pas"/>

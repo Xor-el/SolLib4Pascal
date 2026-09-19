@@ -103,6 +103,7 @@ contains
   SlpIdGenerator in '..\..\Rpc\SlpIdGenerator.pas',
   SlpMessageBuilder in '..\..\Rpc\SlpMessageBuilder.pas',
   SlpMessageDomain in '..\..\Rpc\SlpMessageDomain.pas',
+  SlpTransactionConfig in '..\..\Rpc\SlpTransactionConfig.pas',
   SlpRateLimiter in '..\..\Rpc\SlpRateLimiter.pas',
   SlpRpcEnum in '..\..\Rpc\SlpRpcEnum.pas',
   SlpRpcMessage in '..\..\Rpc\SlpRpcMessage.pas',

@@ -143,7 +143,7 @@ type
     /// <param name="ACommitment">The state commitment to consider when querying the ledger state.</param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
     function GetBlock(ASlot: UInt64; ATransactionDetails: TTransactionDetailsFilterType = TTransactionDetailsFilterType.Full;
-      ABlockRewards: Boolean = False; AMaxSupportedTransactionVersion: Integer = 0; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TBlockInfo>;
+      ABlockRewards: Boolean = False; AMaxSupportedTransactionVersion: Integer = 1; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TBlockInfo>;
 
     /// <summary>
     /// Gets the block commitment of a certain block, identified by slot.
@@ -495,7 +495,7 @@ type
     /// <param name="AEncoding">The binary encoding.</param>
     /// <param name="ACommitment"></param>
     /// <returns>Returns an object that wraps the result along with possible errors with the request.</returns>
-    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 0; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
+    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 1; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
 
     /// <summary>
     /// Gets the total transaction count of the ledger.
@@ -681,7 +681,7 @@ type
     function GetBlock(ASlot: UInt64;
                       ATransactionDetails: TTransactionDetailsFilterType = TTransactionDetailsFilterType.Full;
                       ABlockRewards: Boolean = False;
-                      AMaxSupportedTransactionVersion: Integer = 0;
+                      AMaxSupportedTransactionVersion: Integer = 1;
                       AEncoding: TBinaryEncoding = TBinaryEncoding.Json;
                       ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TBlockInfo>;
 
@@ -767,7 +767,7 @@ type
 
     function GetTokenSupply(const ATokenMintPubKey: string; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TResponseValue<TTokenBalance>>;
 
-    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 0; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
+    function GetTransaction(const ASignature: string; AMaxSupportedTransactionVersion: Integer = 1; AEncoding: TBinaryEncoding = TBinaryEncoding.Json; ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<TTransactionMetaSlotInfo>;
 
     function GetTransactionCount(ACommitment: TCommitment = TCommitment.Finalized): TRequestResult<UInt64>;
 

@@ -33,6 +33,7 @@ uses
   SlpListUtilities,
   SlpDataEncoderUtilities,
   SlpMessageDomain,
+  SlpTransactionConfig,
   SlpAccount,
   SlpSysVars,
   SlpTransactionInstruction,
@@ -255,6 +256,8 @@ type
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
     function GetVersion: Byte;
     procedure SetVersion(const AValue: Byte);
+    function GetTransactionConfig: TTransactionConfig;
+    procedure SetTransactionConfig(const AValue: TTransactionConfig);
     /// <summary>
     /// Address Table Lookups
     /// </summary>
@@ -263,6 +266,10 @@ type
     /// The message version to use when compiling the versioned transaction.
     /// </summary>
     property Version: Byte read GetVersion write SetVersion;
+    /// <summary>
+    /// The in-message transaction configuration (version 1 only).
+    /// </summary>
+    property TransactionConfig: TTransactionConfig read GetTransactionConfig write SetTransactionConfig;
   end;
 
   /// <summary>
@@ -427,14 +434,20 @@ type
   private
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
     FVersion: Byte;
+    FTransactionConfig: TTransactionConfig;
 
     function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
     procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
     function GetVersion: Byte;
     procedure SetVersion(const AValue: Byte);
+    function GetTransactionConfig: TTransactionConfig;
+    procedure SetTransactionConfig(const AValue: TTransactionConfig);
 
+    /// <summary>Serialize a version 1 transaction (message bytes followed by raw signatures, no count prefix).</summary>
+    function SerializeV1Transaction: TBytes;
   protected
     function CompileMessage: TBytes; override;
+    function Serialize: TBytes; override;
     /// <summary>
     /// Deserialize a wire format transaction into a Transaction object.
     /// </summary>
@@ -448,6 +461,10 @@ type
     /// The message version to use when compiling the versioned transaction.
     /// </summary>
     property Version: Byte read FVersion write FVersion;
+    /// <summary>
+    /// The in-message transaction configuration (version 1 only).
+    /// </summary>
+    property TransactionConfig: TTransactionConfig read FTransactionConfig write SetTransactionConfig;
     /// <summary>
     /// Populate the Transaction from the given message and signatures.
     /// </summary>
@@ -1015,6 +1032,11 @@ var
   LMaskedPrefix: Byte;
   LMsg: IMessage;
 begin
+  // Version 1 transactions are message-first (high bit set at offset 0) with no signature
+  // count prefix; route them to the versioned deserializer before reading a short-vec count.
+  if (Length(AData) > 0) and ((AData[0] and $80) <> 0) then
+    Exit(TVersionedTransaction.DoDeserialize(AData));
+
   // Read number of signatures
   LVecDecode := TShortVectorEncoding.DecodeLength(
     TArrayUtilities.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
@@ -1036,9 +1058,9 @@ begin
   LPrefix := AData[LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)];
   LMaskedPrefix := LPrefix and TVersionedMessage.VersionPrefixMask;
 
-  // If the transaction is a VersionedTransaction, use VersionedTransaction.Deserialize instead.
+  // If the transaction is a VersionedTransaction, use the versioned deserializer instead.
   if LPrefix <> LMaskedPrefix then
-    Exit(TVersionedTransaction.Deserialize(AData));
+    Exit(TVersionedTransaction.DoDeserialize(AData));
 
   LMsg := TMessage.Deserialize(
     TArrayUtilities.Slice<Byte>(
@@ -1058,10 +1080,13 @@ begin
   inherited Create;
   FAddressTableLookups := TList<IMessageAddressTableLookup>.Create;
   FVersion := 0;
+  FTransactionConfig := nil;
 end;
 
 destructor TVersionedTransaction.Destroy;
 begin
+  if Assigned(FTransactionConfig) then
+    FTransactionConfig.Free;
   if Assigned(FAddressTableLookups) then
     FAddressTableLookups.Free;
   inherited;
@@ -1085,6 +1110,21 @@ end;
 procedure TVersionedTransaction.SetVersion(const AValue: Byte);
 begin
   FVersion := AValue;
+end;
+
+function TVersionedTransaction.GetTransactionConfig: TTransactionConfig;
+begin
+  Result := FTransactionConfig;
+end;
+
+procedure TVersionedTransaction.SetTransactionConfig(const AValue: TTransactionConfig);
+begin
+  if FTransactionConfig <> AValue then
+  begin
+    if Assigned(FTransactionConfig) then
+      FTransactionConfig.Free;
+    FTransactionConfig := AValue;
+  end;
 end;
 
 function TVersionedTransaction.CompileMessage: TBytes;
@@ -1114,7 +1154,45 @@ begin
   if Assigned(FAddressTableLookups) then
     LMessageBuilder.AddressTableLookups.AddRange(FAddressTableLookups);
 
+  if Assigned(FTransactionConfig) then
+    LMessageBuilder.TransactionConfig := FTransactionConfig.Clone;
+
   Result := LMessageBuilder.Build;
+end;
+
+function TVersionedTransaction.Serialize: TBytes;
+begin
+  if FVersion = 1 then
+    Result := SerializeV1Transaction
+  else
+    Result := inherited Serialize;
+end;
+
+function TVersionedTransaction.SerializeV1Transaction: TBytes;
+var
+  LSerializedMessage: TBytes;
+  LBuffer: TMemoryStream;
+  LPair: ISignaturePubKeyPair;
+begin
+  // Version 1 transactions are the message bytes followed by the raw signatures,
+  // with no short-vec signature count prefix (the count is implied by the header).
+  LSerializedMessage := CompileMessage;
+  LBuffer := TMemoryStream.Create;
+  try
+    if Length(LSerializedMessage) > 0 then
+      LBuffer.WriteBuffer(LSerializedMessage[0], Length(LSerializedMessage));
+
+    for LPair in FSignatures do
+      if Length(LPair.Signature) > 0 then
+        LBuffer.WriteBuffer(LPair.Signature[0], Length(LPair.Signature));
+
+    SetLength(Result, LBuffer.Size);
+    LBuffer.Position := 0;
+    if LBuffer.Size > 0 then
+      LBuffer.ReadBuffer(Result[0], LBuffer.Size);
+  finally
+    LBuffer.Free;
+  end;
 end;
 
 class function TVersionedTransaction.Populate(AMessage: IVersionedMessage; const ASignatures: TArray<TBytes> = nil): IVersionedTransaction;
@@ -1128,9 +1206,13 @@ begin
   Result := TVersionedTransaction.Create;
   try
     Result.RecentBlockHash := AMessage.RecentBlockhash;
+    Result.Version := AMessage.Version;
 
     Result.AccountKeys.AddRange(AMessage.AccountKeys);
-    Result.AddressTableLookups.AddRange(AMessage.AddressTableLookups);
+    if Assigned(AMessage.AddressTableLookups) then
+      Result.AddressTableLookups.AddRange(AMessage.AddressTableLookups);
+    if Assigned(AMessage.TransactionConfig) then
+      Result.TransactionConfig := AMessage.TransactionConfig.Clone;
 
     if AMessage.Header.RequiredSignatures > 0 then
       Result.FeePayer := AMessage.AccountKeys[0];
@@ -1212,7 +1294,31 @@ var
   LMessageOffset: Integer;
   LMsg: IMessage;
   LVersionedMessage: IVersionedMessage;
+  LSignatureCount, LMessageLen: Integer;
 begin
+  // Version 1 transactions are message-first (high bit set at offset 0), with the raw
+  // signatures appended after the message and no short-vec signature count prefix.
+  if (Length(AData) > 0) and ((AData[0] and $80) <> 0) then
+  begin
+    LMsg := TVersionedMessage.Deserialize(AData);
+    if not Supports(LMsg, IVersionedMessage, LVersionedMessage) then
+      raise EArgumentException.Create('Deserialized message does not support IVersionedMessage.');
+
+    LSignatureCount := LVersionedMessage.Header.RequiredSignatures;
+    LMessageLen := Length(AData) - (LSignatureCount * TTransactionBuilder.SignatureLength);
+
+    SetLength(LSignatures, LSignatureCount);
+    for LI := 0 to LSignatureCount - 1 do
+      LSignatures[LI] := TArrayUtilities.Slice<Byte>(
+        AData,
+        LMessageLen + (LI * TTransactionBuilder.SignatureLength),
+        TTransactionBuilder.SignatureLength
+      );
+
+    Result := Populate(LVersionedMessage, LSignatures);
+    Exit;
+  end;
+
   LVecDecode := TShortVectorEncoding.DecodeLength(
     TArrayUtilities.Slice<Byte>(AData, 0, TShortVectorEncoding.SpanLength)
   );
