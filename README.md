@@ -131,19 +131,21 @@ end;
 
 ### Versioned (v0 / v1) Transactions
 
-`TVersionedTransactionBuilder` builds versioned transactions. Version 0 carries address lookup
-tables; version 1 (SIMD-0385, live on mainnet since epoch 1035) carries the compute-budget and
-priority-fee settings directly in the message via `TTransactionConfig` instead of Compute Budget
-Program instructions, and supports larger transactions (up to 4096 bytes).
+`TTransactionBuilders` is the entry point: `Legacy`, `V0` and `V1` each return a builder that
+exposes only the methods valid for that version, so invalid combinations don't compile. Version 0
+carries address lookup tables (`AddAddressTableLookup`); version 1 (SIMD-0385, live on mainnet
+since epoch 1035) instead carries the compute-budget and priority-fee settings in the message via
+`SetTransactionConfig`, and allows larger transactions (up to 4096 bytes).
 
 ```pascal
 var
-  LV0Builder, LV1Builder: IVersionedTransactionBuilder;
+  LV0Builder: IVersionedTxV0Builder;
+  LV1Builder: IVersionedTxV1Builder;
   LConfig: TTransactionConfig;
   LV0Bytes, LV1Bytes: TBytes;
 begin
   // Version 0: address lookup tables.
-  LV0Builder := TVersionedTransactionBuilder.Create(TTransactionVersion.V0);
+  LV0Builder := TTransactionBuilders.V0;
   LV0Bytes :=
     LV0Builder
       .SetRecentBlockHash(LBlockHash)
@@ -153,13 +155,14 @@ begin
       .Build(LFrom);
 
   // Version 1: in-message transaction config (no Compute Budget instructions needed).
+  // The builder takes ownership of the config passed to SetTransactionConfig.
   LConfig := TTransactionConfig.Create;
   LConfig.ComputeUnitLimit := UInt32(20000);
   LConfig.PriorityFee := UInt64(5000);
   LConfig.HeapSize := UInt32(64 * 1024);
   LConfig.LoadedAccountsDataSizeLimit := UInt32(64 * 1024);
 
-  LV1Builder := TVersionedTransactionBuilder.Create(TTransactionVersion.V1);
+  LV1Builder := TTransactionBuilders.V1;
   LV1Bytes :=
     LV1Builder
       .SetRecentBlockHash(LBlockHash)
@@ -174,7 +177,8 @@ end;
 
 Tests are provided for Delphi.
 
-- **Delphi:** Open and run `SolLib.Tests/Delphi.Tests/SolLib.Tests.dpr` in the IDE.
+- **Delphi (desktop):** Open and run `SolLib.Tests/Delphi.Tests/SolLib.Tests.dpr` in the IDE.
+- **Delphi (mobile):** See [Mobile test harness](SolLib.Tests/docs/MobileTestHarness.md) for Android/iOS testing with TestInsight.
 
 Additional samples can be found in the `SolLib.Examples` folder.
 

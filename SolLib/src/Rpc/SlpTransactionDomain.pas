@@ -747,28 +747,9 @@ begin
 end;
 
 function TTransaction.Sign(const ASigners: TList<IAccount>): Boolean;
-var
-  LUniqueSigners: TList<IAccount>;
-  LSerializedMessage, LSignatureBytes: TBytes;
-  LAccount: IAccount;
-  LPair: ISignaturePubKeyPair;
 begin
-  LUniqueSigners := DeduplicateSigners(ASigners);
-  try
-    LSerializedMessage := CompileMessage;
-    for LAccount in LUniqueSigners do
-    begin
-      LSignatureBytes := LAccount.Sign(LSerializedMessage);
-      LPair := TSignaturePubKeyPair.Create(
-        LAccount.PublicKey,
-        LSignatureBytes
-      );
-      FSignatures.Add(LPair);
-    end;
-  finally
-    LUniqueSigners.Free;
-  end;
-
+  // Signing is a partial sign followed by verification of the resulting signatures.
+  PartialSign(ASigners);
   Result := VerifySignatures;
 end;
 
@@ -776,9 +757,8 @@ function TTransaction.Sign(const ASigner: IAccount): Boolean;
 var
   LSigners: TList<IAccount>;
 begin
-  LSigners := TList<IAccount>.Create;
+  LSigners := TListUtilities.Singleton<IAccount>(ASigner);
   try
-    LSigners.Add(ASigner);
     Result := Sign(LSigners);
   finally
     LSigners.Free;
@@ -810,9 +790,8 @@ procedure TTransaction.PartialSign(const ASigner: IAccount);
 var
   LUniqueSigners: TList<IAccount>;
 begin
-  LUniqueSigners := TList<IAccount>.Create;
+  LUniqueSigners := TListUtilities.Singleton<IAccount>(ASigner);
   try
-    LUniqueSigners.Add(ASigner);
     PartialSign(LUniqueSigners);
   finally
     LUniqueSigners.Free;
@@ -823,9 +802,8 @@ function TTransaction.Build(const ASigner: IAccount): TBytes;
 var
   LSigners: TList<IAccount>;
 begin
-  LSigners := TList<IAccount>.Create;
+  LSigners := TListUtilities.Singleton<IAccount>(ASigner);
   try
-    LSigners.Add(ASigner);
     Result := Build(LSigners);
   finally
     LSigners.Free;
@@ -892,9 +870,7 @@ begin
     if Length(LSerializedMessage) > 0 then
       LBuffer.WriteBuffer(LSerializedMessage[0], Length(LSerializedMessage));
 
-    SetLength(Result, LBuffer.Size);
-    LBuffer.Position := 0;
-    LBuffer.ReadBuffer(Result[0], LBuffer.Size);
+    Result := TArrayUtilities.StreamToBytes(LBuffer);
   finally
     LBuffer.Free;
   end;
@@ -1034,7 +1010,7 @@ var
 begin
   // Version 1 transactions are message-first (high bit set at offset 0) with no signature
   // count prefix; route them to the versioned deserializer before reading a short-vec count.
-  if (Length(AData) > 0) and ((AData[0] and $80) <> 0) then
+  if (Length(AData) > 0) and TVersionedMessage.IsVersioned(AData[0]) then
     Exit(TVersionedTransaction.DoDeserialize(AData));
 
   // Read number of signatures
@@ -1119,12 +1095,7 @@ end;
 
 procedure TVersionedTransaction.SetTransactionConfig(const AValue: TTransactionConfig);
 begin
-  if FTransactionConfig <> AValue then
-  begin
-    if Assigned(FTransactionConfig) then
-      FTransactionConfig.Free;
-    FTransactionConfig := AValue;
-  end;
+  TTransactionConfig.ReplaceOwned(FTransactionConfig, AValue);
 end;
 
 function TVersionedTransaction.CompileMessage: TBytes;
@@ -1186,10 +1157,7 @@ begin
       if Length(LPair.Signature) > 0 then
         LBuffer.WriteBuffer(LPair.Signature[0], Length(LPair.Signature));
 
-    SetLength(Result, LBuffer.Size);
-    LBuffer.Position := 0;
-    if LBuffer.Size > 0 then
-      LBuffer.ReadBuffer(Result[0], LBuffer.Size);
+    Result := TArrayUtilities.StreamToBytes(LBuffer);
   finally
     LBuffer.Free;
   end;
@@ -1298,7 +1266,7 @@ var
 begin
   // Version 1 transactions are message-first (high bit set at offset 0), with the raw
   // signatures appended after the message and no short-vec signature count prefix.
-  if (Length(AData) > 0) and ((AData[0] and $80) <> 0) then
+  if (Length(AData) > 0) and TVersionedMessage.IsVersioned(AData[0]) then
   begin
     LMsg := TVersionedMessage.Deserialize(AData);
     if not Supports(LMsg, IVersionedMessage, LVersionedMessage) then

@@ -233,6 +233,23 @@ type
     /// Internal virtual deserialization hook — subclasses override this to provide their parser.
     /// </summary>
     class function DoDeserialize(const AData: TBytes): IMessage; virtual;
+
+    /// <summary>
+    /// Writes the shared message body — header, account keys, blockhash and compiled
+    /// instructions — to <paramref name="AStream"/>. This layout is identical for legacy
+    /// and version 0 messages; the versioned prefix and address-table-lookup trailer are
+    /// written by the version 0 serializer around this body.
+    /// </summary>
+    procedure WriteMessageBody(const AStream: TStream);
+
+    /// <summary>
+    /// Reads the shared message body from <paramref name="ABody"/> (which starts at the
+    /// message header, i.e. after any versioned prefix), populating
+    /// <paramref name="AMessage"/>'s header, account keys, blockhash and instructions.
+    /// Returns the offset within <paramref name="ABody"/> immediately after the last
+    /// instruction, which the version 0 parser uses to locate the lookup-table trailer.
+    /// </summary>
+    class function ReadMessageBody(const ABody: TBytes; const AMessage: IMessage): Integer; static;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -248,6 +265,14 @@ type
   TVersionedMessage = class(TMessage, IVersionedMessage)
   public
     const VersionPrefixMask = $7F;
+    const VersionPrefixBit = $80;
+
+    /// <summary>True when a message/transaction prefix byte carries the versioned high bit.</summary>
+    class function IsVersioned(APrefix: Byte): Boolean; static; inline;
+    /// <summary>Builds the versioned prefix byte (high bit set) for the given version.</summary>
+    class function EncodeVersionPrefix(AVersion: Byte): Byte; static; inline;
+    /// <summary>Extracts the version number from a versioned prefix byte.</summary>
+    class function DecodeVersion(APrefix: Byte): Byte; static; inline;
   type
     TMessageAddressTableLookup = class(TInterfacedObject, IMessageAddressTableLookup)
     private
@@ -446,74 +471,55 @@ begin
              (AIndex < (FAccountKeys.Count - FHeader.ReadOnlyUnsignedAccounts)));
 end;
 
-function TMessage.Serialize: TBytes;
+procedure TMessage.WriteMessageBody(const AStream: TStream);
 var
-  LAccountAddressesLength, LInstructionsLength, LAccountKeyBytes, LHdr: TBytes;
-  LAccountKeysBuf: TMemoryStream;
-  LMsgBuf: TMemoryStream;
+  LAccountAddressesLength, LInstructionsLength, LAccountKeyBytes, LHdr, LBlockHashBytes: TBytes;
   LI: Integer;
   LCI: ICompiledInstruction;
-  LBlockHashBytes: TBytes;
-  LEstAccountKeysSize: Integer;
-  LEstMsgSize: Integer;
   LProgramIdIndex: Byte;
 begin
+  LHdr := FHeader.ToBytes();
+  AStream.WriteBuffer(LHdr[0], Length(LHdr));
+
   LAccountAddressesLength := TShortVectorEncoding.EncodeLength(FAccountKeys.Count);
+  AStream.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
+
+  for LI := 0 to FAccountKeys.Count - 1 do
+  begin
+    LAccountKeyBytes := FAccountKeys[LI].KeyBytes;
+    AStream.WriteBuffer(LAccountKeyBytes[0], Length(LAccountKeyBytes));
+  end;
+
+  LBlockHashBytes := TBase58Encoder.DecodeData(FRecentBlockhash);
+  AStream.WriteBuffer(LBlockHashBytes[0], Length(LBlockHashBytes));
+
   LInstructionsLength := TShortVectorEncoding.EncodeLength(FInstructions.Count);
+  AStream.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
 
-  LEstAccountKeysSize := FAccountKeys.Count * 32;
+  for LI := 0 to FInstructions.Count - 1 do
+  begin
+    LCI := FInstructions[LI];
 
-  LAccountKeysBuf := TMemoryStream.Create;
+    LProgramIdIndex := LCI.ProgramIdIndex;
+    AStream.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
+
+    AStream.WriteBuffer(LCI.KeyIndicesCount[0], Length(LCI.KeyIndicesCount));
+    AStream.WriteBuffer(LCI.KeyIndices[0], Length(LCI.KeyIndices));
+    AStream.WriteBuffer(LCI.DataLength[0], Length(LCI.DataLength));
+    AStream.WriteBuffer(LCI.Data[0], Length(LCI.Data));
+  end;
+end;
+
+function TMessage.Serialize: TBytes;
+var
+  LMsgBuf: TMemoryStream;
+begin
+  LMsgBuf := TMemoryStream.Create;
   try
-    LAccountKeysBuf.Size := LEstAccountKeysSize;
-    LAccountKeysBuf.Position := 0;
-
-    for LI := 0 to FAccountKeys.Count - 1 do
-    begin
-      LAccountKeyBytes := FAccountKeys[LI].KeyBytes;
-      LAccountKeysBuf.WriteBuffer(LAccountKeyBytes[0], Length(LAccountKeyBytes));
-    end;
-
-    LBlockHashBytes := TBase58Encoder.DecodeData(FRecentBlockhash);
-
-    LEstMsgSize := TMessageHeader.TLayout.HeaderLength +
-                  TPublicKey.PublicKeyLength + Length(LAccountAddressesLength) +
-                  Length(LInstructionsLength) + FInstructions.Count + LEstAccountKeysSize;
-
-    LMsgBuf := TMemoryStream.Create;
-    try
-      LMsgBuf.Size := LEstMsgSize;
-      LMsgBuf.Position := 0;
-
-      LHdr := FHeader.ToBytes();
-      LMsgBuf.WriteBuffer(LHdr[0], Length(LHdr));
-
-      LMsgBuf.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
-      LMsgBuf.WriteBuffer(LAccountKeysBuf.Memory^, LAccountKeysBuf.Size);
-      LMsgBuf.WriteBuffer(LBlockHashBytes[0], Length(LBlockHashBytes));
-      LMsgBuf.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
-
-      for LI := 0 to FInstructions.Count - 1 do
-      begin
-        LCI := FInstructions[LI];
-
-        LProgramIdIndex := LCI.ProgramIdIndex;
-        LMsgBuf.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
-
-        LMsgBuf.WriteBuffer(LCI.KeyIndicesCount[0], Length(LCI.KeyIndicesCount));
-        LMsgBuf.WriteBuffer(LCI.KeyIndices[0], Length(LCI.KeyIndices));
-        LMsgBuf.WriteBuffer(LCI.DataLength[0], Length(LCI.DataLength));
-        LMsgBuf.WriteBuffer(LCI.Data[0], Length(LCI.Data));
-      end;
-
-      SetLength(Result, LMsgBuf.Size);
-      LMsgBuf.Position := 0;
-      LMsgBuf.ReadBuffer(Result[0], LMsgBuf.Size);
-    finally
-      LMsgBuf.Free;
-    end;
+    WriteMessageBody(LMsgBuf);
+    Result := TArrayUtilities.StreamToBytes(LMsgBuf);
   finally
-    LAccountKeysBuf.Free;
+    LMsgBuf.Free;
   end;
 end;
 
@@ -540,83 +546,55 @@ begin
   Result := DoDeserialize(AData);
 end;
 
-class function TMessage.DoDeserialize(const AData: TBytes): IMessage;
+class function TMessage.ReadMessageBody(const ABody: TBytes; const AMessage: IMessage): Integer;
 const
   PKLen = TPublicKey.PublicKeyLength;
   HLen = TMessageHeader.TLayout.HeaderLength;
   SvesLen = TShortVectorEncoding.SpanLength;
 var
-  LPrefix, LMaskedPrefix: Byte;
-  LNumRequiredSignatures: Byte;
-  LNumReadOnlySignedAccounts: Byte;
-  LNumReadOnlyUnsignedAccounts: Byte;
-  LAccLenSlice: TBytes;
-  LAccLenDec: TShortVecDecode;
-  LAccountAddressLength: Integer;
-  LAccountAddressLengthEncodedLength: Integer;
-  LI: Integer;
-  LKeySlice: TBytes;
-  LBlockHashSlice: TBytes;
-  LInstrLenSlice, LInstrData: TBytes;
-  LInstrLenDec: TShortVecDecode;
-  LInstructionsLength: Integer;
-  LInstructionsLengthEncodedLength: Integer;
-  LInstructionsOffset: Integer;
+  LAccLenSlice, LKeySlice, LBlockHashSlice, LInstrLenSlice, LInstrData: TBytes;
+  LAccLenDec, LInstrLenDec: TShortVecDecode;
+  LAccountAddressLength, LAccountAddressLengthEncodedLength: Integer;
+  LInstructionsLength, LInstructionsLengthEncodedLength, LInstructionsOffset: Integer;
+  LInstructionsDataLength, LI: Integer;
   LCId: TCompiledInstructionDecode;
-  LPublicKey: IPublicKey;
 begin
-  if Length(AData) = 0 then
-    raise Exception.Create('Empty message');
+  // Header
+  AMessage.Header := TMessageHeader.Create;
+  AMessage.Header.RequiredSignatures := ABody[TMessageHeader.TLayout.RequiredSignaturesOffset];
+  AMessage.Header.ReadOnlySignedAccounts := ABody[TMessageHeader.TLayout.ReadOnlySignedAccountsOffset];
+  AMessage.Header.ReadOnlyUnsignedAccounts := ABody[TMessageHeader.TLayout.ReadOnlyUnsignedAccountsOffset];
 
-  // Check that the message is not a TVersionedMessage
-  LPrefix := AData[0];
-  LMaskedPrefix := LPrefix and TVersionedMessage.VersionPrefixMask;
-  if LPrefix <> LMaskedPrefix then
-    raise ENotSupportedException.Create(
-      'The message is a VersionedMessage, use TVersionedMessage.Deserialize instead.'
-    );
+  AMessage.AccountKeys := TList<IPublicKey>.Create;
+  AMessage.Instructions := TList<ICompiledInstruction>.Create;
 
-  // Read message header
-  LNumRequiredSignatures := AData[TMessageHeader.TLayout.RequiredSignaturesOffset];
-  LNumReadOnlySignedAccounts := AData[TMessageHeader.TLayout.ReadOnlySignedAccountsOffset];
-  LNumReadOnlyUnsignedAccounts := AData[TMessageHeader.TLayout.ReadOnlyUnsignedAccountsOffset];
-
-  // Read account keys
-  LAccLenSlice := TArrayUtilities.Slice<Byte>(AData, HLen, SvesLen);
+  // Account keys
+  LAccLenSlice := TArrayUtilities.Slice<Byte>(ABody, HLen, SvesLen);
   LAccLenDec := TShortVectorEncoding.DecodeLength(LAccLenSlice);
   LAccountAddressLength := LAccLenDec.Value;
   LAccountAddressLengthEncodedLength := LAccLenDec.Length;
 
-  // Create the message
-  Result := TMessage.Create;
-  Result.Header := TMessageHeader.Create;
-  Result.AccountKeys := TList<IPublicKey>.Create;
-  Result.Instructions := TList<ICompiledInstruction>.Create;
-
-  Result.Header.RequiredSignatures := LNumRequiredSignatures;
-  Result.Header.ReadOnlySignedAccounts := LNumReadOnlySignedAccounts;
-  Result.Header.ReadOnlyUnsignedAccounts := LNumReadOnlyUnsignedAccounts;
-
   for LI := 0 to LAccountAddressLength - 1 do
   begin
     LKeySlice := TArrayUtilities.Slice<Byte>(
-      AData,
+      ABody,
       HLen + LAccountAddressLengthEncodedLength + LI * PKLen,
       PKLen
     );
-    LPublicKey := TPublicKey.Create(LKeySlice);
-    Result.AccountKeys.Add(LPublicKey);
+    AMessage.AccountKeys.Add(TPublicKey.Create(LKeySlice));
   end;
 
+  // Blockhash
   LBlockHashSlice := TArrayUtilities.Slice<Byte>(
-    AData,
+    ABody,
     HLen + LAccountAddressLengthEncodedLength + LAccountAddressLength * PKLen,
     PKLen
   );
-  Result.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
+  AMessage.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
 
+  // Instructions
   LInstrLenSlice := TArrayUtilities.Slice<Byte>(
-    AData,
+    ABody,
     HLen + LAccountAddressLengthEncodedLength + (LAccountAddressLength * PKLen) + PKLen,
     SvesLen
   );
@@ -631,14 +609,51 @@ begin
     PKLen +
     LInstructionsLengthEncodedLength;
 
-  LInstrData := TArrayUtilities.Slice<Byte>(AData, LInstructionsOffset);
+  LInstrData := TArrayUtilities.Slice<Byte>(ABody, LInstructionsOffset);
+  LInstructionsDataLength := 0;
 
   for LI := 0 to LInstructionsLength - 1 do
   begin
     LCId := TCompiledInstruction.Deserialize(LInstrData);
-    Result.Instructions.Add(LCId.Instruction);
+    AMessage.Instructions.Add(LCId.Instruction);
     LInstrData := TArrayUtilities.Slice<Byte>(LInstrData, LCId.Length);
+    Inc(LInstructionsDataLength, LCId.Length);
   end;
+
+  // Offset (within ABody) immediately after the last instruction.
+  Result := LInstructionsOffset + LInstructionsDataLength;
+end;
+
+class function TMessage.DoDeserialize(const AData: TBytes): IMessage;
+begin
+  if Length(AData) = 0 then
+    raise Exception.Create('Empty message');
+
+  // Check that the message is not a TVersionedMessage
+  if TVersionedMessage.IsVersioned(AData[0]) then
+    raise ENotSupportedException.Create(
+      'The message is a VersionedMessage, use TVersionedMessage.Deserialize instead.'
+    );
+
+  Result := TMessage.Create;
+  ReadMessageBody(AData, Result);
+end;
+
+{ TVersionedMessage }
+
+class function TVersionedMessage.IsVersioned(APrefix: Byte): Boolean;
+begin
+  Result := (APrefix and VersionPrefixBit) <> 0;
+end;
+
+class function TVersionedMessage.EncodeVersionPrefix(AVersion: Byte): Byte;
+begin
+  Result := Byte(VersionPrefixBit or AVersion);
+end;
+
+class function TVersionedMessage.DecodeVersion(APrefix: Byte): Byte;
+begin
+  Result := APrefix and VersionPrefixMask;
 end;
 
 { TVersionedMessage.TMessageAddressTableLookup }
@@ -737,12 +752,7 @@ end;
 
 procedure TVersionedMessage.SetTransactionConfig(const AValue: TTransactionConfig);
 begin
-  if FTransactionConfig <> AValue then
-  begin
-    if Assigned(FTransactionConfig) then
-      FTransactionConfig.Free;
-    FTransactionConfig := AValue;
-  end;
+  TTransactionConfig.ReplaceOwned(FTransactionConfig, AValue);
 end;
 
 function TVersionedMessage.Serialize: TBytes;
@@ -757,80 +767,27 @@ end;
 
 function TVersionedMessage.SerializeV0: TBytes;
 var
-  LAccountAddressesLength, LInstructionsLength, LAccountKeyBytes, LHdr, LBlockHashBytes, LAtlBytes: TBytes;
-  LAccountKeysBuf, LMsgBuf: TMemoryStream;
-  LI: Integer;
-  LCI: ICompiledInstruction;
-  LEstAccountKeysSize, LEstMsgSize: Integer;
-  LProgramIdIndex: Byte;
+  LMsgBuf: TMemoryStream;
+  LAtlBytes: TBytes;
   LVersionPrefix: Byte;
 begin
-  LAccountAddressesLength := TShortVectorEncoding.EncodeLength(FAccountKeys.Count);
-  LInstructionsLength := TShortVectorEncoding.EncodeLength(FInstructions.Count);
-
-  LEstAccountKeysSize := FAccountKeys.Count * TPublicKey.PublicKeyLength;
-
-  LAccountKeysBuf := TMemoryStream.Create;
+  LMsgBuf := TMemoryStream.Create;
   try
-    LAccountKeysBuf.Size := LEstAccountKeysSize;
-    LAccountKeysBuf.Position := 0;
+    // Versioned prefix: high bit set, low 7 bits carry the version.
+    LVersionPrefix := EncodeVersionPrefix(FVersion);
+    LMsgBuf.WriteBuffer(LVersionPrefix, 1);
 
-    for LI := 0 to FAccountKeys.Count - 1 do
-    begin
-      LAccountKeyBytes := FAccountKeys[LI].KeyBytes;
-      LAccountKeysBuf.WriteBuffer(LAccountKeyBytes[0], Length(LAccountKeyBytes));
-    end;
+    // Shared header/keys/blockhash/instructions body (identical to a legacy message).
+    WriteMessageBody(LMsgBuf);
 
-    LBlockHashBytes := TBase58Encoder.DecodeData(FRecentBlockhash);
+    // Version 0 trailer: the address table lookups.
     LAtlBytes := TAddressTableLookupUtils.SerializeAddressTableLookups(FAddressTableLookups);
+    if Length(LAtlBytes) > 0 then
+      LMsgBuf.WriteBuffer(LAtlBytes[0], Length(LAtlBytes));
 
-    // Initial capacity hint only; the stream grows to fit the actual instruction data.
-    LEstMsgSize := 1 + TMessageHeader.TLayout.HeaderLength +
-                  TPublicKey.PublicKeyLength + Length(LAccountAddressesLength) +
-                  Length(LInstructionsLength) + FInstructions.Count + LEstAccountKeysSize +
-                  Length(LAtlBytes);
-
-    LMsgBuf := TMemoryStream.Create;
-    try
-      LMsgBuf.Size := LEstMsgSize;
-      LMsgBuf.Position := 0;
-
-      // Versioned prefix: high bit set, low 7 bits carry the version.
-      LVersionPrefix := Byte($80 or FVersion);
-      LMsgBuf.WriteBuffer(LVersionPrefix, 1);
-
-      LHdr := FHeader.ToBytes();
-      LMsgBuf.WriteBuffer(LHdr[0], Length(LHdr));
-
-      LMsgBuf.WriteBuffer(LAccountAddressesLength[0], Length(LAccountAddressesLength));
-      LMsgBuf.WriteBuffer(LAccountKeysBuf.Memory^, LAccountKeysBuf.Size);
-      LMsgBuf.WriteBuffer(LBlockHashBytes[0], Length(LBlockHashBytes));
-      LMsgBuf.WriteBuffer(LInstructionsLength[0], Length(LInstructionsLength));
-
-      for LI := 0 to FInstructions.Count - 1 do
-      begin
-        LCI := FInstructions[LI];
-
-        LProgramIdIndex := LCI.ProgramIdIndex;
-        LMsgBuf.WriteBuffer(LProgramIdIndex, SizeOf(LProgramIdIndex));
-
-        LMsgBuf.WriteBuffer(LCI.KeyIndicesCount[0], Length(LCI.KeyIndicesCount));
-        LMsgBuf.WriteBuffer(LCI.KeyIndices[0], Length(LCI.KeyIndices));
-        LMsgBuf.WriteBuffer(LCI.DataLength[0], Length(LCI.DataLength));
-        LMsgBuf.WriteBuffer(LCI.Data[0], Length(LCI.Data));
-      end;
-
-      if Length(LAtlBytes) > 0 then
-        LMsgBuf.WriteBuffer(LAtlBytes[0], Length(LAtlBytes));
-
-      SetLength(Result, LMsgBuf.Size);
-      LMsgBuf.Position := 0;
-      LMsgBuf.ReadBuffer(Result[0], LMsgBuf.Size);
-    finally
-      LMsgBuf.Free;
-    end;
+    Result := TArrayUtilities.StreamToBytes(LMsgBuf);
   finally
-    LAccountKeysBuf.Free;
+    LMsgBuf.Free;
   end;
 end;
 
@@ -848,7 +805,7 @@ begin
   LBuf := TMemoryStream.Create;
   try
     // Version prefix (high bit set, low 7 bits carry the version).
-    LByte := Byte($80 or FVersion);
+    LByte := EncodeVersionPrefix(FVersion);
     LBuf.WriteBuffer(LByte, 1);
 
     // Message header (3 bytes).
@@ -929,9 +886,7 @@ begin
         LBuf.WriteBuffer(LCI.Data[0], Length(LCI.Data));
     end;
 
-    SetLength(Result, LBuf.Size);
-    LBuf.Position := 0;
-    LBuf.ReadBuffer(Result[0], LBuf.Size);
+    Result := TArrayUtilities.StreamToBytes(LBuf);
   finally
     LBuf.Free;
   end;
@@ -963,29 +918,10 @@ end;
 class function TVersionedMessage.DeserializeV0(const AData: TBytes): IMessage;
 const
   PKLen = TPublicKey.PublicKeyLength;
-  HLen = TMessageHeader.TLayout.HeaderLength;
-  SvesLen = TShortVectorEncoding.SpanLength;
 var
-  LPrefix, LMaskedPrefix, LVersion: Byte;
+  LPrefix: Byte;
   LBody: TBytes;
-  LNumRequiredSignatures: Byte;
-  LNumReadOnlySignedAccounts: Byte;
-  LNumReadOnlyUnsignedAccounts: Byte;
-  LAccLenSlice: TBytes;
-  LAccLenDec: TShortVecDecode;
-  LAccountAddressLength: Integer;
-  LAccountAddressLengthEncodedLength: Integer;
   LI: Integer;
-  LKeySlice: TBytes;
-  LBlockHashSlice: TBytes;
-  LInstrLenSlice: TBytes;
-  LInstrLenDec: TShortVecDecode;
-  LInstructionsLength: Integer;
-  LInstructionsLengthEncodedLength: Integer;
-  LInstructionsOffset: Integer;
-  LInstrData: TBytes;
-  LInstrDec: TCompiledInstructionDecode;
-  LInstructionsDataLength: Integer;
   LTableLookupOffset: Integer;
   LTableLookupData: TBytes;
   LATLCountDec: TShortVecDecode;
@@ -998,101 +934,23 @@ var
   LReadonlyLen, LReadonlyEncLen: Integer;
   LWritableSlice, LReadonlySlice: TBytes;
   LRes: IVersionedMessage;
-  LPublicKey: IPublicKey;
 begin
   if Length(AData) = 0 then
     raise Exception.Create('Empty message');
 
   LPrefix := AData[0];
-  LMaskedPrefix := LPrefix and TVersionedMessage.VersionPrefixMask;
-
-  if LPrefix = LMaskedPrefix then
+  if not TVersionedMessage.IsVersioned(LPrefix) then
     raise ENotSupportedException.Create('Expected versioned message but received legacy message');
-
-  // Preserve the decoded version (v0, v1, ...); no longer reject non-v0 messages.
-  LVersion := LMaskedPrefix;
 
   LBody := TArrayUtilities.Slice<Byte>(AData, 1, Length(AData) - 1);
 
-  // Read message header
-  LNumRequiredSignatures := LBody[TMessageHeader.TLayout.RequiredSignaturesOffset];
-  LNumReadOnlySignedAccounts := LBody[TMessageHeader.TLayout.ReadOnlySignedAccountsOffset];
-  LNumReadOnlyUnsignedAccounts := LBody[TMessageHeader.TLayout.ReadOnlyUnsignedAccountsOffset];
-
-  // Decode account keys
-  LAccLenSlice := TArrayUtilities.Slice<Byte>(LBody, HLen, SvesLen);
-  LAccLenDec := TShortVectorEncoding.DecodeLength(LAccLenSlice);
-  LAccountAddressLength := LAccLenDec.Value;
-  LAccountAddressLengthEncodedLength := LAccLenDec.Length;
-
-  // Create message
+  // Create message; the shared reader fills header/keys/blockhash/instructions.
   LRes := TVersionedMessage.Create;
-  LRes.Header := TMessageHeader.Create;
-  LRes.AccountKeys := TList<IPublicKey>.Create;
-  LRes.Instructions := TList<ICompiledInstruction>.Create;
   LRes.AddressTableLookups := TList<IMessageAddressTableLookup>.Create;
-  LRes.Version := LVersion;
+  // Preserve the decoded version (v0, v1, ...); no longer reject non-v0 messages.
+  LRes.Version := TVersionedMessage.DecodeVersion(LPrefix);
 
-  LRes.Header.RequiredSignatures := LNumRequiredSignatures;
-  LRes.Header.ReadOnlySignedAccounts := LNumReadOnlySignedAccounts;
-  LRes.Header.ReadOnlyUnsignedAccounts := LNumReadOnlyUnsignedAccounts;
-
-  // Accounts
-  for LI := 0 to LAccountAddressLength - 1 do
-  begin
-    LKeySlice := TArrayUtilities.Slice<Byte>(
-      LBody,
-      HLen + LAccountAddressLengthEncodedLength + LI * PKLen,
-      PKLen
-    );
-    LPublicKey := TPublicKey.Create(LKeySlice);
-    LRes.AccountKeys.Add(LPublicKey);
-  end;
-
-  // Blockhash
-  LBlockHashSlice := TArrayUtilities.Slice<Byte>(
-    LBody,
-    HLen + LAccountAddressLengthEncodedLength + LAccountAddressLength * PKLen,
-    PKLen
-  );
-  LRes.RecentBlockhash := TBase58Encoder.EncodeData(LBlockHashSlice);
-
-  // Instructions
-  LInstrLenSlice := TArrayUtilities.Slice<Byte>(
-    LBody,
-    HLen + LAccountAddressLengthEncodedLength + (LAccountAddressLength * PKLen) + PKLen,
-    SvesLen
-  );
-  LInstrLenDec := TShortVectorEncoding.DecodeLength(LInstrLenSlice);
-  LInstructionsLength := LInstrLenDec.Value;
-  LInstructionsLengthEncodedLength := LInstrLenDec.Length;
-
-  LInstructionsOffset :=
-    HLen +
-    LAccountAddressLengthEncodedLength +
-    (LAccountAddressLength * PKLen) +
-    PKLen +
-    LInstructionsLengthEncodedLength;
-
-  LInstrData := TArrayUtilities.Slice<Byte>(LBody, LInstructionsOffset);
-  LInstructionsDataLength := 0;
-
-  for LI := 0 to LInstructionsLength - 1 do
-  begin
-    LInstrDec := TCompiledInstruction.Deserialize(LInstrData);
-    LRes.Instructions.Add(LInstrDec.Instruction);
-    LInstrData := TArrayUtilities.Slice<Byte>(LInstrData, LInstrDec.Length);
-    Inc(LInstructionsDataLength, LInstrDec.Length);
-  end;
-
-  // Address table lookups
-  LTableLookupOffset :=
-    HLen +
-    LAccountAddressLengthEncodedLength +
-    (LAccountAddressLength * PKLen) +
-    PKLen +
-    LInstructionsLengthEncodedLength +
-    LInstructionsDataLength;
+  LTableLookupOffset := TMessage.ReadMessageBody(LBody, LRes);
 
   // v0 messages may omit the address-table-lookup section entirely. Guard against
   // slicing past the end of the body.
@@ -1298,9 +1156,7 @@ begin
         LBuf.WriteBuffer(LLkp.ReadonlyIndexes[0], Length(LLkp.ReadonlyIndexes));
     end;
 
-    SetLength(Result, LBuf.Size);
-    LBuf.Position := 0;
-    LBuf.ReadBuffer(Result[0], LBuf.Size);
+    Result := TArrayUtilities.StreamToBytes(LBuf);
   finally
     LBuf.Free;
   end;

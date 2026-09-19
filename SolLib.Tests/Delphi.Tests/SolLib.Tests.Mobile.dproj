@@ -466,6 +466,7 @@
         <DCCReference Include="..\..\SolLib\src\Programs\SlpTokenProgram.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpSystemProgram.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpToken2022Program.pas"/>
+        <DCCReference Include="..\..\SolLib\src\Programs\SlpTokenPrograms.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpToken2022ExtensionType.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpTokenSwapProgram.pas"/>
         <DCCReference Include="..\..\SolLib\src\Programs\SlpAssociatedTokenAccountProgram.pas"/>

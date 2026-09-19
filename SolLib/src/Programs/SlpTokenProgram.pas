@@ -367,6 +367,15 @@ type
     {---------------------------- Decoders ---------------------------------------------}
 
     /// <summary>
+    /// Decodes a token instruction for either token program: reads the method discriminator,
+    /// dispatches to the matching decoder, and returns the populated instruction tagged with the
+    /// supplied program name and id. The classic Token program and the Token-2022 program share
+    /// this dispatch since their instruction layouts are identical.
+    /// </summary>
+    class function DispatchDecode(const AProgramName: string; const AProgramIdKey: IPublicKey;
+      const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes): IDecodedInstruction; static;
+
+    /// <summary>
     /// Decodes the instruction instruction data for the <see cref="TTokenProgramInstructions.TValues.InitializeMint"/> method
     /// </summary>
     /// <param name="ADecoded">The decoded instruction to add data to.</param>
@@ -629,6 +638,55 @@ type
   /// <summary>
   /// Implements the Token Program methods.
   /// <remarks>
+  /// <summary>
+  /// Shared instruction-builder core for the SPL token programs. The classic Token
+  /// program and the Token-2022 program emit byte-identical instructions apart from the
+  /// program id they target, so both delegate here, passing their own program id. This is
+  /// the single source of truth for the token instruction layouts (and for the signer
+  /// convention: an empty or absent multisig signer set means a single signing authority).
+  /// </summary>
+  TTokenProgramCore = class sealed
+  public
+    class function AddSigners(const AKeys: TList<IAccountMeta>; const AAuthority: IPublicKey;
+      const ASigners: TArray<IPublicKey>): TList<IAccountMeta>; static;
+    class function Transfer(const AProgramId, ASource, ADestination: IPublicKey; const AAmount: UInt64;
+      const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function TransferChecked(const AProgramId, ASource, ADestination: IPublicKey; const AAmount: UInt64;
+      const ADecimals: Integer; const AAuthority, ATokenMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function InitializeAccount(const AProgramId, AAccount, AMint, AAuthority: IPublicKey): ITransactionInstruction; static;
+    class function InitializeAccount2(const AProgramId, AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction; static;
+    class function InitializeAccount3(const AProgramId, AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction; static;
+    class function InitializeMultiSignature(const AProgramId, AMultiSignature: IPublicKey;
+      const ASigners: TArray<IPublicKey>; const AM: Integer): ITransactionInstruction; static;
+    class function InitializeMint(const AProgramId, AMint: IPublicKey; const ADecimals: Integer;
+      const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction; static;
+    class function InitializeMint2(const AProgramId, AMint: IPublicKey; const ADecimals: Integer;
+      const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction; static;
+    class function MintTo(const AProgramId, AMint, ADestination: IPublicKey; const AAmount: UInt64;
+      const AMintAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function Approve(const AProgramId, ASource, ADelegate, AAuthority: IPublicKey; const AAmount: UInt64;
+      const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function Revoke(const AProgramId, ASource, AAuthority: IPublicKey;
+      const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function SetAuthority(const AProgramId, AAccount: IPublicKey; const AAuthorityType: TAuthorityType;
+      const ACurrentAuthority, ANewAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function Burn(const AProgramId, ASource, AMint: IPublicKey; const AAmount: UInt64;
+      const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function CloseAccount(const AProgramId, AAccount, ADestination, AAuthority: IPublicKey;
+      const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function FreezeAccount(const AProgramId, AAccount, AMint, AFreezeAuthority: IPublicKey;
+      const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function ThawAccount(const AProgramId, AAccount, AMint, AFreezeAuthority: IPublicKey;
+      const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function ApproveChecked(const AProgramId, ASource, ADelegate: IPublicKey; const AAmount: UInt64;
+      const ADecimals: Byte; const AAuthority, AMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function MintToChecked(const AProgramId, AMint, ADestination, AMintAuthority: IPublicKey;
+      const AAmount: UInt64; const ADecimals: Integer; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function BurnChecked(const AProgramId, AMint, AAccount, AAuthority: IPublicKey;
+      const AAmount: UInt64; const ADecimals: Integer; const ASigners: TArray<IPublicKey>): ITransactionInstruction; static;
+    class function SyncNative(const AProgramId, AAccount: IPublicKey): ITransactionInstruction; static;
+  end;
+
   /// For more information see:
   /// https://spl.solana.com/token
   /// https://docs.rs/spl-token/3.2.0/spl_token/
@@ -1677,9 +1735,10 @@ begin
   Result := FProgramIdKey;
 end;
 
-class function TTokenProgram.AddSigners(const AKeys: TList<IAccountMeta>;
-                                        const AAuthority: IPublicKey;
-                                        const ASigners: TArray<IPublicKey>): TList<IAccountMeta>;
+{ TTokenProgramCore }
+
+class function TTokenProgramCore.AddSigners(const AKeys: TList<IAccountMeta>;
+  const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): TList<IAccountMeta>;
 var
   LS: IPublicKey;
 begin
@@ -1691,13 +1750,11 @@ begin
       Result.Add(TAccountMeta.ReadOnly(LS, True));
   end
   else
-  begin
     Result.Add(TAccountMeta.ReadOnly(AAuthority, True));
-  end;
 end;
 
-class function TTokenProgram.Transfer(const ASource, ADestination: IPublicKey; const AAmount: UInt64;
-                                      const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.Transfer(const AProgramId, ASource, ADestination: IPublicKey;
+  const AAmount: UInt64; const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1705,12 +1762,12 @@ begin
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeTransferData(AAmount));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeTransferData(AAmount));
 end;
 
-class function TTokenProgram.TransferChecked(const ASource, ADestination: IPublicKey; const AAmount: UInt64; const ADecimals: Integer;
-                                             const AAuthority, ATokenMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.TransferChecked(const AProgramId, ASource, ADestination: IPublicKey;
+  const AAmount: UInt64; const ADecimals: Integer; const AAuthority, ATokenMint: IPublicKey;
+  const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1719,11 +1776,10 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(ATokenMint, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeTransferCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeTransferCheckedData(AAmount, ADecimals));
 end;
 
-class function TTokenProgram.InitializeAccount(const AAccount, AMint, AAuthority: IPublicKey): ITransactionInstruction;
+class function TTokenProgramCore.InitializeAccount(const AProgramId, AAccount, AMint, AAuthority: IPublicKey): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1732,11 +1788,10 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys.Add(TAccountMeta.ReadOnly(AAuthority, False));
   LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccountData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccountData);
 end;
 
-class function TTokenProgram.InitializeAccount2(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+class function TTokenProgramCore.InitializeAccount2(const AProgramId, AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1744,23 +1799,21 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount2Data(AOwner));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount2Data(AOwner));
 end;
 
-class function TTokenProgram.InitializeAccount3(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+class function TTokenProgramCore.InitializeAccount3(const AProgramId, AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
   LKeys := TList<IAccountMeta>.Create;
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount3Data(AOwner));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeAccount3Data(AOwner));
 end;
 
-class function TTokenProgram.InitializeMultiSignature(const AMultiSignature: IPublicKey; const ASigners: TArray<IPublicKey>;
-                                                      const AM: Integer): ITransactionInstruction;
+class function TTokenProgramCore.InitializeMultiSignature(const AProgramId, AMultiSignature: IPublicKey;
+  const ASigners: TArray<IPublicKey>; const AM: Integer): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
   LS: IPublicKey;
@@ -1770,12 +1823,11 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
   for LS in ASigners do
     LKeys.Add(TAccountMeta.ReadOnly(LS, False));
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMultiSignatureData(AM));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMultiSignatureData(AM));
 end;
 
-class function TTokenProgram.InitializeMint(const AMint: IPublicKey; const ADecimals: Integer;
-                                            const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
+class function TTokenProgramCore.InitializeMint(const AProgramId, AMint: IPublicKey; const ADecimals: Integer;
+  const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
   LFreezeOpt: Integer;
@@ -1787,7 +1839,6 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(TSysVars.RentKey, False));
 
   LFreezeOpt := Ord(Assigned(AFreezeAuthority));
-
   if Assigned(AFreezeAuthority) then
     LFreezeKey := AFreezeAuthority
   else
@@ -1796,10 +1847,11 @@ begin
     LFreezeKey := LAccount.PublicKey;
   end;
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeInitializeMintData(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys,
+    TTokenProgramData.EncodeInitializeMintData(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
 end;
 
-class function TTokenProgram.InitializeMint2(const AMint: IPublicKey; const ADecimals: Integer;
+class function TTokenProgramCore.InitializeMint2(const AProgramId, AMint: IPublicKey; const ADecimals: Integer;
   const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
@@ -1811,7 +1863,6 @@ begin
   LKeys.Add(TAccountMeta.Writable(AMint, False));
 
   LFreezeOpt := Ord(Assigned(AFreezeAuthority));
-
   if Assigned(AFreezeAuthority) then
     LFreezeKey := AFreezeAuthority
   else
@@ -1820,12 +1871,12 @@ begin
     LFreezeKey := LAccount.PublicKey;
   end;
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys,
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys,
     TTokenProgramData.EncodeInitializeMint2Data(AMintAuthority, LFreezeKey, ADecimals, LFreezeOpt));
 end;
 
-class function TTokenProgram.MintTo(const AMint, ADestination: IPublicKey; const AAmount: UInt64;
-                                    const AMintAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.MintTo(const AProgramId, AMint, ADestination: IPublicKey; const AAmount: UInt64;
+  const AMintAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1833,12 +1884,11 @@ begin
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AMintAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeMintToData(AAmount));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeMintToData(AAmount));
 end;
 
-class function TTokenProgram.Approve(const ASource, ADelegate, AAuthority: IPublicKey; const AAmount: UInt64;
-                                     const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.Approve(const AProgramId, ASource, ADelegate, AAuthority: IPublicKey;
+  const AAmount: UInt64; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1846,24 +1896,22 @@ begin
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys.Add(TAccountMeta.ReadOnly(ADelegate, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeApproveData(AAmount));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeApproveData(AAmount));
 end;
 
-class function TTokenProgram.Revoke(const ASource, AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.Revoke(const AProgramId, ASource, AAuthority: IPublicKey;
+  const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
   LKeys := TList<IAccountMeta>.Create;
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeRevokeData);
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeRevokeData);
 end;
 
-class function TTokenProgram.SetAuthority(const AAccount: IPublicKey; const AAuthorityType: TAuthorityType;
-                                          const ACurrentAuthority, ANewAuthority: IPublicKey;
-                                          const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.SetAuthority(const AProgramId, AAccount: IPublicKey; const AAuthorityType: TAuthorityType;
+  const ACurrentAuthority, ANewAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
   LOpt: Integer;
@@ -1875,7 +1923,6 @@ begin
   LKeys := AddSigners(LKeys, ACurrentAuthority, ASigners);
 
   LOpt := Ord(Assigned(ANewAuthority));
-
   if Assigned(ANewAuthority) then
     LNewAuth := ANewAuthority
   else
@@ -1884,11 +1931,12 @@ begin
     LNewAuth := LAccount.PublicKey;
   end;
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeSetAuthorityData(AAuthorityType, LOpt, LNewAuth));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys,
+    TTokenProgramData.EncodeSetAuthorityData(AAuthorityType, LOpt, LNewAuth));
 end;
 
-class function TTokenProgram.Burn(const ASource, AMint: IPublicKey; const AAmount: UInt64;
-                                  const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.Burn(const AProgramId, ASource, AMint: IPublicKey; const AAmount: UInt64;
+  const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1896,12 +1944,11 @@ begin
   LKeys.Add(TAccountMeta.Writable(ASource, False));
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeBurnData(AAmount));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeBurnData(AAmount));
 end;
 
-class function TTokenProgram.CloseAccount(const AAccount, ADestination, AAuthority, AProgramId: IPublicKey;
-                                          const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.CloseAccount(const AProgramId, AAccount, ADestination, AAuthority: IPublicKey;
+  const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1909,12 +1956,11 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
   Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeCloseAccountData);
 end;
 
-class function TTokenProgram.FreezeAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
-                                           const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.FreezeAccount(const AProgramId, AAccount, AMint, AFreezeAuthority: IPublicKey;
+  const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1922,12 +1968,11 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys := AddSigners(LKeys, AFreezeAuthority, ASigners);
-
   Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeFreezeAccountData);
 end;
 
-class function TTokenProgram.ThawAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
-                                         const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.ThawAccount(const AProgramId, AAccount, AMint, AFreezeAuthority: IPublicKey;
+  const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1935,12 +1980,11 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys := AddSigners(LKeys, AFreezeAuthority, ASigners);
-
   Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeThawAccountData);
 end;
 
-class function TTokenProgram.ApproveChecked(const ASource, ADelegate: IPublicKey; const AAmount: UInt64; const ADecimals: Byte;
-                                            const AAuthority, AMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.ApproveChecked(const AProgramId, ASource, ADelegate: IPublicKey; const AAmount: UInt64;
+  const ADecimals: Byte; const AAuthority, AMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1949,13 +1993,11 @@ begin
   LKeys.Add(TAccountMeta.ReadOnly(AMint, False));
   LKeys.Add(TAccountMeta.ReadOnly(ADelegate, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeApproveCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeApproveCheckedData(AAmount, ADecimals));
 end;
 
-class function TTokenProgram.MintToChecked(const AMint, ADestination, AMintAuthority: IPublicKey;
-                                           const AAmount: UInt64; const ADecimals: Integer;
-                                           const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.MintToChecked(const AProgramId, AMint, ADestination, AMintAuthority: IPublicKey;
+  const AAmount: UInt64; const ADecimals: Integer; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1963,13 +2005,11 @@ begin
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys.Add(TAccountMeta.Writable(ADestination, False));
   LKeys := AddSigners(LKeys, AMintAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeMintToCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeMintToCheckedData(AAmount, ADecimals));
 end;
 
-class function TTokenProgram.BurnChecked(const AMint, AAccount, AAuthority: IPublicKey;
-                                         const AAmount: UInt64; const ADecimals: Integer;
-                                         const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+class function TTokenProgramCore.BurnChecked(const AProgramId, AMint, AAccount, AAuthority: IPublicKey;
+  const AAmount: UInt64; const ADecimals: Integer; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
@@ -1977,24 +2017,149 @@ begin
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
   LKeys.Add(TAccountMeta.Writable(AMint, False));
   LKeys := AddSigners(LKeys, AAuthority, ASigners);
-
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeBurnCheckedData(AAmount, ADecimals));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeBurnCheckedData(AAmount, ADecimals));
 end;
 
-class function TTokenProgram.SyncNative(const AAccount: IPublicKey): ITransactionInstruction;
+class function TTokenProgramCore.SyncNative(const AProgramId, AAccount: IPublicKey): ITransactionInstruction;
 var
   LKeys: TList<IAccountMeta>;
 begin
   LKeys := TList<IAccountMeta>.Create;
   LKeys.Add(TAccountMeta.Writable(AAccount, False));
+  Result := TTransactionInstruction.Create(AProgramId.KeyBytes, LKeys, TTokenProgramData.EncodeSyncNativeData);
+end;
 
-  Result := TTransactionInstruction.Create(ProgramIdKey.KeyBytes, LKeys, TTokenProgramData.EncodeSyncNativeData);
+{ TTokenProgram }
+
+class function TTokenProgram.AddSigners(const AKeys: TList<IAccountMeta>;
+                                        const AAuthority: IPublicKey;
+                                        const ASigners: TArray<IPublicKey>): TList<IAccountMeta>;
+begin
+  Result := TTokenProgramCore.AddSigners(AKeys, AAuthority, ASigners);
+end;
+
+class function TTokenProgram.Transfer(const ASource, ADestination: IPublicKey; const AAmount: UInt64;
+                                      const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.Transfer(ProgramIdKey, ASource, ADestination, AAmount, AAuthority, ASigners);
+end;
+
+class function TTokenProgram.TransferChecked(const ASource, ADestination: IPublicKey; const AAmount: UInt64; const ADecimals: Integer;
+                                             const AAuthority, ATokenMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.TransferChecked(ProgramIdKey, ASource, ADestination, AAmount, ADecimals, AAuthority, ATokenMint, ASigners);
+end;
+
+class function TTokenProgram.InitializeAccount(const AAccount, AMint, AAuthority: IPublicKey): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.InitializeAccount(ProgramIdKey, AAccount, AMint, AAuthority);
+end;
+
+class function TTokenProgram.InitializeAccount2(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.InitializeAccount2(ProgramIdKey, AAccount, AMint, AOwner);
+end;
+
+class function TTokenProgram.InitializeAccount3(const AAccount, AMint, AOwner: IPublicKey): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.InitializeAccount3(ProgramIdKey, AAccount, AMint, AOwner);
+end;
+
+class function TTokenProgram.InitializeMultiSignature(const AMultiSignature: IPublicKey; const ASigners: TArray<IPublicKey>;
+                                                      const AM: Integer): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.InitializeMultiSignature(ProgramIdKey, AMultiSignature, ASigners, AM);
+end;
+
+class function TTokenProgram.InitializeMint(const AMint: IPublicKey; const ADecimals: Integer;
+                                            const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.InitializeMint(ProgramIdKey, AMint, ADecimals, AMintAuthority, AFreezeAuthority);
+end;
+
+class function TTokenProgram.InitializeMint2(const AMint: IPublicKey; const ADecimals: Integer;
+  const AMintAuthority, AFreezeAuthority: IPublicKey): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.InitializeMint2(ProgramIdKey, AMint, ADecimals, AMintAuthority, AFreezeAuthority);
+end;
+
+class function TTokenProgram.MintTo(const AMint, ADestination: IPublicKey; const AAmount: UInt64;
+                                    const AMintAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.MintTo(ProgramIdKey, AMint, ADestination, AAmount, AMintAuthority, ASigners);
+end;
+
+class function TTokenProgram.Approve(const ASource, ADelegate, AAuthority: IPublicKey; const AAmount: UInt64;
+                                     const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.Approve(ProgramIdKey, ASource, ADelegate, AAuthority, AAmount, ASigners);
+end;
+
+class function TTokenProgram.Revoke(const ASource, AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.Revoke(ProgramIdKey, ASource, AAuthority, ASigners);
+end;
+
+class function TTokenProgram.SetAuthority(const AAccount: IPublicKey; const AAuthorityType: TAuthorityType;
+                                          const ACurrentAuthority, ANewAuthority: IPublicKey;
+                                          const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.SetAuthority(ProgramIdKey, AAccount, AAuthorityType, ACurrentAuthority, ANewAuthority, ASigners);
+end;
+
+class function TTokenProgram.Burn(const ASource, AMint: IPublicKey; const AAmount: UInt64;
+                                  const AAuthority: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.Burn(ProgramIdKey, ASource, AMint, AAmount, AAuthority, ASigners);
+end;
+
+class function TTokenProgram.CloseAccount(const AAccount, ADestination, AAuthority, AProgramId: IPublicKey;
+                                          const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.CloseAccount(AProgramId, AAccount, ADestination, AAuthority, ASigners);
+end;
+
+class function TTokenProgram.FreezeAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
+                                           const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.FreezeAccount(AProgramId, AAccount, AMint, AFreezeAuthority, ASigners);
+end;
+
+class function TTokenProgram.ThawAccount(const AAccount, AMint, AFreezeAuthority, AProgramId: IPublicKey;
+                                         const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.ThawAccount(AProgramId, AAccount, AMint, AFreezeAuthority, ASigners);
+end;
+
+class function TTokenProgram.ApproveChecked(const ASource, ADelegate: IPublicKey; const AAmount: UInt64; const ADecimals: Byte;
+                                            const AAuthority, AMint: IPublicKey; const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.ApproveChecked(ProgramIdKey, ASource, ADelegate, AAmount, ADecimals, AAuthority, AMint, ASigners);
+end;
+
+class function TTokenProgram.MintToChecked(const AMint, ADestination, AMintAuthority: IPublicKey;
+                                           const AAmount: UInt64; const ADecimals: Integer;
+                                           const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.MintToChecked(ProgramIdKey, AMint, ADestination, AMintAuthority, AAmount, ADecimals, ASigners);
+end;
+
+class function TTokenProgram.BurnChecked(const AMint, AAccount, AAuthority: IPublicKey;
+                                         const AAmount: UInt64; const ADecimals: Integer;
+                                         const ASigners: TArray<IPublicKey>): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.BurnChecked(ProgramIdKey, AMint, AAccount, AAuthority, AAmount, ADecimals, ASigners);
+end;
+
+class function TTokenProgram.SyncNative(const AAccount: IPublicKey): ITransactionInstruction;
+begin
+  Result := TTokenProgramCore.SyncNative(ProgramIdKey, AAccount);
 end;
 
 { ==== Decoder entrypoint ==== }
 
-class function TTokenProgram.Decode(const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes): IDecodedInstruction;
-
+class function TTokenProgramData.DispatchDecode(const AProgramName: string; const AProgramIdKey: IPublicKey;
+  const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes): IDecodedInstruction;
 var
   LInstruction: Byte;
   LInstructionValue: TTokenProgramInstructions.TValues;
@@ -2004,18 +2169,18 @@ begin
   if not TEnumUtilities.TryGetEnumFromOrdinal<TTokenProgramInstructions.TValues>(LInstruction, LInstructionValue) then
   begin
     Result := TDecodedInstruction.Create;
-    Result.PublicKey := ProgramIdKey;
+    Result.PublicKey := AProgramIdKey;
     Result.InstructionName := 'Unknown Instruction';
-    Result.ProgramName := ProgramName;
+    Result.ProgramName := AProgramName;
     Result.Values := TDictionary<string, TValue>.Create;
     Result.InnerInstructions := TList<IDecodedInstruction>.Create();
     Exit;
   end;
 
   Result := TDecodedInstruction.Create;
-  Result.PublicKey := ProgramIdKey;
+  Result.PublicKey := AProgramIdKey;
   Result.InstructionName := TTokenProgramInstructions.Names[LInstructionValue];
-  Result.ProgramName := ProgramName;
+  Result.ProgramName := AProgramName;
   Result.Values := TDictionary<string, TValue>.Create;
   Result.InnerInstructions := TList<IDecodedInstruction>.Create();
 
@@ -2075,6 +2240,11 @@ begin
     TTokenProgramInstructions.TValues.Reallocate:
       TTokenProgramData.DecodeReallocate(Result, AData, AKeys, AKeyIndices);
   end;
+end;
+
+class function TTokenProgram.Decode(const AData: TBytes; const AKeys: TArray<IPublicKey>; const AKeyIndices: TBytes): IDecodedInstruction;
+begin
+  Result := TTokenProgramData.DispatchDecode(ProgramName, ProgramIdKey, AData, AKeys, AKeyIndices);
 end;
 
 end.

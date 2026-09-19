@@ -127,6 +127,7 @@ uses
   SlpTokenProgram in '..\..\SolLib\src\Programs\SlpTokenProgram.pas',
   SlpSystemProgram in '..\..\SolLib\src\Programs\SlpSystemProgram.pas',
   SlpToken2022Program in '..\..\SolLib\src\Programs\SlpToken2022Program.pas',
+  SlpTokenPrograms in '..\..\SolLib\src\Programs\SlpTokenPrograms.pas',
   SlpToken2022ExtensionType in '..\..\SolLib\src\Programs\SlpToken2022ExtensionType.pas',
   SlpTokenSwapProgram in '..\..\SolLib\src\Programs\SlpTokenSwapProgram.pas',
   SlpAssociatedTokenAccountProgram in '..\..\SolLib\src\Programs\SlpAssociatedTokenAccountProgram.pas',
