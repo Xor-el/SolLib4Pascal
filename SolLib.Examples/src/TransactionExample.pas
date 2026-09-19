@@ -49,7 +49,7 @@ const
 
 type
   /// <summary>
-  /// Simple transfer + memo using TTransactionBuilder.
+  /// Simple transfer + memo using TTransactionBuilders.Legacy.
   /// </summary>
   TTransactionBuilderExample = class(TExampleBase)
   public
@@ -57,7 +57,7 @@ type
   end;
 
   /// <summary>
-  /// Simple transfer + memo (via account private key) using TTransactionBuilder.
+  /// Simple transfer + memo (via account private key) using TTransactionBuilders.Legacy.
   /// </summary>
   TTransactionBuilderUsingPrivateKeyExample = class(TExampleBase)
   public
@@ -154,7 +154,7 @@ begin
   if (LBlock <> nil) and LBlock.WasSuccessful and (LBlock.Result <> nil) then
     Writeln(Format('BlockHash >> %s', [LBlock.Result.Value.Blockhash]));
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTx := LTxBuilder
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
            .SetFeePayer(LFrom.PublicKey)
@@ -190,7 +190,7 @@ begin
   if (LBlock <> nil) and LBlock.WasSuccessful and (LBlock.Result <> nil) then
     Writeln(Format('BlockHash >> %s', [LBlock.Result.Value.Blockhash]));
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTx := LTxBuilder
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
            .SetFeePayer(LFrom.PublicKey)
@@ -245,7 +245,7 @@ begin
     TSystemProgram.AdvanceNonceAccount(LNonceAcc.PublicKey, LOwner.PublicKey)
   );
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTx := LTxBuilder
            .SetFeePayer(LOwner.PublicKey)
            .SetNonceInformation(LNonceInfo)
@@ -294,7 +294,7 @@ begin
     TComputeBudgetProgram.SetComputeUnitPrice(100000)  // price (micro-lamports)
   );
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTx := LTxBuilder
            .SetFeePayer(LOwner.PublicKey)
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -344,7 +344,7 @@ begin
     TComputeBudgetProgram.SetComputeUnitPrice(100000)  // price (micro-lamports)
   );
 
-  LSimTxBuilder := TTransactionBuilder.Create;
+  LSimTxBuilder := TTransactionBuilders.Legacy;
   LSimTx := LSimTxBuilder
            .SetFeePayer(LOwner.PublicKey)
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -365,7 +365,7 @@ begin
     [ LOwner.PublicKey.Key ]
   );
 
-  LActualTxBuilder := TTransactionBuilder.Create;
+  LActualTxBuilder := TTransactionBuilders.Legacy;
   LActualTx := LActualTxBuilder
            .SetFeePayer(LOwner.PublicKey)
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -409,7 +409,7 @@ begin
   // Fetch recent blockhash
   LBlock := LRpc.GetLatestBlockHash;
 
-  LSimTxBuilder := TTransactionBuilder.Create;
+  LSimTxBuilder := TTransactionBuilders.Legacy;
   LSimTx := LSimTxBuilder
            .SetFeePayer(LOwner.PublicKey)
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -429,7 +429,7 @@ begin
     [ LOwner.PublicKey.Key ]
   );
 
-  LActualTxBuilder := TTransactionBuilder.Create;
+  LActualTxBuilder := TTransactionBuilders.Legacy;
   LActualTx := LActualTxBuilder
            .SetFeePayer(LOwner.PublicKey)
            .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -492,7 +492,7 @@ begin
   );
 
   // 5) Build simulation transaction (transfer + memo + priority fees)
-  LSimTxBuilder := TTransactionBuilder.Create;
+  LSimTxBuilder := TTransactionBuilders.Legacy;
   LSimTx :=
     LSimTxBuilder
       .SetFeePayer(LFrom.PublicKey)
@@ -521,7 +521,7 @@ begin
   );
 
   // 7) Build actual transaction (transfer + memo + estimated priority fees)
-  LActualTxBuilder := TTransactionBuilder.Create;
+  LActualTxBuilder := TTransactionBuilders.Legacy;
   LActualTx :=
     LActualTxBuilder
       .SetFeePayer(LFrom.PublicKey)
@@ -595,7 +595,7 @@ begin
   LMint := LWallet.GetAccountByIndex(31);
   LInitialAcc := LWallet.GetAccountByIndex(59);
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes := LTxBuilder
                  .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
                  .SetFeePayer(LOwner.PublicKey)
@@ -653,7 +653,7 @@ begin
   LBlock := LRpc.GetLatestBlockHash;
   Writeln('BlockHash >> ' + LBlock.Result.Value.Blockhash);
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LFrom.PublicKey)

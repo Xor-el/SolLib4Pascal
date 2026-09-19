@@ -57,6 +57,114 @@ type
     property FeePayer: IPublicKey read GetFeePayer write SetFeePayer;
   end;
 
+  IVersionedMessageBuilder = interface(IMessageBuilder)
+    ['{738D0C34-21BB-428F-BEFF-A9C17E3DA332}']
+    function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
+    procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
+
+    function GetAccountKeys: TList<IPublicKey>;
+    procedure SetAccountKeys(const AValue: TList<IPublicKey>);
+
+    function GetVersion: Byte;
+    procedure SetVersion(const AValue: Byte);
+    function GetTransactionConfig: TTransactionConfig;
+    procedure SetTransactionConfig(const AValue: TTransactionConfig);
+
+    property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
+    property AccountKeys: TList<IPublicKey> read GetAccountKeys write SetAccountKeys;
+    /// <summary>
+    /// The message version emitted in the low 7 bits of the versioned prefix.
+    /// </summary>
+    property Version: Byte read GetVersion write SetVersion;
+    /// <summary>
+    /// The in-message transaction configuration (version 1 only).
+    /// </summary>
+    property TransactionConfig: TTransactionConfig read GetTransactionConfig write SetTransactionConfig;
+  end;
+
+
+type
+  /// <summary>
+  /// Fluent facet for building a legacy (unversioned) message. Carries no version-specific
+  /// options (no address lookup tables, no in-message transaction config).
+  /// </summary>
+  IMessageBuilderLegacy = interface
+    ['{6B2A9C41-4D0E-4F1A-9C7B-1E2D3A4B5C60}']
+    function SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderLegacy;
+    function SetNonceInformation(const ANonceInfo: INonceInformation): IMessageBuilderLegacy;
+    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IMessageBuilderLegacy;
+    function SetFeePayer(const APublicKey: IPublicKey): IMessageBuilderLegacy;
+    function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilderLegacy;
+    function GetAccountMetaPublicKeys: TArray<string>;
+    function Build: TBytes;
+  end;
+
+  /// <summary>
+  /// Fluent facet for building a version 0 message. Exposes address lookup tables and the
+  /// priority-fee settings (emitted as Compute Budget instructions), and deliberately omits
+  /// the in-message transaction config (a version 1 concept).
+  /// </summary>
+  IMessageBuilderV0 = interface
+    ['{7C3BAD52-5E1F-4A2B-8D6C-2F3E4A5B6C71}']
+    function SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderV0;
+    function SetNonceInformation(const ANonceInfo: INonceInformation): IMessageBuilderV0;
+    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IMessageBuilderV0;
+    function SetFeePayer(const APublicKey: IPublicKey): IMessageBuilderV0;
+    function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilderV0;
+    function AddAddressTableLookup(const ALookup: IMessageAddressTableLookup): IMessageBuilderV0;
+    function AddAddressTableLookups(const ALookups: TList<IMessageAddressTableLookup>): IMessageBuilderV0;
+    function GetAccountMetaPublicKeys: TArray<string>;
+    function Build: TBytes;
+  end;
+
+  /// <summary>
+  /// Fluent facet for building a version 1 message. Exposes the in-message transaction
+  /// config and deliberately omits address lookup tables (a version 0 concept).
+  /// </summary>
+  IMessageBuilderV1 = interface
+    ['{8D4CBE63-6F2A-4B3C-9E7D-3A4B5C6D7E82}']
+    function SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderV1;
+    function SetNonceInformation(const ANonceInfo: INonceInformation): IMessageBuilderV1;
+    function SetFeePayer(const APublicKey: IPublicKey): IMessageBuilderV1;
+    function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilderV1;
+    function SetTransactionConfig(const AConfig: TTransactionConfig): IMessageBuilderV1;
+    function GetAccountMetaPublicKeys: TArray<string>;
+    function Build: TBytes;
+  end;
+
+  /// <summary>
+  /// Entry point for the message builders. As with <c>TTransactionBuilders</c>, selecting a
+  /// version yields a builder whose surface exposes only the methods valid for that version.
+  /// </summary>
+  TMessageBuilders = class sealed
+  public
+    /// <summary>Creates a builder for a legacy (unversioned) message.</summary>
+    class function Legacy: IMessageBuilderLegacy; static;
+    /// <summary>Creates a builder for a version 0 message (address lookup tables).</summary>
+    class function V0: IMessageBuilderV0; static;
+    /// <summary>Creates a builder for a version 1 message (in-message transaction config).</summary>
+    class function V1: IMessageBuilderV1; static;
+  end;
+
+  /// <summary>
+  /// Internal factory for the concrete message builders. The transaction core and the
+  /// transaction domain compile messages internally and construct these owners directly;
+  /// external code builds messages through <see cref="TMessageBuilders"/>.
+  /// </summary>
+  TMessageBuilderFactory = class sealed
+  public
+    class function NewLegacy: IMessageBuilder; static;
+    class function NewVersioned: IVersionedMessageBuilder; static;
+  end;
+
+
+implementation
+
+type
+  /// <summary>
+  /// Concrete builder for legacy (unversioned) messages. Internal: constructed only through
+  /// <see cref="TMessageBuilders"/> or <see cref="TMessageBuilderFactory"/>.
+  /// </summary>
   TMessageBuilder = class(TInterfacedObject, IMessageBuilder)
   private
     FInstructions: TList<ITransactionInstruction>;
@@ -95,34 +203,10 @@ type
     destructor Destroy; override;
   end;
 
-  type
-  IVersionedMessageBuilder = interface(IMessageBuilder)
-    ['{738D0C34-21BB-428F-BEFF-A9C17E3DA332}']
-    function GetAddressTableLookups: TList<IMessageAddressTableLookup>;
-    procedure SetAddressTableLookups(const AValue: TList<IMessageAddressTableLookup>);
-
-    function GetAccountKeys: TList<IPublicKey>;
-    procedure SetAccountKeys(const AValue: TList<IPublicKey>);
-
-    function GetVersion: Byte;
-    procedure SetVersion(const AValue: Byte);
-    function GetTransactionConfig: TTransactionConfig;
-    procedure SetTransactionConfig(const AValue: TTransactionConfig);
-
-    property AddressTableLookups: TList<IMessageAddressTableLookup> read GetAddressTableLookups write SetAddressTableLookups;
-    property AccountKeys: TList<IPublicKey> read GetAccountKeys write SetAccountKeys;
-    /// <summary>
-    /// The message version emitted in the low 7 bits of the versioned prefix.
-    /// </summary>
-    property Version: Byte read GetVersion write SetVersion;
-    /// <summary>
-    /// The in-message transaction configuration (version 1 only).
-    /// </summary>
-    property TransactionConfig: TTransactionConfig read GetTransactionConfig write SetTransactionConfig;
-  end;
-
-
-type
+  /// <summary>
+  /// Concrete builder for versioned (v0/v1) messages. Internal: constructed only through
+  /// <see cref="TMessageBuilders"/> or <see cref="TMessageBuilderFactory"/>.
+  /// </summary>
   TVersionedMessageBuilder = class(TMessageBuilder, IVersionedMessageBuilder)
   private
     FAddressTableLookups: TList<IMessageAddressTableLookup>;
@@ -149,70 +233,6 @@ type
     property Version: Byte read FVersion write FVersion;
     property TransactionConfig: TTransactionConfig read FTransactionConfig write FTransactionConfig;
   end;
-
-type
-  /// <summary>
-  /// Fluent facet for building a legacy (unversioned) message. Mirrors the legacy
-  /// transaction builder's surface but produces the compiled message bytes.
-  /// </summary>
-  IMessageBuilderLegacy = interface
-    ['{6B2A9C41-4D0E-4F1A-9C7B-1E2D3A4B5C60}']
-    function SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderLegacy;
-    function SetNonceInformation(const ANonceInfo: INonceInformation): IMessageBuilderLegacy;
-    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IMessageBuilderLegacy;
-    function SetFeePayer(const APublicKey: IPublicKey): IMessageBuilderLegacy;
-    function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilderLegacy;
-    function GetAccountMetaPublicKeys: TArray<string>;
-    function Build: TBytes;
-  end;
-
-  /// <summary>
-  /// Fluent facet for building a version 0 message. Exposes address lookup tables and
-  /// deliberately omits the in-message transaction config (a version 1 concept).
-  /// </summary>
-  IMessageBuilderV0 = interface
-    ['{7C3BAD52-5E1F-4A2B-8D6C-2F3E4A5B6C71}']
-    function SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderV0;
-    function SetNonceInformation(const ANonceInfo: INonceInformation): IMessageBuilderV0;
-    function SetFeePayer(const APublicKey: IPublicKey): IMessageBuilderV0;
-    function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilderV0;
-    function AddAddressTableLookup(const ALookup: IMessageAddressTableLookup): IMessageBuilderV0;
-    function AddAddressTableLookups(const ALookups: TList<IMessageAddressTableLookup>): IMessageBuilderV0;
-    function GetAccountMetaPublicKeys: TArray<string>;
-    function Build: TBytes;
-  end;
-
-  /// <summary>
-  /// Fluent facet for building a version 1 message. Exposes the in-message transaction
-  /// config and deliberately omits address lookup tables (a version 0 concept).
-  /// </summary>
-  IMessageBuilderV1 = interface
-    ['{8D4CBE63-6F2A-4B3C-9E7D-3A4B5C6D7E82}']
-    function SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderV1;
-    function SetNonceInformation(const ANonceInfo: INonceInformation): IMessageBuilderV1;
-    function SetFeePayer(const APublicKey: IPublicKey): IMessageBuilderV1;
-    function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilderV1;
-    function SetTransactionConfig(const AConfig: TTransactionConfig): IMessageBuilderV1;
-    function GetAccountMetaPublicKeys: TArray<string>;
-    function Build: TBytes;
-  end;
-
-  /// <summary>
-  /// Entry point for the message builders. As with <c>TTransactionBuilders</c>, selecting a
-  /// version yields a builder whose surface exposes only the methods valid for that version.
-  /// </summary>
-  TMessageBuilders = class sealed
-  public
-    /// <summary>Creates a builder for a legacy (unversioned) message.</summary>
-    class function Legacy: IMessageBuilderLegacy; static;
-    /// <summary>Creates a builder for a version 0 message (address lookup tables).</summary>
-    class function V0: IMessageBuilderV0; static;
-    /// <summary>Creates a builder for a version 1 message (in-message transaction config).</summary>
-    class function V1: IMessageBuilderV1; static;
-  end;
-
-
-implementation
 
 { TMessageBuilder }
 
@@ -712,6 +732,7 @@ type
     constructor Create(const AOwner: IVersionedMessageBuilder);
     function SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderV0;
     function SetNonceInformation(const ANonceInfo: INonceInformation): IMessageBuilderV0;
+    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IMessageBuilderV0;
     function SetFeePayer(const APublicKey: IPublicKey): IMessageBuilderV0;
     function AddInstruction(const AInstruction: ITransactionInstruction): IMessageBuilderV0;
     function AddAddressTableLookup(const ALookup: IMessageAddressTableLookup): IMessageBuilderV0;
@@ -830,6 +851,12 @@ begin
   Result := Self;
 end;
 
+function TMessageBuilderV0Facet.SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IMessageBuilderV0;
+begin
+  FOwner.PriorityFeesInformation := APriorityFeesInfo;
+  Result := Self;
+end;
+
 function TMessageBuilderV0Facet.SetRecentBlockHash(const ARecentBlockHash: string): IMessageBuilderV0;
 begin
   FOwner.RecentBlockHash := ARecentBlockHash;
@@ -882,6 +909,18 @@ function TMessageBuilderV1Facet.SetTransactionConfig(const AConfig: TTransaction
 begin
   FOwner.TransactionConfig := AConfig;
   Result := Self;
+end;
+
+{ TMessageBuilderFactory }
+
+class function TMessageBuilderFactory.NewLegacy: IMessageBuilder;
+begin
+  Result := TMessageBuilder.Create;
+end;
+
+class function TMessageBuilderFactory.NewVersioned: IVersionedMessageBuilder;
+begin
+  Result := TVersionedMessageBuilder.Create;
 end;
 
 { TMessageBuilders }

@@ -135,7 +135,7 @@ begin
 
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -249,7 +249,7 @@ begin
 
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -324,7 +324,7 @@ begin
 
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -410,7 +410,7 @@ begin
   LFees.HostFeeNumerator := 20;
   LFees.HostFeeDenominator := 100;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -459,7 +459,7 @@ begin
   // === Now: user performs a swap in the pool ===
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -486,7 +486,7 @@ begin
   // === User deposits both tokens (add liquidity) ===
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -513,7 +513,7 @@ begin
   // === User withdraws both tokens (remove liquidity) ===
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -541,7 +541,7 @@ begin
   // === User deposits single token (exact amount in) ===
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -566,7 +566,7 @@ begin
   // === User withdraws single token (exact amount out) ===
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)

@@ -125,7 +125,7 @@ begin
 
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -219,7 +219,7 @@ begin
   LInitialAcc := LWallet.GetAccountByIndex(60);
   Writeln('InitialAccount: ' + LInitialAcc.ToString);
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
 
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -301,7 +301,7 @@ begin
 
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -427,7 +427,7 @@ begin
 
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -535,7 +535,7 @@ begin
   LNonceAcc := LWallet.GetAccountByIndex(1120);
   Writeln('NonceAccount: ' + LNonceAcc.ToString);
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)

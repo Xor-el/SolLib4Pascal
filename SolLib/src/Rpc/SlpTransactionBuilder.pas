@@ -120,10 +120,10 @@ type
   end;
 
   /// <summary>
-  /// Fluent builder for version 0 transactions. Version 0 messages carry address
-  /// lookup tables; the compute-budget and priority-fee settings are expressed as
-  /// Compute Budget Program instructions, so this surface deliberately omits
-  /// <c>SetTransactionConfig</c> (which is a version 1 concept).
+  /// Fluent builder for version 0 transactions. Version 0 messages carry address lookup
+  /// tables, and their compute-budget and priority-fee settings are expressed as Compute
+  /// Budget Program instructions (via <c>SetPriorityFeesInformation</c>), so this surface
+  /// deliberately omits <c>SetTransactionConfig</c> (which is a version 1 concept).
   /// </summary>
   IVersionedTxV0Builder = interface
     ['{C1E4A2D0-1F3B-4A6E-9B2C-7D8E5F0A1B23}']
@@ -142,6 +142,9 @@ type
 
     /// <summary>Sets the durable nonce information (overrides the blockhash if present).</summary>
     function SetNonceInformation(const ANonceInfo: INonceInformation): IVersionedTxV0Builder;
+
+    /// <summary>Sets the priority fees information (emitted as Compute Budget instructions).</summary>
+    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IVersionedTxV0Builder;
 
     /// <summary>Sets the fee payer.</summary>
     function SetFeePayer(const APublicKey: IPublicKey): IVersionedTxV0Builder;
@@ -209,85 +212,11 @@ type
   end;
 
   /// <summary>
-  /// Implements a builder for transactions.
-  /// </summary>
-  TTransactionBuilder = class(TInterfacedObject, ITransactionBuilder)
-  public const
-    /// <summary>
-    /// The length of a signature.
-    /// </summary>
-    SignatureLength = 64;
-  private
-    /// <summary>
-    /// The builder of the message contained within the transaction.
-    /// </summary>
-    FMessageBuilder: IMessageBuilder;
-
-    /// <summary>
-    /// The signatures present in the message.
-    /// </summary>
-    FSignatures: TList<string>;
-
-    /// <summary>
-    /// The message after being serialized.
-    /// </summary>
-    FSerializedMessage: TBytes;
-
-    /// <summary>
-    /// Sign the transaction message with each of the signer's keys.
-    /// </summary>
-    /// <param name="ASigners">The list of signers.</param>
-    /// <exception cref="Exception">
-    /// Throws when the list of signers is nil/empty or when the fee payer hasn't been set.
-    /// </exception>
-    procedure Sign(const ASigners: TList<IAccount>);
-
-    /// <inheritdoc />
-    function Serialize: TBytes;
-
-    /// <inheritdoc />
-    function AddSignature(const ASignature: TBytes): ITransactionBuilder; overload;
-
-    /// <inheritdoc />
-    function AddSignature(const ASignature: string): ITransactionBuilder; overload;
-
-    /// <inheritdoc />
-    function SetRecentBlockHash(const ARecentBlockHash: string): ITransactionBuilder;
-
-    /// <inheritdoc />
-    function SetNonceInformation(const ANonceInfo: INonceInformation): ITransactionBuilder;
-
-    /// <inheritdoc />
-    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): ITransactionBuilder;
-
-    /// <inheritdoc />
-    function SetFeePayer(const APublicKey: IPublicKey): ITransactionBuilder;
-
-    /// <inheritdoc />
-    function AddInstruction(const AInstruction: ITransactionInstruction): ITransactionBuilder;
-
-    /// <inheritdoc />
-    function CompileMessage: TBytes;
-
-    /// <inheritdoc />
-    function Build(const ASigner: IAccount): TBytes; overload;
-
-    /// <inheritdoc />
-    function Build(const ASigners: TList<IAccount>): TBytes; overload;
-  public
-    /// <summary>
-    /// Default constructor that initializes the transaction builder.
-    /// </summary>
-    constructor Create;
-
-    destructor Destroy; override;
-  end;
-
-  /// <summary>
-  /// Entry point for the transaction builders. Selecting a version here yields a
-  /// builder whose surface exposes only the methods valid for that version, so an
-  /// invalid combination (an address table lookup on version 1, or an in-message
-  /// transaction config on version 0) cannot be expressed.
+  /// The single entry point for building transactions. Each method returns a builder whose
+  /// surface exposes only the methods valid for that kind, so an invalid combination (an
+  /// address table lookup on version 1, or an in-message transaction config on version 0)
+  /// cannot be expressed. The concrete builders are internal; this facade is the only way to
+  /// construct one.
   /// </summary>
   TTransactionBuilders = class sealed
   public
@@ -309,6 +238,33 @@ const
 
 type
   /// <summary>
+  /// Concrete builder for legacy (unversioned) transactions. Internal: instances are created
+  /// only through <see cref="TTransactionBuilders.Legacy"/>.
+  /// </summary>
+  TTransactionBuilder = class(TInterfacedObject, ITransactionBuilder)
+  private
+    FMessageBuilder: IMessageBuilder;
+    FSignatures: TList<string>;
+    FSerializedMessage: TBytes;
+
+    procedure Sign(const ASigners: TList<IAccount>);
+    function Serialize: TBytes;
+    function AddSignature(const ASignature: TBytes): ITransactionBuilder; overload;
+    function AddSignature(const ASignature: string): ITransactionBuilder; overload;
+    function SetRecentBlockHash(const ARecentBlockHash: string): ITransactionBuilder;
+    function SetNonceInformation(const ANonceInfo: INonceInformation): ITransactionBuilder;
+    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): ITransactionBuilder;
+    function SetFeePayer(const APublicKey: IPublicKey): ITransactionBuilder;
+    function AddInstruction(const AInstruction: ITransactionInstruction): ITransactionBuilder;
+    function CompileMessage: TBytes;
+    function Build(const ASigner: IAccount): TBytes; overload;
+    function Build(const ASigners: TList<IAccount>): TBytes; overload;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+  /// <summary>
   /// The shared state and logic behind the versioned transaction facets. A single core
   /// is created for a fixed version and is driven through a thin version-specific facet;
   /// the facet holds the core, so it stays alive for the lifetime of the returned builder.
@@ -317,6 +273,7 @@ type
     ['{E3A6C4F2-3B5D-4C8A-9D4E-0F1A2B3C4D56}']
     procedure SetRecentBlockHash(const AValue: string);
     procedure SetNonceInformation(const AValue: INonceInformation);
+    procedure SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
     procedure SetFeePayer(const AValue: IPublicKey);
     procedure AddInstruction(const AInstruction: ITransactionInstruction);
     procedure AddSignature(const ASignature: TBytes); overload;
@@ -341,6 +298,7 @@ type
 
     procedure SetRecentBlockHash(const AValue: string);
     procedure SetNonceInformation(const AValue: INonceInformation);
+    procedure SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
     procedure SetFeePayer(const AValue: IPublicKey);
     procedure AddInstruction(const AInstruction: ITransactionInstruction);
     procedure AddSignature(const ASignature: TBytes); overload;
@@ -364,6 +322,7 @@ type
     function AddSignature(const ASignature: string): IVersionedTxV0Builder; overload;
     function SetRecentBlockHash(const ARecentBlockHash: string): IVersionedTxV0Builder;
     function SetNonceInformation(const ANonceInfo: INonceInformation): IVersionedTxV0Builder;
+    function SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IVersionedTxV0Builder;
     function SetFeePayer(const APublicKey: IPublicKey): IVersionedTxV0Builder;
     function AddInstruction(const AInstruction: ITransactionInstruction): IVersionedTxV0Builder;
     function AddAddressTableLookup(const ALookup: IMessageAddressTableLookup): IVersionedTxV0Builder;
@@ -551,7 +510,7 @@ end;
 constructor TTransactionBuilder.Create;
 begin
   inherited Create;
-  FMessageBuilder := TMessageBuilder.Create;
+  FMessageBuilder := TMessageBuilderFactory.NewLegacy;
   FSignatures := TList<string>.Create;
   FSerializedMessage := nil;
 end;
@@ -645,7 +604,7 @@ end;
 constructor TVersionedTxCore.Create(const AVersion: TTransactionVersion);
 begin
   inherited Create;
-  FMessageBuilder := TVersionedMessageBuilder.Create;
+  FMessageBuilder := TMessageBuilderFactory.NewVersioned;
   case AVersion of
     TTransactionVersion.V0:
       begin
@@ -722,6 +681,11 @@ end;
 procedure TVersionedTxCore.SetNonceInformation(const AValue: INonceInformation);
 begin
   FMessageBuilder.NonceInformation := AValue;
+end;
+
+procedure TVersionedTxCore.SetPriorityFeesInformation(const AValue: IPriorityFeesInformation);
+begin
+  FMessageBuilder.PriorityFeesInformation := AValue;
 end;
 
 procedure TVersionedTxCore.SetRecentBlockHash(const AValue: string);
@@ -808,6 +772,12 @@ end;
 function TVersionedTxV0Facet.SetNonceInformation(const ANonceInfo: INonceInformation): IVersionedTxV0Builder;
 begin
   FCore.SetNonceInformation(ANonceInfo);
+  Result := Self;
+end;
+
+function TVersionedTxV0Facet.SetPriorityFeesInformation(const APriorityFeesInfo: IPriorityFeesInformation): IVersionedTxV0Builder;
+begin
+  FCore.SetPriorityFeesInformation(APriorityFeesInfo);
   Result := Self;
 end;
 

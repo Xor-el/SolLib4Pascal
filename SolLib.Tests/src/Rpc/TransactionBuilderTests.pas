@@ -105,7 +105,6 @@ type
     procedure TestTransactionInstructionTest;
     procedure TransactionBuilderAddSignatureTest;
     procedure TestTransactionWithPriorityFeesInformation;
-    procedure LegacyFacadeMatchesDirectBuilder;
     procedure V0FacadeBuildsRoundTrippableTransaction;
     procedure V1FacadeBuildsRoundTrippableTransaction;
   end;
@@ -123,7 +122,7 @@ begin
   LWallet := TWallet.Create(MnemonicWords);
   LFromAccount := LWallet.GetAccountByIndex(0);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder.SetRecentBlockHash(Blockhash);
 
   AssertException(
@@ -147,7 +146,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(0);
   LToAccount := LWallet.GetAccountByIndex(1);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LTxBytes := LBuilder
     .SetRecentBlockHash(Blockhash)
     .SetFeePayer(LFromAccount.PublicKey)
@@ -169,7 +168,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(0);
   LToAccount := LWallet.GetAccountByIndex(1);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetFeePayer(LFromAccount.PublicKey)
     .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
@@ -194,7 +193,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(0);
   LToAccount := LWallet.GetAccountByIndex(1);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetRecentBlockHash(Blockhash)
     .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
@@ -222,7 +221,7 @@ begin
 
   LEmptySigners := TList<IAccount>.Create;
   try
-    LBuilder := TTransactionBuilder.Create;
+    LBuilder := TTransactionBuilders.Legacy;
     LBuilder
       .SetRecentBlockHash(Blockhash)
       .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
@@ -262,7 +261,7 @@ begin
   LOwnerAccount := LWallet.GetAccountByIndex(10);
   LInitialAccount := LWallet.GetAccountByIndex(18);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetRecentBlockHash(LBlockHash)
     .SetFeePayer(LOwnerAccount.PublicKey)
@@ -342,7 +341,7 @@ begin
     TSystemProgram.AdvanceNonceAccount(LNonceAccount.PublicKey, LOwnerAccount.PublicKey)
   );
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LTxBytes := LBuilder
     .SetFeePayer(LOwnerAccount.PublicKey)
     .SetNonceInformation(LNonceInfo)
@@ -406,7 +405,7 @@ begin
   LFromAccount := LWallet.GetAccountByIndex(10);
   LToAccount := LWallet.GetAccountByIndex(8);
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LBuilder
     .SetRecentBlockHash(AddSignatureBlockHash)
     .SetFeePayer(LFromAccount.PublicKey)
@@ -443,7 +442,7 @@ begin
     TComputeBudgetProgram.SetComputeUnitPrice(100000)    // SetComputeUnitPrice
   );
 
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LTxBytes := LBuilder
     .SetRecentBlockHash(Blockhash)
     .SetFeePayer(LFromAccount.PublicKey)
@@ -453,27 +452,6 @@ begin
 
   LTxB64 := EncodeBase64(LTxBytes);
   AssertEquals(ExpectedTransactionWithPriorityFees, LTxB64);
-end;
-
-procedure TTransactionBuilderTests.LegacyFacadeMatchesDirectBuilder;
-var
-  LWallet: IWallet;
-  LFromAccount, LToAccount: IAccount;
-  LTxBytes: TBytes;
-begin
-  LWallet := TWallet.Create(MnemonicWords);
-  LFromAccount := LWallet.GetAccountByIndex(0);
-  LToAccount := LWallet.GetAccountByIndex(1);
-
-  // The Legacy facade must produce the same bytes as the direct legacy builder.
-  LTxBytes := TTransactionBuilders.Legacy
-    .SetRecentBlockHash(Blockhash)
-    .SetFeePayer(LFromAccount.PublicKey)
-    .AddInstruction(TSystemProgram.Transfer(LFromAccount.PublicKey, LToAccount.PublicKey, 10000000))
-    .AddInstruction(TMemoProgram.NewMemo(LFromAccount.PublicKey, 'Hello from SolLib :)'))
-    .Build(LFromAccount);
-
-  AssertEquals(ExpectedTransactionHashWithTransferAndMemo, EncodeBase64(LTxBytes));
 end;
 
 procedure TTransactionBuilderTests.V0FacadeBuildsRoundTrippableTransaction;

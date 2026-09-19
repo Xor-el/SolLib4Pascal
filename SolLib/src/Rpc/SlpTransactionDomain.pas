@@ -25,7 +25,6 @@ uses
   SysUtils,
   Classes,
   Generics.Collections,
-  Generics.Defaults,
   SlpPublicKey,
   SlpShortVectorEncoding,
   SlpArrayUtilities,
@@ -484,8 +483,11 @@ type
 implementation
 
 uses
-  SlpMessageBuilder,
-  SlpTransactionBuilder;
+  SlpMessageBuilder;
+
+const
+  /// <summary>The length of an Ed25519 signature.</summary>
+  SignatureLength = 64;
 
 { TSignaturePubKeyPair }
 
@@ -690,7 +692,7 @@ var
   LMessageBuilder: IMessageBuilder;
   LInstruction: ITransactionInstruction;
 begin
-  LMessageBuilder := TMessageBuilder.Create;
+  LMessageBuilder := TMessageBuilderFactory.NewLegacy;
 
   LMessageBuilder.FeePayer := FFeePayer;
   if FRecentBlockHash <> '' then
@@ -857,7 +859,7 @@ begin
   LBuffer := TMemoryStream.Create;
   try
     LBuffer.Size := Length(LSignaturesLength) +
-                   (FSignatures.Count * TTransactionBuilder.SignatureLength) +
+                   (FSignatures.Count * SignatureLength) +
                    Length(LSerializedMessage);
     LBuffer.Position := 0;
 
@@ -1025,13 +1027,13 @@ begin
   begin
     LSignature := TArrayUtilities.Slice<Byte>(
       AData,
-      LEncodedLength + (LI * TTransactionBuilder.SignatureLength),
-      TTransactionBuilder.SignatureLength
+      LEncodedLength + (LI * SignatureLength),
+      SignatureLength
     );
     LSignatures[LI] := LSignature;
   end;
 
-  LPrefix := AData[LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)];
+  LPrefix := AData[LEncodedLength + (LSignaturesLength * SignatureLength)];
   LMaskedPrefix := LPrefix and TVersionedMessage.VersionPrefixMask;
 
   // If the transaction is a VersionedTransaction, use the versioned deserializer instead.
@@ -1041,7 +1043,7 @@ begin
   LMsg := TMessage.Deserialize(
     TArrayUtilities.Slice<Byte>(
       AData,
-      LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength)
+      LEncodedLength + (LSignaturesLength * SignatureLength)
     )
   );
   Result := Populate(LMsg, LSignatures);
@@ -1103,7 +1105,7 @@ var
   LMessageBuilder: IVersionedMessageBuilder;
   LInstruction: ITransactionInstruction;
 begin
-  LMessageBuilder := TVersionedMessageBuilder.Create;
+  LMessageBuilder := TMessageBuilderFactory.NewVersioned;
   LMessageBuilder.FeePayer := FFeePayer;
   LMessageBuilder.Version := FVersion;
 
@@ -1273,14 +1275,14 @@ begin
       raise EArgumentException.Create('Deserialized message does not support IVersionedMessage.');
 
     LSignatureCount := LVersionedMessage.Header.RequiredSignatures;
-    LMessageLen := Length(AData) - (LSignatureCount * TTransactionBuilder.SignatureLength);
+    LMessageLen := Length(AData) - (LSignatureCount * SignatureLength);
 
     SetLength(LSignatures, LSignatureCount);
     for LI := 0 to LSignatureCount - 1 do
       LSignatures[LI] := TArrayUtilities.Slice<Byte>(
         AData,
-        LMessageLen + (LI * TTransactionBuilder.SignatureLength),
-        TTransactionBuilder.SignatureLength
+        LMessageLen + (LI * SignatureLength),
+        SignatureLength
       );
 
     Result := Populate(LVersionedMessage, LSignatures);
@@ -1298,13 +1300,13 @@ begin
   begin
     LSignature := TArrayUtilities.Slice<Byte>(
       AData,
-      LEncodedLength + (LI * TTransactionBuilder.SignatureLength),
-      TTransactionBuilder.SignatureLength
+      LEncodedLength + (LI * SignatureLength),
+      SignatureLength
     );
     LSignatures[LI] := LSignature;
   end;
 
-  LMessageOffset := LEncodedLength + (LSignaturesLength * TTransactionBuilder.SignatureLength);
+  LMessageOffset := LEncodedLength + (LSignaturesLength * SignatureLength);
   LMsg := TVersionedMessage.Deserialize(TArrayUtilities.Slice<Byte>(AData, LMessageOffset));
   if not Supports(LMsg, IVersionedMessage, LVersionedMessage) then
     raise EArgumentException.Create('Deserialized message does not support IVersionedMessage.');

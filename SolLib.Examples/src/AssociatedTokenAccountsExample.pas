@@ -96,7 +96,7 @@ begin
   //
   // Step 1: Create & initialize mint and token account, then mint tokens
   //
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlockhash.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)
@@ -183,7 +183,7 @@ begin
   Writeln(Format('AssociatedTokenAccountOwner: %s', [LAssociatedOwner.Key]));
   Writeln(Format('AssociatedTokenAccount:      %s', [LAssociatedAta.Key]));
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LTxBuilder
     .SetRecentBlockHash(LBlockhash.Result.Value.Blockhash)
     .SetFeePayer(LOwner.PublicKey)

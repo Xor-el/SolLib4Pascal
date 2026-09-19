@@ -115,7 +115,7 @@ begin
   );
 
   // Build transaction (Send a simple memo transaction)
-  LBuilder := TTransactionBuilder.Create;
+  LBuilder := TTransactionBuilders.Legacy;
   LTxBytes :=
     LBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -131,11 +131,12 @@ end;
 
 ### Versioned (v0 / v1) Transactions
 
-`TTransactionBuilders` is the entry point: `Legacy`, `V0` and `V1` each return a builder that
-exposes only the methods valid for that version, so invalid combinations don't compile. Version 0
-carries address lookup tables (`AddAddressTableLookup`); version 1 (SIMD-0385, live on mainnet
-since epoch 1035) instead carries the compute-budget and priority-fee settings in the message via
-`SetTransactionConfig`, and allows larger transactions (up to 4096 bytes).
+`TTransactionBuilders.V0` and `.V1` build versioned transactions, each exposing only the methods
+valid for that version, so invalid combinations don't compile. Version 0 carries address lookup
+tables (`AddAddressTableLookup`); version 1 (SIMD-0385, live on mainnet since epoch 1035) instead
+carries the compute-budget and priority-fee settings in the message via `SetTransactionConfig`, and
+allows larger transactions (up to 4096 bytes). Legacy (unversioned) transactions use
+`TTransactionBuilders.Legacy`, shown in the example above.
 
 ```pascal
 var

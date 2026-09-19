@@ -102,7 +102,7 @@ begin
 
     Writeln('Creating mint at: ' + AMint.PublicKey.Key);
 
-    LTxBuilder := TTransactionBuilder.Create;
+    LTxBuilder := TTransactionBuilders.Legacy;
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
       .SetFeePayer(AAuthority.PublicKey)

@@ -164,7 +164,7 @@ begin
   // -------- Tx #1: create multisig + create mint + init mint (multisig as mint authority) + memo
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -228,7 +228,7 @@ begin
   // -------- Tx #2: create token account for owner, init, then mint-to using multisig signers (3-of-5)
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -320,7 +320,7 @@ begin
   // Build + COMPILE message
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -415,7 +415,7 @@ begin
 
   // Then we create an account which will be the token's mint authority
   // In this same transaction we initialize the token mint with said authorities
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -491,7 +491,7 @@ begin
   // -------- Tx #2: transfer back tokenDest -> source using token-account multisig (3-of-5 signers)
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -595,7 +595,7 @@ begin
   // ---------------- Tx #1: create freeze multisig ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -642,7 +642,7 @@ begin
   // ---------------- Tx #2: create mint multisig, create mint, init with authorities ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -707,7 +707,7 @@ begin
   // ---------------- Tx #3: create holder token account, init, mint-to using mint multisig ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -763,7 +763,7 @@ begin
   // ---------------- Tx #4: Freeze the holder account (freeze multisig 3-of-5) ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -803,7 +803,7 @@ begin
   // ---------------- Tx #5: Thaw, then SetAuthority(freeze) to none (freeze multisig 3-of-5) ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -917,7 +917,7 @@ begin
   // ---------------- Tx #1: create token-account multisig + memo ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -964,7 +964,7 @@ begin
   // ---------------- Tx #2: create token account (owned by multisig) & mint to it via mint multisig ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -1023,7 +1023,7 @@ begin
   // ---------------- Tx #3: ApproveChecked by token-account multisig + memo ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -1067,7 +1067,7 @@ begin
   // ---------------- Tx #4: Delegate TransferChecked, then Revoke by multisig ----------------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -1165,7 +1165,7 @@ begin
   // -------- Single Tx: MintToChecked (mint multisig) + BurnChecked (token multisig) + Memo --------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)
@@ -1265,7 +1265,7 @@ begin
   // -------- Single Tx: BurnChecked (token multisig) + CloseAccount (token multisig) + Memo --------
   LBlock := LRpc.GetLatestBlockHash;
 
-  LTxBuilder := TTransactionBuilder.Create;
+  LTxBuilder := TTransactionBuilders.Legacy;
   LMsgBytes :=
     LTxBuilder
       .SetRecentBlockHash(LBlock.Result.Value.Blockhash)

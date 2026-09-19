@@ -25,7 +25,6 @@ uses
   SysUtils,
   Generics.Collections,
   Rtti,
-  TypInfo,
   SlpEnumUtilities,
   SlpPublicKey,
   SlpAccount,
@@ -633,11 +632,8 @@ type
   end;
 
   {====================================================================================================================}
-  {                                                      TokenProgram                                                 }
+  {                                                    TokenProgramCore                                                }
   {====================================================================================================================}
-  /// <summary>
-  /// Implements the Token Program methods.
-  /// <remarks>
   /// <summary>
   /// Shared instruction-builder core for the SPL token programs. The classic Token
   /// program and the Token-2022 program emit byte-identical instructions apart from the
@@ -687,6 +683,12 @@ type
     class function SyncNative(const AProgramId, AAccount: IPublicKey): ITransactionInstruction; static;
   end;
 
+  {====================================================================================================================}
+  {                                                      TokenProgram                                                 }
+  {====================================================================================================================}
+  /// <summary>
+  /// Implements the Token Program methods.
+  /// <remarks>
   /// For more information see:
   /// https://spl.solana.com/token
   /// https://docs.rs/spl-token/3.2.0/spl_token/
