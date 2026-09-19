@@ -1,0 +1,76 @@
+SolLib.Tests/src/Token/TokenWalletTests.pas
+  s_1205ef712c624e::t_1de33ef027545c 278
+SolLib.Tests/src/Rpc/TransactionBuilderTests.pas
+  s_1205ef712c624e::t_1de33ef027545c 125,149,171,196,224,264,344,408,445
+SolLib.Examples/src/TokenMintHelper.pas
+  s_1205ef712c624e::t_1de33ef027545c 105
+SolLib.Examples/src/SlpHelloWorldExample.pas
+  s_1205ef712c624e::t_1de33ef027545c 110
+SolLib.Examples/src/MultisigExample.pas
+  s_1205ef712c624e::t_1de33ef027545c 167,231,323,418,494,598,645,710,766,806,920,967,1026,1070,1168,1268
+SolLib/src/Rpc/SlpMessageBuilder.pas
+  s_1205ef712c624e::t_89c65897967f22 163-236
+  s_1205ef712c624e::t_d0d69d4daa2a82 88-89
+  s_1205ef712c624e::t_1e0550ffc8249f 735
+  s_1205ef712c624e::t_629c99a3cf6b70 854-859
+  s_1205ef712c624e::t_b69354510095ff 914-925
+  s_1205ef712c624e::t_6f0bfdc276edba 103-105,111
+  s_1205ef712c624e::t_ffa38738897c65 149-159
+SolLib.Examples/src/TransactionExample.pas
+  s_1205ef712c624e::t_b685c632e0232e 52,60
+  s_1205ef712c624e::t_1de33ef027545c 157,193,248,297,347,368,412,432,495,524,598,656
+SolLib.Examples/src/TransactionExtendedExample.pas
+  s_1205ef712c624e::t_1de33ef027545c 128,222,304,430,538
+SolLib.Examples/src/InstructionDecoderExample.pas
+  s_1205ef712c624e::t_1de33ef027545c 85
+SolLib.Examples/src/AssociatedTokenAccountsExample.pas
+  s_1205ef712c624e::t_1de33ef027545c 99,186
+SolLib/src/Token/SlpTokenWallet.pas
+  s_1205ef712c624e::t_1de33ef027545c 859
+README.md
+  s_1205ef712c624e::t_e04b009b011d70 118
+  s_1205ef712c624e::t_d164ee4ae10554 139
+  s_1205ef712c624e::t_f131e865f4e5fc 134-138
+SolLib/src/Programs/SlpTokenProgram.pas
+  s_1205ef712c624e::t_b0227582095168 635
+  s_1205ef712c624e::t_279cb21a1eeac1 686-691
+SolLib/src/Programs/Abstract/SlpBaseClient.pas
+  s_1205ef712c624e::t_1de33ef027545c 613
+SolLib/src/Rpc/SlpTransactionDomain.pas
+  s_1205ef712c624e::t_6971a3e568004d 486-490
+  s_1205ef712c624e::t_d61ebbe1daa9b8 862,1030-1031,1036,1046,1278,1284-1285,1303-1304,1309
+  s_1205ef712c624e::t_60f7d99211836f 695,1108
+SolLib.Examples/src/TokenSwapExample.pas
+  s_1205ef712c624e::t_1de33ef027545c 138,252,327,413,462,489,516,544,569
+SolLib.Examples/src/TransactionDecodingExample.pas
+  s_1205ef712c624e::t_1de33ef027545c 117
+  s_1205ef712c624e::t_b685c632e0232e 52
+SolLib/src/Rpc/SlpTransactionBuilder.pas
+  s_1205ef712c624e::t_8b2e3c5d4d2375 146-148
+  s_1205ef712c624e::t_a2851d581745c4 215-225
+  s_1205ef712c624e::t_5ad4d4ea306090 241-242
+  s_1205ef712c624e::t_11a86afd81ccc1 686-690
+  s_1205ef712c624e::t_444369ef3e6c3f 276
+  s_1205ef712c624e::t_215ce2cc4e6c00 301
+  s_1205ef712c624e::t_796b20db2e9327 325
+  s_1205ef712c624e::t_7e04d4440a0aea 778-783
+  s_1205ef712c624e::t_60f7d99211836f 513,607
+  s_1205ef712c624e::t_e37c0a73ef89c2 123-126
+  s_1205ef712c624e::t_57154049599a55 226-240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "acb6725e8a13d204b5d4ca60214fd1cdb6c0380c",
+  "prompts": {},
+  "sessions": {
+    "s_1205ef712c624e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d082555-7e8b-4561-8d96-a3b3eaf9cb5f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Ugochukwu Mmaduekwe <ugo4brain@gmail.com>"
+    }
+  }
+}
