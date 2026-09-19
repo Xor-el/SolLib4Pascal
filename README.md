@@ -178,7 +178,6 @@ end;
 Tests are provided for Delphi.
 
 - **Delphi (desktop):** Open and run `SolLib.Tests/Delphi.Tests/SolLib.Tests.dpr` in the IDE.
-- **Delphi (mobile):** See [Mobile test harness](SolLib.Tests/docs/MobileTestHarness.md) for Android/iOS testing with TestInsight.
 
 Additional samples can be found in the `SolLib.Examples` folder.
 
