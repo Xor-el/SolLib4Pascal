@@ -1,0 +1,38 @@
+SolLib/src/Rpc/SlpRpcMessage.pas
+  s_1205ef712c624e::t_b9ac88cf8cc671 312-313
+SolLib/src/JsonConverters/SlpJsonClampNumberConverter.pas
+  s_1205ef712c624e::t_748f1270cc5272 59,61
+  s_1205ef712c624e::t_911a075aa4194e 172,182
+  s_1205ef712c624e::t_8cc6ff62cc305e 55-58,60,62,66-68,73
+SolLib.Tests/src/Rpc/TransactionBuilderTests.pas
+  s_1205ef712c624e::t_d79bf8eb53ea95 108
+  s_1205ef712c624e::t_c427a8f8941208 458-512
+SolLib/src/Rpc/SlpTransactionBuilder.pas
+  s_1205ef712c624e::t_6264f30274fccd 318-320,322-323
+  s_1205ef712c624e::t_766d79d219775b 382-413,415-418,423,426-427,429-432,437-438,441-445,447,451,453,457,459-463,467,471-472,479-480,484,490-491,499,501-502,505-507,509,514,525,531,541,549,584-585,587-589,593,598,606,608,613,618,628,633,638,648,673
+  s_1205ef712c624e::t_4199e94d417154 241-243,245-246,251-280
+SolLib/src/Rpc/SlpConfigObject.pas
+  s_1205ef712c624e::t_df0f0c58b28656 250
+  s_1205ef712c624e::t_edcc9061351d8d 40-42
+  s_1205ef712c624e::t_8090e897ea2149 83,85
+SolLib/src/Misc/Encoder/SlpDefaultDataEncoderProviders.pas
+  s_1205ef712c624e::t_0b59eae4cf7eda 129,158,171,198,211,241-242,255,329
+  s_1205ef712c624e::t_29d5df2379b44b 97-99
+  s_1205ef712c624e::t_ddb125eac7b9eb 88-96,100-104,112,117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "fdefe827c09a3925ac45b11b2429410a53476fde",
+  "prompts": {},
+  "sessions": {
+    "s_1205ef712c624e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3d082555-7e8b-4561-8d96-a3b3eaf9cb5f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Ugochukwu Mmaduekwe <ugo4brain@gmail.com>"
+    }
+  }
+}
