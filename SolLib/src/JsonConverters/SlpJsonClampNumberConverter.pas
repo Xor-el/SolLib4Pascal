@@ -52,23 +52,25 @@ type
   TJsonUInt64ClampNumberConverter = class(TJsonClampNumberConverter<UInt64>)
   end;
 
-/// <summary>
-/// Returns True when the JSON token represents a numeric value (Float or Integer).
-/// </summary>
-function IsNumericToken(const AToken: TJsonToken): Boolean;
-/// <summary>
-/// Creates a TValue of the type indicated by ATypeInfo from a Double, clamping to the target range.
-/// </summary>
-function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue;
+  /// <summary>Stateless numeric helpers for the clamp converter (type-parameter independent).</summary>
+  TClampNumberHelpers = class sealed
+  public
+    /// <summary>Returns True when the JSON token represents a numeric value (Float or Integer).</summary>
+    class function IsNumericToken(const AToken: TJsonToken): Boolean; static;
+    /// <summary>Creates a TValue of the type indicated by ATypeInfo from a Double, clamping to the target range.</summary>
+    class function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue; static;
+  end;
 
 implementation
 
-function IsNumericToken(const AToken: TJsonToken): Boolean;
+{ TClampNumberHelpers }
+
+class function TClampNumberHelpers.IsNumericToken(const AToken: TJsonToken): Boolean;
 begin
   Result := AToken in [TJsonToken.Float, TJsonToken.&Integer];
 end;
 
-function CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue;
+class function TClampNumberHelpers.CreateValueFromDouble(const ATypeInfo: PTypeInfo; const AValue: Double): TValue;
 var
   LW, LMinVal, LMaxVal: Double;
 
@@ -167,7 +169,7 @@ function TJsonClampNumberConverter<T>.ReadJson(const AReader: TJsonReader; AType
 var
   LValue: Double;
 begin
-  if not IsNumericToken(AReader.TokenType) then
+  if not TClampNumberHelpers.IsNumericToken(AReader.TokenType) then
     Exit(TValue.From<T>(Default(T)));
 
   try
@@ -177,7 +179,7 @@ begin
       Exit(TValue.From<T>(Default(T)));
   end;
 
-  Result := CreateValueFromDouble(ATypeInfo, LValue);
+  Result := TClampNumberHelpers.CreateValueFromDouble(ATypeInfo, LValue);
 end;
 
 end.

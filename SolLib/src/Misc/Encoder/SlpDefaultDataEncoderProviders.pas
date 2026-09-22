@@ -85,14 +85,23 @@ type
 
 implementation
 
-{ Shared helper }
+type
+  /// <summary>Shared, stateless helpers for the default encoder providers.</summary>
+  TEncoderHelpers = class sealed
+  public
+    /// <summary>
+    /// Validates offset/count parameters against a byte array.
+    /// Raises EArgumentNilException if AData is nil.
+    /// Raises ERangeError if offset/count are out of bounds.
+    /// </summary>
+    class procedure ValidateRange(const AData: TBytes; AOffset, ACount: Integer); static;
+    class function IsCharInAlphabet(ACh: Char; const AAlphabet: string): Boolean; static;
+    class function IsJsonWhitespace(ACh: Char): Boolean; static;
+  end;
 
-/// <summary>
-/// Validates offset/count parameters against a byte array.
-/// Raises EArgumentNilException if AData is nil.
-/// Raises ERangeError if offset/count are out of bounds.
-/// </summary>
-procedure ValidateRange(const AData: TBytes; AOffset, ACount: Integer);
+{ TEncoderHelpers }
+
+class procedure TEncoderHelpers.ValidateRange(const AData: TBytes; AOffset, ACount: Integer);
 begin
   if AData = nil then
     raise EArgumentNilException.Create('data');
@@ -100,12 +109,12 @@ begin
     raise ERangeError.Create('Invalid offset/count');
 end;
 
-function IsCharInAlphabet(ACh: Char; const AAlphabet: string): Boolean;
+class function TEncoderHelpers.IsCharInAlphabet(ACh: Char; const AAlphabet: string): Boolean;
 begin
   Result := Pos(ACh, AAlphabet) > 0;
 end;
 
-function IsJsonWhitespace(ACh: Char): Boolean;
+class function TEncoderHelpers.IsJsonWhitespace(ACh: Char): Boolean;
 begin
   Result := (ACh = #9) or (ACh = #10) or (ACh = #13) or (ACh = #32);
 end;
@@ -117,7 +126,7 @@ function TDefaultBase58EncoderProvider.EncodeData(const AData: TBytes;
 var
   LSlice: TBytes;
 begin
-  ValidateRange(AData, AOffset, ACount);
+  TEncoderHelpers.ValidateRange(AData, AOffset, ACount);
   LSlice := Copy(AData, AOffset, ACount);
   Result := TBase58.Bitcoin.Encode(LSlice);
 end;
@@ -146,7 +155,7 @@ begin
   LAlphabet := TBase58Alphabet.Bitcoin.Value;
   for LI := 1 to Length(AEncoded) do
   begin
-    if not IsCharInAlphabet(AEncoded[LI], LAlphabet) then
+    if not TEncoderHelpers.IsCharInAlphabet(AEncoded[LI], LAlphabet) then
       Exit(False);
   end;
   Result := True;
@@ -159,7 +168,7 @@ function TDefaultBase64EncoderProvider.EncodeData(const AData: TBytes;
 var
   LSlice: TBytes;
 begin
-  ValidateRange(AData, AOffset, ACount);
+  TEncoderHelpers.ValidateRange(AData, AOffset, ACount);
   LSlice := Copy(AData, AOffset, ACount);
   Result := TBase64.Default.Encode(LSlice);
 end;
@@ -186,7 +195,7 @@ begin
   for LI := 1 to Length(AEncoded) do
   begin
     LChar := AEncoded[LI];
-    if (LChar <> '=') and (not IsCharInAlphabet(LChar, LAlphabet)) then
+    if (LChar <> '=') and (not TEncoderHelpers.IsCharInAlphabet(LChar, LAlphabet)) then
       Exit(False);
   end;
   Result := True;
@@ -199,7 +208,7 @@ function TDefaultHexEncoderProvider.EncodeData(const AData: TBytes;
 var
   LSlice: TBytes;
 begin
-  ValidateRange(AData, AOffset, ACount);
+  TEncoderHelpers.ValidateRange(AData, AOffset, ACount);
   LSlice := Copy(AData, AOffset, ACount);
   Result := TBase16.UpperCase.Encode(LSlice);
 end;
@@ -229,8 +238,8 @@ begin
   LUpperAlphabet := TBase16Alphabet.UpperCase.Value;
   LLowerAlphabet := TBase16Alphabet.LowerCase.Value;
   for LI := 1 to Length(AEncoded) do
-    if (not IsCharInAlphabet(AEncoded[LI], LUpperAlphabet))
-      and (not IsCharInAlphabet(AEncoded[LI], LLowerAlphabet)) then
+    if (not TEncoderHelpers.IsCharInAlphabet(AEncoded[LI], LUpperAlphabet))
+      and (not TEncoderHelpers.IsCharInAlphabet(AEncoded[LI], LLowerAlphabet)) then
       Exit(False);
   Result := True;
 end;
@@ -243,7 +252,7 @@ var
   LI, LEnd: Integer;
   LBuilder: TStringBuilder;
 begin
-  ValidateRange(AData, AOffset, ACount);
+  TEncoderHelpers.ValidateRange(AData, AOffset, ACount);
   LEnd := AOffset + ACount;
   LBuilder := TStringBuilder.Create((ACount * 4) + 2); // pre-size: up to "255," per byte + brackets
   try
@@ -317,7 +326,7 @@ begin
   for LI := 1 to Length(AEncoded) do
   begin
     LCh := AEncoded[LI];
-    if (not IsJsonWhitespace(LCh))
+    if (not TEncoderHelpers.IsJsonWhitespace(LCh))
       and (not CharInSet(LCh, ['[', ']', ',', '0'..'9'])) then
       Exit(False);
   end;

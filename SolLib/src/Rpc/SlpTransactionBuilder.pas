@@ -238,16 +238,46 @@ const
 
 type
   /// <summary>
-  /// Concrete builder for legacy (unversioned) transactions. Internal: instances are created
-  /// only through <see cref="TTransactionBuilders.Legacy"/>.
+  /// Shared state and logic for the transaction builders: the pending Base58 signatures, the
+  /// cached serialized message, and the signing + envelope-assembly algorithms. The legacy and
+  /// versioned builders derive from this and add their own version-appropriate surface.
   /// </summary>
-  TTransactionBuilder = class(TInterfacedObject, ITransactionBuilder)
-  private
+  TTransactionBuilderBase = class(TInterfacedObject)
+  strict protected
     FMessageBuilder: IMessageBuilder;
     FSignatures: TList<string>;
     FSerializedMessage: TBytes;
 
-    procedure Sign(const ASigners: TList<IAccount>);
+    /// <summary>Whether the transaction serializes with the version 1 envelope (message first, no signature count).</summary>
+    function IsVersion1: Boolean; virtual;
+    /// <summary>Appends a raw signature, Base58-encoding it.</summary>
+    procedure AppendSignature(const ASignature: TBytes); overload;
+    /// <summary>Appends an already Base58-encoded signature.</summary>
+    procedure AppendSignature(const ASignature: string); overload;
+    /// <summary>
+    /// Signs the compiled message with each signer, appending the Base58 signatures in the exact
+    /// order (and multiplicity) the runtime expects, and caching one signature per pubkey.
+    /// </summary>
+    procedure SignMessage(const ASigners: TList<IAccount>);
+    /// <summary>
+    /// Assembles the transaction envelope. Legacy and version 0 emit a short-vector signature
+    /// count followed by the signatures then the message; version 1 emits the message followed
+    /// by the raw signatures with no count.
+    /// </summary>
+    function SerializeEnvelope: TBytes;
+    /// <summary>Signs with the given signers and returns the serialized transaction.</summary>
+    function BuildWith(const ASigners: TList<IAccount>): TBytes;
+  public
+    constructor Create(const AMessageBuilder: IMessageBuilder);
+    destructor Destroy; override;
+  end;
+
+  /// <summary>
+  /// Concrete builder for legacy (unversioned) transactions. Internal: instances are created
+  /// only through <see cref="TTransactionBuilders.Legacy"/>.
+  /// </summary>
+  TTransactionBuilder = class(TTransactionBuilderBase, ITransactionBuilder)
+  private
     function Serialize: TBytes;
     function AddSignature(const ASignature: TBytes): ITransactionBuilder; overload;
     function AddSignature(const ASignature: string): ITransactionBuilder; overload;
@@ -261,7 +291,6 @@ type
     function Build(const ASigners: TList<IAccount>): TBytes; overload;
   public
     constructor Create;
-    destructor Destroy; override;
   end;
 
   /// <summary>
@@ -286,15 +315,14 @@ type
     function Build(const ASigners: TList<IAccount>): TBytes;
   end;
 
-  TVersionedTxCore = class(TInterfacedObject, IVersionedTxCore)
-  private
-    FMessageBuilder: IVersionedMessageBuilder;
-    FSignatures: TList<string>;
-    FSerializedMessage: TBytes;
+  TVersionedTxCore = class(TTransactionBuilderBase, IVersionedTxCore)
+  strict private
+    FVersioned: IVersionedMessageBuilder;
     FIsV1: Boolean;
+  strict protected
+    function IsVersion1: Boolean; override;
   public
     constructor Create(const AVersion: TTransactionVersion);
-    destructor Destroy; override;
 
     procedure SetRecentBlockHash(const AValue: string);
     procedure SetNonceInformation(const AValue: INonceInformation);
@@ -351,153 +379,116 @@ type
     function Build(const ASigners: TList<IAccount>): TBytes; overload;
   end;
 
-{ Shared helpers }
+{ TTransactionBuilderBase }
 
-/// <summary>
-/// Signs <paramref name="AMessageBuilder"/> with each signer and appends the Base58
-/// signatures to <paramref name="ASignatures"/> in the exact order (and multiplicity)
-/// the runtime expects, caching one signature per pubkey. Sets
-/// <paramref name="ASerializedMessage"/> to the canonical message all signatures cover.
-/// </summary>
-procedure SignInto(const AMessageBuilder: IMessageBuilder;
-  const ASigners: TList<IAccount>; const ASignatures: TList<string>;
-  out ASerializedMessage: TBytes);
+constructor TTransactionBuilderBase.Create(const AMessageBuilder: IMessageBuilder);
+begin
+  inherited Create;
+  FMessageBuilder := AMessageBuilder;
+  FSignatures := TList<string>.Create;
+  FSerializedMessage := nil;
+end;
+
+destructor TTransactionBuilderBase.Destroy;
+begin
+  FSignatures.Free;
+  inherited;
+end;
+
+function TTransactionBuilderBase.IsVersion1: Boolean;
+begin
+  Result := False;
+end;
+
+procedure TTransactionBuilderBase.AppendSignature(const ASignature: TBytes);
+begin
+  FSignatures.Add(TBase58Encoder.EncodeData(ASignature));
+end;
+
+procedure TTransactionBuilderBase.AppendSignature(const ASignature: string);
+begin
+  FSignatures.Add(ASignature);
+end;
+
+procedure TTransactionBuilderBase.SignMessage(const ASigners: TList<IAccount>);
 var
-  LI, LUsedCount: Integer;
-  LOrderedKeys: TArray<string>;
-  LGroupedSignersByKey: TObjectDictionary<string, TList<IAccount>>;
-  LNextIndexByKey: TDictionary<string, Integer>;
-  LSignatureCacheByKey: TDictionary<string, string>;
-  LSigner, LSignerToUse: IAccount;
-  LPubKey, LKey, LSigBase58: string;
-  LSignersForKey: TList<IAccount>;
-  LSigBytes: TBytes;
+  LSignerByKey: TDictionary<string, IAccount>;
+  LSigner: IAccount;
+  LKey: string;
+  LI: Integer;
 begin
   if (ASigners = nil) or (ASigners.Count = 0) then
     raise Exception.Create('no signers for the transaction');
 
-  if AMessageBuilder.FeePayer = nil then
+  if FMessageBuilder.FeePayer = nil then
     raise Exception.Create('fee payer is required');
 
-  // Build the canonical message once; all signatures must verify against this
-  ASerializedMessage := AMessageBuilder.Build;
+  // Build the canonical message once; all signatures must verify against this.
+  FSerializedMessage := FMessageBuilder.Build;
 
-  // Keys in the exact order (and multiplicity) the runtime expects for signatures.
-  LOrderedKeys := AMessageBuilder.GetAccountMetaPublicKeys;
-
-  // ---- Build: pubkey -> list of matching signer accounts -------------------
-  LGroupedSignersByKey := TObjectDictionary<string, TList<IAccount>>.Create([doOwnsValues]);
-  LNextIndexByKey := TDictionary<string, Integer>.Create;
-  LSignatureCacheByKey := TDictionary<string, string>.Create;
+  // Map each signing pubkey to a signer (first occurrence wins). Ed25519 signatures are
+  // deterministic, so any account with a given pubkey produces the same signature - there is
+  // no need to group duplicates or cache.
+  LSignerByKey := TDictionary<string, IAccount>.Create;
   try
-    // Group ASigners by their pubkey, preserving duplicates & input order
     for LI := 0 to ASigners.Count - 1 do
     begin
       LSigner := ASigners[LI];
-      if LSigner = nil then
-        Continue;
-
-      LPubKey := LSigner.PublicKey.Key;
-
-      if not LGroupedSignersByKey.TryGetValue(LPubKey, LSignersForKey) then
-      begin
-        LSignersForKey := TList<IAccount>.Create;
-        LGroupedSignersByKey.Add(LPubKey, LSignersForKey);
-      end;
-      LSignersForKey.Add(LSigner);
+      if (LSigner <> nil) and not LSignerByKey.ContainsKey(LSigner.PublicKey.Key) then
+        LSignerByKey.Add(LSigner.PublicKey.Key, LSigner);
     end;
 
-    // ---- Produce signatures strictly in message order ----------------------
-    for LKey in LOrderedKeys do
-    begin
-      // If no signer provided for this key, skip (caller may enforce required count later)
-      if not LGroupedSignersByKey.TryGetValue(LKey, LSignersForKey) or (LSignersForKey.Count = 0) then
-        Continue;
-
-      // If we've already signed this pubkey for this message, reuse the cached signature
-      if LSignatureCacheByKey.TryGetValue(LKey, LSigBase58) then
-      begin
-        ASignatures.Add(LSigBase58);
-
-        // Still advance the attribution cursor so duplicates in ASigners are "consumed" in order
-        if LNextIndexByKey.TryGetValue(LKey, LUsedCount) then
-          LNextIndexByKey[LKey] := LUsedCount + 1
-        else
-          LNextIndexByKey.Add(LKey, 1);
-
-        Continue;
-      end;
-
-      // First time we encounter this key: pick the next unused signer for this key (or reuse the first if exhausted)
-      if not LNextIndexByKey.TryGetValue(LKey, LUsedCount) then
-        LUsedCount := 0;
-
-      if LUsedCount < LSignersForKey.Count then
-        LSignerToUse := LSignersForKey[LUsedCount]
-      else
-        LSignerToUse := LSignersForKey[0];
-
-      LNextIndexByKey.AddOrSetValue(LKey, LUsedCount + 1);
-
-      // Sign ONCE for this pubkey and cache (Ed25519 is deterministic; later duplicates reuse the same signature)
-      LSigBytes := LSignerToUse.Sign(ASerializedMessage);
-      LSigBase58 := TBase58Encoder.EncodeData(LSigBytes);
-
-      LSignatureCacheByKey.Add(LKey, LSigBase58);
-      ASignatures.Add(LSigBase58);
-    end;
-
+    // Emit signatures strictly in the account order the runtime expects, one per key that
+    // has a matching signer.
+    for LKey in FMessageBuilder.GetAccountMetaPublicKeys do
+      if LSignerByKey.TryGetValue(LKey, LSigner) then
+        FSignatures.Add(TBase58Encoder.EncodeData(LSigner.Sign(FSerializedMessage)));
   finally
-    LSignatureCacheByKey.Free;
-    LNextIndexByKey.Free;
-    LGroupedSignersByKey.Free;
+    LSignerByKey.Free;
   end;
 end;
 
-/// <summary>
-/// Assembles the transaction envelope from the Base58 signatures and the serialized
-/// message. Legacy and version 0 emit a short-vector signature count followed by the
-/// signatures then the message; version 1 emits the message followed by the raw
-/// signatures with no count.
-/// </summary>
-function WriteEnvelope(const ASignatures: TList<string>;
-  const ASerializedMessage: TBytes; AIsV1: Boolean): TBytes;
+function TTransactionBuilderBase.SerializeEnvelope: TBytes;
 var
-  LSigLenEnc: TBytes;
+  LSigLenEnc, LSigBytes: TBytes;
   LMS: TMemoryStream;
   LSig: string;
-  LSigBytes: TBytes;
   LCapacity: Integer;
+  LIsV1: Boolean;
 begin
-  if AIsV1 then
+  if Length(FSerializedMessage) = 0 then
+    FSerializedMessage := FMessageBuilder.Build;
+
+  LIsV1 := IsVersion1;
+  if LIsV1 then
   begin
     // Version 1: message bytes followed by raw signatures, no signature count prefix.
     LSigLenEnc := nil;
-    LCapacity := (ASignatures.Count * SignatureLength) + Length(ASerializedMessage);
+    LCapacity := (FSignatures.Count * SignatureLength) + Length(FSerializedMessage);
   end
   else
   begin
-    LSigLenEnc := TShortVectorEncoding.EncodeLength(ASignatures.Count);
-    LCapacity := Length(LSigLenEnc) + (ASignatures.Count * SignatureLength) + Length(ASerializedMessage);
+    LSigLenEnc := TShortVectorEncoding.EncodeLength(FSignatures.Count);
+    LCapacity := Length(LSigLenEnc) + (FSignatures.Count * SignatureLength) + Length(FSerializedMessage);
   end;
 
   LMS := TMemoryStream.Create;
   try
     LMS.Size := LCapacity;
 
-    if AIsV1 then
-      LMS.WriteBuffer(ASerializedMessage[0], Length(ASerializedMessage))
+    if LIsV1 then
+      LMS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage))
     else
       LMS.WriteBuffer(LSigLenEnc[0], Length(LSigLenEnc));
 
-    for LSig in ASignatures do
+    for LSig in FSignatures do
     begin
       LSigBytes := TBase58Encoder.DecodeData(LSig);
       LMS.WriteBuffer(LSigBytes[0], Length(LSigBytes));
     end;
 
-    if not AIsV1 then
-      LMS.WriteBuffer(ASerializedMessage[0], Length(ASerializedMessage));
+    if not LIsV1 then
+      LMS.WriteBuffer(FSerializedMessage[0], Length(FSerializedMessage));
 
     Result := TArrayUtilities.StreamToBytes(LMS);
   finally
@@ -505,28 +496,22 @@ begin
   end;
 end;
 
+function TTransactionBuilderBase.BuildWith(const ASigners: TList<IAccount>): TBytes;
+begin
+  SignMessage(ASigners);
+  Result := SerializeEnvelope;
+end;
+
 { TTransactionBuilder }
 
 constructor TTransactionBuilder.Create;
 begin
-  inherited Create;
-  FMessageBuilder := TMessageBuilderFactory.NewLegacy;
-  FSignatures := TList<string>.Create;
-  FSerializedMessage := nil;
-end;
-
-destructor TTransactionBuilder.Destroy;
-begin
-  if Assigned(FSignatures) then
-    FSignatures.Free;
-  inherited;
+  inherited Create(TMessageBuilderFactory.NewLegacy);
 end;
 
 function TTransactionBuilder.Serialize: TBytes;
 begin
-  if Length(FSerializedMessage) = 0 then
-    FSerializedMessage := FMessageBuilder.Build;
-  Result := WriteEnvelope(FSignatures, FSerializedMessage, False);
+  Result := SerializeEnvelope;
 end;
 
 function TTransactionBuilder.AddInstruction(const AInstruction: ITransactionInstruction): ITransactionBuilder;
@@ -537,13 +522,13 @@ end;
 
 function TTransactionBuilder.AddSignature(const ASignature: TBytes): ITransactionBuilder;
 begin
-  FSignatures.Add(TBase58Encoder.EncodeData(ASignature));
+  AppendSignature(ASignature);
   Result := Self;
 end;
 
 function TTransactionBuilder.AddSignature(const ASignature: string): ITransactionBuilder;
 begin
-  FSignatures.Add(ASignature);
+  AppendSignature(ASignature);
   Result := Self;
 end;
 
@@ -553,7 +538,7 @@ var
 begin
   LSigners := TListUtilities.Singleton<IAccount>(ASigner);
   try
-    Result := Build(LSigners);
+    Result := BuildWith(LSigners);
   finally
     LSigners.Free;
   end;
@@ -561,8 +546,7 @@ end;
 
 function TTransactionBuilder.Build(const ASigners: TList<IAccount>): TBytes;
 begin
-  Sign(ASigners);
-  Result := Serialize;
+  Result := BuildWith(ASigners);
 end;
 
 function TTransactionBuilder.CompileMessage: TBytes;
@@ -594,50 +578,44 @@ begin
   Result := Self;
 end;
 
-procedure TTransactionBuilder.Sign(const ASigners: TList<IAccount>);
-begin
-  SignInto(FMessageBuilder, ASigners, FSignatures, FSerializedMessage);
-end;
-
 { TVersionedTxCore }
 
 constructor TVersionedTxCore.Create(const AVersion: TTransactionVersion);
+var
+  LVersioned: IVersionedMessageBuilder;
 begin
-  inherited Create;
-  FMessageBuilder := TMessageBuilderFactory.NewVersioned;
+  LVersioned := TMessageBuilderFactory.NewVersioned;
+  inherited Create(LVersioned);
+  FVersioned := LVersioned;
   case AVersion of
     TTransactionVersion.V0:
       begin
-        FMessageBuilder.Version := 0;
+        LVersioned.Version := 0;
         FIsV1 := False;
       end;
     TTransactionVersion.V1:
       begin
-        FMessageBuilder.Version := 1;
+        LVersioned.Version := 1;
         FIsV1 := True;
       end;
   else
     raise EArgumentException.Create('A versioned transaction builder requires version V0 or V1.');
   end;
-  FSignatures := TList<string>.Create;
-  FSerializedMessage := nil;
 end;
 
-destructor TVersionedTxCore.Destroy;
+function TVersionedTxCore.IsVersion1: Boolean;
 begin
-  if Assigned(FSignatures) then
-    FSignatures.Free;
-  inherited;
+  Result := FIsV1;
 end;
 
 procedure TVersionedTxCore.AddAddressTableLookup(const ALookup: IMessageAddressTableLookup);
 begin
-  FMessageBuilder.AddressTableLookups.Add(ALookup);
+  FVersioned.AddressTableLookups.Add(ALookup);
 end;
 
 procedure TVersionedTxCore.AddAddressTableLookups(const ALookups: TList<IMessageAddressTableLookup>);
 begin
-  FMessageBuilder.AddressTableLookups.AddRange(ALookups);
+  FVersioned.AddressTableLookups.AddRange(ALookups);
 end;
 
 procedure TVersionedTxCore.AddInstruction(const AInstruction: ITransactionInstruction);
@@ -647,18 +625,17 @@ end;
 
 procedure TVersionedTxCore.AddSignature(const ASignature: TBytes);
 begin
-  FSignatures.Add(TBase58Encoder.EncodeData(ASignature));
+  AppendSignature(ASignature);
 end;
 
 procedure TVersionedTxCore.AddSignature(const ASignature: string);
 begin
-  FSignatures.Add(ASignature);
+  AppendSignature(ASignature);
 end;
 
 function TVersionedTxCore.Build(const ASigners: TList<IAccount>): TBytes;
 begin
-  SignInto(FMessageBuilder, ASigners, FSignatures, FSerializedMessage);
-  Result := Serialize;
+  Result := BuildWith(ASigners);
 end;
 
 function TVersionedTxCore.CompileMessage: TBytes;
@@ -668,9 +645,7 @@ end;
 
 function TVersionedTxCore.Serialize: TBytes;
 begin
-  if Length(FSerializedMessage) = 0 then
-    FSerializedMessage := FMessageBuilder.Build;
-  Result := WriteEnvelope(FSignatures, FSerializedMessage, FIsV1);
+  Result := SerializeEnvelope;
 end;
 
 procedure TVersionedTxCore.SetFeePayer(const AValue: IPublicKey);
@@ -695,7 +670,7 @@ end;
 
 procedure TVersionedTxCore.SetTransactionConfig(const AConfig: TTransactionConfig);
 begin
-  FMessageBuilder.TransactionConfig := AConfig;
+  FVersioned.TransactionConfig := AConfig;
 end;
 
 { TVersionedTxV0Facet }

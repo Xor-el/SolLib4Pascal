@@ -37,6 +37,9 @@ type
     FKey: string;
     FValue: TValue;
     FHasValue: Boolean;
+
+    /// <summary>True for an empty, nil-object/interface, or empty-collection <c>TValue</c>.</summary>
+    class function IsNullishValue(const AValue: TValue): Boolean; static;
   public
     class function From(const AKey: string; const AValue: TValue): TKeyValue; static;
     class function TryMake(const AKey: string; const AValue: TValue; out AKeyValue: TKeyValue): Boolean; static;
@@ -77,9 +80,9 @@ type
 
 implementation
 
-{ Utilities }
+{ TKeyValue }
 
-function IsNullishValue(const AValue: TValue): Boolean;
+class function TKeyValue.IsNullishValue(const AValue: TValue): Boolean;
 var
   LCtx: TRttiContext;
   LRType: TRttiType;
@@ -131,8 +134,6 @@ begin
   // Note: numeric 0, False, and other "falsy" values are NOT treated as nullish
   Result := False;
 end;
-
-{ TKeyValue }
 
 class function TKeyValue.From(const AKey: string; const AValue: TValue): TKeyValue;
 begin
@@ -246,7 +247,7 @@ end;
 
 class function TParameters.IsNullish(const AValue: TValue): Boolean;
 begin
-  Result := IsNullishValue(AValue);
+  Result := TKeyValue.IsNullishValue(AValue);
 end;
 
 class function TParameters.Make(const AValue1: TValue): TList<TValue>;

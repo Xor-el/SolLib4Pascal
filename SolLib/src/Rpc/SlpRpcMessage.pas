@@ -308,14 +308,9 @@ begin
 end;
 
 function TJsonRpcRequest.Clone: TJsonRpcRequest;
-
-function CloneParams(const AParams: TList<TValue>): TList<TValue>;
 begin
-  Result := TValueUtilities.CloneValueList(AParams);
-end;
-
-begin
-  Result := TJsonRpcRequest.Create(Self.Id, Self.Method, CloneParams(Self.Params));
+  Result := TJsonRpcRequest.Create(Self.Id, Self.Method,
+    TValueUtilities.CloneValueList(Self.Params));
 end;
 
 { TJsonRpcBatchRequest }

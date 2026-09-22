@@ -105,6 +105,7 @@ type
     procedure TestTransactionInstructionTest;
     procedure TransactionBuilderAddSignatureTest;
     procedure TestTransactionWithPriorityFeesInformation;
+    procedure SignerInputOrderDoesNotAffectOutput;
     procedure V0FacadeBuildsRoundTrippableTransaction;
     procedure V1FacadeBuildsRoundTrippableTransaction;
   end;
@@ -452,6 +453,61 @@ begin
 
   LTxB64 := EncodeBase64(LTxBytes);
   AssertEquals(ExpectedTransactionWithPriorityFees, LTxB64);
+end;
+
+procedure TTransactionBuilderTests.SignerInputOrderDoesNotAffectOutput;
+var
+  LWallet: IWallet;
+  LBlockHash: string;
+  LMintAccount, LOwnerAccount, LInitialAccount: IAccount;
+  LBuilder: ITransactionBuilder;
+  LSigners: TList<IAccount>;
+  LTx: TBytes;
+begin
+  // Same transaction as CreateInitializeAndMintToTest, but the signers are supplied in an
+  // order that does NOT match the message account-key order. Per PR #502, serialized
+  // signatures must follow the account-key order, not the signer input order, so the bytes
+  // must be identical to the canonical golden output. Guards against a signing-order regression.
+  LWallet := TWallet.Create(MnemonicWords);
+  LBlockHash := 'G9JC6E7LfG6ayxARq5zDV5RdDr6P8NJEdzTUJ8ttrSKs';
+
+  LMintAccount := LWallet.GetAccountByIndex(17);
+  LOwnerAccount := LWallet.GetAccountByIndex(10);
+  LInitialAccount := LWallet.GetAccountByIndex(18);
+
+  LBuilder := TTransactionBuilders.Legacy;
+  LBuilder
+    .SetRecentBlockHash(LBlockHash)
+    .SetFeePayer(LOwnerAccount.PublicKey)
+    .AddInstruction(
+      TSystemProgram.CreateAccount(
+        LOwnerAccount.PublicKey, LMintAccount.PublicKey, 1461600,
+        TTokenProgram.MintAccountDataSize, TTokenProgram.ProgramIdKey))
+    .AddInstruction(
+      TTokenProgram.InitializeMint(
+        LMintAccount.PublicKey, 2, LOwnerAccount.PublicKey, LOwnerAccount.PublicKey))
+    .AddInstruction(
+      TSystemProgram.CreateAccount(
+        LOwnerAccount.PublicKey, LInitialAccount.PublicKey, 2039280,
+        TTokenProgram.TokenAccountDataSize, TTokenProgram.ProgramIdKey))
+    .AddInstruction(
+      TTokenProgram.InitializeAccount(
+        LInitialAccount.PublicKey, LMintAccount.PublicKey, LOwnerAccount.PublicKey))
+    .AddInstruction(
+      TTokenProgram.MintTo(
+        LMintAccount.PublicKey, LInitialAccount.PublicKey, 25000, LOwnerAccount.PublicKey))
+    .AddInstruction(TMemoProgram.NewMemo(LInitialAccount.PublicKey, 'Hello from SolLib'));
+
+  LSigners := TList<IAccount>.Create;
+  try
+    // Scrambled relative to account order (owner is fee payer / first key).
+    LSigners.AddRange([LInitialAccount, LMintAccount, LOwnerAccount]);
+    LTx := LBuilder.Build(LSigners);
+  finally
+    LSigners.Free;
+  end;
+
+  AssertEquals(ExpectedTransactionHashCreateInitializeAndMintTo, EncodeBase64(LTx));
 end;
 
 procedure TTransactionBuilderTests.V0FacadeBuildsRoundTrippableTransaction;
