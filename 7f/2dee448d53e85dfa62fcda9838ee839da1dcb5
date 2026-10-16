@@ -1,0 +1,22 @@
+SolLib.Tests/Delphi.Tests/SolLib.Tests.Mobile.dproj
+  s_4adb7e2edc0c28::t_5193a1cd336951 897,904,918,925,939,946,960,967,981,988,1002,1009,1023,1030,1044,1051,1065,1072,1086,1093,1107,1114,1128,1135,1149,1156,1170,1177,1191,1198,1212,1219,1233,1240,1254,1261
+scripts/sync-mobile-test-resources.ps1
+  s_4adb7e2edc0c28::t_4584c5948c4698 69
+  s_4adb7e2edc0c28::t_f07d8e90fcc94d 10-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7f2dee448d53e85dfa62fcda9838ee839da1dcb5",
+  "prompts": {},
+  "sessions": {
+    "s_4adb7e2edc0c28": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c581eaad-c17e-426b-bd6e-2854376cc3b7",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Ugochukwu Mmaduekwe <ugo4brain@gmail.com>"
+    }
+  }
+}
