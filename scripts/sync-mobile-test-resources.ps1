@@ -7,7 +7,8 @@
 #   .\sync-mobile-test-resources.ps1 -DeployProjName SolLib.Tests.Mobile.TestData.deployproj -AppDeployFolderName SolLib.Tests.Mobile
 #
 # Re-run when files under SolLib.Tests/src/Resources change (or AppDeployFolderName changes),
-# then rebuild the mobile test host.
+# then rebuild the mobile test host. StartUpCopy never overwrites deployed files: uninstall
+# the app after changing the resources.
 #
 # Library resources (BIP39 wordlists, KD table) are NOT included.
 
@@ -65,7 +66,7 @@ function New-DeployFileBlock {
 }
 
 $AndroidRemoteDir = "$AppDeployFolderName\assets\internal\SolLib\"
-$IosRemoteDir = "StartUpDocuments\SolLib\"
+$IosRemoteDir = "StartUp\Documents\SolLib\"
 
 $AndroidBlocks = New-Object System.Collections.Generic.List[string]
 $IosBlocks = New-Object System.Collections.Generic.List[string]
